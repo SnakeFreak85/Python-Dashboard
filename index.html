@@ -3,6 +3,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Python Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#243447">
 <style>
 body{font-family:Arial;margin:0;background:#f4f4f4}
 header{background:#243447;color:#fff;padding:12px;text-align:center}
@@ -709,4 +711,10 @@ function importBackup(input){
 }
 
 render();
+ 
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .then(() => console.log('SW registriert'))
+    .catch(err => console.error(err));
+}
 </script></body></html>
