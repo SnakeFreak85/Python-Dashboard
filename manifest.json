@@ -1,6 +1,6 @@
 {
-  "name": "KP Manager Pro",
-  "short_name": "KP Manager",
+  "name": "Python Dashboard",
+  "short_name": "Python Dashboard",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#243447",
