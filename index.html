@@ -10,7 +10,35 @@ header{background:#243447;color:#fff;padding:15px;text-align:center}
 .card{background:#fff;margin:10px;padding:15px;border-radius:10px}
 input,button{width:100%;padding:10px;margin:5px 0;box-sizing:border-box}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+let animals=JSON.parse(localStorage.getItem('animals_v21')||'[]');
+
+function addAnimal(){
+ animals.push({
+  name:animalName.value,
+  species:animalSpecies.value,
+  morph:animalMorph.value
+ });
+ localStorage.setItem('animals_v21',JSON.stringify(animals));
+ renderAnimals();
+}
+
+function deleteAnimal(i){
+ animals.splice(i,1);
+ localStorage.setItem('animals_v21',JSON.stringify(animals));
+ renderAnimals();
+}
+
+function renderAnimals(){
+ const el=document.getElementById('animalList');
+ if(!el) return;
+ el.innerHTML=animals.map((a,i)=>
+ `<div class="card"><b>${a.name}</b> • ${a.morph}<br>${a.species}<br><button onclick="deleteAnimal(${i})">Löschen</button></div>`
+ ).join('');
+}
+
+renderAnimals();
+</script>
 </head>
 <body>
 <header><h2>🐍 Python Dashboard V21</h2></header>
@@ -24,6 +52,13 @@ input,button{width:100%;padding:10px;margin:5px 0;box-sizing:border-box}
 </div>
 
 <div class="card">
+<hr>
+<h3>🐍 Bestand</h3>
+<input id="animalName" placeholder="Name">
+<input id="animalSpecies" placeholder="Tierart">
+<input id="animalMorph" placeholder="Morph">
+<button onclick="addAnimal()">Tier speichern</button>
+<div id="animalList"></div>
 <h3>📄 Test-Abgabenachweis</h3>
 <button onclick="createPDF()">PDF erstellen</button>
 </div>
@@ -75,6 +110,34 @@ function createPDF(){
 
  doc.save('Abgabenachweis.pdf');
 }
+
+let animals=JSON.parse(localStorage.getItem('animals_v21')||'[]');
+
+function addAnimal(){
+ animals.push({
+  name:animalName.value,
+  species:animalSpecies.value,
+  morph:animalMorph.value
+ });
+ localStorage.setItem('animals_v21',JSON.stringify(animals));
+ renderAnimals();
+}
+
+function deleteAnimal(i){
+ animals.splice(i,1);
+ localStorage.setItem('animals_v21',JSON.stringify(animals));
+ renderAnimals();
+}
+
+function renderAnimals(){
+ const el=document.getElementById('animalList');
+ if(!el) return;
+ el.innerHTML=animals.map((a,i)=>
+ `<div class="card"><b>${a.name}</b> • ${a.morph}<br>${a.species}<br><button onclick="deleteAnimal(${i})">Löschen</button></div>`
+ ).join('');
+}
+
+renderAnimals();
 </script>
 </body>
 </html>
