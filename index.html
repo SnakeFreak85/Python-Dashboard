@@ -11,6 +11,18 @@ nav{display:flex} nav button{flex:1;padding:10px}
 .card{background:#fff;margin:10px;padding:10px;border-radius:10px}
 input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 .good{color:green}.warn{color:orange}.bad{color:red}
+
+.tab{position:relative;overflow:hidden}
+.tab::before{
+content:'';
+position:absolute;
+inset:0;
+background:url('logo.png') center center no-repeat;
+background-size:280px;
+opacity:0.05;
+pointer-events:none;
+}
+
 </style><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head><body>
 <header><h2>🐍 Python Dashboard V19</h2></header>
 <nav>
@@ -216,6 +228,10 @@ snakeDetail.innerHTML=`
 <input id="animalNumber" placeholder="Interne Tiernummer" value="${currentSnake.animalNumber||''}">
 <input id="breeder" placeholder="Züchter" value="${currentSnake.breeder||''}">
 <input id="origin" placeholder="Herkunft" value="${currentSnake.origin||''}">
+<input id="mother" placeholder="Muttertier" value="${currentSnake.mother||''}">
+<input id="father" placeholder="Vatertier" value="${currentSnake.father||''}">
+<input id="clutchId" placeholder="Gelege-ID" value="${currentSnake.clutchId||''}">
+<input id="projectName" placeholder="Projektname" value="${currentSnake.projectName||''}">
 <input id="notes" placeholder="Bemerkungen" value="${currentSnake.notes||''}">
 <button onclick="saveAnimalInfo()">Tierdaten speichern</button>
 
@@ -246,6 +262,10 @@ function saveAnimalInfo(){
  currentSnake.animalNumber=document.getElementById('animalNumber').value;
  currentSnake.breeder=document.getElementById('breeder').value;
  currentSnake.origin=document.getElementById('origin').value;
+ currentSnake.mother=document.getElementById('mother').value;
+ currentSnake.father=document.getElementById('father').value;
+ currentSnake.clutchId=document.getElementById('clutchId').value;
+ currentSnake.projectName=document.getElementById('projectName').value;
  currentSnake.notes=document.getElementById('notes').value;
  save();
  openSnake(currentSnake.id);
