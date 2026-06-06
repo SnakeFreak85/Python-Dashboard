@@ -2,9 +2,7 @@
 <html lang="de"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Python Dashboard</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#243447">
+<title>Python Dashboard V19</title>
 <style>
 body{font-family:Arial;margin:0;background:#f4f4f4}
 header{background:#243447;color:#fff;padding:12px;text-align:center}
@@ -13,21 +11,27 @@ nav{display:flex} nav button{flex:1;padding:10px}
 .card{background:#fff;margin:10px;padding:10px;border-radius:10px}
 input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 .good{color:green}.warn{color:orange}.bad{color:red}
-</style></head><body>
-<header><h2>🐍 Python Dashboard</h2></header>
+</style><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head><body>
+<header><h2>🐍 Python Dashboard V19</h2></header>
 <nav>
 <button onclick="showTab('dash')">🏠 Mainboard</button>
 <button onclick="showTab('stock')">🐍 Bestand</button>
 <button onclick="showTab('sales')">💰 Verkaufstiere</button>
-<button onclick="showTab('projects')">🐣 Nachzuchten</button>
+<button onclick="showTab('projects')">🐣 Nachzuchten</button><button onclick="showTab('archive')">📁 Archiv</button>
 </nav>
+<div id="archive" class="tab">
+<div class="card">
+<h2>📁 Verkaufsarchiv</h2>
+<div id="archiveList">Noch keine archivierten Verkäufe vorhanden.</div>
+</div>
+</div>
 
 <div id="dash" class="tab active"><div class="card" id="dashboard"></div></div>
 
 <div id="stock" class="tab">
 <div class="card">
 <h3>Tier anlegen</h3>
-<input id="snName" placeholder="Name">
+<select id="snSpecies"><option>Königspython</option><option>Leopardgecko</option><option>Kornnatter</option><option>Bartagame</option><option>Vogelspinne</option><option>Sonstige</option></select><input id="snName" placeholder="Name">
 <input id="snMorph" placeholder="Morph">
 <select id="snGender"><option>Weiblich</option><option>Männlich</option></select>
 <input id="snBirth" type="date"><input id="snPhoto" type="file" accept="image/*" onchange="previewNewPhoto(this)"><img id="newPhotoPreview" style="display:none;max-width:220px;border-radius:10px;margin:8px 0"><input id="snInterval" type="number" value="14">
@@ -87,11 +91,17 @@ function compressImage(file, callback){
  reader.readAsDataURL(file);
 }
 
-const feeders=[
-"Springer (5-10g)","Fuzzy Maus (10-15g)","Kleine Maus (15-25g)","Maus (25-35g)",
-"Große Maus (35-50g)","Weaner (50-80g)","Kleine Ratte (80-120g)",
-"Mittlere Ratte (120-180g)","Große Ratte (180-250g)","Jumbo Ratte (250-400g)"
-];
+const feederMap={
+'Königspython':['Springer','Fuzzy Maus','Kleine Maus','Maus','Weaner','Kleine Ratte','Mittlere Ratte','Große Ratte','Jumbo Ratte'],
+'Leopardgecko':['Heimchen','Grillen','Schaben','Heuschrecken','Mehlwürmer','Zophobas','Wachsmaden'],
+'Bartagame':['Heimchen','Grillen','Schaben','Heuschrecken','Grünfutter','Kräuter','Salatmix'],
+'Kornnatter':['Pinky','Fuzzy','Springer','Maus','Weaner'],
+'Vogelspinne':['Heimchen','Schaben','Heuschrecken','Mehlwürmer'],
+'Sonstige':['Futtertier']
+};
+function getFeeders(species){
+ return feederMap[species]||feederMap['Sonstige'];
+}
 
 function save(){try{localStorage.setItem("kp_manager_v18",JSON.stringify(snakes));localStorage.setItem("kp_projects_v18",JSON.stringify(projects));}catch(e){alert("Speicherfehler: Zu viele Fotos/Daten gespeichert.");}render();}
 function showTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -126,7 +136,7 @@ function addSnake(){
    id:Date.now(),
    name:snName.value,
    morph:snMorph.value,
-   gender:snGender.value,
+   species:(document.getElementById('snSpecies')?.value||'Königspython'),gender:snGender.value,
    saleListed:false,
    birthDate:(snBirth.value||''),
    photo:'',
@@ -156,14 +166,14 @@ function openSnake(id){
 currentSnake=snakes.find(s=>s.id===id);
 snakeDetail.style.display='block';
 snakeDetail.innerHTML=`
-<h3>${currentSnake.name}</h3><button onclick="deleteSnake(currentSnake.id)">🗑 Tier löschen</button>
+<h3>${currentSnake.name}</h3><p><b>Art:</b> ${currentSnake.species||'Königspython'}</p><button onclick="createTransferDocument()">📄 Abgabenachweis</button><button onclick="deleteSnake(currentSnake.id)">🗑 Tier löschen</button>
     <div style="margin:10px 0">
     ${currentSnake.photo ? `<img src="${currentSnake.photo}" style="width:100%;max-width:250px;border-radius:10px">` : '📸 Kein Foto hinterlegt'}
     <input type="file" accept="image/*" onchange="saveSnakePhoto(this)">
     </div><p><b>Geburtsdatum:</b> ${currentSnake.birthDate||'-'}<br><b>Alter:</b> ${getAgeText(currentSnake.birthDate)}</p>
 <h4>🍽 Fütterung</h4>
 <input id="fd" type="date">
-<select id="ft">${feeders.map(f=>`<option>${f}</option>`).join('')}</select>
+<select id="ft">${getFeeders(currentSnake.species||'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
 <input id="fw" type="number" placeholder="Gewicht Futtertier">
 <select id="fr"><option>Gefressen</option><option>Verweigert</option></select>
 <button onclick="addFeed()">Speichern</button>
@@ -197,6 +207,35 @@ function getAgeText(dateStr){
  let months=now.getMonth()-b.getMonth();
  if(months<0){years--;months+=12;}
  return years+' J. '+months+' Mon.';
+}
+
+
+function createTransferDocument(){
+ if(!currentSnake) return;
+ const buyer=prompt('Name des Käufers:');
+ if(!buyer) return;
+
+ const { jsPDF } = window.jspdf;
+ const doc = new jsPDF();
+
+ doc.setFontSize(18);
+ doc.text('Abgabenachweis',20,20);
+
+ doc.setFontSize(12);
+ doc.text('Tier: '+(currentSnake.name||''),20,40);
+ doc.text('Art: '+(currentSnake.species||''),20,50);
+ doc.text('Morph: '+(currentSnake.morph||''),20,60);
+ doc.text('Geschlecht: '+(currentSnake.gender||''),20,70);
+ doc.text('Käufer: '+buyer,20,80);
+ doc.text('Datum: '+new Date().toLocaleDateString(),20,90);
+
+ doc.text('Unterschrift Verkäufer:',20,130);
+ doc.line(80,130,180,130);
+
+ doc.text('Unterschrift Käufer:',20,150);
+ doc.line(70,150,180,150);
+
+ doc.save('Abgabenachweis_'+(currentSnake.name||'Tier')+'.pdf');
 }
 
 function deleteCurrentProject(){
@@ -332,7 +371,7 @@ ${p.hatchlings.map((h,n)=>`
 <hr>
 <h4>🍽 Fütterungen</h4>
 <input id="hfd_${n}" type="date">
-<select id="hft_${n}">${feeders.map(f=>`<option>${f}</option>`).join('')}</select>
+<select id="hft_${n}">${getFeeders(currentSnake.species||'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
 <input id="hfw_${n}" type="number" placeholder="Futtergewicht">
 <select id="hfr_${n}"><option>Gefressen</option><option>Verweigert</option></select>
 <button onclick="addHFeed(${n})">Fütterung speichern</button>
@@ -711,10 +750,4 @@ function importBackup(input){
 }
 
 render();
- 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js')
-    .then(() => console.log('SW registriert'))
-    .catch(err => console.error(err));
-}
 </script></body></html>
