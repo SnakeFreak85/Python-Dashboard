@@ -177,6 +177,10 @@ function addSnake(){
    birthDate:(snBirth.value||''),
    photo:'',
    feedingInterval:+snInterval.value||14,
+   notes:'',
+   breeder:'',
+   origin:'',
+   animalNumber:'',
    currentWeight:0,
    feedings:[],
    weights:[],
@@ -202,12 +206,21 @@ function openSnake(id){
 currentSnake=snakes.find(s=>s.id===id);
 snakeDetail.style.display='block';
 snakeDetail.innerHTML=`
-<h3>${currentSnake.name}</h3><p><b>Art:</b> ${currentSnake.species||'Königspython'}</p><button onclick="createTransferDocument()">📄 Abgabenachweis</button><button onclick="deleteSnake(currentSnake.id)">🗑 Tier löschen</button>
+<h3>${currentSnake.name}</h3><p><b>Art:</b> ${currentSnake.species||'Königspython'}</p><button onclick="createTransferDocument()">📄 Abgabenachweis</button><button onclick="createAnimalReport()">📊 Tierakte PDF</button><button onclick="deleteSnake(currentSnake.id)">🗑 Tier löschen</button>
     <div style="margin:10px 0">
     ${currentSnake.photo ? `<img src="${currentSnake.photo}" style="width:100%;max-width:250px;border-radius:10px">` : '📸 Kein Foto hinterlegt'}
     <input type="file" accept="image/*" onchange="saveSnakePhoto(this)">
     </div><p><b>Geburtsdatum:</b> ${currentSnake.birthDate||'-'}<br><b>Alter:</b> ${getAgeText(currentSnake.birthDate)}</p>
+
+<h4>📝 Tierdaten</h4>
+<input id="animalNumber" placeholder="Interne Tiernummer" value="${currentSnake.animalNumber||''}">
+<input id="breeder" placeholder="Züchter" value="${currentSnake.breeder||''}">
+<input id="origin" placeholder="Herkunft" value="${currentSnake.origin||''}">
+<input id="notes" placeholder="Bemerkungen" value="${currentSnake.notes||''}">
+<button onclick="saveAnimalInfo()">Tierdaten speichern</button>
+
 <h4>🍽 Fütterung</h4>
+
 <input id="fd" type="date">
 <select id="ft">${getFeeders(currentSnake.species||'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
 <input id="fw" type="number" placeholder="Gewicht Futtertier">
@@ -227,6 +240,47 @@ ${(currentSnake.weights||[]).map((w,i)=>`${w.date} ${w.value}g <button onclick="
 ${(currentSnake.sheds||[]).map((s,i)=>`${s.date} | ${s.status} <button onclick="delShed(${i})">🗑</button><br>`).join('')}
 `;
 }
+
+function saveAnimalInfo(){
+ if(!currentSnake) return;
+ currentSnake.animalNumber=document.getElementById('animalNumber').value;
+ currentSnake.breeder=document.getElementById('breeder').value;
+ currentSnake.origin=document.getElementById('origin').value;
+ currentSnake.notes=document.getElementById('notes').value;
+ save();
+ openSnake(currentSnake.id);
+}
+
+function createAnimalReport(){
+ if(!currentSnake) return;
+ const { jsPDF } = window.jspdf;
+ const doc=new jsPDF();
+ doc.setFontSize(18);
+ doc.text('Tierakte',20,20);
+ doc.setFontSize(11);
+ doc.text('Name: '+(currentSnake.name||''),20,40);
+ doc.text('Art: '+(currentSnake.species||''),20,50);
+ doc.text('Morph: '+(currentSnake.morph||''),20,60);
+ doc.text('Tiernummer: '+(currentSnake.animalNumber||''),20,70);
+ doc.text('Züchter: '+(currentSnake.breeder||''),20,80);
+ doc.text('Herkunft: '+(currentSnake.origin||''),20,90);
+ doc.text('Bemerkungen: '+(currentSnake.notes||''),20,100);
+
+ let y=120;
+ doc.text('Fütterungen',20,y); y+=10;
+ (currentSnake.feedings||[]).forEach(f=>{doc.text(`${f.date} ${f.feeder} ${f.result}`,20,y); y+=8;});
+
+ doc.addPage(); y=20;
+ doc.text('Gewichte',20,y); y+=10;
+ (currentSnake.weights||[]).forEach(w=>{doc.text(`${w.date} ${w.value}g`,20,y); y+=8;});
+
+ doc.addPage(); y=20;
+ doc.text('Häutungen',20,y); y+=10;
+ (currentSnake.sheds||[]).forEach(s=>{doc.text(`${s.date} ${s.status}`,20,y); y+=8;});
+
+ doc.save('Tierakte_'+(currentSnake.name||'Tier')+'.pdf');
+}
+
 function addFeed(){currentSnake.feedings.push({date:fd.value,feeder:ft.value,feederWeight:fw.value,result:fr.value});save();openSnake(currentSnake.id);}
 function delFeed(i){currentSnake.feedings.splice(i,1);save();openSnake(currentSnake.id);}
 function addWeight(){currentSnake.weights.push({date:wd.value,value:wv.value});currentSnake.currentWeight=+wv.value||0;save();openSnake(currentSnake.id);}
