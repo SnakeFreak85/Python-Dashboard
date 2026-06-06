@@ -17,7 +17,7 @@ input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 <button onclick="showTab('dash')">🏠 Mainboard</button>
 <button onclick="showTab('stock')">🐍 Bestand</button>
 <button onclick="showTab('sales')">💰 Verkaufstiere</button>
-<button onclick="showTab('projects')">🐣 Nachzuchten</button><button onclick="showTab('archive')">📁 Archiv</button>
+<button onclick="showTab('projects')">🐣 Nachzuchten</button><button onclick="showTab('archive')">📁 Archiv</button><button onclick="showTab('settings')">⚙️ Einstellungen</button>
 </nav>
 <div id="archive" class="tab">
 <div class="card">
@@ -66,10 +66,47 @@ input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 <div id="projectDetail" class="card" style="display:none"></div>
 </div>
 
+
+<div id="settings" class="tab">
+<div class="card">
+<h2>⚙️ Verkäuferdaten</h2>
+<input id="sellerName" placeholder="Name">
+<input id="sellerAddress" placeholder="Adresse">
+<input id="sellerCity" placeholder="PLZ / Ort">
+<input id="sellerPhone" placeholder="Telefon">
+<input id="sellerMail" placeholder="E-Mail">
+<button onclick="saveSellerSettings()">Speichern</button>
+</div>
+</div>
+
 <script>
 let snakes=JSON.parse(localStorage.getItem("kp_manager_v18")||"[]");
 let projects=JSON.parse(localStorage.getItem("kp_projects_v18")||"[]");
 let currentSnake=null,currentProject=null;
+
+let sellerSettings=JSON.parse(localStorage.getItem('python_settings_v20')||'{"name":"","address":"","city":"","phone":"","mail":""}');
+
+function saveSellerSettings(){
+ sellerSettings={
+  name:document.getElementById('sellerName').value,
+  address:document.getElementById('sellerAddress').value,
+  city:document.getElementById('sellerCity').value,
+  phone:document.getElementById('sellerPhone').value,
+  mail:document.getElementById('sellerMail').value
+ };
+ localStorage.setItem('python_settings_v20',JSON.stringify(sellerSettings));
+ alert('Verkäuferdaten gespeichert');
+}
+
+function loadSellerSettings(){
+ if(!document.getElementById('sellerName')) return;
+ sellerName.value=sellerSettings.name||'';
+ sellerAddress.value=sellerSettings.address||'';
+ sellerCity.value=sellerSettings.city||'';
+ sellerPhone.value=sellerSettings.phone||'';
+ sellerMail.value=sellerSettings.mail||'';
+}
+
 
 
 function compressImage(file, callback){
@@ -230,7 +267,11 @@ function createTransferDocument(){
  doc.setFontSize(11);
 
  doc.text('Verkäufer:',20,40);
- doc.text('________________________',60,40);
+ doc.text((sellerSettings.name||''),60,40);
+ doc.text((sellerSettings.address||''),60,47);
+ doc.text((sellerSettings.city||''),60,54);
+ doc.text((sellerSettings.phone||''),60,61);
+ doc.text((sellerSettings.mail||''),60,68);
 
  doc.text('Käufer:',20,55);
  doc.text(buyer,60,55);
@@ -772,5 +813,5 @@ function importBackup(input){
  r.readAsText(f);
 }
 
-render();
+render(); loadSellerSettings();
 </script></body></html>
