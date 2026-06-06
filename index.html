@@ -2,9 +2,7 @@
 <html lang="de"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#243447">
-<title>KP Manager V7.4 Pro Integrated</title>
+<title>KP Manager V18 Final</title>
 <style>
 body{font-family:Arial;margin:0;background:#f4f4f4}
 header{background:#243447;color:#fff;padding:12px;text-align:center}
@@ -14,7 +12,7 @@ nav{display:flex} nav button{flex:1;padding:10px}
 input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 .good{color:green}.warn{color:orange}.bad{color:red}
 </style></head><body>
-<header><h2>🐍 KP Manager V7.4 Pro Integrated</h2></header>
+<header><h2>🐍 KP Manager V18 Final</h2></header>
 <nav>
 <button onclick="showTab('dash')">🏠 Mainboard</button>
 <button onclick="showTab('stock')">🐍 Bestand</button>
@@ -30,7 +28,7 @@ input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 <input id="snName" placeholder="Name">
 <input id="snMorph" placeholder="Morph">
 <select id="snGender"><option>Weiblich</option><option>Männlich</option></select>
-<input id="snInterval" type="number" value="14">
+<input id="snBirth" type="date"><input id="snPhoto" type="file" accept="image/*" onchange="previewNewPhoto(this)"><img id="newPhotoPreview" style="display:none;max-width:220px;border-radius:10px;margin:8px 0"><input id="snInterval" type="number" value="14">
 <button onclick="addSnake()">Speichern</button>
 </div>
 <div class="card"><h3>🐍 Weibchen</h3><div id="femaleList"></div></div>
@@ -56,16 +54,36 @@ input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 <div class="card">
 <select id="female"></select>
 <select id="male"></select>
-<button onclick="addProject()">Projekt erstellen</button>
+<button onclick="addProject()">Projekt erstellen</button><button onclick="deleteCurrentProject()">🗑 Projekt löschen</button>
 </div>
 <div id="projectList"></div>
 <div id="projectDetail" class="card" style="display:none"></div>
 </div>
 
 <script>
-let snakes=JSON.parse(localStorage.getItem("kp_manager_v7")||"[]");
-let projects=JSON.parse(localStorage.getItem("kp_projects_v7")||"[]");
+let snakes=JSON.parse(localStorage.getItem("kp_manager_v18")||"[]");
+let projects=JSON.parse(localStorage.getItem("kp_projects_v18")||"[]");
 let currentSnake=null,currentProject=null;
+
+
+function compressImage(file, callback){
+ const img=new Image();
+ const reader=new FileReader();
+ reader.onload=function(e){
+   img.onload=function(){
+     let canvas=document.createElement('canvas');
+     let max=800;
+     let w=img.width,h=img.height;
+     if(w>h && w>max){h*=max/w;w=max;}
+     if(h>w && h>max){w*=max/h;h=max;}
+     canvas.width=w; canvas.height=h;
+     canvas.getContext('2d').drawImage(img,0,0,w,h);
+     callback(canvas.toDataURL('image/jpeg',0.7));
+   };
+   img.src=e.target.result;
+ };
+ reader.readAsDataURL(file);
+}
 
 const feeders=[
 "Springer (5-10g)","Fuzzy Maus (10-15g)","Kleine Maus (15-25g)","Maus (25-35g)",
@@ -73,19 +91,74 @@ const feeders=[
 "Mittlere Ratte (120-180g)","Große Ratte (180-250g)","Jumbo Ratte (250-400g)"
 ];
 
-function save(){localStorage.setItem("kp_manager_v7",JSON.stringify(snakes));localStorage.setItem("kp_projects_v7",JSON.stringify(projects));render();}
+function save(){try{localStorage.setItem("kp_manager_v18",JSON.stringify(snakes));localStorage.setItem("kp_projects_v18",JSON.stringify(projects));}catch(e){alert("Speicherfehler: Zu viele Fotos/Daten gespeichert.");}render();}
 function showTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
+
+
+function previewNewPhoto(input){
+ const file=input.files[0];
+ if(!file) return;
+ const r=new FileReader();
+ r.onload=e=>{
+   const img=document.getElementById('newPhotoPreview');
+   if(img){img.src=e.target.result;img.style.display='block';}
+ };
+ r.readAsDataURL(file);
+}
+
+function saveSnakePhoto(input){
+
+ const file=input.files[0];
+ if(!file || !currentSnake) return;
+ compressImage(file,function(data){
+   currentSnake.photo=data;
+   save();
+   openSnake(currentSnake.id);
+ });
+}
+
 function addSnake(){
-snakes.push({id:Date.now(),name:snName.value,morph:snMorph.value,gender:snGender.value,saleListed:false,feedingInterval:+snInterval.value||14,currentWeight:0,feedings:[],weights:[],sheds:[]});
-save();
+ const file=snPhoto.files[0];
+ const snake={
+   id:Date.now(),
+   name:snName.value,
+   morph:snMorph.value,
+   gender:snGender.value,
+   saleListed:false,
+   birthDate:(snBirth.value||''),
+   photo:'',
+   feedingInterval:+snInterval.value||14,
+   currentWeight:0,
+   feedings:[],
+   weights:[],
+   sheds:[]
+ };
+ if(file){
+   compressImage(file,function(data){
+      snake.photo=data;
+      snakes.push(snake);
+      save();
+   });
+ }else{
+   snakes.push(snake);
+   save();
+   snName.value=''; snMorph.value=''; snBirth.value='';
+   snPhoto.value='';
+   const p=document.getElementById('newPhotoPreview');
+   if(p){p.style.display='none';p.src='';}
+ }
 }
 
 function openSnake(id){
 currentSnake=snakes.find(s=>s.id===id);
 snakeDetail.style.display='block';
 snakeDetail.innerHTML=`
-<h3>${currentSnake.name}</h3>
+<h3>${currentSnake.name}</h3><button onclick="deleteSnake(currentSnake.id)">🗑 Tier löschen</button>
+    <div style="margin:10px 0">
+    ${currentSnake.photo ? `<img src="${currentSnake.photo}" style="width:100%;max-width:250px;border-radius:10px">` : '📸 Kein Foto hinterlegt'}
+    <input type="file" accept="image/*" onchange="saveSnakePhoto(this)">
+    </div><p><b>Geburtsdatum:</b> ${currentSnake.birthDate||'-'}<br><b>Alter:</b> ${getAgeText(currentSnake.birthDate)}</p>
 <h4>🍽 Fütterung</h4>
 <input id="fd" type="date">
 <select id="ft">${feeders.map(f=>`<option>${f}</option>`).join('')}</select>
@@ -98,12 +171,41 @@ ${(currentSnake.feedings||[]).map((f,i)=>`${f.date} | ${f.feeder||''} | ${f.feed
 <input id="wd" type="date"><input id="wv" type="number">
 <button onclick="addWeight()">Speichern</button>
 ${(currentSnake.weights||[]).map((w,i)=>`${w.date} ${w.value}g <button onclick="delWeight(${i})">🗑</button><br>`).join('')}
+
+<h4>🪶 Häutungen</h4>
+<input id="sd" type="date">
+<select id="ss"><option>Vollständig</option><option>Unvollständig</option></select>
+<button onclick="addShed()">Speichern</button>
+${(currentSnake.sheds||[]).map((s,i)=>`${s.date} | ${s.status} <button onclick="delShed(${i})">🗑</button><br>`).join('')}
 `;
 }
 function addFeed(){currentSnake.feedings.push({date:fd.value,feeder:ft.value,feederWeight:fw.value,result:fr.value});save();openSnake(currentSnake.id);}
 function delFeed(i){currentSnake.feedings.splice(i,1);save();openSnake(currentSnake.id);}
 function addWeight(){currentSnake.weights.push({date:wd.value,value:wv.value});currentSnake.currentWeight=+wv.value||0;save();openSnake(currentSnake.id);}
 function delWeight(i){currentSnake.weights.splice(i,1);save();openSnake(currentSnake.id);}
+function addShed(){currentSnake.sheds=currentSnake.sheds||[];currentSnake.sheds.push({date:sd.value,status:ss.value});save();openSnake(currentSnake.id);}
+function delShed(i){currentSnake.sheds.splice(i,1);save();openSnake(currentSnake.id);}
+
+
+function getAgeText(dateStr){
+ if(!dateStr) return 'Unbekannt';
+ const b=new Date(dateStr);
+ const now=new Date();
+ let years=now.getFullYear()-b.getFullYear();
+ let months=now.getMonth()-b.getMonth();
+ if(months<0){years--;months+=12;}
+ return years+' J. '+months+' Mon.';
+}
+
+function deleteCurrentProject(){
+ if(currentProject===null) return;
+ if(confirm('Projekt wirklich löschen?')){
+   projects.splice(currentProject,1);
+   currentProject=null;
+   save();
+   document.getElementById('projectDetail').style.display='none';
+ }
+}
 
 function addProject(){projects.push({female:female.value,male:male.value,events:[],clutch:{eggs:0,slugs:0,hatched:0},hatchlings:[]});save();}
 
@@ -374,8 +476,8 @@ function updateHatchling(i){
  h.contact=document.getElementById('hc_'+i).value;
  h.reserved=document.getElementById('hr_'+i).value;
 
- localStorage.setItem('kp_projects_v7',JSON.stringify(projects));
- localStorage.setItem('kp_manager_v7',JSON.stringify(snakes));
+ localStorage.setItem('kp_projects_v18',JSON.stringify(projects));
+ localStorage.setItem('kp_manager_v18',JSON.stringify(snakes));
 
  h.feedings=h.feedings||[];
  h.weights=h.weights||[];
@@ -431,6 +533,16 @@ function addSnakeToSales(id){
 function removeSnakeFromSales(id){
  let s=snakes.find(x=>x.id===id);
  if(s){s.saleListed=false;save();}
+}
+
+function deleteSnake(id){
+ if(!confirm('Tier wirklich löschen?')) return;
+ snakes = snakes.filter(s => s.id !== id);
+ if(currentSnake && currentSnake.id===id){
+   document.getElementById('snakeDetail').style.display='none';
+   currentSnake=null;
+ }
+ save();
 }
 
 
@@ -496,6 +608,9 @@ const potential=hatchlings.reduce((a,h)=>a+(Number(h.price)||0),0);
 
 dashboard.innerHTML=`
 <h3>🏠 Mainboard</h3><p><b>Management-Zentrale</b></p>
+<button onclick="exportBackup()">💾 Backup exportieren</button>
+<button onclick="document.getElementById('restoreFile').click()">📂 Backup importieren</button>
+<input id="restoreFile" type="file" style="display:none" onchange="importBackup(this)">
 
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
 <div class="card"><b>🐍 Bestand</b><br><span style='font-size:28px'>${snakes.length}</span></div>
@@ -525,13 +640,13 @@ ${warnings.length ? warnings.join('<br>') : '✅ Keine Warnungen vorhanden'}<br>
 
 <div class="card">
 <h3>⭐ Schnellaktionen</h3>
-➕ Tier anlegen<br>
-➕ Projekt anlegen<br>
-➕ Nachzucht anlegen
+<button onclick="showTab('stock')">➕ Tier anlegen</button>
+<button onclick="showTab('projects')">➕ Projekt anlegen</button>
+<button onclick="showTab('projects')">➕ Nachzucht anlegen</button>
 </div>`;
 
-femaleList.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<div class='card'><b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button></div>`).join('');
-maleList.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<div class='card'><b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button></div>`).join('');
+femaleList.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
+maleList.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
 
 female.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<option>${s.name}</option>`).join('');
 male.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<option>${s.name}</option>`).join('');
@@ -570,12 +685,28 @@ salesAnimals.map(h=>`
 
 projectList.innerHTML=projects.map((p,i)=>`<div class='card'><b>${p.female} × ${p.male}</b><br>Status: ${(p.events&&p.events.length)?p.events.at(-1).type:'Neu'}<button onclick="openProject(${i})">Öffnen</button></div>`).join('');
 }
-render();
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js');
-}
-</script>
-</body></html>
 
+function exportBackup(){
+ const data={snakes,projects,date:new Date().toISOString()};
+ const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='KP_Manager_V18_Backup.json';
+ a.click();
+}
+function importBackup(input){
+ const f=input.files[0];
+ if(!f)return;
+ const r=new FileReader();
+ r.onload=e=>{
+   const d=JSON.parse(e.target.result);
+   snakes=d.snakes||[];
+   projects=d.projects||[];
+   save();
+   alert('Backup importiert');
+ };
+ r.readAsText(f);
+}
+
+render();
+</script></body></html>
