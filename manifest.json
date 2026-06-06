@@ -1,7 +1,8 @@
 {
   "name": "Python Dashboard",
   "short_name": "Python Dashboard",
-  "start_url": "./index.html",
+  "start_url": "./".
+  "scope": "./".
   "display": "standalone",
   "background_color": "#243447",
   "theme_color": "#243447",
