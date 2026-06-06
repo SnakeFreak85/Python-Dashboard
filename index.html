@@ -62,7 +62,7 @@ pointer-events:none;
 <input id="snBirth" type="date"><input id="snPhoto" type="file" accept="image/*" onchange="previewNewPhoto(this)"><img id="newPhotoPreview" style="display:none;max-width:220px;border-radius:10px;margin:8px 0"><input id="snInterval" type="number" value="14">
 <button onclick="addSnake()">Speichern</button>
 </div>
-<div class="card"><h3>🐍 Weibchen</h3><div id="femaleList"></div></div>
+<div class="card"><h3>🔎 Suche</h3><input id="searchBox" placeholder="Name, Morph, Tiernummer..." oninput="render()"></div><div class="card"><h3>🐍 Weibchen</h3><div id="femaleList"></div></div>
 <div class="card"><h3>🐍 Männchen</h3><div id="maleList"></div></div>
 <div id="snakeDetail" class="card" style="display:none"></div>
 </div>
@@ -814,14 +814,21 @@ ${warnings.length ? warnings.join('<br>') : '✅ Keine Warnungen vorhanden'}<br>
 </div>
 
 <div class="card">
-<h3>⭐ Schnellaktionen</h3>
+<h3>📊 Statistik</h3>Bestand: ${snakes.length}<br>Projekte: ${projects.length}<br><br><h3>⭐ Schnellaktionen</h3>
 <button onclick="showTab('stock')">➕ Tier anlegen</button>
 <button onclick="showTab('projects')">➕ Projekt anlegen</button>
 <button onclick="showTab('projects')">➕ Nachzucht anlegen</button>
 </div>`;
 
-femaleList.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
-maleList.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
+const search=(document.getElementById('searchBox')?.value||'').toLowerCase();
+const filtered=snakes.filter(s=>
+ (s.name||'').toLowerCase().includes(search) ||
+ (s.morph||'').toLowerCase().includes(search) ||
+ (s.animalNumber||'').toLowerCase().includes(search) ||
+ (s.clutchId||'').toLowerCase().includes(search)
+);
+femaleList.innerHTML=filtered.filter(s=>s.gender==='Weiblich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
+maleList.innerHTML=filtered.filter(s=>s.gender==='Männlich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
 
 female.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<option>${s.name}</option>`).join('');
 male.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<option>${s.name}</option>`).join('');
