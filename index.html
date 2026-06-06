@@ -33,7 +33,7 @@ pointer-events:none;
 </nav>
 <div id="archive" class="tab">
 <div class="card">
-<h2>📁 Verkaufsarchiv</h2>
+<h2>📁 Verkaufsarchiv</h2><p>Hier werden künftig Käufer, Preis, Verkaufsdatum und PDF-Verweise gespeichert.</p>
 <div id="archiveList">Noch keine archivierten Verkäufe vorhanden.</div>
 </div>
 </div>
@@ -806,7 +806,7 @@ ${warnings.length ? warnings.join('<br>') : '✅ Keine Warnungen vorhanden'}<br>
 
 <div class="card">
 <h3>💰 Verkaufsübersicht</h3>
-💵 Umsatzpotenzial: ${potential.toFixed(0)} €<br>
+💵 Umsatzpotenzial: ${potential.toFixed(0)} €<br>🐍 Gesamtbestand: ${snakes.length}<br>🐣 Projekte: ${projects.length}<br>
 🟢 Verfügbar: ${available}<br>
 🟡 Reserviert: ${reserved}<br>
 🔵 Bezahlt: ${paid}<br>
@@ -857,7 +857,7 @@ salesAnimals.map(h=>`
  </div>`).join('') || 'Keine Verkaufstiere vorhanden';
 
  salesDashboard.innerHTML=`
- 💵 Umsatzpotenzial: ${potential.toFixed(0)} €<br>
+ 💵 Umsatzpotenzial: ${potential.toFixed(0)} €<br>🐍 Gesamtbestand: ${snakes.length}<br>🐣 Projekte: ${projects.length}<br>
  🟢 Verfügbar: ${available}<br>
  🟡 Reserviert: ${reserved}<br>
  🔵 Bezahlt: ${paid}<br>
