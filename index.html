@@ -351,8 +351,12 @@ async function createTransferDocument(){
  const doc = new jsPDF();
  
  doc.setTextColor(20,20,20);
- doc.setFontSize(22);\n doc.text("SASCHA\'S PYTHON DASHBOARD",20,18);\n doc.setFontSize(16);\n doc.text("ABGABENACHWEIS",20,28);\n doc.line(20,32,190,32);
+ doc.setFontSize(22);
+doc.text("SASCHA'S PYTHON DASHBOARD",20,18);
 
+doc.setFontSize(16);
+doc.text("ABGABENACHWEIS",20,28);
+doc.line(20,32,190,32);
  doc.setFontSize(12);
  doc.text('Verkäufer',20,40);
  doc.setFontSize(11);
