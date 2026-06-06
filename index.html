@@ -271,10 +271,13 @@ function saveAnimalInfo(){
  openSnake(currentSnake.id);
 }
 
-function createAnimalReport(){
+async function createAnimalReport(){
  if(!currentSnake) return;
  const { jsPDF } = window.jspdf;
  const doc=new jsPDF();
+ await addPdfWatermark(doc);
+ doc.setFontSize(22);
+ doc.text("SASCHA'S PYTHON DASHBOARD",20,15);
  doc.setFontSize(18);
  doc.text('Tierakte',20,20);
  doc.setFontSize(11);
@@ -320,7 +323,22 @@ function getAgeText(dateStr){
 }
 
 
-function createTransferDocument(){
+
+// PDF Wasserzeichen (logo.png muss im gleichen Ordner liegen)
+async function addPdfWatermark(doc){
+ try{
+   const img = new Image();
+   img.src = 'logo.png';
+   await new Promise((res,rej)=>{img.onload=res; img.onerror=rej;});
+   const c=document.createElement('canvas');
+   c.width=img.width; c.height=img.height;
+   c.getContext('2d').drawImage(img,0,0);
+   const data=c.toDataURL('image/png');
+   doc.addImage(data,'PNG',35,55,140,140);
+ }catch(e){}
+}
+
+async function createTransferDocument(){
  if(!currentSnake) return;
  const buyer=prompt('Name Käufer:');
  if(!buyer) return;
@@ -331,6 +349,12 @@ function createTransferDocument(){
 
  const { jsPDF } = window.jspdf;
  const doc = new jsPDF();
+ await addPdfWatermark(doc);
+ doc.setTextColor(20,20,20);
+ doc.setFontSize(24);
+ doc.text("SASCHA'S PYTHON DASHBOARD",20,15);
+ doc.setFontSize(18);
+ doc.text("ABGABENACHWEIS",20,25);
 
  doc.setFontSize(20);
  doc.text('ABGABENACHWEIS',20,20);
