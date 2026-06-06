@@ -5,24 +5,35 @@
 <title>Python Dashboard V19</title>
 <style>
 body{font-family:Arial;margin:0;background:#f4f4f4}
-header{background:#243447;color:#fff;padding:12px;text-align:center}
-nav{display:flex} nav button{flex:1;padding:10px}
+  header{background:#243447;color:#fff;padding:12px;text-align:center}
+  nav{display:flex} nav button{flex:1;padding:10px}
 .tab{display:none;padding:10px}.active{display:block}
 .card{background:#fff;margin:10px;padding:10px;border-radius:10px}
 input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 .good{color:green}.warn{color:orange}.bad{color:red}
-</style><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head><body>
+</style></head><body>
 <header><h2>🐍 Python Dashboard V19</h2></header>
 <nav>
 <button onclick="showTab('dash')">🏠 Mainboard</button>
 <button onclick="showTab('stock')">🐍 Bestand</button>
 <button onclick="showTab('sales')">💰 Verkaufstiere</button>
-<button onclick="showTab('projects')">🐣 Nachzuchten</button><button onclick="showTab('archive')">📁 Archiv</button>
+<button onclick="showTab('projects')">🐣 Nachzuchten</button><button onclick="showTab('archive')">📁 Archiv</button><button onclick="showTab('settings')">⚙️ Einstellungen</button>
 </nav>
 <div id="archive" class="tab">
 <div class="card">
 <h2>📁 Verkaufsarchiv</h2>
 <div id="archiveList">Noch keine archivierten Verkäufe vorhanden.</div>
+</div>
+</div>
+
+
+<div id="settings" class="tab">
+<div class="card">
+<h2>⚙️ Verkäuferdaten</h2>
+<input id="sellerName" placeholder="Name">
+<input id="sellerAddress" placeholder="Adresse">
+<input id="sellerCity" placeholder="PLZ / Ort">
+<button onclick="saveSellerSettings()">Speichern</button>
 </div>
 </div>
 
@@ -70,6 +81,28 @@ input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
 let snakes=JSON.parse(localStorage.getItem("kp_manager_v18")||"[]");
 let projects=JSON.parse(localStorage.getItem("kp_projects_v18")||"[]");
 let currentSnake=null,currentProject=null;
+
+let sellerSettings=JSON.parse(localStorage.getItem("seller_settings")||'{"name":"","address":"","city":""}');
+
+function saveSellerSettings(){
+ sellerSettings={
+  name:document.getElementById('sellerName').value,
+  address:document.getElementById('sellerAddress').value,
+  city:document.getElementById('sellerCity').value
+ };
+ localStorage.setItem('seller_settings',JSON.stringify(sellerSettings));
+ alert('Verkäuferdaten gespeichert');
+}
+
+function loadSellerSettings(){
+ const n=document.getElementById('sellerName');
+ if(!n) return;
+ n.value=sellerSettings.name||'';
+ document.getElementById('sellerAddress').value=sellerSettings.address||'';
+ document.getElementById('sellerCity').value=sellerSettings.city||'';
+}
+
+
 
 
 function compressImage(file, callback){
@@ -214,28 +247,12 @@ function createTransferDocument(){
  if(!currentSnake) return;
  const buyer=prompt('Name des Käufers:');
  if(!buyer) return;
-
- const { jsPDF } = window.jspdf;
- const doc = new jsPDF();
-
- doc.setFontSize(18);
- doc.text('Abgabenachweis',20,20);
-
- doc.setFontSize(12);
- doc.text('Tier: '+(currentSnake.name||''),20,40);
- doc.text('Art: '+(currentSnake.species||''),20,50);
- doc.text('Morph: '+(currentSnake.morph||''),20,60);
- doc.text('Geschlecht: '+(currentSnake.gender||''),20,70);
- doc.text('Käufer: '+buyer,20,80);
- doc.text('Datum: '+new Date().toLocaleDateString(),20,90);
-
- doc.text('Unterschrift Verkäufer:',20,130);
- doc.line(80,130,180,130);
-
- doc.text('Unterschrift Käufer:',20,150);
- doc.line(70,150,180,150);
-
- doc.save('Abgabenachweis_'+(currentSnake.name||'Tier')+'.pdf');
+ const text=`ABGABENACHWEIS\n\nTier: ${currentSnake.name}\nArt: ${currentSnake.species||''}\nMorph: ${currentSnake.morph||''}\nGeschlecht: ${currentSnake.gender||''}\nKäufer: ${buyer}\nDatum: ${new Date().toLocaleDateString()}\n\nUnterschrift Verkäufer: __________\nUnterschrift Käufer: __________`;
+ const blob=new Blob([text],{type:'text/plain'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download='Abgabenachweis_'+currentSnake.name+'.txt';
+ a.click();
 }
 
 function deleteCurrentProject(){
@@ -686,8 +703,8 @@ ${warnings.length ? warnings.join('<br>') : '✅ Keine Warnungen vorhanden'}<br>
 <button onclick="showTab('projects')">➕ Nachzucht anlegen</button>
 </div>`;
 
-femaleList.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
-maleList.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
+femaleList.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name} • ${s.morph||'-'}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
+maleList.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name} • ${s.morph||'-'}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
 
 female.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<option>${s.name}</option>`).join('');
 male.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<option>${s.name}</option>`).join('');
@@ -701,7 +718,7 @@ if(salesList && salesDashboard){
  const salesAnimals=hatchlings.filter(h=>['Verfügbar','Reserviert','Bezahlt'].includes(h.status));
  salesList.innerHTML= saleSnakes.map(s=>`
 <div class='card'>
-<b>${s.name}</b><br>
+<b>${s.name} • ${s.morph||'-'}</b><br>
 ${s.morph||''}<br>
 Gewicht: ${s.currentWeight||0} g<br>
 <button onclick="removeSnakeFromSales(${s.id})">🐍 In Bestand</button>
@@ -749,5 +766,5 @@ function importBackup(input){
  r.readAsText(f);
 }
 
-render();
+render(); loadSellerSettings();
 </script></body></html>
