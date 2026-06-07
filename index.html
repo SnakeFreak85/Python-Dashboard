@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V104</title>
+<title>Sascha's Python Dashboard V105</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V104</div>
+<div class="logo">🐍 Sascha's Python Dashboard V105</div>
 </header>
 
 <div class="content">
@@ -829,9 +829,23 @@ function breedingStats(){
  + '</div>';
 }
 
+
+function dueTodayPanel(){
+ let items=[];
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+   (db[t]||[]).forEach(a=>{
+     const feeds=a.feeds||[];
+     if(feeds.length===0){
+       items.push('🍽 '+a.name+' – noch nie gefüttert');
+     }
+   });
+ });
+ return '<div class="card"><h3>🍽 Heute fällig</h3>'+(items.length?items.join('<br>'):'Keine offenen Fütterungen')+'</div>';
+}
+
 function render(){
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+breedingCalendar()+breedingStats();
+dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+breedingCalendar()+breedingStats()+dueTodayPanel();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
