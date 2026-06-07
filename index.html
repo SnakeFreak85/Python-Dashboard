@@ -1,918 +1,535 @@
 <!DOCTYPE html>
-<html lang="de"><head>
+<html lang="de">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Python Dashboard V19</title>
+<title>Sascha's Python Dashboard V75</title>
 <style>
-body{font-family:Arial;margin:0;background:#f4f4f4}
-header{background:#243447;color:#fff;padding:12px;text-align:center}
-nav{display:flex} nav button{flex:1;padding:10px}
-.tab{display:none;padding:10px}.active{display:block}
-.card{background:#fff;margin:10px;padding:10px;border-radius:10px}
-input,select,button{width:100%;padding:8px;margin:4px 0;box-sizing:border-box}
-.good{color:green}.warn{color:orange}.bad{color:red}
+body{margin:0;font-family:Arial;background:#ececec}
+header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
+.logo{font-size:22px;font-weight:bold}
+#menuBtn{
+position:fixed;top:95px;left:15px;z-index:10000;
+background:none;border:none;color:#fff;font-size:42px;
+}
+.drawer{position:fixed;left:-300px;top:0;width:280px;height:100%;
+background:#24384d;transition:.25s;z-index:9998;padding-top:70px}
+.drawer.open{left:0}
+.drawer a{display:block;color:#fff;text-decoration:none;padding:15px;font-size:20px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9997}
+.overlay.show{display:block}
+.content{padding:18px}
+.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.section{display:none}
+.active{display:block}
+input,select,button,textarea{width:100%;padding:12px;margin:5px 0;box-sizing:border-box}
+.animal{background:#f5f5f5;padding:10px;border-radius:10px;margin-top:10px}
+.count{font-size:30px;font-weight:bold}
 
-.tab{position:relative;overflow:hidden}
-.tab::before{
-content:'';
-position:absolute;
-inset:0;
-background:url('logo.png') center center no-repeat;
-background-size:280px;
-opacity:0.05;
-pointer-events:none;
+.menu-btn{
+position:absolute !important;
+top:20px !important;
+left:20px !important;
+z-index:9999 !important;
 }
 
-</style><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head><body>
-<header><h2>🐍 Python Dashboard V19</h2></header>
-<nav>
-<button onclick="showTab('dash')">🏠 Mainboard</button>
-<button onclick="showTab('stock')">🐍 Bestand</button>
-<button onclick="showTab('sales')">💰 Verkaufstiere</button>
-<button onclick="showTab('projects')">🐣 Nachzuchten</button><button onclick="showTab('archive')">📁 Archiv</button><button onclick="showTab('settings')">⚙️ Einstellungen</button>
-</nav>
-<div id="archive" class="tab">
+
+#menuBtn{
+position:fixed !important;
+top:70px !important;
+left:15px !important;
+width:auto !important;
+padding:8px 12px !important;
+font-size:42px !important;
+line-height:1 !important;
+z-index:10000 !important;
+background:transparent !important;
+border:none !important;
+color:white !important;
+}
+
+
+.feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
+
+</style>
+</head>
+<body>
+
+<button id="menuBtn" onclick="openMenu()">☰</button>
+
+<div id="overlay" class="overlay" onclick="closeMenu()"></div>
+
+<div id="drawer" class="drawer">
+<a href="#" onclick="showPage('home')">🏠 Startseite</a>
+<a href="#" onclick="showPage('koenig')">🐍 Königspython</a>
+<a href="#" onclick="showPage('boas')">🐍 Boas</a>
+<a href="#" onclick="showPage('geckos')">🦎 Leopardgeckos</a>
+<a href="#" onclick="showPage('spinnen')">🕷 Vogelspinnen</a>
+<a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
+<a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
+<a href="#" onclick="showPage('archiv')">📁 Archiv</a>
+<a href="#" onclick="showPage('backup')">💾 Backup</a>
+</div>
+
+<header>
+<div class="logo">🐍 Sascha's Python Dashboard V75</div>
+</header>
+
+<div class="content">
+
+<div id="home" class="section active">
 <div class="card">
-<h2>📁 Verkaufsarchiv</h2><p>Hier werden künftig Käufer, Preis, Verkaufsdatum und PDF-Verweise gespeichert.</p>
-<div id="archiveList">Noch keine archivierten Verkäufe vorhanden.</div>
+<h2>Willkommen</h2>
+<input id='globalSearch' placeholder='🔎 Tier suchen...' onkeyup='searchAnimals()'>
+<p>Verwaltung von Beständen, Nachzuchten, Verkaufstieren und Zuchtprojekten.</p>
+</div><div id='searchResults' class='card' style='display:none'></div>
+
+<div id='dashInfo'></div><div class="grid">
+<div class="card">🐍 Königspython<div class="count" id="c1">0</div></div>
+<div class="card">🐍 Boas<div class="count" id="c2">0</div></div>
+<div class="card">🦎 Leopardgeckos<div class="count" id="c3">0</div></div>
+<div class="card">🕷 Vogelspinnen<div class="count" id="c4">0</div></div>
 </div>
 </div>
 
+<div id="koenig" class="section"></div>
+<div id="boas" class="section"></div>
+<div id="geckos" class="section"></div>
+<div id="spinnen" class="section"></div>
 
-<div id="settings" class="tab">
+<div id="nachzucht" class="section">
 <div class="card">
-<h2>⚙️ Verkäuferdaten</h2>
-<input id="sellerName" placeholder="Name">
-<input id="sellerAddress" placeholder="Adresse">
-<input id="sellerCity" placeholder="PLZ / Ort">
-<input id="sellerPhone" placeholder="Telefon">
-<input id="sellerMail" placeholder="E-Mail">
-<button onclick="saveSellerSettings()">Speichern</button>
+<h2>🐣 Nachzuchten</h2>
+<input id="clutchName" placeholder="Projekt / Gelege">
+<input id="eggCount" type="number" placeholder="Eieranzahl">
+<button onclick="saveClutch()">Gelege speichern</button>
+<div id="clutchList"></div>
 </div>
 </div>
 
-<div id="dash" class="tab active"><div class="card" id="dashboard"></div></div>
-
-<div id="stock" class="tab">
+<div id="verkauf" class="section">
 <div class="card">
-<h3>Tier anlegen</h3>
-<select id="snSpecies"><option>Königspython</option><option>Leopardgecko</option><option>Kornnatter</option><option>Bartagame</option><option>Vogelspinne</option><option>Sonstige</option></select><input id="snName" placeholder="Name">
-<input id="snMorph" placeholder="Morph">
-<select id="snGender"><option>Weiblich</option><option>Männlich</option></select>
-<input id="snBirth" type="date"><input id="snPhoto" type="file" accept="image/*" onchange="previewNewPhoto(this)"><img id="newPhotoPreview" style="display:none;max-width:220px;border-radius:10px;margin:8px 0"><input id="snInterval" type="number" value="14">
-<button onclick="addSnake()">Speichern</button>
+<h2>💰 Verkaufstiere</h2>
+<div id="saleList"></div>
 </div>
-<div class="card"><h3>🔎 Suche</h3><input id="searchBox" placeholder="Name, Morph, Tiernummer..." oninput="render()"></div><div class="card"><h3>🐍 Weibchen</h3><div id="femaleList"></div></div>
-<div class="card"><h3>🐍 Männchen</h3><div id="maleList"></div></div>
-<div id="snakeDetail" class="card" style="display:none"></div>
 </div>
 
-
-<div id="sales" class="tab">
+<div id="archiv" class="section">
 <div class="card">
-<h2>💰 Verkaufsbestand</h2>
-<p>Hier erscheinen alle zum Verkauf markierten Tiere und Nachzuchten.</p>
-<div id="salesList"></div>
-</div>
-
-<div class="card">
-<h2>💰 Verkaufsmonitor</h2>
-<div id="salesDashboard"></div>
+<h2>📁 Archiv</h2>
+<div id="archiveList"></div>
 </div>
 </div>
 
-<div id="projects" class="tab">
+<div id="backup" class="section">
 <div class="card">
-<select id="female"></select>
-<select id="male"></select>
-<button onclick="addProject()">Projekt erstellen</button><button onclick="deleteCurrentProject()">🗑 Projekt löschen</button>
+<h2>💾 Backup</h2>
+<button onclick="exportBackup()">Backup exportieren</button>
+<input type="file" onchange="importBackup(this)">
+<p>Hier kannst du deine Daten sichern oder wiederherstellen.</p>
 </div>
-<div id="projectList"></div>
-<div id="projectDetail" class="card" style="display:none"></div>
+</div>
+
+
 </div>
 
 <script>
-let snakes=JSON.parse(localStorage.getItem("kp_manager_v18")||"[]");
-let projects=JSON.parse(localStorage.getItem("kp_projects_v18")||"[]");
-let currentSnake=null,currentProject=null;
-let sellerSettings=JSON.parse(localStorage.getItem('python_settings_v20')||'{"name":"","address":"","city":"","phone":"","mail":""}');
+let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"sales":[],"archive":[]}');
 
-function saveSellerSettings(){
- sellerSettings={
-  name:document.getElementById('sellerName').value,
-  address:document.getElementById('sellerAddress').value,
-  city:document.getElementById('sellerCity').value,
-  phone:document.getElementById('sellerPhone').value,
-  mail:document.getElementById('sellerMail').value
- };
- localStorage.setItem('python_settings_v20',JSON.stringify(sellerSettings));
- alert('Verkäuferdaten gespeichert');
+function save(){
+localStorage.setItem('spd_v53',JSON.stringify(db));
+render();
 }
 
-function loadSellerSettings(){
- if(!document.getElementById('sellerName')) return;
- document.getElementById('sellerName').value=sellerSettings.name||'';
- document.getElementById('sellerAddress').value=sellerSettings.address||'';
- document.getElementById('sellerCity').value=sellerSettings.city||'';
- document.getElementById('sellerPhone').value=sellerSettings.phone||'';
- document.getElementById('sellerMail').value=sellerSettings.mail||'';
+function openMenu(){drawer.classList.add('open');overlay.classList.add('show');}
+function closeMenu(){drawer.classList.remove('open');overlay.classList.remove('show');}
+
+function showPage(id){
+document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+closeMenu();
+}
+
+function section(type,title){
+return `<div class='card'>
+<h2>${title}</h2>
+<input id='${type}_name' placeholder='Name'>
+<input id='${type}_morph' placeholder='${type=="spinnen"?"Art":"Morph"}'>
+<input id='${type}_weight' type='number' placeholder='Gewicht'>
+<input id='${type}_origin' placeholder='Herkunft'><input id='${type}_birth' type='date'>
+<select id='${type}_sex'>
+<option>Unbestimmt</option><option>Weiblich</option><option>Männlich</option>
+</select>
+<input id='${type}_price' type='number' placeholder='Verkaufspreis €'>
+<select id='${type}_status'>
+<option>Bestand</option>
+<option>Verkauf</option>
+<option>Reserviert</option>
+<option>Archiv</option>
+</select>
+<button onclick="addAnimal('${type}')">Tier speichern</button>
+<div id='${type}_list'></div>
+</div>`;
+}
+
+function addAnimal(t){
+const n=document.getElementById(t+'_name').value.trim();
+if(!n)return;
+db[t].push({
+name:n,
+morph:document.getElementById(t+'_morph').value,
+weight:document.getElementById(t+'_weight').value,
+origin:document.getElementById(t+'_origin').value,
+sex:document.getElementById(t+'_sex').value,
+price:(document.getElementById(t+'_price')||{}).value||'',
+status:(document.getElementById(t+'_status')||{}).value||'Bestand'
+});
+save();
+}
+
+function delAnimal(t,i){db[t].splice(i,1);save();}
+
+function moveSale(t,i){
+db.sales.push(db[t][i]);
+db[t].splice(i,1);
+save();
+}
+
+function draw(t,title,target){
+document.getElementById(target).innerHTML=section(t,title);
+document.getElementById(t+'_list').innerHTML=db[t].map((a,i)=>`
+<div class='animal'>
+${a.photo?'<img src="'+a.photo+'" style="max-width:120px;max-height:120px;border-radius:8px;display:block;margin-bottom:6px;">':''}<b>${a.name}</b><br>ID: ${generateId(t,i)}<br>
+${a.morph}<br>
+⚖ ${a.weight||0} g<br>
+🏠 ${a.origin||'-'}<br>
+${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
+⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
+🧤 Häutungen: ${(a.sheds||[]).length}<br>
+⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
+<button onclick="showHistory('${t}',${i})">📜 Historie</button><br><br>
+<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽 Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="moveSale('${t}',${i})">In Verkauf</button><button onclick="addFeed('${t}',${i})">Fütterung</button><button onclick="toggleShedForm('${t}',${i})">Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="delAnimal('${t}',${i})">Löschen</button>
+</div>`).join('');
+}
+
+function saveClutch(){
+const n=clutchName.value.trim();
+if(!n)return;
+db.clutches.push({name:n,eggs:eggCount.value});
+save();
 }
 
 
 
-function compressImage(file, callback){
- const img=new Image();
+
+function exportBackup(){
+const blob=new Blob([JSON.stringify(db)],{type:'application/json'});
+const a=document.createElement('a');
+a.href=URL.createObjectURL(blob);
+a.download='Saschas_Python_Dashboard_Backup.json';
+a.click();
+}
+
+function importBackup(input){
+const f=input.files[0];
+if(!f)return;
+const r=new FileReader();
+r.onload=e=>{
+db=JSON.parse(e.target.result);
+save();
+alert('Backup importiert');
+};
+r.readAsText(f);
+}
+
+function searchAnimals(){
+const q=document.getElementById('globalSearch').value.toLowerCase();
+const res=[];
+['koenig','boas','geckos','spinnen'].forEach(t=>{
+(db[t]||[]).forEach(a=>{
+if((a.name||'').toLowerCase().includes(q) || (a.morph||'').toLowerCase().includes(q)){
+res.push(a.name+' ('+t+')');
+}
+});
+});
+const box=document.getElementById('searchResults');
+if(!q){box.style.display='none';return;}
+box.style.display='block';
+box.innerHTML='<h3>Suchergebnisse</h3>'+ (res.length?res.join('<br>'):'Keine Treffer');
+}
+
+function addFeed(t,i){
+let prey='', amount='';
+
+if(t==='geckos'){
+ prey=prompt('Futtertier: Heimchen klein, Heimchen mittel, Heimchen groß','Heimchen mittel');
+ amount=prompt('Anzahl 1-10','5');
+}else if(t==='spinnen'){
+ prey=prompt('Heimchen klein/mittel/groß oder Schabe klein/mittel/groß','Schabe mittel');
+ amount=prompt('Anzahl 1-10','1');
+}else{
+ prey=prompt('Futtertier: Ratte, Maus, ASF, Küken','Ratte');
+ amount=prompt('Gewicht: 10,20,30,50,70,90,120,150,200,250','120');
+}
+if(prey===null||amount===null)return;
+const accepted=confirm('Gefressen?');
+if(!db[t][i].feeds) db[t][i].feeds=[];
+db[t][i].feeds.push({
+ date:new Date().toLocaleString('de-DE'),
+ prey:prey,
+ amount:amount,
+ accepted:accepted
+});
+save();
+}
+
+function addShed(t,i){
+const complete=confirm('Häutung vollständig?');
+if(!db[t][i].sheds) db[t][i].sheds=[];
+db[t][i].sheds.push({
+date:new Date().toLocaleString('de-DE'),
+complete
+});
+save();
+}
+
+
+function showHistory(t,i){
+const a=db[t][i];
+let txt='Tier: '+(a.name||'')+'\n\nFÜTTERUNGEN\n----------------\n';
+(a.feeds||[]).forEach(x=>{
+ if(typeof x==='string') txt+=x+'\n';
+ else txt+=x.date+' | '+x.prey+' '+x.weight+'g | '+(x.accepted?'Gefressen':'Verweigert')+'\n';
+});
+txt+='\nHÄUTUNGEN\n----------------\n';
+(a.sheds||[]).forEach(x=>{
+ if(typeof x==='string') txt+=x+'\n';
+ else txt+=x.date+' | '+(x.complete?'Vollständig':'Unvollständig')+'\n';
+});
+
+const w=window.open('','_blank');
+w.document.write('<pre>'+txt+'</pre><button onclick="window.print()">📄 PDF / Drucken</button>');
+}
+
+
+function editFullAnimal(t,i){
+ const a=db[t][i];
+ const n=prompt('Name',a.name); if(n===null)return;
+ a.name=n;
+ a.morph=prompt('Morph',a.morph)||a.morph;
+ save();
+}
+function addWeight(t,i){
+ const w=prompt('Neues Gewicht in g');
+ if(!w)return;
+ if(!db[t][i].weights) db[t][i].weights=[];
+ db[t][i].weights.push({date:new Date().toLocaleString('de-DE'),weight:w});
+ db[t][i].weight=w;
+ save();
+}
+
+
+function toggleFeedForm(t,i){
+ const el=document.getElementById('feed_'+t+'_'+i);
+ if(el.innerHTML){ el.innerHTML=''; return; }
+
+ let preyOptions='';
+ let amountOptions='';
+
+ if(t==='geckos'){
+   preyOptions=['Heimchen klein','Heimchen mittel','Heimchen groß'];
+   amountOptions=[1,2,3,4,5,6,7,8,9,10];
+ }else if(t==='spinnen'){
+   preyOptions=['Heimchen klein','Heimchen mittel','Heimchen groß','Schabe klein','Schabe mittel','Schabe groß'];
+   amountOptions=[1,2,3,4,5,6,7,8,9,10];
+ }else{
+   preyOptions=['Ratte','Maus','ASF','Küken'];
+   amountOptions=[10,20,30,50,70,90,120,150,200,250];
+ }
+
+ el.innerHTML=`<div class="feedPanel">
+ <select id="prey_${t}_${i}">${preyOptions.map(x=>'<option>'+x+'</option>').join('')}</select>
+ <select id="amt_${t}_${i}">${amountOptions.map(x=>'<option>'+x+'</option>').join('')}</select>
+ <select id="acc_${t}_${i}">
+   <option value="true">Gefressen</option>
+   <option value="false">Verweigert</option>
+ </select>
+ <button onclick="saveFeed('${t}',${i})">Speichern</button>
+ </div>`;
+}
+
+function saveFeed(t,i){
+ const prey=document.getElementById('prey_'+t+'_'+i).value;
+ const amount=document.getElementById('amt_'+t+'_'+i).value;
+ const accepted=document.getElementById('acc_'+t+'_'+i).value==='true';
+ if(!db[t][i].feeds) db[t][i].feeds=[];
+ db[t][i].feeds.push({
+   date:new Date().toLocaleString('de-DE'),
+   prey,amount,accepted
+ });
+ save();
+}
+
+
+function addDetailedShed(t,i){
+ const complete=confirm('Häutung vollständig?');
+ const note=prompt('Notiz (optional)','') || '';
+ if(!db[t][i].sheds) db[t][i].sheds=[];
+ db[t][i].sheds.push({
+   date:new Date().toLocaleString('de-DE'),
+   complete:complete,
+   note:note
+ });
+ save();
+}
+
+function generateId(type,index){
+ const p={koenig:'KP',boas:'BOA',geckos:'LG',spinnen:'VS'}[type]||'ID';
+ return p+'-'+String(index+1).padStart(3,'0');
+}
+
+
+function toggleShedForm(t,i){
+ const el=document.getElementById('shed_'+t+'_'+i);
+ if(el.innerHTML){el.innerHTML=''; return;}
+ el.innerHTML=`<div class="feedPanel">
+ <select id="shed_status_${t}_${i}">
+   <option value="true">Vollständig</option>
+   <option value="false">Unvollständig</option>
+ </select>
+ <input id="shed_note_${t}_${i}" placeholder="Notiz">
+ <button onclick="saveShed('${t}',${i})">Speichern</button>
+ </div>`;
+}
+
+function saveShed(t,i){
+ const complete=document.getElementById('shed_status_'+t+'_'+i).value==='true';
+ const note=document.getElementById('shed_note_'+t+'_'+i).value;
+ if(!db[t][i].sheds) db[t][i].sheds=[];
+ db[t][i].sheds.push({
+   date:new Date().toLocaleString('de-DE'),
+   complete:complete,
+   note:note
+ });
+ save();
+}
+
+
+function showWeights(t,i){
+ const a=db[t][i];
+ const list=(a.weights||[]).map(w=>(typeof w==='object'? w.date+' - '+w.weight+'g':w)).join('<br>');
+ alert('Gewichtshistorie\n\n'+((a.weights||[]).map(w=>(typeof w==='object'? w.date+' - '+w.weight+'g':w)).join('\n')||'Keine Einträge'));
+}
+
+function animalReport(t,i){
+ const a=db[t][i];
+ let txt='TIERBERICHT\n\n';
+ txt+='ID: '+generateId(t,i)+'\n';
+ txt+='Name: '+(a.name||'')+'\n';
+ txt+='Morph/Art: '+(a.morph||'')+'\n';
+ txt+='Geschlecht: '+(a.sex||'')+'\n';
+ txt+='Herkunft: '+(a.origin||'')+'\n';
+ txt+='Preis: '+(a.price||'')+'\n';
+ txt+='Status: '+(a.status||'')+'\n';
+ txt+='Aktuelles Gewicht: '+(a.weight||'')+'g\n\n';
+ txt+='GEWICHTE\n----------------\n';
+ (a.weights||[]).forEach(w=>{ if(typeof w==='object') txt+=w.date+' '+w.weight+'g\n';});
+ txt+='\nFÜTTERUNGEN\n----------------\n';
+ (a.feeds||[]).forEach(f=>{
+   if(typeof f==='object') txt+=f.date+' | '+f.prey+' | '+f.amount+' | '+(f.accepted?'Gefressen':'Verweigert')+'\n';
+ });
+ txt+='\nHÄUTUNGEN\n----------------\n';
+ (a.sheds||[]).forEach(s=>{
+   if(typeof s==='object') txt+=s.date+' | '+(s.complete?'Vollständig':'Unvollständig')+' | '+(s.note||'')+'\n';
+ });
+ const w=window.open('','_blank');
+ if(w) w.document.write('<pre>'+txt+'</pre><button onclick="window.print()">📄 Drucken</button>');
+}
+
+
+function uploadPhoto(t,i,input){
+ const file=input.files[0];
+ if(!file) return;
  const reader=new FileReader();
  reader.onload=function(e){
-   img.onload=function(){
-     let canvas=document.createElement('canvas');
-     let max=800;
-     let w=img.width,h=img.height;
-     if(w>h && w>max){h*=max/w;w=max;}
-     if(h>w && h>max){w*=max/h;h=max;}
-     canvas.width=w; canvas.height=h;
-     canvas.getContext('2d').drawImage(img,0,0,w,h);
-     callback(canvas.toDataURL('image/jpeg',0.7));
-   };
-   img.src=e.target.result;
+   db[t][i].photo=e.target.result;
+   save();
  };
  reader.readAsDataURL(file);
 }
 
-const feederMap={
-'Königspython':['Springer','Fuzzy Maus','Kleine Maus','Maus','Weaner','Kleine Ratte','Mittlere Ratte','Große Ratte','Jumbo Ratte'],
-'Leopardgecko':['Heimchen','Grillen','Schaben','Heuschrecken','Mehlwürmer','Zophobas','Wachsmaden'],
-'Bartagame':['Heimchen','Grillen','Schaben','Heuschrecken','Grünfutter','Kräuter','Salatmix'],
-'Kornnatter':['Pinky','Fuzzy','Springer','Maus','Weaner'],
-'Vogelspinne':['Heimchen','Schaben','Heuschrecken','Mehlwürmer'],
-'Sonstige':['Futtertier']
-};
-function getFeeders(species){
- return feederMap[species]||feederMap['Sonstige'];
-}
-
-function save(){try{localStorage.setItem("kp_manager_v18",JSON.stringify(snakes));localStorage.setItem("kp_projects_v18",JSON.stringify(projects));}catch(e){alert("Speicherfehler: Zu viele Fotos/Daten gespeichert.");}render();}
-function showTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');}
-
-
-
-function previewNewPhoto(input){
- const file=input.files[0];
- if(!file) return;
- const r=new FileReader();
- r.onload=e=>{
-   const img=document.getElementById('newPhotoPreview');
-   if(img){img.src=e.target.result;img.style.display='block';}
- };
- r.readAsDataURL(file);
-}
-
-function saveSnakePhoto(input){
-
- const file=input.files[0];
- if(!file || !currentSnake) return;
- compressImage(file,function(data){
-   currentSnake.photo=data;
-   save();
-   openSnake(currentSnake.id);
- });
-}
-
-function addSnake(){
- const file=snPhoto.files[0];
- const snake={
-   id:Date.now(),
-   name:snName.value,
-   morph:snMorph.value,
-   species:(document.getElementById('snSpecies')?.value||'Königspython'),gender:snGender.value,
-   saleListed:false,
-   birthDate:(snBirth.value||''),
-   photo:'',
-   feedingInterval:+snInterval.value||14,
-   notes:'',
-   breeder:'',
-   origin:'',
-   animalNumber:'',
-   currentWeight:0,
-   feedings:[],
-   weights:[],
-   sheds:[]
- };
- if(file){
-   compressImage(file,function(data){
-      snake.photo=data;
-      snakes.push(snake);
-      save();
+function showWeightHistoryPage(t,i){
+ const a=db[t][i];
+ let content='<h2>⚖️ Gewichtshistorie - '+a.name+'</h2>';
+ content+='<div class="card">';
+ if((a.weights||[]).length===0){
+   content+='Keine Einträge vorhanden';
+ } else {
+   let prev=null;
+   (a.weights||[]).forEach(w=>{
+      if(typeof w==='object'){
+        let diff='';
+        if(prev!==null){
+          const d=Number(w.weight)-Number(prev);
+          diff=' ('+(d>=0?'+':'')+d+'g)';
+        }
+        content+=w.date+' - '+w.weight+'g'+diff+'<br>';
+        prev=Number(w.weight);
+      } else {
+        content+=w+'<br>';
+      }
    });
- }else{
-   snakes.push(snake);
-   save();
-   snName.value=''; snMorph.value=''; snBirth.value='';
-   snPhoto.value='';
-   const p=document.getElementById('newPhotoPreview');
-   if(p){p.style.display='none';p.src='';}
  }
-}
-
-function openSnake(id){
-currentSnake=snakes.find(s=>s.id===id);
-snakeDetail.style.display='block';
-snakeDetail.innerHTML=`
-<h3>${currentSnake.name}</h3><p><b>Art:</b> ${currentSnake.species||'Königspython'}</p><button onclick="createTransferDocument()">📄 Abgabenachweis</button><button onclick="createAnimalReport()">📊 Tierakte PDF</button><button onclick="deleteSnake(currentSnake.id)">🗑 Tier löschen</button>
-    <div style="margin:10px 0">
-    ${currentSnake.photo ? `<img src="${currentSnake.photo}" style="width:100%;max-width:250px;border-radius:10px">` : '📸 Kein Foto hinterlegt'}
-    <input type="file" accept="image/*" onchange="saveSnakePhoto(this)">
-    </div><p><b>Geburtsdatum:</b> ${currentSnake.birthDate||'-'}<br><b>Alter:</b> ${getAgeText(currentSnake.birthDate)}</p>
-
-<h4>📝 Tierdaten</h4>
-<input id="animalNumber" placeholder="Interne Tiernummer" value="${currentSnake.animalNumber||''}">
-<input id="breeder" placeholder="Züchter" value="${currentSnake.breeder||''}">
-<input id="origin" placeholder="Herkunft" value="${currentSnake.origin||''}">
-<input id="mother" placeholder="Muttertier" value="${currentSnake.mother||''}">
-<input id="father" placeholder="Vatertier" value="${currentSnake.father||''}">
-<input id="clutchId" placeholder="Gelege-ID" value="${currentSnake.clutchId||''}">
-<input id="projectName" placeholder="Projektname" value="${currentSnake.projectName||''}">
-<input id="notes" placeholder="Bemerkungen" value="${currentSnake.notes||''}">
-<button onclick="saveAnimalInfo()">Tierdaten speichern</button>
-
-<h4>🍽 Fütterung</h4>
-
-<input id="fd" type="date">
-<select id="ft">${getFeeders((currentSnake && currentSnake.species) || 'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
-<input id="fw" type="number" placeholder="Gewicht Futtertier">
-<select id="fr"><option>Gefressen</option><option>Verweigert</option></select>
-<button onclick="addFeed()">Speichern</button>
-${(currentSnake.feedings||[]).map((f,i)=>`${f.date} | ${f.feeder||''} | ${f.feederWeight||''}g | ${f.result} <button onclick="delFeed(${i})">🗑</button><br>`).join('')}
-
-<h4>⚖ Gewicht</h4>
-<input id="wd" type="date"><input id="wv" type="number">
-<button onclick="addWeight()">Speichern</button>
-${(currentSnake.weights||[]).map((w,i)=>`${w.date} ${w.value}g <button onclick="delWeight(${i})">🗑</button><br>`).join('')}
-
-<h4>🪶 Häutungen</h4>
-<input id="sd" type="date">
-<select id="ss"><option>Vollständig</option><option>Unvollständig</option></select>
-<button onclick="addShed()">Speichern</button>
-${(currentSnake.sheds||[]).map((s,i)=>`${s.date} | ${s.status} <button onclick="delShed(${i})">🗑</button><br>`).join('')}
-`;
-}
-
-function saveAnimalInfo(){
- if(!currentSnake) return;
- currentSnake.animalNumber=document.getElementById('animalNumber').value;
- currentSnake.breeder=document.getElementById('breeder').value;
- currentSnake.origin=document.getElementById('origin').value;
- currentSnake.mother=document.getElementById('mother').value;
- currentSnake.father=document.getElementById('father').value;
- currentSnake.clutchId=document.getElementById('clutchId').value;
- currentSnake.projectName=document.getElementById('projectName').value;
- currentSnake.notes=document.getElementById('notes').value;
- save();
- openSnake(currentSnake.id);
-}
-
-async function createAnimalReport(){
- if(!currentSnake) return;
- const { jsPDF } = window.jspdf;
- const doc=new jsPDF();
- 
- doc.setFontSize(22);
- doc.text("SASCHA'S PYTHON DASHBOARD",20,15);
- doc.setFontSize(18);
- doc.text('Tierakte',20,20);
- doc.setFontSize(11);
- doc.text('Name: '+(currentSnake.name||''),20,40);
- doc.text('Art: '+(currentSnake.species||''),20,50);
- doc.text('Morph: '+(currentSnake.morph||''),20,60);
- doc.text('Tiernummer: '+(currentSnake.animalNumber||''),20,70);
- doc.text('Züchter: '+(currentSnake.breeder||''),20,80);
- doc.text('Herkunft: '+(currentSnake.origin||''),20,90);
- doc.text('Bemerkungen: '+(currentSnake.notes||''),20,100);
-
- let y=120;
- doc.text('Fütterungen',20,y); y+=10;
- (currentSnake.feedings||[]).forEach(f=>{doc.text(`${f.date} ${f.feeder} ${f.result}`,20,y); y+=8;});
-
- doc.addPage(); y=20;
- doc.text('Gewichte',20,y); y+=10;
- (currentSnake.weights||[]).forEach(w=>{doc.text(`${w.date} ${w.value}g`,20,y); y+=8;});
-
- doc.addPage(); y=20;
- doc.text('Häutungen',20,y); y+=10;
- (currentSnake.sheds||[]).forEach(s=>{doc.text(`${s.date} ${s.status}`,20,y); y+=8;});
-
- doc.save('Tierakte_'+(currentSnake.name||'Tier')+'.pdf');
-}
-
-function addFeed(){currentSnake.feedings.push({date:fd.value,feeder:ft.value,feederWeight:fw.value,result:fr.value});save();openSnake(currentSnake.id);}
-function delFeed(i){currentSnake.feedings.splice(i,1);save();openSnake(currentSnake.id);}
-function addWeight(){currentSnake.weights.push({date:wd.value,value:wv.value});currentSnake.currentWeight=+wv.value||0;save();openSnake(currentSnake.id);}
-function delWeight(i){currentSnake.weights.splice(i,1);save();openSnake(currentSnake.id);}
-function addShed(){currentSnake.sheds=currentSnake.sheds||[];currentSnake.sheds.push({date:sd.value,status:ss.value});save();openSnake(currentSnake.id);}
-function delShed(i){currentSnake.sheds.splice(i,1);save();openSnake(currentSnake.id);}
-
-
-function getAgeText(dateStr){
- if(!dateStr) return 'Unbekannt';
- const b=new Date(dateStr);
- const now=new Date();
- let years=now.getFullYear()-b.getFullYear();
- let months=now.getMonth()-b.getMonth();
- if(months<0){years--;months+=12;}
- return years+' J. '+months+' Mon.';
-}
-
-
-
-// PDF Wasserzeichen (logo.png muss im gleichen Ordner liegen)
-async function addPdfWatermark(doc){
- try{
-   const img = new Image();
-   img.src = 'logo.png';
-   await new Promise((res,rej)=>{img.onload=res; img.onerror=rej;});
-   const c=document.createElement('canvas');
-   c.width=img.width; c.height=img.height;
-   c.getContext('2d').drawImage(img,0,0);
-   const data=c.toDataURL('image/png');
-   doc.addImage(data,'PNG',35,55,140,140);
- }catch(e){}
-}
-
-async function createTransferDocument(){
- if(!currentSnake) return;
- const buyer=prompt('Name Käufer:');
- if(!buyer) return;
- const address=prompt('Adresse Käufer:','')||'';
- const city=prompt('PLZ / Ort Käufer:','')||'';
- const price=prompt('Preis (€):','')||'';
- const notes=prompt('Bemerkungen:','')||'';
-
- const { jsPDF } = window.jspdf;
- const doc = new jsPDF();
- 
- doc.setTextColor(20,20,20);
- doc.setFontSize(22);
-doc.text("SASCHA\'S PYTHON DASHBOARD",20,18);\n doc.setFontSize(16);
-doc.text("ABGABENACHWEIS",20,28);\n doc.line(20,32,190,32);
-
- doc.setFontSize(12);
- doc.text('Verkäufer',20,40);
- doc.setFontSize(11);
- doc.text(sellerSettings.name||'-',20,50);
- doc.text(sellerSettings.address||'-',20,58);
- doc.text(sellerSettings.city||'-',20,66);
- doc.text(sellerSettings.phone||'-',20,74);
- doc.text(sellerSettings.mail||'-',20,82);
-
- doc.setFontSize(12);
- doc.text('Käufer',120,40);
- doc.setFontSize(11);
- doc.text(buyer,120,50);
- doc.text(address,120,58);
- doc.text(city,120,66);
-
- doc.line(20,95,190,95);
-
- doc.text('Name: '+(currentSnake.name||'-'),20,115);
- doc.text('Art: '+(currentSnake.species||'-'),20,125);
- doc.text('Morph: '+(currentSnake.morph||'-'),20,135);
- doc.text('Geschlecht: '+(currentSnake.gender||'-'),20,145);
- doc.text('Geburtsdatum: '+(currentSnake.birthDate||'-'),20,155);
- if(price) doc.text('Preis: '+price+' €',20,165);
-
- doc.text('Bemerkungen:',20,180);
- const lines=doc.splitTextToSize(notes||'-',170);
- doc.text(lines,20,190);
-
- doc.line(20,275,90,275);
- doc.text('Unterschrift Verkäufer',20,283);
- doc.line(120,275,190,275);
- doc.text('Unterschrift Käufer',120,283);
-
- doc.save('Abgabenachweis_'+(currentSnake.name||'Tier')+'.pdf');
-}
-
-function deleteCurrentProject(){
- if(currentProject===null) return;
- if(confirm('Projekt wirklich löschen?')){
-   projects.splice(currentProject,1);
-   currentProject=null;
-   save();
-   document.getElementById('projectDetail').style.display='none';
+ content+='</div><button onclick="showPage(\'home\')">Zurück</button>';
+ document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+ let div=document.getElementById('weightHistoryPage');
+ if(!div){
+   div=document.createElement('div');
+   div.id='weightHistoryPage';
+   div.className='section';
+   document.querySelector('.content').appendChild(div);
  }
-}
-
-function addProject(){projects.push({female:female.value,male:male.value,events:[],clutch:{eggs:0,slugs:0,hatched:0},hatchlings:[]});save();}
-
-function openProject(i){
-currentProject=i;
-let p=projects[i];
-if(!p.events) p.events=[];
-if(!p.clutch) p.clutch={eggs:0,slugs:0,hatched:0};
-if(!p.hatchlings) p.hatchlings=[];
-
-let ov=p.events.find(e=>e.type==="Ovulation");
-let forecast='';
-if(ov && ov.date){
- let d=new Date(ov.date);
- let pre=new Date(d); pre.setDate(pre.getDate()+14);
- let lay=new Date(d); lay.setDate(lay.getDate()+30);
- let hatch=new Date(d); hatch.setDate(hatch.getDate()+85);
- forecast=`
- <p>
- 🪶 Pre-Lay Shed: ${pre.toISOString().slice(0,10)}<br>
- 🥚 Eiablage: ${lay.toISOString().slice(0,10)}<br>
- 🐣 Schlupf: ${hatch.toISOString().slice(0,10)}
- </p>`;
-}
-
-projectDetail.style.display='block';
-projectDetail.innerHTML=`
-<h3>${p.female} × ${p.male}</h3>
-
-<select id="etype">
-<option>Kopulation</option>
-<option>Ovulation</option>
-<option>Pre-Lay Shed</option>
-<option>Eiablage</option>
-<option>Schlupf</option>
-<option>Sonstiges</option>
-</select>
-
-<input id="edate" type="date">
-<input id="edetail" placeholder="Notiz">
-<button onclick="addEvent()">Ereignis speichern</button>
-
-${forecast}
-
-<h4>🧬 Timeline</h4>
-${p.events.map((e,n)=>`${e.date} | ${e.type} | ${e.detail||''} <button onclick="delEvent(${n})">🗑</button><br>`).join('') || 'Keine Ereignisse'}
-
-<hr>
-
-<h4>🥚 Gelegeverwaltung</h4>
-<input id="eggs" type="number" placeholder="Eier" value="${p.clutch.eggs||0}">
-<input id="slugs" type="number" placeholder="Slugs" value="${p.clutch.slugs||0}">
-<input id="hatched" type="number" placeholder="Geschlüpft" value="${p.clutch.hatched||0}">
-<button onclick="saveClutch()">Gelege speichern</button>
-
-<p><b>Schlupfquote:</b>
-${(p.clutch.eggs-p.clutch.slugs)>0 ? ((p.clutch.hatched/(p.clutch.eggs-p.clutch.slugs))*100).toFixed(1) : 0}%
-</p>
-
-<h4>🐣 Nachzuchten</h4>
-<label>🧬 Morph</label><input id="hMorph" placeholder="Morph">
-<label>⚥ Geschlecht</label><select id="hGender">
-<option>Unbestimmt</option>
-<option>Weiblich</option>
-<option>Männlich</option>
-</select>
-<label>⚖ Gewicht (g)</label><input id="hWeight" type="number" placeholder="Gewicht">
-<label>📊 Status</label><select id="hStatus">
-<option>Verfügbar</option>
-<option>Reserviert</option>
-<option>Bezahlt</option>
-<option>Abgegeben</option>
-</select>
-<label>💰 Preis (€)</label><input id="hPrice" type="number" placeholder="Preis in €">
-<label>👤 Käufer</label><input id="hBuyer" placeholder="Käufer">
-<label>📱 Kontakt</label><input id="hContact" placeholder="Kontakt">
-<label>📅 Schlupfdatum</label><input id="hBirth" type="date"><label>🥚 Gelege-ID</label><input id="hClutch" placeholder="Gelege-ID"><label>🧬 Projektname</label><input id="hProject" placeholder="Projektname"><label>📝 Notizen</label><input id="hNotes" placeholder="Notizen"><label>📅 Reserviert seit</label><input id="hReserved" type="date">
-<button onclick="addHatchling()">Nachzucht anlegen</button>
-
-${p.hatchlings.map((h,n)=>`
-<div class='card' style='border:1px solid #ccc'>
-<b>🐣 ${h.id}</b><br><br>
-
-<label>🧬 Morph</label>
-<input id="hm_${n}" value="${h.morph||''}">
-
-<label>⚥ Geschlecht</label>
-<select id="hg_${n}">
-<option ${h.gender==='Unbestimmt'?'selected':''}>Unbestimmt</option>
-<option ${h.gender==='Weiblich'?'selected':''}>Weiblich</option>
-<option ${h.gender==='Männlich'?'selected':''}>Männlich</option>
-</select>
-
-<label>⚖ Gewicht</label>
-<input id="hw_${n}" type="number" value="${h.weight||0}">
-
-<label>📊 Status</label>
-<select id="hs_${n}">
-<option ${h.status==='Verfügbar'?'selected':''}>Verfügbar</option>
-<option ${h.status==='Reserviert'?'selected':''}>Reserviert</option>
-<option ${h.status==='Bezahlt'?'selected':''}>Bezahlt</option>
-<option ${h.status==='Abgegeben'?'selected':''}>Abgegeben</option>
-</select>
-
-<label>💰 Preis (€)</label>
-<input id="hp_${n}" type="number" value="${h.price||0}">
-
-<label>👤 Käufer</label>
-<input id="hb_${n}" value="${h.buyer||''}">
-
-<label>📱 Kontakt</label>
-<input id="hc_${n}" value="${h.contact||''}">
-
-<label>📅 Reserviert seit</label>
-<input id="hr_${n}" type="date" value="${h.reserved||''}">
-
-
-<button onclick="updateHatchling(${n})">💾 Speichern</button>
-<button onclick="moveHatchlingToStock(${n})">🐍 In Bestand übernehmen</button>
-<button onclick="moveHatchlingToSales(${n})">💰 In Verkauf übernehmen</button>
-
-<hr>
-<h4>🍽 Fütterungen</h4>
-<input id="hfd_${n}" type="date">
-<select id="hft_${n}">${getFeeders((currentSnake && currentSnake.species) || 'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
-<input id="hfw_${n}" type="number" placeholder="Futtergewicht">
-<select id="hfr_${n}"><option>Gefressen</option><option>Verweigert</option></select>
-<button onclick="addHFeed(${n})">Fütterung speichern</button>
-
-<div style="background:#f5f5f5;padding:8px;border-radius:8px;margin:6px 0">
-<b>📋 Zusammenfassung</b><br>
-🍽 Letzte Fütterung:<br>
-${(h.feedings&&h.feedings.length)?`${h.feedings[h.feedings.length-1].date} | ${h.feedings[h.feedings.length-1].feeder} | ${h.feedings[h.feedings.length-1].result}`:'Keine Daten'}<br><br>
-
-⚖ Letztes Gewicht:<br>
-${(h.weights&&h.weights.length)?`${h.weights[h.weights.length-1].value} g (${h.weights[h.weights.length-1].date})`:(h.weight||0)+' g'}<br><br>
-
-🪶 Letzte Häutung:<br>
-${(h.sheds&&h.sheds.length)?`${h.sheds[h.sheds.length-1].date} | ${h.sheds[h.sheds.length-1].status}`:'Keine Daten'}<br><br>
-
-📊 Statistik:<br>
-Fütterungen: ${(h.feedings||[]).length}<br>
-Gewichte: ${(h.weights||[]).length}<br>
-Häutungen: ${(h.sheds||[]).length}<br>
-Fütterungsquote: ${(() => {
-const f=h.feedings||[];
-if(!f.length) return '0%';
-const eaten=f.filter(x=>x.result==='Gefressen').length;
-return ((eaten/f.length)*100).toFixed(1)+'%';
-})()}<br><br>
-
-💚 Gesundheitsstatus:<br>
-${(() => {
-const feedings=h.feedings||[];
-const weights=h.weights||[];
-const sheds=h.sheds||[];
-
-let status='🟢 Optimal';
-let reasons=[];
-
-if(feedings.length>0 && feedings[feedings.length-1].result==='Gefressen'){
- reasons.push('✔ letzte Fütterung gefressen');
-}
-
-if(weights.length>=2){
- const diff=Number(weights[weights.length-1].value)-Number(weights[0].value);
- if(diff>0){
-   reasons.push('✔ Gewichtszunahme '+diff+' g');
- }
- if(diff<0){
-   status='🟡 Beobachten';
-   reasons.push('⚠ Gewichtsverlust '+Math.abs(diff)+' g');
- }
-}
-
-if(sheds.length>0) reasons.push('✔ Häutung dokumentiert');
-
-if(feedings.length===0 && weights.length===0){
- status='🟡 Beobachten';
- reasons.push('⚠ noch zu wenige Daten');
-}
-
-return status + '<br>' + reasons.join('<br>');
-})()}<br><br>
-
-🍽 Tage seit letzter Fütterung:<br>
-${(h.feedings&&h.feedings.length)?Math.max(0,Math.floor((new Date()-new Date(h.feedings[h.feedings.length-1].date))/86400000))+' Tage':'Keine Daten'}<br>
-
-🪶 Tage seit letzter Häutung:<br>
-${(h.sheds&&h.sheds.length)?Math.max(0,Math.floor((new Date()-new Date(h.sheds[h.sheds.length-1].date))/86400000))+' Tage':'Keine Daten'}<br>
-
-📈 Gewichtsentwicklung:<br>
-${(h.weights&&h.weights.length>=2) ? `${h.weights[0].value} g → ${h.weights[h.weights.length-1].value} g (${((Number(h.weights[h.weights.length-1].value)-Number(h.weights[0].value))>=0?'+':'')}${Number(h.weights[h.weights.length-1].value)-Number(h.weights[0].value)} g)` : 'Keine Daten'}
-</div>
-
-${(h.feedings||[]).map(x=>`${x.date} | ${x.feeder} | ${x.feederWeight}g | ${x.result}<br>`).join('')}
-
-
-<h4>⚖ Gewichte</h4>
-<input id="hwd_${n}" type="date">
-<input id="hwv_${n}" type="number" placeholder="Gewicht">
-<button onclick="addHWeight(${n})">Gewicht speichern</button>
-${(h.weights||[]).map(x=>`${x.date} | ${x.value}g<br>`).join('')}
-
-<h4>🪶 Häutungen</h4>
-<input id="hsd_${n}" type="date">
-<select id="hss_${n}"><option>Vollständig</option><option>Unvollständig</option></select>
-<button onclick="addHShed(${n})">Häutung speichern</button>
-${(h.sheds||[]).map(x=>`${x.date} | ${x.status}<br>`).join('')}
-
-<button onclick="delHatchling(${n})">🗑 Löschen</button>
-
-</div>
-`).join('')}
-`;
-}
-
-function addEvent(){
- let p=projects[currentProject];
- p.events.push({date:edate.value,type:etype.value,detail:edetail.value});
- save(); openProject(currentProject);
-}
-
-function delEvent(i){
- projects[currentProject].events.splice(i,1);
- save(); openProject(currentProject);
-}
-
-function saveClutch(){
- let p=projects[currentProject];
- p.clutch.eggs=parseInt(eggs.value||0);
- p.clutch.slugs=parseInt(slugs.value||0);
- p.clutch.hatched=parseInt(hatched.value||0);
- save(); openProject(currentProject);
-}
-
-function addHatchling(){
- let p=projects[currentProject];
- p.hatchlings.push({
-   id:'NZ-'+Date.now(),
-   morph:hMorph.value,
-   gender:hGender.value,
-   weight:parseInt(hWeight.value||0),
-   status:hStatus.value,
-   price:parseFloat(hPrice.value||0),
-   buyer:hBuyer.value,
-   contact:hContact.value,
-   birthDate:hBirth.value,
-   clutchId:hClutch.value,
-   projectName:hProject.value,
-   notes:hNotes.value,
-   reserved:hReserved.value,
-   feedings:[],
-   weights:[],
-   sheds:[]
- });
- save(); openProject(currentProject);
+ div.innerHTML=content;
+ div.classList.add('active');
 }
 
 
-function updateHatchling(i){
- const p=projects[currentProject];
- const h=p.hatchlings[i];
- if(!h) return;
-
- h.morph=document.getElementById('hm_'+i).value;
- h.gender=document.getElementById('hg_'+i).value;
- h.weight=Number(document.getElementById('hw_'+i).value||0);
- h.status=document.getElementById('hs_'+i).value;
- h.price=Number(document.getElementById('hp_'+i).value||0);
- h.buyer=document.getElementById('hb_'+i).value;
- h.contact=document.getElementById('hc_'+i).value;
- h.reserved=document.getElementById('hr_'+i).value;
-
- localStorage.setItem('kp_projects_v18',JSON.stringify(projects));
- localStorage.setItem('kp_manager_v18',JSON.stringify(snakes));
-
- h.feedings=h.feedings||[];
- h.weights=h.weights||[];
- h.sheds=h.sheds||[];
- alert('Nachzucht gespeichert');
- render();
- openProject(currentProject);
-}
-
-function delHatchling(i){
- projects[currentProject].hatchlings.splice(i,1);
- save(); openProject(currentProject);
-}
-
-
-
-function addHFeed(i){
- let h=projects[currentProject].hatchlings[i];
- h.feedings=h.feedings||[];
- h.feedings.push({
-   date:document.getElementById('hfd_'+i).value,
-   feeder:document.getElementById('hft_'+i).value,
-   feederWeight:document.getElementById('hfw_'+i).value,
-   result:document.getElementById('hfr_'+i).value
- });
- save(); openProject(currentProject);
-}
-function addHWeight(i){
- let h=projects[currentProject].hatchlings[i];
- h.weights=h.weights||[];
- h.weights.push({
-   date:document.getElementById('hwd_'+i).value,
-   value:document.getElementById('hwv_'+i).value
- });
- h.weight=Number(document.getElementById('hwv_'+i).value||0);
- save(); openProject(currentProject);
-}
-function addHShed(i){
- let h=projects[currentProject].hatchlings[i];
- h.sheds=h.sheds||[];
- h.sheds.push({
-   date:document.getElementById('hsd_'+i).value,
-   status:document.getElementById('hss_'+i).value
- });
- save(); openProject(currentProject);
-}
-
-
-function addSnakeToSales(id){
- let s=snakes.find(x=>x.id===id);
- if(s){s.saleListed=true;save();}
-}
-function removeSnakeFromSales(id){
- let s=snakes.find(x=>x.id===id);
- if(s){s.saleListed=false;save();}
-}
-
-function deleteSnake(id){
- if(!confirm('Tier wirklich löschen?')) return;
- snakes = snakes.filter(s => s.id !== id);
- if(currentSnake && currentSnake.id===id){
-   document.getElementById('snakeDetail').style.display='none';
-   currentSnake=null;
- }
+function editFullAnimal(t,i){
+ const a=db[t][i];
+ const n=prompt('Name',a.name); if(n===null)return;
+ a.name=n;
+ a.morph=prompt('Morph / Art',a.morph||'') ?? a.morph;
+ a.sex=prompt('Geschlecht',a.sex||'') ?? a.sex;
+ a.origin=prompt('Herkunft',a.origin||'') ?? a.origin;
+ a.price=prompt('Preis',a.price||'') ?? a.price;
+ a.status=prompt('Status',a.status||'Bestand') ?? a.status;
  save();
 }
 
-
-function moveHatchlingToStock(i){
- let h=projects[currentProject].hatchlings[i];
- snakes.push({
-   id:Date.now(),
-   name:h.id,
-   morph:h.morph,
-   gender:h.gender==='Unbestimmt'?'Weiblich':h.gender,
-   saleListed:false,
-   currentWeight:h.weight||0,
-   feedingInterval:14,
-   feedings:h.feedings||[],
-   weights:h.weights||[],
-   sheds:h.sheds||[]
- });
- projects[currentProject].hatchlings.splice(i,1);
- save();
- openProject(currentProject);
+function dashboardInfo(){
+ let total=(db.koenig||[]).length+(db.boas||[]).length+(db.geckos||[]).length+(db.spinnen||[]).length;
+ return '<div class="card"><h3>📊 Übersicht</h3>Gesamtbestand: '+total+'<br>💰 Verkauf: '+(db.sales||[]).length+'<br>📁 Archiv: '+(db.archive||[]).length+'<br>🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
 }
-
-function moveHatchlingToSales(i){
- let h=projects[currentProject].hatchlings[i];
- snakes.push({
-   id:Date.now(),
-   name:h.id,
-   morph:h.morph,
-   gender:h.gender==='Unbestimmt'?'Weiblich':h.gender,
-   saleListed:true,
-   currentWeight:h.weight||0,
-   feedingInterval:14,
-   feedings:h.feedings||[],
-   weights:h.weights||[],
-   sheds:h.sheds||[]
- });
- projects[currentProject].hatchlings.splice(i,1);
- save();
- openProject(currentProject);
-}
-
 
 function render(){
-let warnings=[]; let refusals=0;
-snakes.forEach(s=>{
- if(s.feedings?.length>=3 && s.feedings.slice(-3).every(x=>x.result==="Verweigert")) refusals++;
- if(s.weights?.length>=2){
-  let a=parseFloat(s.weights[s.weights.length-2].value||0);
-  let b=parseFloat(s.weights[s.weights.length-1].value||0);
-  if(a>0){
-   let pct=((a-b)/a)*100;
-   if(pct>=10) warnings.push('🔴 '+s.name+' -'+pct.toFixed(1)+'%');
-   else if(pct>=5) warnings.push('🟡 '+s.name+' -'+pct.toFixed(1)+'%');
-  }
- }
-});
-const hatchlings=projects.flatMap(p=>p.hatchlings||[]);
-const available=hatchlings.filter(h=>h.status==='Verfügbar').length;
-const reserved=hatchlings.filter(h=>h.status==='Reserviert').length;
-const paid=hatchlings.filter(h=>h.status==='Bezahlt').length;
-const sold=hatchlings.filter(h=>h.status==='Abgegeben').length;
-const potential=hatchlings.reduce((a,h)=>a+(Number(h.price)||0),0);
+dashInfo.innerHTML=dashboardInfo();
+c1.textContent=db.koenig.length;
+c2.textContent=db.boas.length;
+c3.textContent=db.geckos.length;
+c4.textContent=db.spinnen.length;
 
-dashboard.innerHTML=`
-<h3>🏠 Mainboard</h3><p><b>Management-Zentrale</b></p>
-<button onclick="exportBackup()">💾 Backup exportieren</button>
-<button onclick="document.getElementById('restoreFile').click()">📂 Backup importieren</button>
-<input id="restoreFile" type="file" style="display:none" onchange="importBackup(this)">
+draw('koenig','🐍 Königspython','koenig');
+draw('boas','🐍 Boas','boas');
+draw('geckos','🦎 Leopardgeckos','geckos');
+draw('spinnen','🕷 Vogelspinnen','spinnen');
 
-<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
-<div class="card"><b>🐍 Bestand</b><br><span style='font-size:28px'>${snakes.length}</span></div>
-<div class="card"><b>🐣 Nachzuchten</b><br><span style='font-size:28px'>${hatchlings.length}</span></div>
-<div class="card"><b>♀ Weibchen</b><br>${snakes.filter(s=>s.gender==='Weiblich').length}</div>
-<div class="card"><b>♂ Männchen</b><br>${snakes.filter(s=>s.gender==='Männlich').length}</div>
-</div>
-
-<div class="card">
-<h3>🚨 Warncenter</h3>
-${warnings.length ? warnings.join('<br>') : '✅ Keine Warnungen vorhanden'}<br><br>
-🚫 Futterverweigerungen: ${refusals}<br><br>
-<h3>📅 Heute fällig</h3>
-• Fütterungen prüfen<br>
-• Gewichte prüfen<br>
-• Häutungen prüfen
-</div>
-
-<div class="card">
-<h3>💰 Verkaufsübersicht</h3>
-💵 Umsatzpotenzial: ${potential.toFixed(0)} €<br>🐍 Gesamtbestand: ${snakes.length}<br>🐣 Projekte: ${projects.length}<br>
-🟢 Verfügbar: ${available}<br>
-🟡 Reserviert: ${reserved}<br>
-🔵 Bezahlt: ${paid}<br>
-⚫ Abgegeben: ${sold}
-</div>
-
-<div class="card">
-<h3>📊 Statistik</h3>Bestand: ${snakes.length}<br>Projekte: ${projects.length}<br><br><h3>⭐ Schnellaktionen</h3>
-<button onclick="showTab('stock')">➕ Tier anlegen</button>
-<button onclick="showTab('projects')">➕ Projekt anlegen</button>
-<button onclick="showTab('projects')">➕ Nachzucht anlegen</button>
-</div>`;
-
-const search=(document.getElementById('searchBox')?.value||'').toLowerCase();
-const filtered=snakes.filter(s=>
- (s.name||'').toLowerCase().includes(search) ||
- (s.morph||'').toLowerCase().includes(search) ||
- (s.animalNumber||'').toLowerCase().includes(search) ||
- (s.clutchId||'').toLowerCase().includes(search)
-);
-femaleList.innerHTML=filtered.filter(s=>s.gender==='Weiblich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
-maleList.innerHTML=filtered.filter(s=>s.gender==='Männlich').map(s=>`<div class='card'>${s.photo?`<img src='${s.photo}' style='width:100%;max-height:120px;object-fit:cover;border-radius:8px'>`:''}<b>${s.name}</b><br><button onclick="openSnake(${s.id})">Öffnen</button><button onclick="addSnakeToSales(${s.id})">💰 Zum Verkauf</button><button onclick="deleteSnake(${s.id})">🗑 Löschen</button></div>`).join('');
-
-female.innerHTML=snakes.filter(s=>s.gender==='Weiblich').map(s=>`<option>${s.name}</option>`).join('');
-male.innerHTML=snakes.filter(s=>s.gender==='Männlich').map(s=>`<option>${s.name}</option>`).join('');
-
-
-const salesList=document.getElementById('salesList');
-const saleSnakes=snakes.filter(s=>s.saleListed);
-
-const salesDashboard=document.getElementById('salesDashboard');
-if(salesList && salesDashboard){
- const salesAnimals=hatchlings.filter(h=>['Verfügbar','Reserviert','Bezahlt'].includes(h.status));
- salesList.innerHTML= saleSnakes.map(s=>`
-<div class='card'>
-<b>${s.name}</b><br>
-${s.morph||''}<br>
-Gewicht: ${s.currentWeight||0} g<br>
-<button onclick="removeSnakeFromSales(${s.id})">🐍 In Bestand</button>
-</div>`).join('') +
-salesAnimals.map(h=>`
- <div class='card'>
- <b>${h.id}</b><br>
- ${h.morph||'-'}<br>
- ${h.weight||0} g<br>
- ${h.price||0} €<br>
- Status: ${h.status}
- </div>`).join('') || 'Keine Verkaufstiere vorhanden';
-
- salesDashboard.innerHTML=`
- 💵 Umsatzpotenzial: ${potential.toFixed(0)} €<br>🐍 Gesamtbestand: ${snakes.length}<br>🐣 Projekte: ${projects.length}<br>
- 🟢 Verfügbar: ${available}<br>
- 🟡 Reserviert: ${reserved}<br>
- 🔵 Bezahlt: ${paid}<br>
- ⚫ Abgegeben: ${sold}
- `;
+clutchList.innerHTML=db.clutches.map(x=>`<div class='animal'>${x.name} - ${x.eggs} Eier</div>`).join('');
+saleList.innerHTML=db.sales.map(x=>`<div class='animal'><b>${x.name}</b><br>${x.morph}</div>`).join('');
+archiveList.innerHTML=db.archive.map(x=>`<div class='animal'>${x.name}</div>`).join('');
 }
-
-projectList.innerHTML=projects.map((p,i)=>`<div class='card'><b>${p.female} × ${p.male}</b><br>Status: ${(p.events&&p.events.length)?p.events.at(-1).type:'Neu'}<button onclick="openProject(${i})">Öffnen</button></div>`).join('');
-}
-
-function exportBackup(){
- const data={snakes,projects,date:new Date().toISOString()};
- const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
- const a=document.createElement('a');
- a.href=URL.createObjectURL(blob);
- a.download='KP_Manager_V18_Backup.json';
- a.click();
-}
-function importBackup(input){
- const f=input.files[0];
- if(!f)return;
- const r=new FileReader();
- r.onload=e=>{
-   const d=JSON.parse(e.target.result);
-   snakes=d.snakes||[];
-   projects=d.projects||[];
-   save();
-   alert('Backup importiert');
- };
- r.readAsText(f);
-}
-
-render(); loadSellerSettings();
-</script></body></html>
+render();
+</script>
+</body>
+</html>
