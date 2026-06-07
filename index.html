@@ -2,13 +2,6 @@
 <html lang="de"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
-
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#243447">
-
-
 <title>Python Dashboard V19</title>
 <style>
 body{font-family:Arial;margin:0;background:#f4f4f4}
@@ -245,7 +238,7 @@ snakeDetail.innerHTML=`
 <h4>🍽 Fütterung</h4>
 
 <input id="fd" type="date">
-<select id="ft">${getFeeders(currentSnake.species||'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
+<select id="ft">${getFeeders((currentSnake && currentSnake.species) || 'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
 <input id="fw" type="number" placeholder="Gewicht Futtertier">
 <select id="fr"><option>Gefressen</option><option>Verweigert</option></select>
 <button onclick="addFeed()">Speichern</button>
@@ -356,38 +349,12 @@ async function createTransferDocument(){
 
  const { jsPDF } = window.jspdf;
  const doc = new jsPDF();
- try{
-  const img = new Image();
-  img.src = 'logo.png';
-
-  await new Promise((resolve)=>{
-    img.onload = resolve;
-    img.onerror = resolve;
-  });
-
-  const canvas = document.createElement('canvas');
-  canvas.width = img.width;
-  canvas.height = img.height;
-
-  const ctx = canvas.getContext('2d');
-  ctx.globalAlpha = 0.08;
-
-  ctx.drawImage(img,0,0);
-
-  const data = canvas.toDataURL('image/png');
-
-  doc.addImage(data,'PNG',15,45,180,180);
-
-}catch(e){
-  console.log('Logo nicht geladen');
-}
+ 
  doc.setTextColor(20,20,20);
  doc.setFontSize(22);
-doc.text("SASCHA'S PYTHON DASHBOARD",20,18);
+doc.text("SASCHA\'S PYTHON DASHBOARD",20,18);\n doc.setFontSize(16);
+doc.text("ABGABENACHWEIS",20,28);\n doc.line(20,32,190,32);
 
-doc.setFontSize(16);
-doc.text("ABGABENACHWEIS",20,28);
-doc.line(20,32,190,32);
  doc.setFontSize(12);
  doc.text('Verkäufer',20,40);
  doc.setFontSize(11);
@@ -558,7 +525,7 @@ ${p.hatchlings.map((h,n)=>`
 <hr>
 <h4>🍽 Fütterungen</h4>
 <input id="hfd_${n}" type="date">
-<select id="hft_${n}">${getFeeders(currentSnake.species||'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
+<select id="hft_${n}">${getFeeders((currentSnake && currentSnake.species) || 'Königspython').map(f=>`<option>${f}</option>`).join('')}</select>
 <input id="hfw_${n}" type="number" placeholder="Futtergewicht">
 <select id="hfr_${n}"><option>Gefressen</option><option>Verweigert</option></select>
 <button onclick="addHFeed(${n})">Fütterung speichern</button>
@@ -681,6 +648,10 @@ function addHatchling(){
    price:parseFloat(hPrice.value||0),
    buyer:hBuyer.value,
    contact:hContact.value,
+   birthDate:hBirth.value,
+   clutchId:hClutch.value,
+   projectName:hProject.value,
+   notes:hNotes.value,
    reserved:hReserved.value,
    feedings:[],
    weights:[],
@@ -944,11 +915,4 @@ function importBackup(input){
 }
 
 render(); loadSellerSettings();
- if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(() => console.log('Service Worker registriert'))
-      .catch(err => console.log('SW Fehler:', err));
-  });
-}
 </script></body></html>
