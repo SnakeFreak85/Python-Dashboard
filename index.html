@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V76</title>
+<title>Sascha's Python Dashboard V77</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -53,7 +53,7 @@ color:white !important;
 .feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
 
 </style>
-</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <body>
 
 <button id="menuBtn" onclick="openMenu()">☰</button>
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V76</div>
+<div class="logo">🐍 Sascha's Python Dashboard V77</div>
 </header>
 
 <div class="content">
@@ -209,7 +209,7 @@ ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>🍽 Füt
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
-<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽 Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="moveSale('${t}',${i})">In Verkauf</button><button onclick="addFeed('${t}',${i})">Fütterung</button><button onclick="toggleShedForm('${t}',${i})">Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽 Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="moveSale('${t}',${i})">In Verkauf</button><button onclick="addFeed('${t}',${i})">Fütterung</button><button onclick="toggleShedForm('${t}',${i})">Häutung</button><div id="shed_${t}_${i}"></div>
 <button onclick="delAnimal('${t}',${i})">Löschen</button>
 </div>`).join('');
 }
@@ -493,6 +493,34 @@ function editFullAnimal(t,i){
 function dashboardInfo(){
  let total=(db.koenig||[]).length+(db.boas||[]).length+(db.geckos||[]).length+(db.spinnen||[]).length;
  return '<div class="card"><h3>📊 Übersicht</h3>Gesamtbestand: '+total+'<br>💰 Verkauf: '+(db.sales||[]).length+'<br>📁 Archiv: '+(db.archive||[]).length+'<br>🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
+}
+
+
+function exportAnimalPdf(t,i){
+ const a=db[t][i];
+ if(!window.jspdf){ alert('PDF Bibliothek nicht geladen'); return; }
+ const { jsPDF } = window.jspdf;
+ const doc=new jsPDF();
+ let y=15;
+ const add=(txt)=>{ doc.text(String(txt),10,y); y+=7; };
+
+ add('Tierbericht');
+ add('ID: '+generateId(t,i));
+ add('Name: '+(a.name||''));
+ add('Morph/Art: '+(a.morph||''));
+ add('Geschlecht: '+(a.sex||''));
+ add('Gewicht: '+(a.weight||'')+'g');
+ y+=4;
+ add('Fütterungen:');
+ (a.feeds||[]).forEach(f=>{
+   if(typeof f==='object') add(f.date+' | '+f.prey+' | '+f.amount);
+ });
+ y+=4;
+ add('Häutungen:');
+ (a.sheds||[]).forEach(s=>{
+   if(typeof s==='object') add(s.date+' | '+(s.complete?'Vollständig':'Unvollständig'));
+ });
+ doc.save(generateId(t,i)+'_'+(a.name||'Tier')+'.pdf');
 }
 
 function render(){
