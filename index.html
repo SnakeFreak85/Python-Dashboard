@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V105</title>
+<title>Sascha's Python Dashboard V110</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V105</div>
+<div class="logo">🐍 Sascha's Python Dashboard V110</div>
 </header>
 
 <div class="content">
@@ -232,7 +232,7 @@ ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutc
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
 <button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽 Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="moveSale('${t}',${i})">In Verkauf</button><button onclick="addFeed('${t}',${i})">Fütterung</button><button onclick="toggleShedForm('${t}',${i})">Häutung</button><div id="shed_${t}_${i}"></div>
-<button onclick="delAnimal('${t}',${i})">Löschen</button>
+<button onclick="moveOffspringToSale('${t}',${i})">➡️ In Verkauf</button><button onclick="delAnimal('${t}',${i})">Löschen</button>
 </div>`).join('');
 }
 
@@ -260,7 +260,7 @@ function exportBackup(){
 const blob=new Blob([JSON.stringify(db)],{type:'application/json'});
 const a=document.createElement('a');
 a.href=URL.createObjectURL(blob);
-a.download='Saschas_Python_Dashboard_Backup.json';
+a.download='Saschas_Python_Dashboard V109_Backup.json';
 a.click();
 }
 
@@ -621,6 +621,8 @@ function createOffspring(i){
      mother:(c.mother||''),
      father:(c.father||''),
      genetics:'Projekt: '+(c.name||'')+' | Eltern: '+(c.mother||'')+' x '+(c.father||''),
+createdAt:new Date().toLocaleDateString('de-DE'),
+project:(c.name||''),
      type:'Nachzucht',
      weight:'',
      origin:'Nachzucht',
@@ -753,6 +755,7 @@ function getForecastText(c){
  return result;
 }
 
+
 function clutchForecast(i){
  const c=db.clutches[i];
  const all=[...(db.koenig||[]),...(db.boas||[])];
@@ -762,20 +765,37 @@ function clutchForecast(i){
  const motherText=(motherAnimal?.morph)||c.mother||'';
  const fatherText=(fatherAnimal?.morph)||c.father||'';
 
- const m=detectMorphs(motherText);
- const f=detectMorphs(fatherText);
- const ga=analyzeGenes(m,f);
+ const mGenes=detectMorphs(motherText);
+ const fGenes=detectMorphs(fatherText);
+
+ let result=[];
+
+ if(
+   (mGenes.recessive||[]).includes('Ultramel') &&
+   (fGenes.recessive||[]).includes('Ultramel')
+ ){
+   result.push('50 % Ultramel');
+   if((fGenes.dominant||[]).includes('Pastel')){
+      result.push('50 % Pastel Ultramel');
+   }
+ }
+
+ if((fGenes.het||[]).includes('Cryptic')){
+   result.push('100 % het Cryptic');
+ }
 
  const box=document.getElementById('forecast_'+i);
- box.innerHTML='<div class="feedPanel"><b>🧬 Nachzuchtprognose</b><br><br>'
- +'Mutter: '+motherText+'<br>Vater: '+fatherText
- +'<br><br><b>Dominante Gene:</b><br>'+(ga.d.join(', ')||'-')
- +'<br><br><b>Rezessive Gene:</b><br>'+(ga.r.join(', ')||'-')
- +'<br><br><b>Het:</b><br>'+(ga.h.join(', ')||'-')
- +'<br><br><b>Pos Het:</b><br>'+(ga.p.join(', ')||'-')
- +'<br><br><b>Mögliche Projekte:</b><br>'+(ga.projects.join('<br>')||'-')
- +'</div>';
+ if(!box) return;
+
+ box.innerHTML =
+ '<div class="feedPanel"><b>🧬 Nachzuchtprognose</b><br><br>'+
+ 'Mutter: '+motherText+'<br>'+
+ 'Vater: '+fatherText+'<br><br>'+
+ '<b>🎯 Verpaarungsergebnis</b><br>'+
+ (result.length ? result.join('<br>') : 'Noch keine Prognose hinterlegt')+
+ '</div>';
 }
+
 
 
 function showPedigree(btn){
@@ -843,9 +863,63 @@ function dueTodayPanel(){
  return '<div class="card"><h3>🍽 Heute fällig</h3>'+(items.length?items.join('<br>'):'Keine offenen Fütterungen')+'</div>';
 }
 
+
+function offspringOverview(){
+ let txt='';
+ (db.clutches||[]).forEach(c=>{
+   const kids=(db.koenig||[]).filter(x=>x.clutch===c.name);
+   txt+='<b>'+c.name+'</b><br>'+kids.length+' Nachzuchten<br>';
+   kids.forEach(k=>txt+=k.name+'<br>');
+   txt+='<hr>';
+ });
+ return '<div class="card"><h3>🐣 Nachzuchtübersicht</h3>'+(txt||'Keine Nachzuchten')+'</div>';
+}
+
+
+function moveOffspringToSale(t,i){
+ const a=db[t][i];
+ db.sales.push({
+   name:a.name,
+   morph:a.morph,
+   sex:a.sex||'Unbestimmt',
+   origin:a.origin||'Nachzucht',
+   mother:a.mother||'',
+   father:a.father||'',
+   clutch:a.clutch||''
+ });
+ save();
+ alert('Tier in Verkauf übernommen');
+}
+
+
+function importantDatesPanel(){
+ let items=[];
+ const today=new Date();
+
+ (db.clutches||[]).forEach(c=>{
+   if(c.hatchDate){
+      items.push('🐣 Erwarteter Schlupf: '+c.name+' ('+c.hatchDate+')');
+   }else if(c.layDate){
+      items.push('🥚 Aktives Gelege: '+c.name+' ('+c.layDate+')');
+   }
+ });
+
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+   (db[t]||[]).forEach(a=>{
+      const feeds=a.feeds||[];
+      if(feeds.length===0) return;
+      const last=feeds[feeds.length-1];
+      const dstr=(typeof last==='object'?last.date:last);
+      items.push('🍽 Letzte Fütterung: '+a.name+' ('+dstr+')');
+   });
+ });
+
+ return '<div class="card"><h3>📅 Wichtige Termine</h3>'+(items.length?items.join('<br>'):'Keine Termine')+'</div>';
+}
+
 function render(){
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+breedingCalendar()+breedingStats()+dueTodayPanel();
+dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
