@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V77</title>
+<title>Sascha's Python Dashboard V76</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -53,7 +53,7 @@ color:white !important;
 .feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
+</head>
 <body>
 
 <button id="menuBtn" onclick="openMenu()">☰</button>
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V77</div>
+<div class="logo">🐍 Sascha's Python Dashboard V76</div>
 </header>
 
 <div class="content">
@@ -209,7 +209,7 @@ ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>🍽 Füt
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
-<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽 Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="moveSale('${t}',${i})">In Verkauf</button><button onclick="toggleShedForm('${t}',${i})">Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽 Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="moveSale('${t}',${i})">In Verkauf</button><button onclick="addFeed('${t}',${i})">Fütterung</button><button onclick="toggleShedForm('${t}',${i})">Häutung</button><div id="shed_${t}_${i}"></div>
 <button onclick="delAnimal('${t}',${i})">Löschen</button>
 </div>`).join('');
 }
@@ -293,18 +293,6 @@ date:new Date().toLocaleString('de-DE'),
 complete
 });
 save();
-}
-
-
-);
-txt+='\nHÄUTUNGEN\n----------------\n';
-(a.sheds||[]).forEach(x=>{
- if(typeof x==='string') txt+=x+'\n';
- else txt+=x.date+' | '+(x.complete?'Vollständig':'Unvollständig')+'\n';
-});
-
-const w=window.open('','_blank');
-w.document.write('<pre>'+txt+'</pre><button onclick="window.print()">📄 PDF / Drucken</button>');
 }
 
 
@@ -419,26 +407,27 @@ function showWeights(t,i){
 
 function animalReport(t,i){
  const a=db[t][i];
- if(!window.jspdf){ alert('jsPDF nicht geladen'); return; }
- const { jsPDF } = window.jspdf;
- const doc=new jsPDF();
- let y=15;
- const line=(t)=>{ doc.text(String(t),10,y); y+=7; };
-
- line('Tierbericht');
- line('ID: '+generateId(t,i));
- line('Name: '+(a.name||''));
- line('Morph/Art: '+(a.morph||''));
- line('Geschlecht: '+(a.sex||''));
- line('Herkunft: '+(a.origin||''));
- line('Preis: '+(a.price||''));
- line('Status: '+(a.status||''));
- line('Gewicht: '+(a.weight||'')+'g');
- y+=4; line('Fütterungen');
- (a.feeds||[]).forEach(f=>{ if(typeof f==='object') line(f.date+' | '+f.prey+' | '+f.amount); });
- y+=4; line('Häutungen');
- (a.sheds||[]).forEach(s=>{ if(typeof s==='object') line(s.date+' | '+(s.complete?'Vollständig':'Unvollständig')); });
- doc.save(generateId(t,i)+'_'+(a.name||'Tier')+'.pdf');
+ let txt='TIERBERICHT\n\n';
+ txt+='ID: '+generateId(t,i)+'\n';
+ txt+='Name: '+(a.name||'')+'\n';
+ txt+='Morph/Art: '+(a.morph||'')+'\n';
+ txt+='Geschlecht: '+(a.sex||'')+'\n';
+ txt+='Herkunft: '+(a.origin||'')+'\n';
+ txt+='Preis: '+(a.price||'')+'\n';
+ txt+='Status: '+(a.status||'')+'\n';
+ txt+='Aktuelles Gewicht: '+(a.weight||'')+'g\n\n';
+ txt+='GEWICHTE\n----------------\n';
+ (a.weights||[]).forEach(w=>{ if(typeof w==='object') txt+=w.date+' '+w.weight+'g\n';});
+ txt+='\nFÜTTERUNGEN\n----------------\n';
+ (a.feeds||[]).forEach(f=>{
+   if(typeof f==='object') txt+=f.date+' | '+f.prey+' | '+f.amount+' | '+(f.accepted?'Gefressen':'Verweigert')+'\n';
+ });
+ txt+='\nHÄUTUNGEN\n----------------\n';
+ (a.sheds||[]).forEach(s=>{
+   if(typeof s==='object') txt+=s.date+' | '+(s.complete?'Vollständig':'Unvollständig')+' | '+(s.note||'')+'\n';
+ });
+ const w=window.open('','_blank');
+ if(w) w.document.write('<pre>'+txt+'</pre><button onclick="window.print()">📄 Drucken</button>');
 }
 
 
