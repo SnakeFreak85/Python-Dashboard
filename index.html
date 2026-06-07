@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V77</title>
+<title>Sascha's Python Dashboard V104</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -69,11 +69,11 @@ color:white !important;
 <a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
 <a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
 <a href="#" onclick="showPage('archiv')">📁 Archiv</a>
-<a href="#" onclick="showPage('backup')">💾 Backup</a>
+<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('backup')">💾 Backup</a>
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V77</div>
+<div class="logo">🐍 Sascha's Python Dashboard V104</div>
 </header>
 
 <div class="content">
@@ -102,7 +102,14 @@ color:white !important;
 <div class="card">
 <h2>🐣 Nachzuchten</h2>
 <input id="clutchName" placeholder="Projekt / Gelege">
+<select id="motherName" onchange="checkRelationship()"></select>
+<select id="fatherName" onchange="checkRelationship()"></select><div id="relationshipWarning" style="color:red;font-weight:bold;margin:6px 0"></div>
+<input id="pairDate" type="date">
+<input id="layDate" type="date">
 <input id="eggCount" type="number" placeholder="Eieranzahl">
+<input id="hatchDate" type="date">
+<input id="hatchedCount" type="number" placeholder="Geschlüpft">
+<textarea id="clutchNote" placeholder="Bemerkung"></textarea>
 <button onclick="saveClutch()">Gelege speichern</button>
 <div id="clutchList"></div>
 </div>
@@ -119,6 +126,15 @@ color:white !important;
 <div class="card">
 <h2>📁 Archiv</h2>
 <div id="archiveList"></div>
+</div>
+</div>
+
+
+<div id="morphs" class="section">
+<div class="card">
+<h2>🧬 Morph-Datenbank</h2>
+<div id="morphList"></div>
+<p>Grundlage für den Nachzuchtrechner.</p>
 </div>
 </div>
 
@@ -188,7 +204,13 @@ status:(document.getElementById(t+'_status')||{}).value||'Bestand'
 save();
 }
 
-function delAnimal(t,i){db[t].splice(i,1);save();}
+function delAnimal(t,i){
+ const n=(db[t][i]&&db[t][i].name)||'Tier';
+ if(confirm('Tier wirklich löschen?\n\n'+n)){
+   db[t].splice(i,1);
+   save();
+ }
+}
 
 function moveSale(t,i){
 db.sales.push(db[t][i]);
@@ -204,7 +226,7 @@ ${a.photo?'<img src="'+a.photo+'" style="max-width:120px;max-height:120px;border
 ${a.morph}<br>
 ⚖ ${a.weight||0} g<br>
 🏠 ${a.origin||'-'}<br>
-${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
+${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
@@ -217,7 +239,17 @@ ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>🍽 Füt
 function saveClutch(){
 const n=clutchName.value.trim();
 if(!n)return;
-db.clutches.push({name:n,eggs:eggCount.value});
+db.clutches.push({
+name:n,
+mother:motherName.value,
+father:fatherName.value,
+pairDate:pairDate.value,
+layDate:layDate.value,
+eggs:eggCount.value,
+hatchDate:hatchDate.value,
+hatched:hatchedCount.value,
+note:clutchNote.value
+});
 save();
 }
 
@@ -510,6 +542,11 @@ function exportAnimalPdf(t,i){
  add('Morph/Art: '+(a.morph||''));
  add('Geschlecht: '+(a.sex||''));
  add('Gewicht: '+(a.weight||'')+'g');
+ add('Herkunft: '+(a.origin||''));
+ if(a.mother||a.father) add('Eltern: '+(a.mother||'-')+' x '+(a.father||'-'));
+ if(a.clutch) add('Gelege: '+a.clutch);
+ add('Fütterungen gesamt: '+((a.feeds||[]).length));
+ add('Häutungen gesamt: '+((a.sheds||[]).length));
  y+=4;
  add('Fütterungen:');
  (a.feeds||[]).forEach(f=>{
@@ -523,8 +560,278 @@ function exportAnimalPdf(t,i){
  doc.save(generateId(t,i)+'_'+(a.name||'Tier')+'.pdf');
 }
 
+
+function editClutch(i){
+ const c=db.clutches[i];
+ const n=prompt('Projektname',c.name);
+ if(n===null) return;
+ c.name=n;
+ c.eggs=prompt('Eieranzahl',c.eggs)||c.eggs;
+ c.hatched=prompt('Geschlüpft',c.hatched)||c.hatched;
+ save();
+}
+function deleteClutch(i){
+ if(confirm('Gelege wirklich löschen?')){
+   db.clutches.splice(i,1);
+   save();
+ }
+}
+function clutchPdf(i){
+ const c=db.clutches[i];
+ if(!window.jspdf){ alert('PDF Bibliothek fehlt'); return; }
+ const {jsPDF}=window.jspdf;
+ const doc=new jsPDF();
+ doc.text('Gelegebericht',10,15);
+ doc.text('Projekt: '+(c.name||''),10,25);
+ doc.text('Mutter: '+(c.mother||''),10,35);
+ doc.text('Vater: '+(c.father||''),10,45);
+ doc.text('Eier: '+(c.eggs||0),10,55);
+ doc.text('Geschlüpft: '+(c.hatched||0),10,65);
+const fc=getForecastText(c);
+if(fc.length){
+ doc.text('Nachzuchtprognose:',10,80);
+ fc.forEach((x,n)=>doc.text(x,10,90+(n*10)));
+}
+ doc.save((c.name||'Gelege')+'.pdf');
+}
+
+
+function populateBreederDropdowns(){
+ const animals=[...(db.koenig||[]),...(db.boas||[])];
+ const opts='<option value="">-- auswählen --</option>'+animals.map(a=>'<option>'+a.name+'</option>').join('');
+ const m=document.getElementById('motherName');
+ const f=document.getElementById('fatherName');
+ if(m) m.innerHTML=opts;
+ if(f) f.innerHTML=opts;
+}
+
+
+function createOffspring(i){
+ const c=db.clutches[i];
+ const count=parseInt(c.hatched||0);
+ if(!count){ alert('Keine geschlüpften Tiere vorhanden'); return; }
+ if(!confirm(count+' Jungtiere erzeugen?')) return;
+
+ let next=(db.koenig||[]).filter(x=>(x.name||'').startsWith('NZ-')).length+1;
+ for(let n=1;n<=count;n++){
+   db.koenig.push({
+     name:'NZ-'+new Date().getFullYear()+'-'+String(next++).padStart(3,'0'),
+     morph:'Nachzucht aus '+(c.name||''),
+     clutch:(c.name||''),
+     mother:(c.mother||''),
+     father:(c.father||''),
+     genetics:'Projekt: '+(c.name||'')+' | Eltern: '+(c.mother||'')+' x '+(c.father||''),
+     type:'Nachzucht',
+     weight:'',
+     origin:'Nachzucht',
+     sex:'Unbestimmt',
+     status:'Bestand'
+   });
+ }
+ save();
+ alert(count+' Jungtiere wurden angelegt.');
+}
+
+
+function dashboardWarnings(){
+ let warnings=[];
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+   (db[t]||[]).forEach(a=>{
+     const feeds=a.feeds||[];
+     if(feeds.length===0){
+       warnings.push('⚠️ Keine Fütterung: '+a.name);
+     }else{
+       const lastFeed=feeds[feeds.length-1];
+       if(typeof lastFeed==='object' && lastFeed.accepted===false){
+         warnings.push('🚫 Futter verweigert: '+a.name);
+       }
+     }
+
+     if((a.weights||[]).length===0){
+       warnings.push('⚖️ Kein Gewicht hinterlegt: '+a.name);
+     }
+
+     const sheds=a.sheds||[];
+     if(sheds.length){
+       const last=sheds[sheds.length-1];
+       if(typeof last==='object' && last.complete===false){
+         warnings.push('⚠️ Unvollständige Häutung: '+a.name);
+       }
+     }
+   });
+ });
+
+ (db.clutches||[]).forEach(c=>{
+   if(c.hatchDate){
+      warnings.push('🐣 Schlupftermin: '+c.name+' ('+c.hatchDate+')');
+   }
+ });
+
+ return '<div class="card"><h3>⚠️ Hinweise</h3>'+(warnings.length?warnings.join('<br>'):'Keine Hinweise')+'</div>';
+}
+
+
+function breedingCalendar(){
+ let items=[];
+ (db.clutches||[]).forEach(c=>{
+   if(c.hatchDate){
+     items.push('🐣 '+(c.name||'Projekt')+' – Schlupf: '+c.hatchDate);
+   }else if(c.layDate){
+     items.push('🥚 '+(c.name||'Projekt')+' – Eiablage: '+c.layDate);
+   }else if(c.pairDate){
+     items.push('❤️ '+(c.name||'Projekt')+' – Verpaarung: '+c.pairDate);
+   }
+ });
+ return '<div class="card"><h3>📅 Zuchtkalender</h3>'+(items.length?items.join('<br>'):'Keine aktiven Projekte')+'</div>';
+}
+
+
+const morphDatabase={
+ dominant:['Pastel','Mojave','Enchi','Yellow Belly','Cinnamon','Black Pastel','Fire','Lesser'],
+ recessive:['Clown','Pied','Cryptic','Ultramel','Desert Ghost','Lavender','Axanthic','Hypo']
+};
+
+function detectMorphs(text){
+ text=(text||'');
+ let dominant=[], recessive=[], het=[], poshet=[];
+
+ ['Pastel','Mojave','Enchi','Yellow Belly','Cinnamon','Black Pastel','Fire','Lesser','Leopard','Red Stripe']
+ .forEach(g=>{ if(text.toLowerCase().includes(g.toLowerCase())) dominant.push(g); });
+
+ ['Clown','Pied','Ultramel','Desert Ghost','Lavender','Axanthic','Hypo']
+ .forEach(g=>{ if(text.toLowerCase().includes(g.toLowerCase())) recessive.push(g); });
+
+ if(text.toLowerCase().includes('het cryptic')) het.push('Cryptic');
+ else if(text.toLowerCase().includes('cryptic')) recessive.push('Cryptic');
+
+ if(text.toLowerCase().includes('het clown')) het.push('Clown');
+ if(text.toLowerCase().includes('het pied')) het.push('Pied');
+
+ if(text.toLowerCase().includes('pdh')) poshet.push('Desert Ghost');
+
+ return {dominant,recessive,het,poshet};
+}
+
+
+
+
+
+function analyzeGenes(m,f){
+ const d=[...new Set([...(m.dominant||[]),...(f.dominant||[])])];
+ const r=[...new Set([...(m.recessive||[]),...(f.recessive||[])])];
+ const h=[...new Set([...(m.het||[]),...(f.het||[])])];
+ const p=[...new Set([...(m.poshet||[]),...(f.poshet||[])])];
+
+ let projects=[];
+ if(r.includes('Clown')){
+   if(d.includes('Pastel')) projects.push('Pastel Clown');
+   if(d.includes('Leopard')) projects.push('Leopard Clown');
+   if(d.includes('Red Stripe')) projects.push('Red Stripe Clown');
+ }
+ if(r.includes('Desert Ghost') && r.includes('Pied')) projects.push('DG Pied');
+
+ return {d,r,h,p,projects};
+}
+function getForecastText(c){
+ const all=[...(db.koenig||[]),...(db.boas||[])];
+ const motherAnimal=all.find(a=>a.name===c.mother);
+ const fatherAnimal=all.find(a=>a.name===c.father);
+
+ const motherText=(motherAnimal?.morph)||c.mother||'';
+ const fatherText=(fatherAnimal?.morph)||c.father||'';
+
+ const m=detectMorphs(motherText);
+ const f=detectMorphs(fatherText);
+
+ let result=[];
+ if(m.recessive.includes('Ultramel') && f.recessive.includes('Ultramel')){
+   result.push('Ultramel-Projekt');
+ }
+ if(f.het.includes('Cryptic')){
+   result.push('het Cryptic vorhanden');
+ }
+ return result;
+}
+
+function clutchForecast(i){
+ const c=db.clutches[i];
+ const all=[...(db.koenig||[]),...(db.boas||[])];
+ const motherAnimal=all.find(a=>a.name===c.mother);
+ const fatherAnimal=all.find(a=>a.name===c.father);
+
+ const motherText=(motherAnimal?.morph)||c.mother||'';
+ const fatherText=(fatherAnimal?.morph)||c.father||'';
+
+ const m=detectMorphs(motherText);
+ const f=detectMorphs(fatherText);
+ const ga=analyzeGenes(m,f);
+
+ const box=document.getElementById('forecast_'+i);
+ box.innerHTML='<div class="feedPanel"><b>🧬 Nachzuchtprognose</b><br><br>'
+ +'Mutter: '+motherText+'<br>Vater: '+fatherText
+ +'<br><br><b>Dominante Gene:</b><br>'+(ga.d.join(', ')||'-')
+ +'<br><br><b>Rezessive Gene:</b><br>'+(ga.r.join(', ')||'-')
+ +'<br><br><b>Het:</b><br>'+(ga.h.join(', ')||'-')
+ +'<br><br><b>Pos Het:</b><br>'+(ga.p.join(', ')||'-')
+ +'<br><br><b>Mögliche Projekte:</b><br>'+(ga.projects.join('<br>')||'-')
+ +'</div>';
+}
+
+
+function showPedigree(btn){
+ const card = btn.closest('.animal,.card') || btn.parentElement;
+ let text = card.innerText || '';
+ let mother = (text.match(/👩\s*([^×\n]+)/)||[])[1] || '-';
+ let father = (text.match(/👨\s*([^\n]+)/)||[])[1] || '-';
+ alert('🌳 Stammbaum\n\n'+father+'\n   │\n   ├── Dieses Tier\n   │\n'+mother);
+}
+
+
+function checkRelationship(){
+ const m=document.getElementById('motherName')?.value||'';
+ const f=document.getElementById('fatherName')?.value||'';
+ if(!m || !f) return;
+
+ const all=[...(db.koenig||[]),...(db.boas||[])];
+ const mother=all.find(a=>a.name===m);
+ const father=all.find(a=>a.name===f);
+
+ if(!mother || !father) return;
+
+ let warning='';
+ if(mother.mother && father.mother && mother.mother===father.mother &&
+    mother.father && father.father && mother.father===father.father){
+      warning='⚠️ Geschwisterpaarung erkannt';
+ }else if(
+    (mother.mother && father.mother && mother.mother===father.mother) ||
+    (mother.father && father.father && mother.father===father.father)
+ ){
+      warning='⚠️ Halbgeschwister erkannt';
+ }
+
+ const box=document.getElementById('relationshipWarning');
+ if(box) box.innerHTML=warning;
+}
+
+
+function breedingStats(){
+ let eggs=0, hatched=0;
+ (db.clutches||[]).forEach(c=>{
+   eggs += Number(c.eggs||0);
+   hatched += Number(c.hatched||0);
+ });
+ const rate = eggs ? Math.round((hatched/eggs)*100) : 0;
+ return '<div class="card"><h3>🐣 Zuchtstatistik</h3>'
+ + '🐣 Nachzuchten gesamt: '+hatched+'<br>'
+ + '🥚 Eier gesamt: '+eggs+'<br>'
+ + '📈 Schlupfrate: '+rate+'%<br>'
+ + '🧬 Aktive Projekte: '+(db.clutches||[]).length
+ + '</div>';
+}
+
 function render(){
-dashInfo.innerHTML=dashboardInfo();
+populateBreederDropdowns();
+dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+breedingCalendar()+breedingStats();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
@@ -535,9 +842,25 @@ draw('boas','🐍 Boas','boas');
 draw('geckos','🦎 Leopardgeckos','geckos');
 draw('spinnen','🕷 Vogelspinnen','spinnen');
 
-clutchList.innerHTML=db.clutches.map(x=>`<div class='animal'>${x.name} - ${x.eggs} Eier</div>`).join('');
+clutchList.innerHTML=db.clutches.map((x,i)=>`
+<div class='animal'>
+<b>${x.name}</b><br>
+♀ ${x.mother||'-'}<br>
+♂ ${x.father||'-'}<br>
+🥚 ${x.eggs||0} Eier<br>
+🐣 ${x.hatched||0} geschlüpft<br>📊 Schlupfrate: ${x.eggs?Math.round((x.hatched/x.eggs)*100):0}%<br>
+📅 Eiablage: ${x.layDate||'-'}<br>🐣 Schlupf: ${x.hatchDate||'-'}
+<br><button onclick="editClutch(${i})">✏️ Bearbeiten</button>
+<button onclick="clutchPdf(${i})">📄 PDF</button>
+<button onclick="deleteClutch(${i})">🗑️ Löschen</button><button onclick="createOffspring(${i})">🐣 Jungtiere erzeugen</button><button onclick="clutchForecast(${i})">🧬 Prognose</button><div id="forecast_${i}"></div>
+</div>`).join('');
 saleList.innerHTML=db.sales.map(x=>`<div class='animal'><b>${x.name}</b><br>${x.morph}</div>`).join('');
 archiveList.innerHTML=db.archive.map(x=>`<div class='animal'>${x.name}</div>`).join('');
+const ml=document.getElementById('morphList');
+if(ml){
+ ml.innerHTML='<b>Dominant/Kodominant</b><br>'+morphDatabase.dominant.join(', ')
+ +'<hr><b>Rezessiv</b><br>'+morphDatabase.recessive.join(', ');
+}
 }
 render();
 </script>
