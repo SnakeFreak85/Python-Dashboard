@@ -371,6 +371,8 @@ function toggleFeedForm(t,i){
    <option value="true">Gefressen</option>
    <option value="false">Verweigert</option>
  </select>
+ <label>Datum</label>
+ <input type="date" id="feed_date_${t}_${i}">
  <button onclick="saveFeed('${t}',${i})">Speichern</button>
  </div>`;
 }
@@ -380,8 +382,9 @@ function saveFeed(t,i){
  const amount=document.getElementById('amt_'+t+'_'+i).value;
  const accepted=document.getElementById('acc_'+t+'_'+i).value==='true';
  if(!db[t][i].feeds) db[t][i].feeds=[];
+ const selectedDate=document.getElementById('feed_date_'+t+'_'+i).value;
  db[t][i].feeds.push({
-   date:new Date().toLocaleString('de-DE'),
+   date:selectedDate || new Date().toLocaleDateString('de-DE'),
    prey,amount,accepted
  });
  save();
@@ -392,8 +395,9 @@ function addDetailedShed(t,i){
  const complete=confirm('Häutung vollständig?');
  const note=prompt('Notiz (optional)','') || '';
  if(!db[t][i].sheds) db[t][i].sheds=[];
+ const selectedDate=document.getElementById('shed_date_'+t+'_'+i).value;
  db[t][i].sheds.push({
-   date:new Date().toLocaleString('de-DE'),
+   date:selectedDate || new Date().toLocaleDateString('de-DE'),
    complete:complete,
    note:note
  });
@@ -414,6 +418,8 @@ function toggleShedForm(t,i){
    <option value="true">Vollständig</option>
    <option value="false">Unvollständig</option>
  </select>
+ <label>Datum</label>
+ <input type="date" id="shed_date_${t}_${i}">
  <input id="shed_note_${t}_${i}" placeholder="Notiz">
  <button onclick="saveShed('${t}',${i})">Speichern</button>
  </div>`;
@@ -423,8 +429,9 @@ function saveShed(t,i){
  const complete=document.getElementById('shed_status_'+t+'_'+i).value==='true';
  const note=document.getElementById('shed_note_'+t+'_'+i).value;
  if(!db[t][i].sheds) db[t][i].sheds=[];
+ const selectedDate=document.getElementById('shed_date_'+t+'_'+i).value;
  db[t][i].sheds.push({
-   date:new Date().toLocaleString('de-DE'),
+   date:selectedDate || new Date().toLocaleDateString('de-DE'),
    complete:complete,
    note:note
  });
