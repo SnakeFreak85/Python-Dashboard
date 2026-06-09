@@ -53,7 +53,7 @@ color:white !important;
 .feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head>
 <body>
 
 <button id="menuBtn" onclick="openMenu()">☰</button>
@@ -69,7 +69,7 @@ color:white !important;
 <a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
 <a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
 <a href="#" onclick="showPage('archiv')">📁 Archiv</a>
-<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('backup')">💾 Backup</a>
+<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('backup')">💾 Backup</a><a href="#" onclick="showPage('qrcodes')">📱 QR-Codes</a>
 </div>
 
 <header>
@@ -148,6 +148,21 @@ color:white !important;
 </div>
 
 
+
+<div id="qrcodes" class="section">
+<div class="card">
+<h2>📱 QR-Codes</h2>
+<div id="qrOverview"></div>
+</div>
+</div>
+
+<div id="qrModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:20000;">
+<div style="background:#fff;margin:10% auto;padding:20px;max-width:360px;border-radius:12px;text-align:center">
+<h3 id="qrTitle"></h3>
+<div id="qrcode"></div>
+<br>
+<button onclick="closeQr()">Schließen</button>
+</div>
 </div>
 
 <script>
@@ -232,7 +247,7 @@ ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutc
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
-<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="toggleWeightForm(\'${t}\',${i})">⚖️ Gewicht</button><div id="weight_${t}_${i}"></div><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="showQr(\'${t}\',${i})">📱 QR</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
 <button onclick="moveOffspringToSale('${t}',${i})">➡️ In Verkauf</button><button onclick="delAnimal('${t}',${i})">🗑️ Löschen</button>
 </div>`).join('');
 }
@@ -345,6 +360,32 @@ function addWeight(t,i){
  save();
 }
 
+
+
+function toggleWeightForm(t,i){
+ const el=document.getElementById('weight_'+t+'_'+i);
+ if(el.innerHTML){el.innerHTML='';return;}
+ el.innerHTML=`<div class="feedPanel">
+ <label>Gewicht (g)</label>
+ <input type="number" id="weight_val_${t}_${i}" placeholder="Gewicht">
+ <label>Datum</label>
+ <input type="date" id="weight_date_${t}_${i}">
+ <button onclick="saveWeight('${t}',${i})">Speichern</button>
+ </div>`;
+}
+
+function saveWeight(t,i){
+ const w=document.getElementById('weight_val_'+t+'_'+i).value;
+ const d=document.getElementById('weight_date_'+t+'_'+i).value;
+ if(!w) return;
+ if(!db[t][i].weights) db[t][i].weights=[];
+ db[t][i].weights.push({
+   date:d || new Date().toLocaleDateString('de-DE'),
+   weight:w
+ });
+ db[t][i].weight=w;
+ save();
+}
 
 function toggleFeedForm(t,i){
  const el=document.getElementById('feed_'+t+'_'+i);
@@ -1036,6 +1077,20 @@ function ensurePermanentIds(){
  });
 }
 
+
+function showQr(t,i){
+ const a=db[t][i];
+ const uid=a.uid||generateId(t,i);
+ document.getElementById('qrModal').style.display='block';
+ document.getElementById('qrTitle').innerText=(a.name||'Tier')+' - '+uid;
+ const box=document.getElementById('qrcode');
+ box.innerHTML='';
+ new QRCode(box,{text:uid,width:220,height:220});
+}
+function closeQr(){
+ document.getElementById('qrModal').style.display='none';
+}
+
 function render(){
 ensurePermanentIds();
 populateBreederDropdowns();
@@ -1084,7 +1139,19 @@ archiveList.innerHTML=db.archive.map((x,i)=>`<div class='animal'>
 <button onclick="restoreArchived(${i})">↩️ Wiederherstellen</button>
 <button onclick="deleteArchived(${i})">🗑️ Endgültig löschen</button>
 </div>`).join('');
+
+const qr=document.getElementById('qrOverview');
+if(qr){
+ let out='';
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+  (db[t]||[]).forEach((a,i)=>{
+   out += '<div class="animal"><b>'+a.name+'</b><br>'+(a.uid||generateId(t,i))+'<br><button onclick="showQr(\''+t+'\','+i+')">📱 QR anzeigen</button></div>';
+  });
+ });
+ qr.innerHTML = out || 'Keine Tiere vorhanden';
+}
 const ml=document.getElementById('morphList');
+
 if(ml){
  ml.innerHTML='<b>Dominant/Kodominant</b><br>'+morphDatabase.dominant.join(', ')
  +'<hr><b>Rezessiv</b><br>'+morphDatabase.recessive.join(', ');
