@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V202</title>
+<title>Sascha's Python Dashboard V300</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -69,14 +69,19 @@ color:white !important;
 <a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
 <a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
 <a href="#" onclick="showPage('archiv')">📁 Archiv</a>
-<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('backup')">💾 Backup</a>
+<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('termine')">📅 Termine</a><a href="#" onclick="showPage('backup')">💾 Backup</a>
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V202</div>
+<div class="logo">🐍 Sascha's Python Dashboard V300</div>
 </header>
 
 <div class="content">
+<div class="card">
+<h2>🚧 V300 Struktur-Update</h2>
+<p>Vorbereitung für Formulare, QR-System, Scanner und Android-App.</p>
+</div>
+
 
 <div id="home" class="section active">
 <div class="card">
@@ -146,7 +151,7 @@ color:white !important;
 </div>
 </div>
 
-<div id="backup" class="section">
+<div id="termine" class="section"><div class="card"><h2>📅 Termin-Center</h2><div id="termineList"></div></div></div><div id="backup" class="section">
 <div class="card">
 <h2>💾 Backup</h2>
 <button onclick="exportBackup()">Backup exportieren</button>
@@ -232,7 +237,7 @@ document.getElementById(target).innerHTML=section(t,title);
 document.getElementById(t+'_list').innerHTML=db[t].map((a,i)=>`
 <div class='animal'>
 ${a.photo?'<img src="'+a.photo+'" style="max-width:120px;max-height:120px;border-radius:8px;display:block;margin-bottom:6px;">':''}<b>${a.name}</b><br>ID: ${(a.uid||generateId(t,i))}<br>
-${a.morph}<br>
+${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 ⚖ ${a.weight||0} g<br>
 🏠 ${a.origin||'-'}<br>
 ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
@@ -240,7 +245,7 @@ ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutc
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
-<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">🏷️ QR-Daten</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">🏷️ QR-Daten</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="averageWeightGain('${t}',${i})">📊 Trend</button><button onclick="showWeightChart('${t}',${i})">📈 Diagramm</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
 <button onclick="moveOffspringToSale('${t}',${i})">➡️ In Verkauf</button><button onclick="delAnimal('${t}',${i})">🗑️ Löschen</button>
 </div>`).join('');
 }
@@ -580,6 +585,66 @@ function showShedHistoryPage(t,i){
  const a=db[t][i];
  let txt=(a.sheds||[]).map(s=>typeof s==='object' ? (s.date+' | '+(s.complete?'Vollständig':'Unvollständig')+' | '+(s.note||'')) : s).join('<br>');
  alert('🧤 Häutungsverlauf\n\n'+(txt.replace(/<br>/g,'\n')||'Keine Einträge'));
+}
+
+
+function averageWeightGain(t,i){
+ const a=db[t][i];
+ const w=(a.weights||[]).filter(x=>typeof x==='object');
+ if(w.length<2){ alert('Zu wenige Daten'); return; }
+ let first=Number(w[0].weight||0);
+ let last=Number(w[w.length-1].weight||0);
+ let diff=last-first;
+ let avg=(diff/(w.length-1)).toFixed(1);
+ alert('📊 Durchschnittliche Entwicklung\n\nGesamt: '+diff+' g\nPro Messung: '+avg+' g');
+}
+
+
+function feedingReminderPanel(){
+ let items=[];
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+   (db[t]||[]).forEach(a=>{
+     const feeds=a.feeds||[];
+     if(feeds.length===0){
+       items.push('⚠️ '+a.name+' wurde noch nie gefüttert');
+     }
+   });
+ });
+ return '<div class="card"><h3>🔔 Erinnerungen</h3>'+(items.length?items.join('<br>'):'Keine offenen Erinnerungen')+'</div>';
+}
+
+
+function showWeightChart(t,i){
+ const a=db[t][i];
+ const weights=(a.weights||[]).filter(x=>typeof x==='object');
+ if(weights.length<2){ alert('Zu wenige Gewichtsdaten'); return; }
+
+ let div=document.getElementById('weightChartPage');
+ if(!div){
+   div=document.createElement('div');
+   div.id='weightChartPage';
+   div.className='section';
+   document.querySelector('.content').appendChild(div);
+ }
+
+ document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+ div.innerHTML='<div class="card"><h2>📈 Gewichtsdiagramm - '+a.name+'</h2><canvas id="weightCanvas" width="320" height="200"></canvas><br><button onclick="showPage(\'home\')">Zurück</button></div>';
+ div.classList.add('active');
+
+ setTimeout(()=>{
+   const c=document.getElementById('weightCanvas');
+   const ctx=c.getContext('2d');
+   const vals=weights.map(w=>Number(w.weight||0));
+   const max=Math.max(...vals);
+   const min=Math.min(...vals);
+   ctx.beginPath();
+   vals.forEach((v,n)=>{
+      const x=20+(n*((280)/(vals.length-1)));
+      const y=180-((v-min)/Math.max(1,(max-min))*140);
+      if(n===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+   });
+   ctx.stroke();
+ });
 }
 
 function dashboardInfo(){
@@ -1091,7 +1156,7 @@ function ensurePermanentIds(){
 function render(){
 ensurePermanentIds();
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
+dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
@@ -1136,6 +1201,14 @@ archiveList.innerHTML=db.archive.map((x,i)=>`<div class='animal'>
 <button onclick="restoreArchived(${i})">↩️ Wiederherstellen</button>
 <button onclick="deleteArchived(${i})">🗑️ Endgültig löschen</button>
 </div>`).join('');
+const termineList=document.getElementById('termineList');
+if(termineList){
+ let h='';
+ (db.clutches||[]).forEach(c=>{
+   h+='<div class="animal"><b>'+(c.name||'-')+'</b><br>❤️ '+(c.pairDate||'-')+'<br>🥚 '+(c.layDate||'-')+'<br>🐣 '+(c.hatchDate||'-')+'</div>';
+ });
+ termineList.innerHTML=h||'Keine Termine vorhanden';
+}
 const ml=document.getElementById('morphList');
 if(ml){
  ml.innerHTML='<b>Dominant/Kodominant</b><br>'+morphDatabase.dominant.join(', ')
