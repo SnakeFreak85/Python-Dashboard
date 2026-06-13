@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V126</title>
+<title>Sascha's Python Dashboard V202</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -53,7 +53,7 @@ color:white !important;
 .feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
 <body>
 
 <button id="menuBtn" onclick="openMenu()">☰</button>
@@ -69,11 +69,11 @@ color:white !important;
 <a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
 <a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
 <a href="#" onclick="showPage('archiv')">📁 Archiv</a>
-<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('termine')">📅 Termine</a><a href="#" onclick="showPage('backup')">💾 Backup</a>
+<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('backup')">💾 Backup</a>
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V126</div>
+<div class="logo">🐍 Sascha's Python Dashboard V202</div>
 </header>
 
 <div class="content">
@@ -81,7 +81,6 @@ color:white !important;
 <div id="home" class="section active">
 <div class="card">
 <h2>Willkommen</h2>
-
 <input id='globalSearch' placeholder='🔎 Tier suchen...' onkeyup='searchAnimals()'>
 <select id='searchFilter' onchange='searchAnimals()'>
 <option value='all'>Alle Felder</option>
@@ -89,8 +88,8 @@ color:white !important;
 <option value='morph'>Morph</option>
 <option value='sex'>Geschlecht</option>
 <option value='status'>Status</option>
+<option value='uid'>ID</option>
 </select>
-
 <p>Verwaltung von Beständen, Nachzuchten, Verkaufstieren und Zuchtprojekten.</p>
 </div><div id='searchResults' class='card' style='display:none'></div>
 
@@ -111,14 +110,14 @@ color:white !important;
 <div class="card">
 <h2>🐣 Nachzuchten</h2>
 <input id="clutchName" placeholder="Projekt / Gelege">
-<select id="motherName" onchange="checkRelationship()"></select>
-<select id="fatherName" onchange="checkRelationship()"></select><div id="relationshipWarning" style="color:red;font-weight:bold;margin:6px 0"></div>
-<input id="pairDate" type="date">
-<input id="layDate" type="date">
+<label>👩 Mutter</label><select id="motherName" onchange="checkRelationship()"></select>
+<label>👨 Vater</label><select id="fatherName" onchange="checkRelationship()"></select><div id="relationshipWarning" style="color:red;font-weight:bold;margin:6px 0"></div>
+<label>❤️ Verpaarungsdatum</label><input id="pairDate" type="date">
+<label>🥚 Eiablagedatum</label><input id="layDate" type="date">
 <input id="eggCount" type="number" placeholder="Eieranzahl">
-<input id="hatchDate" type="date">
+<label>🐣 Schlupfdatum</label><input id="hatchDate" type="date">
 <input id="hatchedCount" type="number" placeholder="Geschlüpft">
-<textarea id="clutchNote" placeholder="Bemerkung"></textarea>
+<label>📝 Bemerkungen</label><textarea id="clutchNote" placeholder="Bemerkung"></textarea>
 <button onclick="saveClutch()">Gelege speichern</button>
 <div id="clutchList"></div>
 </div>
@@ -147,7 +146,7 @@ color:white !important;
 </div>
 </div>
 
-<div id="termine" class="section"><div class="card"><h2>📅 Termin-Center</h2><div id="termineList"></div></div></div><div id="backup" class="section">
+<div id="backup" class="section">
 <div class="card">
 <h2>💾 Backup</h2>
 <button onclick="exportBackup()">Backup exportieren</button>
@@ -160,10 +159,9 @@ color:white !important;
 </div>
 
 <script>
-let db=JSON.parse(localStorage.getItem('spd_v120')||localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"sales":[],"archive":[]}');
+let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"sales":[],"archive":[]}');
 
 function save(){
-localStorage.setItem('spd_v120',JSON.stringify(db));
 localStorage.setItem('spd_v53',JSON.stringify(db));
 render();
 }
@@ -202,10 +200,6 @@ return `<div class='card'>
 function addAnimal(t){
 const n=document.getElementById(t+'_name').value.trim();
 if(!n)return;
-if((db[t]||[]).some(x=>(x.name||'').toLowerCase()===n.toLowerCase())){
- alert('Tier existiert bereits.');
- return;
-}
 db[t].push({
 name:n,
 morph:document.getElementById(t+'_morph').value,
@@ -241,14 +235,12 @@ ${a.photo?'<img src="'+a.photo+'" style="max-width:120px;max-height:120px;border
 ${a.morph}<br>
 ⚖ ${a.weight||0} g<br>
 🏠 ${a.origin||'-'}<br>
-${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button>
-🍽 Fütterungen: ${(a.feeds||[]).length}<br>
+${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
-<button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
-<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="showQrCode(\'${t}\',${i})">🏷️ QR</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="exportAnimalJson(\'${t}\',${i})">💾 JSON</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">🏷️ QR-Daten</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
 <button onclick="moveOffspringToSale('${t}',${i})">➡️ In Verkauf</button><button onclick="delAnimal('${t}',${i})">🗑️ Löschen</button>
 </div>`).join('');
 }
@@ -277,7 +269,7 @@ function exportBackup(){
 const blob=new Blob([JSON.stringify(db)],{type:'application/json'});
 const a=document.createElement('a');
 a.href=URL.createObjectURL(blob);
-a.download='Saschas_Python_Dashboard V126_Backup.json';
+a.download='Saschas_Python_Dashboard V109_Backup.json';
 a.click();
 }
 
@@ -299,15 +291,15 @@ const q=document.getElementById('globalSearch').value.toLowerCase();
 const filter=(document.getElementById('searchFilter')||{}).value||'all';
 const res=[];
 ['koenig','boas','geckos','spinnen'].forEach(t=>{
-(db[t]||[]).forEach(a=>{
- let hit=false;
- if(filter==='all'){
-   hit=[a.name,a.morph,a.sex,a.status,a.uid].join(' ').toLowerCase().includes(q);
- }else{
-   hit=((a[filter]||'')+'').toLowerCase().includes(q);
- }
- if(hit) res.push((a.name||'-')+' ('+t+')');
-});
+ (db[t]||[]).forEach(a=>{
+   let hit=false;
+   if(filter==='all'){
+      hit=[a.name,a.morph,a.sex,a.status,a.uid].join(' ').toLowerCase().includes(q);
+   } else {
+      hit=String(a[filter]||'').toLowerCase().includes(q);
+   }
+   if(hit) res.push((a.name||'-')+' ('+t+')');
+ });
 });
 const box=document.getElementById('searchResults');
 if(!q){box.style.display='none';return;}
@@ -359,12 +351,10 @@ function editFullAnimal(t,i){
 }
 function addWeight(t,i){
  const w=prompt('Neues Gewicht in g');
- if(!w) return;
- const d=prompt('Datum (YYYY-MM-DD)',new Date().toISOString().split('T')[0]);
+ if(!w)return;
  if(!db[t][i].weights) db[t][i].weights=[];
- db[t][i].weights.push({date:normalizeDateString(d),weight:Number(w)});
- const latest=[...(db[t][i].weights||[])].sort((a,b)=>parseAppDate(b.date)-parseAppDate(a.date))[0];
- if(latest) db[t][i].weight=latest.weight;
+ db[t][i].weights.push({date:new Date().toLocaleString('de-DE'),weight:w});
+ db[t][i].weight=w;
  save();
 }
 
@@ -462,127 +452,10 @@ function saveShed(t,i){
 }
 
 
-
-function parseAppDate(v){
- if(!v) return new Date(0);
- if(/^\d{4}-\d{2}-\d{2}/.test(v)) return new Date(v);
- const m=v.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
- if(m) return new Date(m[3],m[2]-1,m[1]);
- return new Date(v);
-}
-function sortByDate(arr){
- return [...(arr||[])].sort((a,b)=>parseAppDate(a.date)-parseAppDate(b.date));
-}
-
-
-function normalizeDateString(v){
- if(!v) return '';
- if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
- let m=v.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
- if(m) return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
- return v;
-}
-function parseAppDate(v){
- const n=normalizeDateString(v);
- return new Date(n||'1970-01-01');
-}
-
 function showWeights(t,i){
  const a=db[t][i];
  const list=(a.weights||[]).map(w=>(typeof w==='object'? w.date+' - '+w.weight+'g':w)).join('<br>');
  alert('Gewichtshistorie\n\n'+((a.weights||[]).map(w=>(typeof w==='object'? w.date+' - '+w.weight+'g':w)).join('\n')||'Keine Einträge'));
-}
-
-
-function showFeedHistoryPage(t,i){
- const a=db[t][i];
- let content='<h2>🍽️ Fütterungsverlauf - '+a.name+'</h2><div class="card">';
- (a.feeds||[]).forEach(f=>{
-   if(typeof f==='object'){
-     content+=f.date+' | '+f.prey+' | '+f.amount+' | '+(f.accepted?'Gefressen':'Verweigert')+'<br>';
-   }
- });
- if(!(a.feeds||[]).length) content+='Keine Einträge';
- content+='</div><button onclick="showPage(\'home\')">Zurück</button>';
- let div=document.getElementById('feedHistoryPage');
- if(!div){div=document.createElement('div');div.id='feedHistoryPage';div.className='section';document.querySelector('.content').appendChild(div);}
- document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
- div.innerHTML=content;
- div.classList.add('active');
-}
-
-function showShedHistoryPage(t,i){
- const a=db[t][i];
- let content='<h2>🧤 Häutungsverlauf - '+a.name+'</h2><div class="card">';
- (a.sheds||[]).forEach(s=>{
-   if(typeof s==='object'){
-     content+=s.date+' | '+(s.complete?'Vollständig':'Unvollständig')+' | '+(s.note||'')+'<br>';
-   }
- });
- if(!(a.sheds||[]).length) content+='Keine Einträge';
- content+='</div><button onclick="showPage(\'home\')">Zurück</button>';
- let div=document.getElementById('shedHistoryPage');
- if(!div){div=document.createElement('div');div.id='shedHistoryPage';div.className='section';document.querySelector('.content').appendChild(div);}
- document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
- div.innerHTML=content;
- div.classList.add('active');
-}
-
-
-function growthAnalysis(t,i){
- const a=db[t][i];
- const w=(a.weights||[]).filter(x=>typeof x==='object');
- if(w.length<2){ alert('Zu wenige Gewichtsdaten'); return; }
- const first=Number(w[0].weight||0);
- const last=Number(w[w.length-1].weight||0);
- const gain=last-first;
- alert('📈 Wachstumsanalyse\n\nStart: '+first+' g\nAktuell: '+last+' g\nVeränderung: '+(gain>=0?'+':'')+gain+' g');
-}
-
-function exportAnimalJson(t,i){
- const a=db[t][i];
- const blob=new Blob([JSON.stringify(a,null,2)],{type:'application/json'});
- const link=document.createElement('a');
- link.href=URL.createObjectURL(blob);
- link.download=(a.name||'Tier')+'.json';
- link.click();
-}
-
-
-function showQrCode(t,i){
- const a=db[t][i];
- let div=document.getElementById('qrPage');
- if(!div){
-   div=document.createElement('div');
-   div.id='qrPage';
-   div.className='section';
-   document.querySelector('.content').appendChild(div);
- }
- document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
- div.innerHTML='<div class="card"><h2>🏷️ QR-Code - '+a.name+'</h2><div id="qrcode"></div><br><button onclick="showPage(\'home\')">Zurück</button></div>';
- div.classList.add('active');
- setTimeout(()=>{
-   const q=document.getElementById('qrcode');
-   if(q){
-     q.innerHTML='';
-     new QRCode(q, JSON.stringify({
-       id:a.uid||'',
-       name:a.name||'',
-       morph:a.morph||'',
-       sex:a.sex||''
-     }));
-   }
- },100);
-}
-
-function feedingReminderCheck(){
- let overdue=[];
- ['koenig','boas','geckos','spinnen'].forEach(t=>{
-   (db[t]||[]).forEach(a=>{
-     if(!(a.feeds||[]).length) overdue.push(a.name+' (nie gefüttert)');
-   });
- });
- return overdue;
 }
 
 function animalReport(t,i){
@@ -624,44 +497,37 @@ function uploadPhoto(t,i,input){
 
 function showWeightHistoryPage(t,i){
  const a=db[t][i];
- const weights=[...(a.weights||[])].map(w=>({...w,date:normalizeDateString(w.date)}))
- .sort((x,y)=>parseAppDate(x.date)-parseAppDate(y.date));
- let labels=weights.map(w=>w.date);
- let values=weights.map(w=>Number(w.weight));
- let content='<h2>⚖️ Gewichtshistorie - '+a.name+'</h2>'
- +'<div class="card"><canvas id="weightChart" height="120"></canvas></div><div class="card">';
- let prev=null;
- weights.forEach(w=>{
-   let diff='';
-   if(prev!==null){
-     const d=Number(w.weight)-Number(prev);
-     diff=' ('+(d>=0?'+':'')+d+'g)';
-   }
-   content+=w.date+' - '+w.weight+'g'+diff+'<br>';
-   prev=Number(w.weight);
- });
- if(!weights.length) content+='Keine Einträge vorhanden';
+ let content='<h2>⚖️ Gewichtshistorie - '+a.name+'</h2>';
+ content+='<div class="card">';
+ if((a.weights||[]).length===0){
+   content+='Keine Einträge vorhanden';
+ } else {
+   let prev=null;
+   (a.weights||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(w=>{
+      if(typeof w==='object'){
+        let diff='';
+        if(prev!==null){
+          const d=Number(w.weight)-Number(prev);
+          diff=' ('+(d>=0?'+':'')+d+'g)';
+        }
+        content+=w.date+' - '+w.weight+'g'+diff+'<br>';
+        prev=Number(w.weight);
+      } else {
+        content+=w+'<br>';
+      }
+   });
+ }
  content+='</div><button onclick="showPage(\'home\')">Zurück</button>';
  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
  let div=document.getElementById('weightHistoryPage');
- if(!div){div=document.createElement('div');div.id='weightHistoryPage';div.className='section';document.querySelector('.content').appendChild(div);}
+ if(!div){
+   div=document.createElement('div');
+   div.id='weightHistoryPage';
+   div.className='section';
+   document.querySelector('.content').appendChild(div);
+ }
  div.innerHTML=content;
  div.classList.add('active');
-
- setTimeout(()=>{
-   const c=document.getElementById('weightChart');
-   if(c && window.Chart){
-     new Chart(c,{
-       type:'line',
-       data:{
-         labels:labels,
-         datasets:[{label:'Gewicht (g)',data:values}]
-       },
-       options:{responsive:true}
-     });
-   }
- },100);
-
 }
 
 
@@ -678,14 +544,42 @@ function editFullAnimal(t,i){
 }
 
 
-function appointmentPanel(){
- let items=[];
- (db.clutches||[]).forEach(c=>{
-   if(c.pairDate) items.push('❤️ '+c.name+' | Verpaarung: '+c.pairDate);
-   if(c.layDate) items.push('🥚 '+c.name+' | Eiablage: '+c.layDate);
-   if(c.hatchDate) items.push('🐣 '+c.name+' | Schlupf: '+c.hatchDate);
- });
- return '<div class="card"><h3>📅 Termine</h3>'+(items.length?items.join('<br>'):'Keine Termine')+'</div>';
+function growthAnalysis(t,i){
+ const a=db[t][i];
+ const w=(a.weights||[]).filter(x=>typeof x==='object');
+ if(w.length<2){ alert('Zu wenige Gewichtsdaten'); return; }
+ const first=Number(w[0].weight||0);
+ const last=Number(w[w.length-1].weight||0);
+ alert('📈 Wachstumsanalyse\n\nStartgewicht: '+first+' g\nAktuelles Gewicht: '+last+' g\nDifferenz: '+(last-first)+' g');
+}
+
+function showQrData(t,i){
+ const a=db[t][i];
+ const lastFeed=(a.feeds||[]).length ? ((a.feeds||[]).slice(-1)[0].date || '-') : '-';
+ const lastShed=(a.sheds||[]).length ? ((a.sheds||[]).slice(-1)[0].date || '-') : '-';
+ const lastWeight=(a.weights||[]).length ? ((a.weights||[]).slice(-1)[0].weight+' g') : ((a.weight||'-')+' g');
+ alert(
+ 'ID: '+(a.uid||generateId(t,i))+'\n'+
+ 'Name: '+(a.name||'-')+'\n'+
+ 'Morph: '+(a.morph||'-')+'\n'+
+ 'Schlupfdatum: '+(a.birth||'-')+'\n'+
+ 'Letzte Fütterung: '+lastFeed+'\n'+
+ 'Letzte Häutung: '+lastShed+'\n'+
+ 'Letztes Gewicht: '+lastWeight
+ );
+}
+
+
+function showFeedHistoryPage(t,i){
+ const a=db[t][i];
+ let txt=(a.feeds||[]).map(f=>typeof f==='object' ? (f.date+' | '+f.prey+' | '+f.amount+' | '+(f.accepted?'Gefressen':'Verweigert')) : f).join('<br>');
+ alert('🍽️ Fütterungsverlauf\n\n'+(txt.replace(/<br>/g,'\n')||'Keine Einträge'));
+}
+
+function showShedHistoryPage(t,i){
+ const a=db[t][i];
+ let txt=(a.sheds||[]).map(s=>typeof s==='object' ? (s.date+' | '+(s.complete?'Vollständig':'Unvollständig')+' | '+(s.note||'')) : s).join('<br>');
+ alert('🧤 Häutungsverlauf\n\n'+(txt.replace(/<br>/g,'\n')||'Keine Einträge'));
 }
 
 function dashboardInfo(){
@@ -1045,10 +939,6 @@ function offspringOverview(){
 
 function moveOffspringToSale(t,i){
  const a=db[t][i];
- if((db.sales||[]).some(x=>x.name===a.name)){
-   alert('Tier ist bereits im Verkauf.');
-   return;
- }
  db.sales.push({
    name:a.name,
    morph:a.morph,
@@ -1198,27 +1088,10 @@ function ensurePermanentIds(){
  });
 }
 
-
-function validateDatabase(){
- ['koenig','boas','geckos','spinnen'].forEach(t=>{
-   if(!Array.isArray(db[t])) db[t]=[];
-   db[t].forEach(a=>{
-     if(!a.weights) a.weights=[];
-     if(!a.feeds) a.feeds=[];
-     if(!a.sheds) a.sheds=[];
-     if(!a.status) a.status='Bestand';
-   });
- });
- if(!Array.isArray(db.sales)) db.sales=[];
- if(!Array.isArray(db.archive)) db.archive=[];
- if(!Array.isArray(db.clutches)) db.clutches=[];
-}
-
 function render(){
-validateDatabase();
 ensurePermanentIds();
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+appointmentPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
+dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
@@ -1263,14 +1136,6 @@ archiveList.innerHTML=db.archive.map((x,i)=>`<div class='animal'>
 <button onclick="restoreArchived(${i})">↩️ Wiederherstellen</button>
 <button onclick="deleteArchived(${i})">🗑️ Endgültig löschen</button>
 </div>`).join('');
-const termineList=document.getElementById('termineList');
-if(termineList){
- let html='';
- (db.clutches||[]).forEach(c=>{
-   html+='<div class="animal"><b>'+c.name+'</b><br>❤️ '+(c.pairDate||'-')+'<br>🥚 '+(c.layDate||'-')+'<br>🐣 '+(c.hatchDate||'-')+'</div>';
- });
- termineList.innerHTML=html||'Keine Termine';
-}
 const ml=document.getElementById('morphList');
 if(ml){
  ml.innerHTML='<b>Dominant/Kodominant</b><br>'+morphDatabase.dominant.join(', ')
