@@ -813,11 +813,23 @@ function exportAnimalPdf(t,i){
 
 function editClutch(i){
  const c=db.clutches[i];
- const n=prompt('Projektname',c.name);
+
+ const n=prompt('Projektname',c.name||'');
  if(n===null) return;
  c.name=n;
- c.eggs=prompt('Eieranzahl',c.eggs)||c.eggs;
- c.hatched=prompt('Geschlüpft',c.hatched)||c.hatched;
+
+ const eggs=prompt('Eieranzahl',c.eggs||0);
+ if(eggs!==null) c.eggs=eggs;
+
+ const hatched=prompt('Geschlüpft',c.hatched||0);
+ if(hatched!==null) c.hatched=hatched;
+
+ const hatchDate=prompt('Schlupfdatum (YYYY-MM-DD, leer = noch nicht geschlüpft)',c.hatchDate||'');
+ if(hatchDate!==null) c.hatchDate=hatchDate;
+
+ const note=prompt('Bemerkungen',c.note||'');
+ if(note!==null) c.note=note;
+
  save();
 }
 function deleteClutch(i){
@@ -2459,3 +2471,21 @@ function renderProjectPlanner(){
 </body>
 </html>
 <!-- GENETIK_ENGINE_V327 vorbereitet -->
+
+
+function editClutch(i){
+ const c=db.clutches[i];
+
+ const n=prompt('Projektname',c.name||'');
+ if(n===null) return;
+
+ c.name=n;
+ c.pairDate=prompt('Verpaarungsdatum (YYYY-MM-DD)',c.pairDate||'') ?? c.pairDate;
+ c.layDate=prompt('Eiablagedatum (YYYY-MM-DD)',c.layDate||'') ?? c.layDate;
+ c.hatchDate=prompt('Schlupfdatum (leer lassen wenn noch Inkubation)',c.hatchDate||'') ?? c.hatchDate;
+ c.eggs=prompt('Eieranzahl',c.eggs||0) ?? c.eggs;
+ c.hatched=prompt('Geschlüpft',c.hatched||0) ?? c.hatched;
+ c.note=prompt('Bemerkungen',c.note||'') ?? c.note;
+
+ save();
+}
