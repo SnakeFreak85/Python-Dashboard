@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V324 Stable</title>
+<title>Sascha's Python Dashboard V326 Final Stable</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V324 Stable</div>
+<div class="logo">🐍 Sascha's Python Dashboard V326 Final Stable</div>
 </header>
 
 <div class="content">
@@ -105,7 +105,12 @@ color:white !important;
 <button onclick="findAnimalByQr()">🔍 Tier öffnen</button><button onclick="toggleQrScanner()">📷 QR-Code scannen</button><div id="qrScanner" style="display:none"></div>
 <div id="qrSearchResult"></div>
 </div>
-<div id='dashInfo'></div><div class="grid">
+<div id='dashInfo'></div>
+<div class="card" id="v326Dashboard">
+<h3>📊 V326 Bestandsübersicht</h3>
+<div id="v326Stats"></div>
+<div id="uidWarnings" style="color:red"></div>
+</div><div class="grid">
 <div class="card">🐍 Königspython<div class="count" id="c1">0</div></div>
 <div class="card">🐍 Boas<div class="count" id="c2">0</div></div>
 <div class="card">🦎 Leopardgeckos<div class="count" id="c3">0</div></div>
@@ -201,7 +206,7 @@ color:white !important;
 </div>
 
 <script>
-let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"archive":[]}');
+let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"sales":[],"archive":[]}');
 
 let qrScannerInstance=null;
 
@@ -1584,25 +1589,28 @@ function estimateMarketValue(morph){
 }
 
 
-function inventoryStatsPanel(){
- let animals=[...(db.koenig||[]),...(db.boas||[]),...(db.geckos||[]),...(db.spinnen||[])];
- let buy=0,sell=0,potential=0;
- let ids={}; let dup=[];
- animals.forEach(a=>{
-   buy+=Number(a.buyPrice||0);
-   sell+=Number(a.price||0);
-   potential+=Number(a.price||0)-Number(a.buyPrice||0);
-   if(a.uid){
-     if(ids[a.uid]) dup.push(a.uid);
-     ids[a.uid]=1;
-   }
+function getMarketValueStats(){
+ let min=0,max=0,avg=0,count=0;
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+   (db[t]||[]).forEach(a=>{
+     const mv=String(calculateAdvancedMarketValue(a)||'');
+     const m=mv.match(/(\d+)\D+(\d+)/);
+     if(m){
+       const lo=Number(m[1]);
+       const hi=Number(m[2]);
+       min+=lo;
+       max+=hi;
+       avg+=Math.round((lo+hi)/2);
+     }else{
+       const v=Number(a.price||a.buyPrice||0);
+       min+=v; max+=v; avg+=v;
+     }
+     count++;
+   });
  });
- return '<div class="card"><h3>💰 Bestandswerte</h3>📦 Tiere: '+animals.length+
- '<br>💶 Einkauf: '+buy+' €<br>📈 Marktwert: '+sell+
- ' €<br>🚀 Potenzial: '+potential+' €'+
- (dup.length?'<br><b>⚠️ UID-Dubletten: '+dup.length+'</b>':'')+
- '</div>';
+ return {min,max,avg,count};
 }
+
 function render(){
 ensurePermanentIds();
 ['koenig','boas','geckos','spinnen'].forEach(t=>{
@@ -1618,7 +1626,7 @@ ensurePermanentIds();
  });
 });
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+inventoryStatsPanel()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
+dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
@@ -1641,7 +1649,18 @@ clutchList.innerHTML=db.clutches.map((x,i)=>`
 <button onclick="clutchPdf(${i})">📄 PDF</button>
 <button onclick="deleteClutch(${i})">🗑️ Löschen</button><button onclick="createOffspring(${i})">🐣 Jungtiere erzeugen</button><button onclick="clutchForecast(${i})">🧬 Prognose</button><div id="forecast_${i}"></div>
 </div>`).join('');
-
+saleList.innerHTML=db.sales.map(x=>`<div class='animal'>
+<b>${x.name}</b><br>
+🧬 ${x.morph||'-'}<br>
+⚥ ${x.sex||'Unbestimmt'}<br>
+🏠 ${x.origin||'-'}<br>
+👩 ${x.mother||'-'} × 👨 ${x.father||'-'}<br>
+🐣 ${x.clutch||'-'}<br>
+💰 ${x.price||'-'} €<br>
+<button onclick="editSale('${x.name}')">✏️ Bearbeiten</button>
+<button onclick="returnToStock('${x.name}')">↩️ Zurück in Bestand</button>
+<button onclick="markSold('${x.name}')">✅ Verkauft</button>
+</div>`).join('');
 archiveList.innerHTML=db.archive.map((x,i)=>`<div class='animal'>
 <b>${x.name||'-'}</b><br>
 🧬 ${x.morph||'-'}<br>
@@ -1660,6 +1679,23 @@ if(termineList){
  });
  termineList.innerHTML=h||'Keine Termine vorhanden';
 }
+const stats=getMarketValueStats();
+const v326=document.getElementById('v326Stats');
+if(v326){
+ let buy=0;
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+   (db[t]||[]).forEach(a=>buy+=Number(a.buyPrice||0));
+ });
+ const pot=stats.avg-buy;
+ v326.innerHTML=
+ '📦 Tiere: '+stats.count+'<br>'+
+ '💵 Einkauf: '+buy+' €<br>'+
+ '📉 Marktwert min: '+stats.min+' €<br>'+
+ '📊 Marktwert Ø: '+stats.avg+' €<br>'+
+ '📈 Marktwert max: '+stats.max+' €<br>'+
+ '🚀 Potenzial Ø: '+pot+' €';
+}
+
 const ml=document.getElementById('morphList');
 if(ml){
  ml.innerHTML='<b>Dominant/Kodominant</b><br>'+morphDatabase.dominant.join(', ')
@@ -2748,6 +2784,28 @@ setTimeout(()=>{
     "<input id='archiveSearch' placeholder='🔎 Archiv durchsuchen' onkeyup='archiveSearch()'>");
  }
 },500);
+</script>
+
+<script>
+function renderV326Dashboard(){
+ try{
+ let animals=[...(db.koenig||[]),...(db.boas||[]),...(db.geckos||[]),...(db.spinnen||[])];
+ let buy=0,sell=0,pot=0;
+ let ids={}; let dup=[];
+ animals.forEach(a=>{
+   buy+=Number(a.buyPrice||0);
+   sell+=Number(a.price||0);
+   pot+=Number(a.price||0)-Number(a.buyPrice||0);
+   if(a.uid){ if(ids[a.uid]) dup.push(a.uid); ids[a.uid]=1; }
+ });
+ const s=document.getElementById('v326Stats');
+ if(s) s.innerHTML='Gesamtbestand: '+animals.length+'<br>💰 Einkaufswert: '+buy.toFixed(2)+' €<br>📈 Marktwert: '+sell.toFixed(2)+' €<br>🚀 Potenzial: '+pot.toFixed(2)+' €';
+ const w=document.getElementById('uidWarnings');
+ if(w) w.innerHTML=dup.length?'⚠️ UID-Dubletten: '+dup.join(', '):'';
+ }catch(e){}
+}
+const _render_old=render;
+render=function(){ _render_old(); renderV326Dashboard(); }
 </script>
 </body>
 </html>
