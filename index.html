@@ -429,39 +429,46 @@ save();
 
 
 
+
+
+
 function openAnimalEditor(t,i){
  const a=db[t][i];
-
- const n=prompt('Name',a.name||'');
- if(n===null) return;
- a.name=n;
-
- const morph=prompt('Morph / Art',a.morph||'');
- if(morph!==null) a.morph=morph;
-
- const sex=prompt('Geschlecht',a.sex||'');
- if(sex!==null) a.sex=sex;
-
- const weight=prompt('Gewicht',a.weight||'');
- if(weight!==null) a.weight=weight;
-
- const origin=prompt('Herkunft',a.origin||'');
- if(origin!==null) a.origin=origin;
-
- const birth=prompt('Schlupfdatum (YYYY-MM-DD)',a.birth||'');
- if(birth!==null) a.birth=birth;
-
- const buyPrice=prompt('Einkaufspreis €',a.buyPrice||'');
- if(buyPrice!==null) a.buyPrice=buyPrice;
-
- const price=prompt('Verkaufspreis €',a.price||'');
- if(price!==null) a.price=price;
-
- const status=prompt('Status (Bestand, Reserviert, Archiv)',a.status||'Bestand');
- if(status!==null) a.status=status;
-
- save();
+ const html=`
+ <div id="animalEditorModal" style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;overflow:auto">
+  <div style="background:#fff;margin:20px;padding:20px;border-radius:12px">
+   <h2>🐍 Tier bearbeiten</h2>
+   <input id="ae_name" value="${a.name||''}" placeholder="Name">
+   <input id="ae_morph" value="${a.morph||''}" placeholder="Morph">
+   <input id="ae_weight" value="${a.weight||''}" placeholder="Gewicht">
+   <input id="ae_origin" value="${a.origin||''}" placeholder="Herkunft">
+   <input id="ae_birth" type="date" value="${a.birth||''}">
+   <input id="ae_buy" type="number" value="${a.buyPrice||''}" placeholder="Einkaufspreis">
+   <input id="ae_sell" type="number" value="${a.price||''}" placeholder="Verkaufspreis">
+   <input id="ae_sex" value="${a.sex||''}" placeholder="Geschlecht">
+   <input id="ae_status" value="${a.status||'Bestand'}" placeholder="Status">
+   <button onclick="saveAnimalEditor('${t}',${i})">💾 Speichern</button>
+   <button onclick="document.getElementById('animalEditorModal').remove()">❌ Abbrechen</button>
+  </div>
+ </div>`;
+ document.body.insertAdjacentHTML('beforeend',html);
 }
+
+function saveAnimalEditor(t,i){
+ const a=db[t][i];
+ a.name=document.getElementById('ae_name').value;
+ a.morph=document.getElementById('ae_morph').value;
+ a.weight=document.getElementById('ae_weight').value;
+ a.origin=document.getElementById('ae_origin').value;
+ a.birth=document.getElementById('ae_birth').value;
+ a.buyPrice=document.getElementById('ae_buy').value;
+ a.price=document.getElementById('ae_sell').value;
+ a.sex=document.getElementById('ae_sex').value;
+ a.status=document.getElementById('ae_status').value;
+ save();
+ document.getElementById('animalEditorModal').remove();
+}
+
 
 function addWeight(t,i){ toggleWeightForm(t,i); }
 
@@ -638,18 +645,7 @@ function showWeightHistoryPage(t,i){
 }
 
 
-function openAnimalEditor(t,i){
- const a=db[t][i];
- const n=prompt('Name',a.name); if(n===null)return;
- a.name=n;
- a.morph=prompt('Morph / Art',a.morph||'') ?? a.morph;
- a.sex=prompt('Geschlecht',a.sex||'') ?? a.sex;
- a.origin=prompt('Herkunft',a.origin||'') ?? a.origin;
- a.birth=prompt('Schlupfdatum (YYYY-MM-DD)',a.birth||'') ?? a.birth;
- a.price=prompt('Preis',a.price||'') ?? a.price;
- a.status=prompt('Status',a.status||'Bestand') ?? a.status;
- save();
-}
+
 
 
 function growthAnalysis(t,i){
