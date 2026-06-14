@@ -320,7 +320,10 @@ ${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 ${a.sex}<br>
 💰 Einkauf: ${a.buyPrice||'-'} €<br>
 📈 Marktwert: ${(typeof calculateAdvancedMarketValue==='function' ? calculateAdvancedMarketValue(a) : estimateMarketValue(a.morph||''))}<br>
-💵 Verkauf: ${a.price||'-'} €<br>📊 Entwicklung: ${(a.buyPrice?('ab '+a.buyPrice+' €'):'-')}<br>🧬 Zuchtwert: ${projectValue(a.morph||'')}<br>
+💵 Verkauf: ${a.price||'-'} €<br>
+🏷️ Bewertung: ${getMarketStatus(a)}<br>
+💹 Potenzial: ${getProfitPotential(a)}<br>
+🧬 Zuchtwert: ${projectValue(a.morph||'')}<br>🚀 Projektwert: ${getProjectScore(a)}<br>
 📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
@@ -1539,24 +1542,47 @@ function estimateMarketValue(morph){
  return min+'–'+max+' €';
 }
 
+
+function getMarketRange(animal){
+ const txt=estimateMarketValue((animal.morph||''));
+ const m=txt.match(/(\d+)[–-](\d+)/);
+ if(!m) return {min:0,max:0};
+ return {min:Number(m[1]),max:Number(m[2])};
+}
+function getMarketStatus(animal){
+ const sell=Number(animal.price||0);
+ const r=getMarketRange(animal);
+ if(!sell) return '⚪ Kein Verkaufspreis';
+ if(sell<r.min) return '🟢 Unter Marktwert';
+ if(sell>r.max) return '🔴 Über Marktwert';
+ return '🟡 Marktgerecht';
+}
+function getProfitPotential(animal){
+ const buy=Number(animal.buyPrice||0);
+ const r=getMarketRange(animal);
+ if(!buy) return '-';
+ return '+'+(r.min-buy)+' bis +'+(r.max-buy)+' €';
+}
+
+
+function getProjectScore(animal){
+ const m=((animal.morph||'')+'').toLowerCase();
+ let score=1;
+ if(m.includes('clown')) score+=5;
+ if(m.includes('pied')) score+=5;
+ if(m.includes('desert ghost')) score+=6;
+ if(m.includes('cryptic')) score+=5;
+ if(m.includes('ultramel')) score+=5;
+ if(m.includes('highway')) score+=3;
+ if(m.includes('freeway')) score+=3;
+
+ if(score>=12) return '🚀 Sehr hoch';
+ if(score>=8) return '⭐ Hoch';
+ if(score>=4) return '📈 Mittel';
+ return '🔹 Standard';
+}
+
 function render(){
-try{ensurePermanentIds();}catch(e){console.log(e);}
-try{populateBreederDropdowns();}catch(e){console.log(e);}
-try{
- const di=document.getElementById('dashInfo');
- if(di) di.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
-}catch(e){console.log(e);}
-try{document.getElementById('c1').textContent=(db.koenig||[]).length;}catch(e){}
-try{document.getElementById('c2').textContent=(db.boas||[]).length;}catch(e){}
-try{document.getElementById('c3').textContent=(db.geckos||[]).length;}catch(e){}
-try{document.getElementById('c4').textContent=(db.spinnen||[]).length;}catch(e){}
-
-try{draw('koenig','🐍 Königspython','koenig');}catch(e){console.error('koenig',e);}
-try{draw('boas','🐍 Boas','boas');}catch(e){console.error('boas',e);}
-try{draw('geckos','🦎 Leopardgeckos','geckos');}catch(e){console.error('geckos',e);}
-try{draw('spinnen','🕷 Vogelspinnen','spinnen');}catch(e){console.error('spinnen',e);}
-
-
 ensurePermanentIds();
 populateBreederDropdowns();
 dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
