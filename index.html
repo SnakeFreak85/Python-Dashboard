@@ -1518,7 +1518,7 @@ clutchList.innerHTML=db.clutches.map((x,i)=>`
 🥚 ${x.eggs||0} Eier<br>
 🐣 ${x.hatched||0} geschlüpft<br>📊 Schlupfrate: ${x.eggs?Math.round((x.hatched/x.eggs)*100):0}%<br>
 📅 Eiablage: ${x.layDate||'-'}<br>🐣 Schlupf: ${x.hatchDate||'-'}
-<br><button onclick="editClutch(${i})">✏️ Bearbeiten</button>
+<br><button onclick="openClutchEditor(${i})">✏️ Bearbeiten</button>
 <button onclick="clutchPdf(${i})">📄 PDF</button>
 <button onclick="deleteClutch(${i})">🗑️ Löschen</button><button onclick="createOffspring(${i})">🐣 Jungtiere erzeugen</button><button onclick="clutchForecast(${i})">🧬 Prognose</button><div id="forecast_${i}"></div>
 </div>`).join('');
