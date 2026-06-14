@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard</title>
+<title>Sascha's Python Dashboard V305</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard</div>
+<div class="logo">🐍 Sascha's Python Dashboard V305</div>
 </header>
 
 <div class="content">
@@ -95,7 +95,7 @@ color:white !important;
 <option value='status'>Status</option>
 <option value='uid'>ID</option>
 </select>
-<p>Verwaltung von Beständen, Nachzuchten, Verkaufstieren und Zuchtprojekten.</p>
+<p>Verwaltung von Beständen, Nachzuchten und Zuchtprojekten.</p>
 </div><div id='searchResults' class='card' style='display:none'></div>
 
 
@@ -802,7 +802,7 @@ function showWeightChart(t,i){
 
 function dashboardInfo(){
  let total=(db.koenig||[]).length+(db.boas||[]).length+(db.geckos||[]).length+(db.spinnen||[]).length;
- return '<div class="card"><h3>📊 Übersicht</h3>Gesamtbestand: '+total+'<br>💰 Verkauf: '+(db.sales||[]).length+'<br>📁 Archiv: '+(db.archive||[]).length+'<br>🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
+ return '<div class="card"><h3>📊 Übersicht</h3>Gesamtbestand: '+total+'<br>📁 Archiv: '+(db.archive||[]).length+'<br>🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
 }
 
 
