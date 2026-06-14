@@ -1563,15 +1563,18 @@ function getProfitPotential(a){
 
 
 function calculateAdvancedMarketValue(a){
-  const est=estimateMarketValue((a && a.morph) ? a.morph : '');
-  if(est && est!=='50–100 €') return est;
   const sell=Number((a&&a.price)||0);
   const buy=Number((a&&a.buyPrice)||0);
-  const base=sell||buy;
-  if(base>0){
-    return Math.round(base*0.9)+'–'+Math.round(base*1.2)+' €';
+
+  if(sell>0){
+    return Math.round(sell*0.95)+'–'+Math.round(sell*1.05)+' €';
   }
-  return est;
+
+  if(buy>0){
+    return Math.round(buy*1.03)+'–'+Math.round(buy*2.08)+' €';
+  }
+
+  return estimateMarketValue((a && a.morph) ? a.morph : '');
 }
 
 function estimateMarketValue(morph){
@@ -2688,15 +2691,18 @@ function getProfitPotential(a){
 
 
 function calculateAdvancedMarketValue(a){
-  const est=estimateMarketValue((a && a.morph) ? a.morph : '');
-  if(est && est!=='50–100 €') return est;
   const sell=Number((a&&a.price)||0);
   const buy=Number((a&&a.buyPrice)||0);
-  const base=sell||buy;
-  if(base>0){
-    return Math.round(base*0.9)+'–'+Math.round(base*1.2)+' €';
+
+  if(sell>0){
+    return Math.round(sell*0.95)+'–'+Math.round(sell*1.05)+' €';
   }
-  return est;
+
+  if(buy>0){
+    return Math.round(buy*1.03)+'–'+Math.round(buy*2.08)+' €';
+  }
+
+  return estimateMarketValue((a && a.morph) ? a.morph : '');
 }
 
 function estimateMarketValue(morph){
