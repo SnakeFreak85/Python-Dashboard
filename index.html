@@ -576,13 +576,21 @@ function growthAnalysis(t,i){
 
 function showQrData(t,i){
  const a=db[t][i];
- const id=(a.uid||generateId(t,i));
+ const id=getDisplayId(a,i);
  document.getElementById('qrModal').style.display='block';
  document.getElementById('qrTitle').innerText=(a.name||'Tier')+' - '+id;
  const box=document.getElementById('qrCodeBox');
  box.innerHTML='';
  new QRCode(box,{text:id,width:220,height:220});
 }
+
+function getDisplayId(a,index){
+ if(!a.displayId){
+   a.displayId='KP-'+String(index+1).padStart(3,'0');
+ }
+ return a.displayId;
+}
+
 function closeQr(){
  document.getElementById('qrModal').style.display='none';
 }
