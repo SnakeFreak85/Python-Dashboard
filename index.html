@@ -319,7 +319,7 @@ ${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 🏠 ${a.origin||'-'}<br>
 ${a.sex}<br>
 💰 Einkauf: ${a.buyPrice||'-'} €<br>
-📈 Marktwert: ${calculateAdvancedMarketValue(a)}<br>
+📈 Marktwert: ${(typeof calculateAdvancedMarketValue==='function'?calculateAdvancedMarketValue(a):'-')}<br>
 💵 Verkauf: ${a.price||'-'} €<br>📊 Entwicklung: ${(a.buyPrice?('ab '+a.buyPrice+' €'):'-')}<br>
 📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
