@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V305</title>
+<title>Sascha's Python Dashboard</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V305</div>
+<div class="logo">🐍 Sascha's Python Dashboard</div>
 </header>
 
 <div class="content">
@@ -428,13 +428,41 @@ save();
 }
 
 
+
 function editFullAnimal(t,i){
  const a=db[t][i];
- const n=prompt('Name',a.name); if(n===null)return;
+
+ const n=prompt('Name',a.name||'');
+ if(n===null) return;
  a.name=n;
- a.morph=prompt('Morph',a.morph)||a.morph;
+
+ const morph=prompt('Morph / Art',a.morph||'');
+ if(morph!==null) a.morph=morph;
+
+ const sex=prompt('Geschlecht',a.sex||'');
+ if(sex!==null) a.sex=sex;
+
+ const weight=prompt('Gewicht',a.weight||'');
+ if(weight!==null) a.weight=weight;
+
+ const origin=prompt('Herkunft',a.origin||'');
+ if(origin!==null) a.origin=origin;
+
+ const birth=prompt('Schlupfdatum (YYYY-MM-DD)',a.birth||'');
+ if(birth!==null) a.birth=birth;
+
+ const buyPrice=prompt('Einkaufspreis €',a.buyPrice||'');
+ if(buyPrice!==null) a.buyPrice=buyPrice;
+
+ const price=prompt('Verkaufspreis €',a.price||'');
+ if(price!==null) a.price=price;
+
+ const status=prompt('Status (Bestand, Reserviert, Archiv)',a.status||'Bestand');
+ if(status!==null) a.status=status;
+
  save();
 }
+
 function addWeight(t,i){ toggleWeightForm(t,i); }
 
 
