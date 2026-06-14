@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V305</title>
+<title>Sascha's Python Dashboard V324 Stable</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V305</div>
+<div class="logo">🐍 Sascha's Python Dashboard V324 Stable</div>
 </header>
 
 <div class="content">
@@ -319,11 +319,8 @@ ${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 🏠 ${a.origin||'-'}<br>
 ${a.sex}<br>
 💰 Einkauf: ${a.buyPrice||'-'} €<br>
-📈 Marktwert: ${(typeof calculateAdvancedMarketValue==='function' ? calculateAdvancedMarketValue(a) : estimateMarketValue(a.morph||''))}<br>
-💵 Verkauf: ${a.price||'-'} €<br>
-🏷️ Bewertung: ${getMarketStatus(a)}<br>
-💹 Potenzial: ${getProfitPotential(a)}<br>
-🧬 Zuchtwert: ${projectValue(a.morph||'')}<br>🚀 Projektwert: ${getProjectScore(a)}<br>
+📈 Marktwert: ${(typeof calculateAdvancedMarketValue==='function'?calculateAdvancedMarketValue(a):'-')}<br>
+💵 Verkauf: ${a.price||'-'} €<br>📊 Entwicklung: ${(a.buyPrice?('ab '+a.buyPrice+' €'):'-')}<br>
 📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
@@ -448,9 +445,17 @@ function openAnimalEditor(t,i){
    <input id="ae_birth" type="date" value="${a.birth||''}">
    <input id="ae_buy" type="number" value="${a.buyPrice||''}" placeholder="Einkaufspreis">
    <input id="ae_sell" type="number" value="${a.price||''}" placeholder="Verkaufspreis">
-   <input id="ae_sex" value="${a.sex||''}" placeholder="Geschlecht">
-   <input id="ae_status" value="${a.status||'Bestand'}" placeholder="Status">
-   <button onclick="saveAnimalEditor('${t}',${i})">💾 Speichern</button>
+   <select id="ae_sex">
+<option value="Unbestimmt">Unbestimmt</option>
+<option value="Weiblich">Weiblich</option>
+<option value="Männlich">Männlich</option>
+</select>
+   <select id="ae_status">
+<option value="Bestand">Bestand</option>
+<option value="Reserviert">Reserviert</option>
+<option value="Archiv">Archiv</option>
+</select>
+   <textarea id="ae_note" placeholder="Notizen"></textarea><button onclick="saveAnimalEditor('${t}',${i})">💾 Speichern</button>
    <button onclick="document.getElementById('animalEditorModal').remove()">❌ Abbrechen</button>
   </div>
  </div>`;
@@ -1542,46 +1547,6 @@ function estimateMarketValue(morph){
  return min+'–'+max+' €';
 }
 
-
-function getMarketRange(animal){
- const txt=estimateMarketValue((animal.morph||''));
- const m=txt.match(/(\d+)[–-](\d+)/);
- if(!m) return {min:0,max:0};
- return {min:Number(m[1]),max:Number(m[2])};
-}
-function getMarketStatus(animal){
- const sell=Number(animal.price||0);
- const r=getMarketRange(animal);
- if(!sell) return '⚪ Kein Verkaufspreis';
- if(sell<r.min) return '🟢 Unter Marktwert';
- if(sell>r.max) return '🔴 Über Marktwert';
- return '🟡 Marktgerecht';
-}
-function getProfitPotential(animal){
- const buy=Number(animal.buyPrice||0);
- const r=getMarketRange(animal);
- if(!buy) return '-';
- return '+'+(r.min-buy)+' bis +'+(r.max-buy)+' €';
-}
-
-
-function getProjectScore(animal){
- const m=((animal.morph||'')+'').toLowerCase();
- let score=1;
- if(m.includes('clown')) score+=5;
- if(m.includes('pied')) score+=5;
- if(m.includes('desert ghost')) score+=6;
- if(m.includes('cryptic')) score+=5;
- if(m.includes('ultramel')) score+=5;
- if(m.includes('highway')) score+=3;
- if(m.includes('freeway')) score+=3;
-
- if(score>=12) return '🚀 Sehr hoch';
- if(score>=8) return '⭐ Hoch';
- if(score>=4) return '📈 Mittel';
- return '🔹 Standard';
-}
-
 function render(){
 ensurePermanentIds();
 populateBreederDropdowns();
@@ -2632,59 +2597,35 @@ function estimateMarketValue(morph){
 
 
 <script>
-
 function calculateAdvancedMarketValue(animal){
- const morph=((animal||{}).morph||'').toLowerCase();
-
+ const morph=(animal.morph||'').toLowerCase();
  let min=50,max=100;
 
- const values={
-  'highway':[120,180],
-  'freeway':[150,250],
-  'clown':[350,700],
-  'pied':[300,700],
-  'desert ghost':[500,1200],
-  'cryptic':[400,1000],
-  'ultramel':[500,1400],
-  'leopard':[50,100],
+ const genes={
+  'clown':[300,600],
+  'pied':[300,600],
+  'desert ghost':[400,800],
+  'cryptic':[300,700],
+  'ultramel':[400,900],
+  'leopard':[75,150],
   'red stripe':[75,150],
   'orange dream':[75,150],
   'pastel':[25,75]
  };
 
- for(const k in values){
-   if(morph.includes(k)){
-     min += values[k][0];
-     max += values[k][1];
+ for(const g in genes){
+   if(morph.includes(g)){
+     min += genes[g][0];
+     max += genes[g][1];
    }
  }
 
- if(morph.includes('clown') && morph.includes('pied')){min+=300;max+=800;}
- if(morph.includes('clown') && morph.includes('desert ghost')){min+=500;max+=1200;}
- if(morph.includes('pied') && morph.includes('desert ghost')){min+=500;max+=1200;}
- if(morph.includes('cryptic') && morph.includes('desert ghost')){min+=400;max+=1000;}
+ if(morph.includes('clown') && morph.includes('pied')){min+=300;max+=700;}
+ if(morph.includes('clown') && morph.includes('desert ghost')){min+=400;max+=900;}
+ if(morph.includes('pied') && morph.includes('desert ghost')){min+=400;max+=900;}
+ if(morph.includes('cryptic') && morph.includes('desert ghost')){min+=300;max+=700;}
 
  return `${min}–${max} €`;
-}
-
-</script>
-
-
-<script>
-function marketStatus(price,min,max){
- const p=Number(price||0);
- if(!p) return "⚪ Kein Verkaufspreis";
- if(p<min) return "🟢 Unter Marktwert";
- if(p>max) return "🔴 Über Marktwert";
- return "🟡 Marktgerecht";
-}
-
-function projectValue(morph){
- const m=(morph||'').toLowerCase();
- let s=0;
- ['clown','pied','desert ghost','cryptic','ultramel'].forEach(g=>{if(m.includes(g)) s+=2;});
- ['leopard','red stripe','orange dream','pastel','highway','freeway'].forEach(g=>{if(m.includes(g)) s+=1;});
- return s>=6?'🔥 Hoch':(s>=3?'🧬 Mittel':'🌱 Basis');
 }
 </script>
 
