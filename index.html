@@ -98,6 +98,13 @@ color:white !important;
 <p>Verwaltung von Beständen, Nachzuchten, Verkaufstieren und Zuchtprojekten.</p>
 </div><div id='searchResults' class='card' style='display:none'></div>
 
+
+<div class="card">
+<h2>📷 QR-System</h2>
+<input id="qrSearchId" placeholder="KP-001 eingeben oder aus QR übernehmen">
+<button onclick="findAnimalByQr()">🔍 Tier öffnen</button>
+<div id="qrSearchResult"></div>
+</div>
 <div id='dashInfo'></div><div class="grid">
 <div class="card">🐍 Königspython<div class="count" id="c1">0</div></div>
 <div class="card">🐍 Boas<div class="count" id="c2">0</div></div>
@@ -232,6 +239,7 @@ name:n,
 morph:document.getElementById(t+'_morph').value,
 weight:document.getElementById(t+'_weight').value,
 origin:document.getElementById(t+'_origin').value,
+birth:document.getElementById(t+'_birth').value,
 sex:document.getElementById(t+'_sex').value,
 price:(document.getElementById(t+'_price')||{}).value||'',
 status:(document.getElementById(t+'_status')||{}).value||'Bestand',
@@ -258,7 +266,7 @@ function draw(t,title,target){
 document.getElementById(target).innerHTML=section(t,title);
 document.getElementById(t+'_list').innerHTML=db[t].map((a,i)=>`
 <div class='animal'>
-${a.photo?'<img src="'+a.photo+'" style="max-width:120px;max-height:120px;border-radius:8px;display:block;margin-bottom:6px;">':''}<b>${a.name}</b><br>ID: ${(a.uid||generateId(t,i))}<br>
+${a.photo?'<img src="'+a.photo+'" style="max-width:120px;max-height:120px;border-radius:8px;display:block;margin-bottom:6px;">':''}<b>${a.name}</b><br>🏷️ ID: ${getDisplayId(a,i,t)}<br>
 ${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 ⚖ ${a.weight||0} g<br>
 🏠 ${a.origin||'-'}<br>
@@ -321,7 +329,7 @@ const res=[];
  (db[t]||[]).forEach(a=>{
    let hit=false;
    if(filter==='all'){
-      hit=[a.name,a.morph,a.sex,a.status,a.uid].join(' ').toLowerCase().includes(q);
+      hit=[a.name,a.morph,a.sex,a.status,a.uid,a.displayId].join(' ').toLowerCase().includes(q);
    } else {
       hit=String(a[filter]||'').toLowerCase().includes(q);
    }
@@ -481,7 +489,7 @@ function showWeights(t,i){
 function animalReport(t,i){
  const a=db[t][i];
  let txt='TIERBERICHT\n\n';
- txt+='ID: '+generateId(t,i)+'\n';
+ txt+='ID: '+getDisplayId(a,i,t)+'\n';
  txt+='Name: '+(a.name||'')+'\n';
  txt+='Morph/Art: '+(a.morph||'')+'\n';
  txt+='Geschlecht: '+(a.sex||'')+'\n';
@@ -558,6 +566,7 @@ function editFullAnimal(t,i){
  a.morph=prompt('Morph / Art',a.morph||'') ?? a.morph;
  a.sex=prompt('Geschlecht',a.sex||'') ?? a.sex;
  a.origin=prompt('Herkunft',a.origin||'') ?? a.origin;
+ a.birth=prompt('Schlupfdatum (YYYY-MM-DD)',a.birth||'') ?? a.birth;
  a.price=prompt('Preis',a.price||'') ?? a.price;
  a.status=prompt('Status',a.status||'Bestand') ?? a.status;
  save();
@@ -574,19 +583,53 @@ function growthAnalysis(t,i){
 }
 
 
+
+function findAnimalByQr(){
+ const id=(document.getElementById('qrSearchId').value||'').trim().toUpperCase();
+ const result=document.getElementById('qrSearchResult');
+ let found=null, foundType=null;
+
+ ['koenig','boas','geckos','spinnen'].forEach(t=>{
+   (db[t]||[]).forEach((a,i)=>{
+      if(getDisplayId(a,i,t).toUpperCase()===id){
+         found={a,i}; foundType=t;
+      }
+   });
+ });
+
+ if(!found){
+   result.innerHTML='❌ Kein Tier gefunden';
+   return;
+ }
+
+ result.innerHTML='✅ Gefunden: <b>'+found.a.name+'</b> ('+id+')';
+ showPage(foundType);
+ setTimeout(()=>{
+   const cards=document.querySelectorAll('#'+foundType+' .animal');
+   if(cards[found.i]){
+      cards[found.i].scrollIntoView({behavior:'smooth',block:'center'});
+      cards[found.i].style.outline='3px solid green';
+      setTimeout(()=>cards[found.i].style.outline='',3000);
+   }
+ },200);
+}
+
 function showQrData(t,i){
  const a=db[t][i];
- const id=getDisplayId(a,i);
+ const id=getDisplayId(a,i,t);
  document.getElementById('qrModal').style.display='block';
  document.getElementById('qrTitle').innerText=(a.name||'Tier')+' - '+id;
  const box=document.getElementById('qrCodeBox');
  box.innerHTML='';
  new QRCode(box,{text:id,width:220,height:220});
+ const input=document.getElementById('qrSearchId');
+ if(input){ input.value=id; }
 }
 
-function getDisplayId(a,index){
- if(!a.displayId){
-   a.displayId='KP-'+String(index+1).padStart(3,'0');
+function getDisplayId(a,index,type){
+ const p={koenig:'KP',boas:'BOA',geckos:'LG',spinnen:'VS'}[type]||'ID';
+ if(!a.displayId || !a.displayId.startsWith(p+'-')){
+   a.displayId=p+'-'+String(index+1).padStart(3,'0');
  }
  return a.displayId;
 }
@@ -687,7 +730,7 @@ function exportAnimalPdf(t,i){
  const add=(txt)=>{ doc.text(String(txt),10,y); y+=7; };
 
  add('Tierbericht');
- add('ID: '+(a.uid||generateId(t,i)));
+ add('ID: '+getDisplayId(a,i,t));
  add('Name: '+(a.name||''));
  add('Morph/Art: '+(a.morph||''));
  add('Geschlecht: '+(a.sex||''));
