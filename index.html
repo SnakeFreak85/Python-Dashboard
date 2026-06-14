@@ -321,7 +321,7 @@ ${a.sex}<br>
 💰 Einkauf: ${a.buyPrice||'-'} €<br>
 📈 Marktwert: ${(typeof calculateAdvancedMarketValue==='function'?calculateAdvancedMarketValue(a):'-')}<br>
 💵 Verkauf: ${a.price||'-'} €<br>📊 Entwicklung: ${(a.buyPrice?('ab '+a.buyPrice+' €'):'-')}<br>
-📌 ${a.status||'Bestand'}<br>🏷️ ${getMarketStatus(a)}<br>💹 Potenzial: ${getProfitPotential(a)}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
+📌 ${a.status||'Bestand'}<br>${a.note?('📝 Notiz: '+a.note+'<br>'):''}🏷️ ${getMarketStatus(a)}<br>💹 Potenzial: ${getProfitPotential(a)}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
@@ -460,6 +460,12 @@ function openAnimalEditor(t,i){
   </div>
  </div>`;
  document.body.insertAdjacentHTML('beforeend',html);
+ document.getElementById('ae_sex').value=a.sex||'Unbestimmt';
+ document.getElementById('ae_status').value=a.status||'Bestand';
+ if(document.getElementById('ae_note')){
+   document.getElementById('ae_note').value=a.note||'';
+ }
+
 }
 
 function saveAnimalEditor(t,i){
@@ -1550,6 +1556,19 @@ function getProfitPotential(a){
  return (sell-buy)+' €';
 }
 
+
+function calculateAdvancedMarketValue(a){
+  const est=estimateMarketValue((a && a.morph) ? a.morph : '');
+  if(est && est!=='50–100 €') return est;
+  const sell=Number((a&&a.price)||0);
+  const buy=Number((a&&a.buyPrice)||0);
+  const base=sell||buy;
+  if(base>0){
+    return Math.round(base*0.9)+'–'+Math.round(base*1.2)+' €';
+  }
+  return est;
+}
+
 function estimateMarketValue(morph){
  let min=50,max=100;
  const m=(morph||'').toLowerCase();
@@ -1566,6 +1585,18 @@ function estimateMarketValue(morph){
 
 function render(){
 ensurePermanentIds();
+['koenig','boas','geckos','spinnen'].forEach(t=>{
+ db[t]=(db[t]||[]).filter(a=>{
+   if(a && a.status==='Archiv'){
+      db.archive=db.archive||[];
+      if(!db.archive.find(x=>(x.uid&&x.uid===a.uid)||(x.name===a.name))){
+         db.archive.push({...a,type:t});
+      }
+      return false;
+   }
+   return true;
+ });
+});
 populateBreederDropdowns();
 dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
 c1.textContent=db.koenig.length;
@@ -2608,6 +2639,19 @@ function getProfitPotential(a){
  const sell=Number(a.price||0);
  if(!buy || !sell) return '-';
  return (sell-buy)+' €';
+}
+
+
+function calculateAdvancedMarketValue(a){
+  const est=estimateMarketValue((a && a.morph) ? a.morph : '');
+  if(est && est!=='50–100 €') return est;
+  const sell=Number((a&&a.price)||0);
+  const buy=Number((a&&a.buyPrice)||0);
+  const base=sell||buy;
+  if(base>0){
+    return Math.round(base*0.9)+'–'+Math.round(base*1.2)+' €';
+  }
+  return est;
 }
 
 function estimateMarketValue(morph){
