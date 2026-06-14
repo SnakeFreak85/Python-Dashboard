@@ -653,11 +653,20 @@ function findAnimalByQr(){
 function showQrData(t,i){
  const a=db[t][i];
  const id=getDisplayId(a,i,t);
+ const birth=a.birth||'-';
+ const morph=a.morph||'-';
+
  document.getElementById('qrModal').style.display='block';
- document.getElementById('qrTitle').innerText=(a.name||'Tier')+' - '+id;
+ document.getElementById('qrTitle').innerHTML=
+   '🏷️ '+id+'<br>🐍 '+(a.name||'Tier')+'<br>🧬 '+morph+'<br>🐣 '+birth;
+
  const box=document.getElementById('qrCodeBox');
  box.innerHTML='';
- new QRCode(box,{text:id,width:220,height:220});
+
+ const qrText=id+'|'+(a.name||'')+'|'+morph+'|'+birth;
+
+ new QRCode(box,{text:qrText,width:220,height:220});
+
  const input=document.getElementById('qrSearchId');
  if(input){ input.value=id; }
 }
