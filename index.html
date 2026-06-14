@@ -621,7 +621,8 @@ function growthAnalysis(t,i){
 
 
 function findAnimalByQr(){
- const id=(document.getElementById('qrSearchId').value||'').trim().toUpperCase();
+ const raw=(document.getElementById('qrSearchId').value||'').trim();
+ const id=raw.split('|')[0].toUpperCase();
  const result=document.getElementById('qrSearchResult');
  let found=null, foundType=null;
 
