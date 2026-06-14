@@ -195,10 +195,13 @@ color:white !important;
 <script>
 let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"sales":[],"archive":[]}');
 
+let qrScannerInstance=null;
+
 function save(){
 localStorage.setItem('spd_v53',JSON.stringify(db));
+render();
+}
 
-let qrScannerInstance=null;
 function toggleQrScanner(){
  const el=document.getElementById('qrScanner');
  if(el.style.display==='block'){
@@ -231,9 +234,6 @@ function printQrLabel(){
  const w=window.open('','_blank');
  w.document.write('<h2>'+title+'</h2>'+code);
  w.print();
-}
-
-render();
 }
 
 function openMenu(){drawer.classList.add('open');overlay.classList.add('show');}
