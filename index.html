@@ -153,7 +153,7 @@ color:white !important;
 
 <div id="projekte" class="section">
 <div class="card">
-<h2>🚀 Projektplaner</h2>
+<h2 onclick="showPage('projekte')" style="cursor:pointer">🚀 Projektplaner</h2>
 <div id="projektPlanerContent"></div>
 </div>
 </div>
@@ -250,6 +250,9 @@ function closeMenu(){drawer.classList.remove('open');overlay.classList.remove('s
 function showPage(id){
 document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
 document.getElementById(id).classList.add('active');
+if(id==='projekte' && typeof renderProjectPlanner==='function'){
+   try{ renderProjectPlanner(); }catch(e){ console.log(e); }
+}
 closeMenu();
 }
 
@@ -2288,6 +2291,168 @@ function renderProjectPlanner(){
    });
 
  box.innerHTML=html;
+}
+</script>
+
+
+<script>
+// V307 - Genetische Projektbewertung
+
+function geneticProjectScore(morph){
+ let s=0;
+ const t=(morph||'').toLowerCase();
+
+ const rare=['clown','pied','desert ghost','cryptic','ultramel','puzzle','monsoon','sunset'];
+ rare.forEach(g=>{ if(t.includes(g)) s+=15; });
+
+ const codom=['leopard','red stripe','orange dream','enchi','yellow belly','pastel','fire','mojave'];
+ codom.forEach(g=>{ if(t.includes(g)) s+=5; });
+
+ if(t.includes('het')) s+=3;
+ if(t.includes('pdh')) s+=5;
+
+ return s;
+}
+
+function animalPowerScore(animal){
+ return geneticProjectScore(animal.morph||'');
+}
+
+function renderProjectPlanner(){
+ const box=document.getElementById('projektPlanerContent');
+ if(!box) return;
+
+ const animals=[...(db?.koenig||[])];
+ const females=animals.filter(a=>/weib/i.test(a.sex||''));
+ const males=animals.filter(a=>/männ|male/i.test(a.sex||''));
+
+ let pairings=[];
+
+ females.forEach(f=>{
+   males.forEach(m=>{
+      const score=animalPowerScore(f)+animalPowerScore(m);
+
+      const holdbacks=[];
+      const txt=((f.morph||'')+' '+(m.morph||'')).toLowerCase();
+
+      if(txt.includes('clown')) holdbacks.push('Clown Projekt');
+      if(txt.includes('pied')) holdbacks.push('Pied Projekt');
+      if(txt.includes('desert ghost')) holdbacks.push('Desert Ghost Projekt');
+      if(txt.includes('cryptic')) holdbacks.push('Cryptic Projekt');
+      if(txt.includes('ultramel')) holdbacks.push('Ultramel Projekt');
+
+      pairings.push({
+        f,m,score,
+        best: holdbacks.join(' • ') || 'Multi-Gene Projekt'
+      });
+   });
+ });
+
+ pairings.sort((a,b)=>b.score-a.score);
+
+ const bestHoldbacks={};
+ pairings.forEach(p=>{
+    if(p.best!=='Multi-Gene Projekt'){
+      bestHoldbacks[p.best]=(bestHoldbacks[p.best]||0)+1;
+    }
+ });
+
+ let html='<h3>🏆 Top Verpaarungen</h3>';
+
+ pairings.slice(0,15).forEach((p,i)=>{
+   html+=`<div class="animal">
+   <b>#${i+1} ${p.f.name} × ${p.m.name}</b><br>
+   ⭐ Score: ${p.score}<br>
+   🧬 Highlight: ${p.best}<br>
+   ♀ ${p.f.morph||'-'}<br>
+   ♂ ${p.m.morph||'-'}
+   </div>`;
+ });
+
+ html+='<h3>⭐ Beste Holdback-Projekte</h3>';
+ Object.keys(bestHoldbacks).slice(0,10).forEach((k,i)=>{
+   html+=`<div class="animal">${i+1}. ${k}</div>`;
+ });
+
+ html+='<h3>🧬 Stärkste Tiere</h3>';
+ [...animals]
+ .sort((a,b)=>animalPowerScore(b)-animalPowerScore(a))
+ .slice(0,10)
+ .forEach((a,i)=>{
+   html+=`<div class="animal">
+   ${i+1}. <b>${a.name}</b><br>
+   ${a.morph||'-'}<br>
+   Score: ${animalPowerScore(a)}
+   </div>`;
+ });
+
+ box.innerHTML=html;
+}
+</script>
+
+
+<script>
+// V308 - Projektplaner mit Nachzucht-Fokus
+function projectForecastHighlights(fMorph,mMorph){
+ const txt=(fMorph+' '+mMorph).toLowerCase();
+ let r=[];
+ if(txt.includes('clown')) r.push('100% het Clown möglich');
+ if(txt.includes('pied')) r.push('100% het Pied möglich');
+ if(txt.includes('desert ghost')) r.push('Desert Ghost Linie');
+ if(txt.includes('cryptic')) r.push('Cryptic Linie');
+ if(txt.includes('ultramel')) r.push('Ultramel Linie');
+ return r;
+}
+
+function bestHoldbackText(fMorph,mMorph){
+ const genes=[];
+ ['Leopard','Red Stripe','Pastel','Clown','Pied','Desert Ghost','Cryptic','Ultramel']
+ .forEach(g=>{
+   const t=(fMorph+' '+mMorph).toLowerCase();
+   if(t.includes(g.toLowerCase())) genes.push(g);
+ });
+ return genes.slice(0,5).join(' ') || 'Multi Gene Holdback';
+}
+
+function renderProjectPlanner(){
+ const box=document.getElementById('projektPlanerContent');
+ if(!box) return;
+
+ const animals=[...(db.koenig||[])];
+ const females=animals.filter(a=>/weib/i.test(a.sex||''));
+ const males=animals.filter(a=>/männ|male/i.test(a.sex||''));
+
+ let pairs=[];
+
+ females.forEach(f=>{
+   males.forEach(m=>{
+      let score=(animalPowerScore?animalPowerScore(f):0)+(animalPowerScore?animalPowerScore(m):0);
+      score += bestHoldbackText(f.morph||'',m.morph||'').split(' ').length*3;
+
+      pairs.push({
+        f,m,score,
+        holdback:bestHoldbackText(f.morph||'',m.morph||''),
+        highlights:projectForecastHighlights(f.morph||'',m.morph||'')
+      });
+   });
+ });
+
+ pairs.sort((a,b)=>b.score-a.score);
+
+ let out='<h3>🏆 Top Verpaarungen</h3>';
+
+ pairs.slice(0,10).forEach((p,i)=>{
+    out+=`
+    <div class="animal">
+      <b>#${i+1} ${p.f.name} × ${p.m.name}</b><br>
+      ⭐ Projektwert: ${p.score}<br>
+      🏆 Bestes Holdback:<br>${p.holdback}<br><br>
+      🧬 Erwartete Highlights:<br>
+      ${p.highlights.map(x=>'• '+x).join('<br>') || '• Multi-Gene Projekt'}
+    </div>`;
+ });
+
+ box.innerHTML=out;
 }
 </script>
 
