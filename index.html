@@ -135,7 +135,7 @@ color:white !important;
 </div>
 </div>
 
-<div id="verkauf" class="section">
+<div id="verkauf" class="section" style="display:none">
 <div class="card">
 <h2>💰 Verkaufstiere</h2>
 <div id="saleList"></div>
@@ -319,9 +319,8 @@ ${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 🏠 ${a.origin||'-'}<br>
 ${a.sex}<br>
 💰 Einkauf: ${a.buyPrice||'-'} €<br>
-📈 Marktwert: ${(estimateMarketValue(a.morph||'').text)}<br>
+📈 Marktwert: ${estimateMarketValue(a.morph||'')}<br>
 💵 Verkauf: ${a.price||'-'} €<br>
-📊 Entwicklung: ${(a.buyPrice&&estimateMarketValue(a.morph||'').min)?('ca. +'+(estimateMarketValue(a.morph||'').min-Number(a.buyPrice))+' €'): '-'}<br>
 📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
@@ -1499,6 +1498,21 @@ function saveWeight(t,i){
  db[t][i].weight=newest.weight;
 
  save();
+}
+
+
+function estimateMarketValue(morph){
+ let min=50,max=100;
+ const m=(morph||'').toLowerCase();
+ if(m.includes('clown')){min+=250;max+=500;}
+ if(m.includes('pied')){min+=250;max+=500;}
+ if(m.includes('desert ghost')){min+=300;max+=600;}
+ if(m.includes('cryptic')){min+=250;max+=500;}
+ if(m.includes('ultramel')){min+=300;max+=700;}
+ if(m.includes('leopard')){min+=50;max+=100;}
+ if(m.includes('red stripe')){min+=50;max+=100;}
+ if(m.includes('pastel')){min+=20;max+=50;}
+ return min+'–'+max+' €';
 }
 
 function render(){
