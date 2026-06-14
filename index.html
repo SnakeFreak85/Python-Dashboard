@@ -1540,6 +1540,23 @@ function estimateMarketValue(morph){
 }
 
 function render(){
+try{ensurePermanentIds();}catch(e){console.log(e);}
+try{populateBreederDropdowns();}catch(e){console.log(e);}
+try{
+ const di=document.getElementById('dashInfo');
+ if(di) di.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
+}catch(e){console.log(e);}
+try{document.getElementById('c1').textContent=(db.koenig||[]).length;}catch(e){}
+try{document.getElementById('c2').textContent=(db.boas||[]).length;}catch(e){}
+try{document.getElementById('c3').textContent=(db.geckos||[]).length;}catch(e){}
+try{document.getElementById('c4').textContent=(db.spinnen||[]).length;}catch(e){}
+
+try{draw('koenig','🐍 Königspython','koenig');}catch(e){console.error('koenig',e);}
+try{draw('boas','🐍 Boas','boas');}catch(e){console.error('boas',e);}
+try{draw('geckos','🦎 Leopardgeckos','geckos');}catch(e){console.error('geckos',e);}
+try{draw('spinnen','🕷 Vogelspinnen','spinnen');}catch(e){console.error('spinnen',e);}
+
+
 ensurePermanentIds();
 populateBreederDropdowns();
 dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
