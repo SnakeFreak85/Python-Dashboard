@@ -320,7 +320,7 @@ ${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 ${a.sex}<br>
 💰 Einkauf: ${a.buyPrice||'-'} €<br>
 📈 Marktwert: ${(typeof calculateAdvancedMarketValue==='function'?calculateAdvancedMarketValue(a):'-')}<br>
-💵 Verkauf: ${a.price||'-'} €<br>📊 Entwicklung: ${(a.buyPrice?('ab '+a.buyPrice+' €'):'-')}<br>
+💵 Verkauf: ${a.price||'-'} €<br>📊 Entwicklung: ${(a.buyPrice?('ab '+a.buyPrice+' €'):'-')}<br>🧬 Zuchtwert: ${projectValue(a.morph||'')}<br>
 📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
@@ -2624,6 +2624,25 @@ function calculateAdvancedMarketValue(animal){
  return `${min}–${max} €`;
 }
 
+</script>
+
+
+<script>
+function marketStatus(price,min,max){
+ const p=Number(price||0);
+ if(!p) return "⚪ Kein Verkaufspreis";
+ if(p<min) return "🟢 Unter Marktwert";
+ if(p>max) return "🔴 Über Marktwert";
+ return "🟡 Marktgerecht";
+}
+
+function projectValue(morph){
+ const m=(morph||'').toLowerCase();
+ let s=0;
+ ['clown','pied','desert ghost','cryptic','ultramel'].forEach(g=>{if(m.includes(g)) s+=2;});
+ ['leopard','red stripe','orange dream','pastel','highway','freeway'].forEach(g=>{if(m.includes(g)) s+=1;});
+ return s>=6?'🔥 Hoch':(s>=3?'🧬 Mittel':'🌱 Basis');
+}
 </script>
 
 </body>
