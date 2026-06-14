@@ -2589,36 +2589,41 @@ function estimateMarketValue(morph){
 
 
 <script>
+
 function calculateAdvancedMarketValue(animal){
- const morph=(animal.morph||'').toLowerCase();
+ const morph=((animal||{}).morph||'').toLowerCase();
+
  let min=50,max=100;
 
- const genes={
-  'clown':[300,600],
-  'pied':[300,600],
-  'desert ghost':[400,800],
-  'cryptic':[300,700],
-  'ultramel':[400,900],
-  'leopard':[75,150],
+ const values={
+  'highway':[120,180],
+  'freeway':[150,250],
+  'clown':[350,700],
+  'pied':[300,700],
+  'desert ghost':[500,1200],
+  'cryptic':[400,1000],
+  'ultramel':[500,1400],
+  'leopard':[50,100],
   'red stripe':[75,150],
   'orange dream':[75,150],
   'pastel':[25,75]
  };
 
- for(const g in genes){
-   if(morph.includes(g)){
-     min += genes[g][0];
-     max += genes[g][1];
+ for(const k in values){
+   if(morph.includes(k)){
+     min += values[k][0];
+     max += values[k][1];
    }
  }
 
- if(morph.includes('clown') && morph.includes('pied')){min+=300;max+=700;}
- if(morph.includes('clown') && morph.includes('desert ghost')){min+=400;max+=900;}
- if(morph.includes('pied') && morph.includes('desert ghost')){min+=400;max+=900;}
- if(morph.includes('cryptic') && morph.includes('desert ghost')){min+=300;max+=700;}
+ if(morph.includes('clown') && morph.includes('pied')){min+=300;max+=800;}
+ if(morph.includes('clown') && morph.includes('desert ghost')){min+=500;max+=1200;}
+ if(morph.includes('pied') && morph.includes('desert ghost')){min+=500;max+=1200;}
+ if(morph.includes('cryptic') && morph.includes('desert ghost')){min+=400;max+=1000;}
 
  return `${min}–${max} €`;
 }
+
 </script>
 
 </body>
