@@ -269,7 +269,7 @@ return `<div class='card'>
 <input id='${type}_buyprice' type='number' placeholder='Einkaufspreis €'><input id='${type}_price' type='number' placeholder='Verkaufspreis €'>
 <select id='${type}_status'>
 <option>Bestand</option>
-<option>Verkauf</option>
+
 <option>Reserviert</option>
 <option>Archiv</option>
 </select>
@@ -321,13 +321,13 @@ ${a.sex}<br>
 💰 Einkauf: ${a.buyPrice||'-'} €<br>
 📈 Marktwert: ${(typeof calculateAdvancedMarketValue==='function'?calculateAdvancedMarketValue(a):'-')}<br>
 💵 Verkauf: ${a.price||'-'} €<br>📊 Entwicklung: ${(a.buyPrice?('ab '+a.buyPrice+' €'):'-')}<br>
-📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
+📌 ${a.status||'Bestand'}<br>🏷️ ${getMarketStatus(a)}<br>💹 Potenzial: ${getProfitPotential(a)}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
 <button onclick="openAnimalEditor(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="toggleWeightForm('${t}',${i})">⚖️ Gewicht</button><div id="weight_${t}_${i}"></div><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">📱 QR-Code</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="averageWeightGain('${t}',${i})">📊 Trend</button><button onclick="showWeightChart('${t}',${i})">📈 Diagramm</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
-<button onclick="moveOffspringToSale('${t}',${i})">➡️ In Verkauf</button><button onclick="delAnimal('${t}',${i})">🗑️ Löschen</button>
+<button onclick="delAnimal('${t}',${i})">🗑️ Löschen</button>
 </div>`).join('');
 }
 
@@ -473,6 +473,7 @@ function saveAnimalEditor(t,i){
  a.price=document.getElementById('ae_sell').value;
  a.sex=document.getElementById('ae_sex').value;
  a.status=document.getElementById('ae_status').value;
+ a.note=(document.getElementById('ae_note')||{}).value||a.note||'';
  save();
  document.getElementById('animalEditorModal').remove();
 }
@@ -1533,6 +1534,22 @@ function saveWeight(t,i){
 }
 
 
+
+function getMarketStatus(a){
+ const buy=Number(a.buyPrice||0);
+ const sell=Number(a.price||0);
+ if(!sell) return '⚪ Kein Verkaufspreis';
+ if(buy && sell>buy) return '🟢 Gewinn möglich';
+ if(buy && sell<buy) return '🔴 Unter Einkauf';
+ return '🟡 Neutral';
+}
+function getProfitPotential(a){
+ const buy=Number(a.buyPrice||0);
+ const sell=Number(a.price||0);
+ if(!buy || !sell) return '-';
+ return (sell-buy)+' €';
+}
+
 function estimateMarketValue(morph){
  let min=50,max=100;
  const m=(morph||'').toLowerCase();
@@ -2577,6 +2594,22 @@ function saveClutchEditor(i){
 
 
 <script>
+
+function getMarketStatus(a){
+ const buy=Number(a.buyPrice||0);
+ const sell=Number(a.price||0);
+ if(!sell) return '⚪ Kein Verkaufspreis';
+ if(buy && sell>buy) return '🟢 Gewinn möglich';
+ if(buy && sell<buy) return '🔴 Unter Einkauf';
+ return '🟡 Neutral';
+}
+function getProfitPotential(a){
+ const buy=Number(a.buyPrice||0);
+ const sell=Number(a.price||0);
+ if(!buy || !sell) return '-';
+ return (sell-buy)+' €';
+}
+
 function estimateMarketValue(morph){
  const m=(morph||'').toLowerCase();
  let min=50,max=100;
