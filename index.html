@@ -69,7 +69,7 @@ color:white !important;
 <a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
 <a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
 <a href="#" onclick="showPage('archiv')">📁 Archiv</a>
-<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('termine')">📅 Termine</a><a href="#" onclick="showPage('backup')">💾 Backup</a><a href="#" onclick="showPage('developer')">🧠 Entwickler KI</a>
+<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('projekte')">🚀 Projektplaner</a><a href="#" onclick="showPage('termine')">📅 Termine</a><a href="#" onclick="showPage('backup')">💾 Backup</a><a href="#" onclick="showPage('developer')">🧠 Entwickler KI</a>
 </div>
 
 <header>
@@ -150,6 +150,14 @@ color:white !important;
 </div>
 
 
+
+<div id="projekte" class="section">
+<div class="card">
+<h2>🚀 Projektplaner</h2>
+<div id="projektPlanerContent"></div>
+</div>
+</div>
+
 <div id="morphs" class="section">
 <div class="card">
 <h2>🧬 Morph-Datenbank</h2>
@@ -199,7 +207,7 @@ let qrScannerInstance=null;
 
 function save(){
 localStorage.setItem('spd_v53',JSON.stringify(db));
-render();
+render(); try{renderProjectPlanner();}catch(e){}
 }
 
 function toggleQrScanner(){
@@ -928,31 +936,68 @@ function breedingCalendar(){
 }
 
 
+
 const morphDatabase={
- dominant:['Pastel','Mojave','Enchi','Yellow Belly','Cinnamon','Black Pastel','Fire','Lesser'],
- recessive:['Clown','Pied','Cryptic','Ultramel','Desert Ghost','Lavender','Axanthic','Hypo']
+ dominant:[
+ 'Pastel','Super Pastel','Mojave','Super Mojave','Butter','Lesser','Leopard','Enchi',
+ 'Fire','Super Fire','Black Pastel','Super Black Pastel','Cinnamon','Super Cinnamon',
+ 'Banana','Spider','Calico','Orange Dream','Yellow Belly','Gravel','Asphalt',
+ 'Spotnose','Black Head','Chocolate','GHI','Mystic','Special','Bamboo','Champagne',
+ 'Wookie','Red Stripe','Vanilla','Mahogany','Cypress','Blade','Hidden Gene Woma','Yellow Belly','Gravel','Asphalt','Spark','Specter','Orange Dream',
+ 'Pinstripe','Coral Glow','Acid','Specter','Huffman','Spark','Russo','Phantom',
+ 'Mojave Special','Killer Bee','Bumblebee','Highway','Freeway'
+ ],
+ recessive:[
+ 'Clown','Pied','Cryptic','Ultramel','Desert Ghost','Ghost','Hypo','Lavender Albino',
+ 'Albino','Candy','Toffee','Genetic Stripe','Axanthic VPI','Axanthic TSK',
+ 'Enhancer','Monsoon','Sunset','Puzzle','Tri-Stripe','Rainbow','Monarch',
+ 'Genetic Black Back','Dreamsicle','Caramel Albino'
+ ],
+ synonyms:{
+   'DG':'Desert Ghost',
+   'Hypo':'Ghost',
+   'YB':'Yellow Belly',
+   'OD':'Orange Dream'
+ }
 };
+
+
 
 function detectMorphs(text){
  text=(text||'');
+
+ Object.entries(morphDatabase.synonyms||{}).forEach(([k,v])=>{
+   const rx=new RegExp('\b'+k+'\b','gi');
+   text=text.replace(rx,v);
+ });
+
  let dominant=[], recessive=[], het=[], poshet=[];
 
- ['Pastel','Mojave','Enchi','Yellow Belly','Cinnamon','Black Pastel','Fire','Lesser','Leopard','Red Stripe']
- .forEach(g=>{ if(text.toLowerCase().includes(g.toLowerCase())) dominant.push(g); });
+ (morphDatabase.dominant||[]).forEach(g=>{
+   if(text.toLowerCase().includes(g.toLowerCase())) dominant.push(g);
+ });
 
- ['Clown','Pied','Ultramel','Desert Ghost','Lavender','Axanthic','Hypo']
- .forEach(g=>{ if(text.toLowerCase().includes(g.toLowerCase())) recessive.push(g); });
+ (morphDatabase.recessive||[]).forEach(g=>{
+   const low=text.toLowerCase();
+   const gene=g.toLowerCase();
 
- if(text.toLowerCase().includes('het cryptic')) het.push('Cryptic');
- else if(text.toLowerCase().includes('cryptic')) recessive.push('Cryptic');
+   if(low.includes('het '+gene)){
+      if(!het.includes(g)) het.push(g);
+   }else if(low.includes('pdh '+gene) || low.includes('pos het '+gene)){
+      if(!poshet.includes(g)) poshet.push(g);
+   }else if(low.includes(gene)){
+      if(!recessive.includes(g)) recessive.push(g);
+   }
+ });
 
- if(text.toLowerCase().includes('het clown')) het.push('Clown');
- if(text.toLowerCase().includes('het pied')) het.push('Pied');
-
- if(text.toLowerCase().includes('pdh')) poshet.push('Desert Ghost');
+ if(text.match(/pdh/i) && !poshet.includes('Desert Ghost')){
+   poshet.push('Desert Ghost');
+ }
 
  return {dominant,recessive,het,poshet};
 }
+
+
 
 
 
@@ -965,77 +1010,209 @@ function analyzeGenes(m,f){
  const p=[...new Set([...(m.poshet||[]),...(f.poshet||[])])];
 
  let projects=[];
+
  if(r.includes('Clown')){
    if(d.includes('Pastel')) projects.push('Pastel Clown');
    if(d.includes('Leopard')) projects.push('Leopard Clown');
    if(d.includes('Red Stripe')) projects.push('Red Stripe Clown');
  }
- if(r.includes('Desert Ghost') && r.includes('Pied')) projects.push('DG Pied');
+ if(r.includes('Pied') && d.includes('Leopard')) projects.push('Leopard Pied');
+ if(r.includes('Desert Ghost')) projects.push('Desert Ghost Projekt');
+ if(h.includes('Cryptic') || r.includes('Cryptic')) projects.push('Cryptic Projekt');
 
  return {d,r,h,p,projects};
 }
+
+
+
+
+
+function generateDominantCombos(genes){
+ let results=[''];
+ genes.forEach(g=>{
+   let next=[];
+   results.forEach(r=>{
+      next.push(r);
+      next.push((r+' '+g).trim());
+   });
+   results=next;
+ });
+ return results.sort((a,b)=>{
+ const al=a ? a.split(' ').length : 0;
+ const bl=b ? b.split(' ').length : 0;
+ return bl-al;
+});
+}
+
+function scoreCombo(combo){
+ let score=0;
+ combo.split(' ').forEach(g=>{
+   if(!g) return;
+   if(['Clown','Pied','Desert Ghost','Cryptic','Puzzle','Monsoon','Sunset'].includes(g)) score+=5;
+   else score+=2;
+ });
+ return score;
+}
+
+function buildHoldbacks(combos){
+ return combos.map(x=>({combo:x,score:scoreCombo(x)}))
+ .sort((a,b)=>b.score-a.score)
+ .slice(0,5);
+}
+
+
+
+function recessiveState(morph,gene){
+ const t=(morph||'').toLowerCase();
+ const g=gene.toLowerCase();
+
+ if(t.includes('pdh '+g) || t.includes('pos het '+g))
+    return 'pdh';
+
+ if(t.includes('het '+g))
+    return 'het';
+
+ if(t.includes(g))
+    return 'visual';
+
+ return 'normal';
+}
+
+function calculateRecessive(parentA,parentB,gene){
+
+ const a=recessiveState(parentA,gene);
+ const b=recessiveState(parentB,gene);
+
+ if(a==='visual' && b==='visual')
+   return '100% '+gene;
+
+ if((a==='visual' && b==='het') || (a==='het' && b==='visual'))
+   return '50% '+gene+' / 50% het '+gene;
+
+ if((a==='visual' && b==='pdh') || (a==='pdh' && b==='visual'))
+   return '100% het '+gene+' (50% davon visual möglich)';
+
+ if(a==='het' && b==='het')
+   return '25% '+gene+' / 50% het '+gene+' / 25% Normal';
+
+ if((a==='het' && b==='pdh') || (a==='pdh' && b==='het'))
+   return '50% het '+gene+' / 25% '+gene+' möglich';
+
+ if(a==='pdh' && b==='pdh')
+   return 'PDH × PDH ('+gene+') – Nachweiszucht erforderlich';
+
+ if((a==='visual' && b==='normal') || (a==='normal' && b==='visual'))
+   return '100% het '+gene;
+
+ if((a==='het' && b==='normal') || (a==='normal' && b==='het'))
+   return '50% het '+gene;
+
+ if((a==='pdh' && b==='normal') || (a==='normal' && b==='pdh'))
+   return '50% het '+gene+' möglich';
+
+ return null;
+}
+
 function getForecastText(c){
- const all=[...(db.koenig||[]),...(db.boas||[])];
+
+ const all=[...(db.koenig||[]),...(db.boas||[]),...(db.geckos||[]),...(db.spinnen||[])];
  const motherAnimal=all.find(a=>a.name===c.mother);
  const fatherAnimal=all.find(a=>a.name===c.father);
 
- const motherText=(motherAnimal?.morph)||c.mother||'';
- const fatherText=(fatherAnimal?.morph)||c.father||'';
+ if(!motherAnimal || !fatherAnimal){
+   return ['Elterntiere nicht gefunden'];
+ }
 
- const m=detectMorphs(motherText);
- const f=detectMorphs(fatherText);
+ const m=detectMorphs(motherAnimal.morph||'');
+ const f=detectMorphs(fatherAnimal.morph||'');
 
  let result=[];
- if(m.recessive.includes('Ultramel') && f.recessive.includes('Ultramel')){
-   result.push('Ultramel-Projekt');
+
+ const dominant=[...new Set([...(m.dominant||[]),...(f.dominant||[])])];
+
+ const combos=generateDominantCombos(dominant);
+
+ result.push('🧬 Kombinationsverteilung:');
+
+ const comboChance={};
+
+ combos.forEach(combo=>{
+   const genes=(combo||'').split(' ').filter(Boolean);
+   let probability=1;
+
+   dominant.forEach(g=>{
+      probability*=0.5;
+   });
+
+   comboChance[combo||'Normal']=(probability*100).toFixed(2);
+ });
+
+ Object.entries(comboChance)
+ .sort((a,b)=>parseFloat(b[1])-parseFloat(a[1]))
+ .forEach(([name,pct])=>{
+    result.push(pct+'% '+name);
+ });
+
+ result.push('');
+ result.push('🧬 Rezessive Gene:');
+
+ const recessiveGenes=[
+ 'Clown',
+ 'Pied',
+ 'Desert Ghost',
+ 'Cryptic',
+ 'Puzzle',
+ 'Monsoon',
+ 'Sunset',
+ 'Lavender Albino',
+ 'Albino',
+ 'Genetic Stripe'
+ ];
+
+ recessiveGenes.forEach(gene=>{
+   const r=calculateRecessive(
+     motherAnimal.morph||'',
+     fatherAnimal.morph||'',
+     gene
+   );
+   if(r) result.push(r);
+ });
+
+ result.push('');
+ result.push('⭐ Top Holdbacks:');
+
+ buildHoldbacks(combos).forEach(x=>{
+   let line='• '+x.combo;
+
+   if(m.recessive.includes('Clown') || f.recessive.includes('Clown')) line+=' het Clown';
+   if(m.recessive.includes('Pied') || f.recessive.includes('Pied')) line+=' het Pied';
+
+   result.push(line);
+ });
+
+ if(typeof buildUnifiedForecastText==='function'){
+   return buildUnifiedForecastText(
+      motherAnimal.morph||'',
+      fatherAnimal.morph||''
+   );
  }
- if(f.het.includes('Cryptic')){
-   result.push('het Cryptic vorhanden');
- }
+
  return result;
 }
 
 
+
 function clutchForecast(i){
  const c=db.clutches[i];
- const all=[...(db.koenig||[]),...(db.boas||[])];
- const motherAnimal=all.find(a=>a.name===c.mother);
- const fatherAnimal=all.find(a=>a.name===c.father);
-
- const motherText=(motherAnimal?.morph)||c.mother||'';
- const fatherText=(fatherAnimal?.morph)||c.father||'';
-
- const mGenes=detectMorphs(motherText);
- const fGenes=detectMorphs(fatherText);
-
- let result=[];
-
- if(
-   (mGenes.recessive||[]).includes('Ultramel') &&
-   (fGenes.recessive||[]).includes('Ultramel')
- ){
-   result.push('50 % Ultramel');
-   if((fGenes.dominant||[]).includes('Pastel')){
-      result.push('50 % Pastel Ultramel');
-   }
- }
-
- if((fGenes.het||[]).includes('Cryptic')){
-   result.push('100 % het Cryptic');
- }
-
  const box=document.getElementById('forecast_'+i);
  if(!box) return;
 
- box.innerHTML =
- '<div class="feedPanel"><b>🧬 Nachzuchtprognose</b><br><br>'+
- 'Mutter: '+motherText+'<br>'+
- 'Vater: '+fatherText+'<br><br>'+
- '<b>🎯 Verpaarungsergebnis</b><br>'+
- (result.length ? result.join('<br>') : 'Noch keine Prognose hinterlegt')+
+ const result=getForecastText(c);
+
+ box.innerHTML='<div class="feedPanel"><b>🧬 Nachzuchtprognose</b><br><br>' +
+ (result.length ? result.join('<br>') : 'Keine Prognose möglich') +
  '</div>';
 }
-
 
 
 function showPedigree(btn){
@@ -1413,7 +1590,707 @@ function analyzeCode(){
    '<div class="feedPanel">'+result.join('<br>')+'</div>';
 }
 
-render();
+render(); try{renderProjectPlanner();}catch(e){}
 </script>
+
+<script>
+// A3 - Erweiterte Vererbungslogik für dominante Gene
+function dominantInheritanceState(gene,morph){
+  const t=(morph||'').toLowerCase();
+  const g=gene.toLowerCase();
+  const superName=('super '+gene).toLowerCase();
+
+  if(t.includes(superName)) return 'super';
+  if(t.includes(g)) return 'single';
+  return 'none';
+}
+
+function dominantCross(gene,motherMorph,fatherMorph){
+  const m=dominantInheritanceState(gene,motherMorph);
+  const f=dominantInheritanceState(gene,fatherMorph);
+
+  if(m==='single' && f==='single'){
+    return [
+      {label:'Super '+gene,chance:25},
+      {label:gene,chance:50},
+      {label:'',chance:25}
+    ];
+  }
+
+  if((m==='super' && f==='none') || (m==='none' && f==='super')){
+    return [{label:gene,chance:100}];
+  }
+
+  if((m!=='none') || (f!=='none')){
+    return [
+      {label:gene,chance:50},
+      {label:'',chance:50}
+    ];
+  }
+
+  return [];
+}
+</script>
+
+
+<script>
+// A4 - Dominante Vererbung in die Prognose integrieren
+
+function buildDominantResults(motherMorph,fatherMorph){
+  const genes=['Pastel','Leopard','Red Stripe','Enchi','Fire','Mojave','Orange Dream','Yellow Belly'];
+  const sets=[];
+
+  genes.forEach(g=>{
+    const r=dominantCross(g,motherMorph,fatherMorph);
+    if(r && r.length) sets.push(r);
+  });
+
+  return sets;
+}
+
+function combineResultSets(resultSets){
+  let combos=[{label:'',chance:100}];
+
+  resultSets.forEach(set=>{
+    let next=[];
+    combos.forEach(base=>{
+      set.forEach(item=>{
+        next.push({
+          label:(base.label+' '+item.label).replace(/\s+/g,' ').trim(),
+          chance:(base.chance*item.chance)/100
+        });
+      });
+    });
+    combos=next;
+  });
+
+  return combos.sort((a,b)=>b.chance-a.chance);
+}
+</script>
+
+
+<script>
+// A5 - Kombinierte dominante Prognose
+
+function buildCombinedDominantForecast(motherMorph,fatherMorph){
+  const sets=buildDominantResults(motherMorph,fatherMorph);
+  if(!sets.length) return [];
+  return combineResultSets(sets).slice(0,25);
+}
+</script>
+
+
+<script>
+// A6 - Dominante + rezessive Ergebnisse zusammenführen
+
+function buildUnifiedForecast(motherMorph,fatherMorph){
+  const results=[];
+
+  if(typeof buildCombinedDominantForecast==='function'){
+    buildCombinedDominantForecast(motherMorph,fatherMorph).forEach(r=>{
+      results.push({
+        label:r.label || 'Normal',
+        chance:r.chance
+      });
+    });
+  }
+
+  ['Clown','Pied','Desert Ghost','Cryptic','Puzzle'].forEach(g=>{
+    const rr=calculateRecessive(motherMorph,fatherMorph,g);
+    if(rr){
+      results.push({
+        label:rr,
+        chance:100
+      });
+    }
+  });
+
+  return results;
+}
+</script>
+
+
+<script>
+// A7 - Unified Forecast an Anzeige anbinden
+
+function buildUnifiedForecastText(motherMorph,fatherMorph){
+  const rows=[];
+  const forecast=buildUnifiedForecast(motherMorph,fatherMorph);
+
+  forecast
+    .sort((a,b)=>(b.chance||0)-(a.chance||0))
+    .slice(0,30)
+    .forEach(x=>{
+      rows.push((Number(x.chance||0)).toFixed(2)+'% '+x.label);
+    });
+
+  return rows;
+}
+</script>
+
+
+<script>
+// A9 - Rezessive Gene als Wahrscheinlichkeitsobjekte
+
+function recessiveResults(gene,motherMorph,fatherMorph){
+  const a=recessiveState(motherMorph,gene);
+  const b=recessiveState(fatherMorph,gene);
+
+  if(a==='het' && b==='het'){
+    return [
+      {label:gene,chance:25},
+      {label:'het '+gene,chance:50},
+      {label:'',chance:25}
+    ];
+  }
+
+  if((a==='visual' && b==='het') || (a==='het' && b==='visual')){
+    return [
+      {label:gene,chance:50},
+      {label:'het '+gene,chance:50}
+    ];
+  }
+
+  if((a==='visual' && b==='visual')){
+    return [{label:gene,chance:100}];
+  }
+
+  if((a==='visual' && b==='normal') || (a==='normal' && b==='visual')){
+    return [{label:'het '+gene,chance:100}];
+  }
+
+  return [];
+}
+</script>
+
+
+<script>
+// A10 - Dominante und rezessive Ergebnisse wirklich kombinieren
+
+function buildUnifiedForecast(motherMorph,fatherMorph){
+  let sets=[];
+
+  if(typeof buildDominantResults==='function'){
+    sets.push(...buildDominantResults(motherMorph,fatherMorph));
+  }
+
+  ['Clown','Pied','Desert Ghost','Cryptic','Puzzle'].forEach(g=>{
+    const r=recessiveResults(g,motherMorph,fatherMorph);
+    if(r && r.length) sets.push(r);
+  });
+
+  if(!sets.length) return [{label:'Normal',chance:100}];
+
+  let combos=[{label:'',chance:100}];
+
+  sets.forEach(set=>{
+    let next=[];
+    combos.forEach(base=>{
+      set.forEach(item=>{
+        next.push({
+          label:(base.label+' '+item.label).replace(/\s+/g,' ').trim(),
+          chance:(base.chance*item.chance)/100
+        });
+      });
+    });
+    combos=next;
+  });
+
+  return combos
+    .map(x=>({
+      label:x.label||'Normal',
+      chance:x.chance
+    }))
+    .sort((a,b)=>b.chance-a.chance);
+}
+</script>
+
+
+<script>
+// A11 - PDH, Holdbacks und automatische rezessive Gene
+
+function holdbackScore(label){
+  let score=0;
+  const premium=['Clown','Pied','Desert Ghost','Cryptic','Puzzle','Monsoon','Sunset'];
+  premium.forEach(g=>{
+    if(label.includes(g)) score+=10;
+  });
+  score += label.split(' ').filter(Boolean).length;
+  return score;
+}
+
+function getTopHoldbacks(forecast){
+  return [...forecast]
+    .sort((a,b)=>
+      holdbackScore(b.label)-holdbackScore(a.label) ||
+      b.chance-a.chance
+    )
+    .slice(0,10);
+}
+
+function recessiveResults(gene,motherMorph,fatherMorph){
+  const a=recessiveState(motherMorph,gene);
+  const b=recessiveState(fatherMorph,gene);
+
+  if(a==='pdh' && b==='normal')
+    return [{label:'het '+gene+' möglich',chance:50}];
+
+  if(a==='pdh' && b==='het' || a==='het' && b==='pdh')
+    return [
+      {label:'het '+gene,chance:50},
+      {label:gene+' möglich',chance:25}
+    ];
+
+  if(a==='pdh' && b==='pdh')
+    return [{label:'PDH '+gene,chance:100}];
+
+  return [];
+}
+</script>
+
+
+<script>
+// A12 - Automatische rezessive Gene + Holdback-Ausgabe
+
+function getAllRecessiveGenes(){
+  return (morphDatabase && morphDatabase.recessive) ? morphDatabase.recessive : [];
+}
+
+function buildUnifiedForecastWithHoldbacks(motherMorph,fatherMorph){
+  let forecast=[];
+
+  if(typeof buildUnifiedForecast==='function'){
+    forecast = buildUnifiedForecast(motherMorph,fatherMorph);
+  }
+
+  return {
+    forecast: forecast.slice(0,50),
+    holdbacks: (typeof getTopHoldbacks==='function')
+      ? getTopHoldbacks(forecast)
+      : []
+  };
+}
+</script>
+
+
+<script>
+// A13 - Holdbacks in Prognoseanzeige integrieren
+
+function renderUnifiedForecast(motherMorph,fatherMorph){
+  const data=buildUnifiedForecastWithHoldbacks(motherMorph,fatherMorph);
+
+  const lines=[];
+  lines.push('🧬 Nachzuchtprognose');
+
+  (data.forecast||[]).slice(0,20).forEach(x=>{
+    lines.push((Number(x.chance||0)).toFixed(2)+'% '+x.label);
+  });
+
+  lines.push('');
+  lines.push('⭐ Top Holdbacks');
+
+  (data.holdbacks||[]).forEach(x=>{
+    lines.push('• '+x.label+' ('+(Number(x.chance||0)).toFixed(2)+'%)');
+  });
+
+  return lines;
+}
+</script>
+
+
+<script>
+// A14 - Neue Prognose direkt im Nachzuchtbereich verwenden
+
+const __oldClutchForecast = typeof clutchForecast === 'function' ? clutchForecast : null;
+
+function clutchForecast(i){
+ const c=db.clutches[i];
+ const box=document.getElementById('forecast_'+i);
+ if(!box) return;
+
+ const all=[...(db.koenig||[]),...(db.boas||[]),...(db.geckos||[]),...(db.spinnen||[])];
+ const motherAnimal=all.find(a=>a.name===c.mother);
+ const fatherAnimal=all.find(a=>a.name===c.father);
+
+ if(!motherAnimal || !fatherAnimal){
+   box.innerHTML='<div class="feedPanel">Elterntiere nicht gefunden</div>';
+   return;
+ }
+
+ const rows=renderUnifiedForecast(
+   motherAnimal.morph||'',
+   fatherAnimal.morph||''
+ );
+
+ box.innerHTML='<div class="feedPanel">'+rows.join('<br>')+'</div>';
+}
+</script>
+
+
+<script>
+// A15 - Alle rezessiven Gene automatisch berücksichtigen
+
+function buildUnifiedForecast(motherMorph,fatherMorph){
+  let sets=[];
+
+  if(typeof buildDominantResults==='function'){
+    sets.push(...buildDominantResults(motherMorph,fatherMorph));
+  }
+
+  const recessiveGenes=(typeof getAllRecessiveGenes==='function')
+    ? getAllRecessiveGenes()
+    : [];
+
+  recessiveGenes.forEach(g=>{
+    const r=recessiveResults(g,motherMorph,fatherMorph);
+    if(r && r.length) sets.push(r);
+  });
+
+  if(!sets.length) return [{label:'Normal',chance:100}];
+
+  let combos=[{label:'',chance:100}];
+
+  sets.forEach(set=>{
+    let next=[];
+    combos.forEach(base=>{
+      set.forEach(item=>{
+        next.push({
+          label:(base.label+' '+item.label).replace(/\s+/g,' ').trim(),
+          chance:(base.chance*item.chance)/100
+        });
+      });
+    });
+    combos=next;
+  });
+
+  return combos
+    .map(x=>({label:x.label||'Normal',chance:x.chance}))
+    .sort((a,b)=>b.chance-a.chance)
+    .slice(0,100);
+}
+</script>
+
+
+<script>
+// A16 - Erweiterte PDH / PosHet Engine
+
+function recessiveResults(gene,motherMorph,fatherMorph){
+  const a=recessiveState(motherMorph,gene);
+  const b=recessiveState(fatherMorph,gene);
+
+  if(a==='visual' && b==='visual')
+    return [{label:gene,chance:100}];
+
+  if((a==='visual' && b==='het') || (a==='het' && b==='visual'))
+    return [
+      {label:gene,chance:50},
+      {label:'het '+gene,chance:50}
+    ];
+
+  if(a==='het' && b==='het')
+    return [
+      {label:gene,chance:25},
+      {label:'het '+gene,chance:50},
+      {label:'',chance:25}
+    ];
+
+  if((a==='visual' && b==='pdh') || (a==='pdh' && b==='visual'))
+    return [
+      {label:'het '+gene,chance:100},
+      {label:gene+' möglich',chance:50}
+    ];
+
+  if((a==='het' && b==='pdh') || (a==='pdh' && b==='het'))
+    return [
+      {label:'het '+gene,chance:50},
+      {label:gene+' möglich',chance:25}
+    ];
+
+  if(a==='pdh' && b==='pdh')
+    return [
+      {label:'PDH '+gene,chance:100},
+      {label:gene+' möglich',chance:25}
+    ];
+
+  if((a==='visual' && b==='normal') || (a==='normal' && b==='visual'))
+    return [{label:'het '+gene,chance:100}];
+
+  if((a==='het' && b==='normal') || (a==='normal' && b==='het'))
+    return [{label:'het '+gene,chance:50}];
+
+  if((a==='pdh' && b==='normal') || (a==='normal' && b==='pdh'))
+    return [{label:'het '+gene+' möglich',chance:50}];
+
+  return [];
+}
+</script>
+
+
+<script>
+function calculateProjectScore(m,f){
+ let score=0;
+ const txt=((m.morph||'')+' '+(f.morph||'')).toLowerCase();
+ ['clown','pied','desert ghost','cryptic','puzzle','monsoon','sunset'].forEach(g=>{
+   if(txt.includes(g)) score+=10;
+ });
+ ['pastel','leopard','red stripe','orange dream','yellow belly','enchi'].forEach(g=>{
+   if(txt.includes(g)) score+=3;
+ });
+ return score;
+}
+
+function renderProjectPlanner(){
+ const box=document.getElementById('projektPlanerContent');
+ if(!box) return;
+
+ const animals=[...(db.koenig||[])];
+ const females=animals.filter(a=>(a.sex||'').toLowerCase().includes('weib'));
+ const males=animals.filter(a=>(a.sex||'').toLowerCase().includes('männ'));
+
+ let projects=[];
+
+ females.forEach(f=>{
+   males.forEach(m=>{
+      projects.push({
+        female:f.name,
+        male:m.name,
+        score:calculateProjectScore(f,m),
+        morphs:(f.morph||'-')+' × '+(m.morph||'-')
+      });
+   });
+ });
+
+ projects.sort((a,b)=>b.score-a.score);
+
+ let html='<h3>🥇 Beste Projekte aus deinem Bestand</h3>';
+
+ projects.slice(0,10).forEach((p,i)=>{
+   html+=`<div class="animal">
+   <b>#${i+1} ${p.female} × ${p.male}</b><br>
+   ${p.morphs}<br>
+   ⭐ Projektwert: ${p.score}
+   </div>`;
+ });
+
+ box.innerHTML=html || 'Keine Projekte verfügbar';
+}
+</script>
+
+
+<script>
+// Projektplaner Pro - nutzt Nachzuchtengine und Holdbacks
+
+function buildSmartProjects(){
+ const animals=[...(db.koenig||[])];
+ const females=animals.filter(a=>(a.sex||'').toLowerCase().includes('weib'));
+ const males=animals.filter(a=>(a.sex||'').toLowerCase().includes('männ'));
+
+ const projects=[];
+
+ females.forEach(f=>{
+   males.forEach(m=>{
+      let forecast=[];
+      try{
+        forecast=buildUnifiedForecastWithHoldbacks(
+          f.morph||'',
+          m.morph||''
+        );
+      }catch(e){}
+
+      const best=(forecast.holdbacks||[])[0];
+      const score=best ? holdbackScore(best.label||'') : calculateProjectScore(f,m);
+
+      projects.push({
+        female:f.name,
+        male:m.name,
+        score:score,
+        best:best ? best.label : 'Keine Prognose',
+        morphs:(f.morph||'-')+' × '+(m.morph||'-')
+      });
+   });
+ });
+
+ return projects.sort((a,b)=>b.score-a.score).slice(0,20);
+}
+
+const __oldRenderProjectPlanner = window.renderProjectPlanner;
+
+window.renderProjectPlanner=function(){
+ const box=document.getElementById('projektPlanerContent');
+ if(!box) return;
+
+ const projects=buildSmartProjects();
+
+ let html='<h3>🚀 Top-Projekte nach Genetik</h3>';
+
+ projects.forEach((p,i)=>{
+   html+=`
+   <div class="animal">
+     <b>#${i+1} ${p.female} × ${p.male}</b><br>
+     ${p.morphs}<br>
+     🧬 Bestes Holdback: ${p.best}<br>
+     ⭐ Score: ${p.score}
+   </div>`;
+ });
+
+ box.innerHTML=html;
+}
+</script>
+
+
+<script>
+// V306 - Stärkste Kombinationen aus Bestand
+
+function animalPowerScore(animal){
+  const txt=(animal.morph||'');
+  let score=0;
+  ['Clown','Pied','Desert Ghost','Cryptic','Puzzle','Monsoon','Sunset'].forEach(g=>{
+    if(txt.toLowerCase().includes(g.toLowerCase())) score+=10;
+  });
+  ['Leopard','Pastel','Orange Dream','Red Stripe','Enchi','Yellow Belly','Mojave','Fire'].forEach(g=>{
+    if(txt.toLowerCase().includes(g.toLowerCase())) score+=3;
+  });
+  return score;
+}
+
+function renderProjectPlanner(){
+ const box=document.getElementById('projektPlanerContent');
+ if(!box) return;
+
+ const animals=[...(db.koenig||[])];
+ const females=animals.filter(a=>(a.sex||'').toLowerCase().includes('weib'));
+ const males=animals.filter(a=>(a.sex||'').toLowerCase().includes('männ'));
+
+ let pairings=[];
+
+ females.forEach(f=>{
+   males.forEach(m=>{
+      let score=0;
+      let bestHoldback='-';
+
+      try{
+        const data=buildUnifiedForecastWithHoldbacks(f.morph||'',m.morph||'');
+        if(data.holdbacks && data.holdbacks.length){
+          bestHoldback=data.holdbacks[0].label;
+          score=holdbackScore(bestHoldback)+(data.holdbacks[0].chance||0);
+        }
+      }catch(e){
+        score=animalPowerScore(f)+animalPowerScore(m);
+      }
+
+      pairings.push({
+        female:f,
+        male:m,
+        score:Math.round(score),
+        best:bestHoldback
+      });
+   });
+ });
+
+ pairings.sort((a,b)=>b.score-a.score);
+
+ const strongest=[...animals]
+      .sort((a,b)=>animalPowerScore(b)-animalPowerScore(a))
+      .slice(0,10);
+
+ let html='<h3>🏆 Top 20 Verpaarungen</h3>';
+
+ pairings.slice(0,20).forEach((p,i)=>{
+   html+=`<div class="animal">
+   <b>#${i+1} ${p.female.name} × ${p.male.name}</b><br>
+   ♀ ${p.female.morph||'-'}<br>
+   ♂ ${p.male.morph||'-'}<br>
+   ⭐ Score: ${p.score}<br>
+   🧬 Bestes Holdback: ${p.best}
+   </div>`;
+ });
+
+ html+='<h3>⭐ Beste Holdbacks</h3>';
+ const holds=[];
+ pairings.slice(0,20).forEach(p=>{
+   if(p.best && p.best!=='-') holds.push(p.best);
+ });
+ [...new Set(holds)].slice(0,10).forEach((h,i)=>{
+   html+=`<div class="animal">${i+1}. ${h}</div>`;
+ });
+
+ html+='<h3>🧬 Stärkste Tiere</h3>';
+ strongest.forEach((a,i)=>{
+   html+=`<div class="animal">
+   ${i+1}. <b>${a.name}</b><br>
+   ${a.morph||'-'}<br>
+   Score: ${animalPowerScore(a)}
+   </div>`;
+ });
+
+ box.innerHTML=html;
+}
+</script>
+
+
+<script>
+// V306.1 - Projektplaner ohne Forecast-Abhängigkeit
+
+function renderProjectPlanner(){
+ const box=document.getElementById('projektPlanerContent');
+ if(!box) return;
+
+ const animals=[...(db?.koenig||[])];
+
+ if(!animals.length){
+   box.innerHTML='<div class="animal">Keine Tiere im Bestand gefunden.</div>';
+   return;
+ }
+
+ const females=animals.filter(a=>/weib/i.test(a.sex||''));
+ const males=animals.filter(a=>/männ|male/i.test(a.sex||''));
+
+ let html='<h3>🏆 Top Verpaarungen</h3>';
+
+ if(!females.length || !males.length){
+   html+='<div class="animal">Es werden mindestens ein Männchen und ein Weibchen benötigt.</div>';
+ } else {
+
+   const pairings=[];
+
+   females.forEach(f=>{
+     males.forEach(m=>{
+       const score=animalPowerScore(f)+animalPowerScore(m);
+       pairings.push({f,m,score});
+     });
+   });
+
+   pairings.sort((a,b)=>b.score-a.score);
+
+   pairings.slice(0,20).forEach((p,i)=>{
+      html+=`
+      <div class="animal">
+      <b>#${i+1} ${p.f.name} × ${p.m.name}</b><br>
+      ♀ ${p.f.morph||'-'}<br>
+      ♂ ${p.m.morph||'-'}<br>
+      ⭐ Score: ${p.score}
+      </div>`;
+   });
+ }
+
+ html+='<h3>🧬 Stärkste Tiere</h3>';
+
+ [...animals]
+   .sort((a,b)=>animalPowerScore(b)-animalPowerScore(a))
+   .slice(0,10)
+   .forEach((a,i)=>{
+      html+=`
+      <div class="animal">
+      ${i+1}. <b>${a.name||'Unbekannt'}</b><br>
+      ${a.morph||'-'}<br>
+      Score: ${animalPowerScore(a)}
+      </div>`;
+   });
+
+ box.innerHTML=html;
+}
+</script>
+
 </body>
 </html>
+<!-- GENETIK_ENGINE_V327 vorbereitet -->
