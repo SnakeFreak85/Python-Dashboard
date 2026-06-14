@@ -53,7 +53,7 @@ color:white !important;
 .feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="https://unpkg.com/html5-qrcode"></script></head>
 <body>
 
 <button id="menuBtn" onclick="openMenu()">☰</button>
@@ -102,7 +102,7 @@ color:white !important;
 <div class="card">
 <h2>📷 QR-System</h2>
 <input id="qrSearchId" placeholder="KP-001 eingeben oder aus QR übernehmen">
-<button onclick="findAnimalByQr()">🔍 Tier öffnen</button>
+<button onclick="findAnimalByQr()">🔍 Tier öffnen</button><button onclick="toggleQrScanner()">📷 QR-Code scannen</button><div id="qrScanner" style="display:none"></div>
 <div id="qrSearchResult"></div>
 </div>
 <div id='dashInfo'></div><div class="grid">
@@ -187,7 +187,7 @@ color:white !important;
 <h3 id="qrTitle"></h3>
 <div id="qrCodeBox"></div>
 <br>
-<button onclick="printQr()">🖨️ Drucken</button>
+<button onclick="printQr()">🖨️ Drucken</button><button onclick="printQrLabel()">🏷️ Etikett</button>
 <button onclick="closeQr()">Schließen</button>
 </div>
 </div>
@@ -197,6 +197,42 @@ let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geck
 
 function save(){
 localStorage.setItem('spd_v53',JSON.stringify(db));
+
+let qrScannerInstance=null;
+function toggleQrScanner(){
+ const el=document.getElementById('qrScanner');
+ if(el.style.display==='block'){
+   el.style.display='none';
+   if(qrScannerInstance){ try{qrScannerInstance.stop();}catch(e){} }
+   return;
+ }
+ el.style.display='block';
+ el.innerHTML='';
+ if(typeof Html5Qrcode==='undefined'){
+   el.innerHTML='Scanner-Bibliothek nicht geladen';
+   return;
+ }
+ qrScannerInstance=new Html5Qrcode('qrScanner');
+ qrScannerInstance.start(
+   {facingMode:'environment'},
+   {fps:10, qrbox:250},
+   (decodedText)=>{
+      document.getElementById('qrSearchId').value=decodedText;
+      findAnimalByQr();
+      try{qrScannerInstance.stop();}catch(e){}
+      el.style.display='none';
+   }
+ );
+}
+
+function printQrLabel(){
+ const title=document.getElementById('qrTitle').innerText;
+ const code=document.getElementById('qrCodeBox').innerHTML;
+ const w=window.open('','_blank');
+ w.document.write('<h2>'+title+'</h2>'+code);
+ w.print();
+}
+
 render();
 }
 
