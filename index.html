@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V300</title>
+<title>Sascha's Python Dashboard V305</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -53,7 +53,7 @@ color:white !important;
 .feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script></head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script></head>
 <body>
 
 <button id="menuBtn" onclick="openMenu()">☰</button>
@@ -69,11 +69,11 @@ color:white !important;
 <a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
 <a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
 <a href="#" onclick="showPage('archiv')">📁 Archiv</a>
-<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('termine')">📅 Termine</a><a href="#" onclick="showPage('backup')">💾 Backup</a>
+<a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('termine')">📅 Termine</a><a href="#" onclick="showPage('backup')">💾 Backup</a><a href="#" onclick="showPage('developer')">🧠 Entwickler KI</a>
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V300</div>
+<div class="logo">🐍 Sascha's Python Dashboard V305</div>
 </header>
 
 <div class="content">
@@ -161,6 +161,28 @@ color:white !important;
 </div>
 
 
+
+<div id="developer" class="section">
+<div class="card">
+<h2>🧠 Entwickler KI</h2>
+<p>Füge hier HTML/JavaScript-Code ein und lasse ihn analysieren.</p>
+<textarea id="codeInput" style="height:220px"></textarea>
+<button onclick="analyzeCode()">🔍 Code analysieren</button>
+<div id="analysisResult"></div>
+</div>
+</div>
+
+</div>
+
+
+<div id="qrModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:30000">
+<div style="background:#fff;max-width:380px;margin:8% auto;padding:20px;border-radius:12px;text-align:center">
+<h3 id="qrTitle"></h3>
+<div id="qrCodeBox"></div>
+<br>
+<button onclick="printQr()">🖨️ Drucken</button>
+<button onclick="closeQr()">Schließen</button>
+</div>
 </div>
 
 <script>
@@ -245,7 +267,7 @@ ${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutc
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
-<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="addWeight(\'${t}\',${i})">⚖️ Gewicht</button><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">🏷️ QR-Daten</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="averageWeightGain('${t}',${i})">📊 Trend</button><button onclick="showWeightChart('${t}',${i})">📈 Diagramm</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="toggleWeightForm('${t}',${i})">⚖️ Gewicht</button><div id="weight_${t}_${i}"></div><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">📱 QR-Code</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="averageWeightGain('${t}',${i})">📊 Trend</button><button onclick="showWeightChart('${t}',${i})">📈 Diagramm</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
 <button onclick="moveOffspringToSale('${t}',${i})">➡️ In Verkauf</button><button onclick="delAnimal('${t}',${i})">🗑️ Löschen</button>
 </div>`).join('');
 }
@@ -354,14 +376,7 @@ function editFullAnimal(t,i){
  a.morph=prompt('Morph',a.morph)||a.morph;
  save();
 }
-function addWeight(t,i){
- const w=prompt('Neues Gewicht in g');
- if(!w)return;
- if(!db[t][i].weights) db[t][i].weights=[];
- db[t][i].weights.push({date:new Date().toLocaleString('de-DE'),weight:w});
- db[t][i].weight=w;
- save();
-}
+function addWeight(t,i){ toggleWeightForm(t,i); }
 
 
 function toggleFeedForm(t,i){
@@ -558,21 +573,23 @@ function growthAnalysis(t,i){
  alert('📈 Wachstumsanalyse\n\nStartgewicht: '+first+' g\nAktuelles Gewicht: '+last+' g\nDifferenz: '+(last-first)+' g');
 }
 
+
 function showQrData(t,i){
  const a=db[t][i];
- const lastFeed=(a.feeds||[]).length ? ((a.feeds||[]).slice(-1)[0].date || '-') : '-';
- const lastShed=(a.sheds||[]).length ? ((a.sheds||[]).slice(-1)[0].date || '-') : '-';
- const lastWeight=(a.weights||[]).length ? ((a.weights||[]).slice(-1)[0].weight+' g') : ((a.weight||'-')+' g');
- alert(
- 'ID: '+(a.uid||generateId(t,i))+'\n'+
- 'Name: '+(a.name||'-')+'\n'+
- 'Morph: '+(a.morph||'-')+'\n'+
- 'Schlupfdatum: '+(a.birth||'-')+'\n'+
- 'Letzte Fütterung: '+lastFeed+'\n'+
- 'Letzte Häutung: '+lastShed+'\n'+
- 'Letztes Gewicht: '+lastWeight
- );
+ const id=(a.uid||generateId(t,i));
+ document.getElementById('qrModal').style.display='block';
+ document.getElementById('qrTitle').innerText=(a.name||'Tier')+' - '+id;
+ const box=document.getElementById('qrCodeBox');
+ box.innerHTML='';
+ new QRCode(box,{text:id,width:220,height:220});
 }
+function closeQr(){
+ document.getElementById('qrModal').style.display='none';
+}
+function printQr(){
+ window.print();
+}
+
 
 
 function showFeedHistoryPage(t,i){
@@ -1153,6 +1170,43 @@ function ensurePermanentIds(){
  });
 }
 
+
+function toggleWeightForm(t,i){
+ const el=document.getElementById('weight_'+t+'_'+i);
+ if(!el) return;
+ if(el.innerHTML){ el.innerHTML=''; return; }
+
+ el.innerHTML=`<div class="feedPanel">
+ <label>Datum</label>
+ <input type="date" id="weight_date_${t}_${i}">
+ <label>Gewicht (g)</label>
+ <input type="number" id="weight_value_${t}_${i}" placeholder="Gewicht in Gramm">
+ <button onclick="saveWeight('${t}',${i})">Speichern</button>
+ </div>`;
+}
+
+function saveWeight(t,i){
+ const weight=document.getElementById('weight_value_'+t+'_'+i).value;
+ if(!weight) return alert('Bitte Gewicht eingeben');
+
+ const date=document.getElementById('weight_date_'+t+'_'+i).value ||
+              new Date().toISOString().split('T')[0];
+
+ if(!db[t][i].weights) db[t][i].weights=[];
+
+ db[t][i].weights.push({
+   date: date,
+   weight: Number(weight)
+ });
+
+ db[t][i].weights.sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+
+ const newest=db[t][i].weights[db[t][i].weights.length-1];
+ db[t][i].weight=newest.weight;
+
+ save();
+}
+
 function render(){
 ensurePermanentIds();
 populateBreederDropdowns();
@@ -1215,6 +1269,53 @@ if(ml){
  +'<hr><b>Rezessiv</b><br>'+morphDatabase.recessive.join(', ');
 }
 }
+
+function analyzeCode(){
+ const code=(document.getElementById('codeInput').value||'');
+ let result=[];
+
+ const fnMatches=[...code.matchAll(/function\s+([a-zA-Z0-9_]+)\s*\(/g)];
+ const names=fnMatches.map(x=>x[1]);
+
+ result.push('📊 Funktionen gefunden: '+names.length);
+
+ const duplicates=[];
+ names.forEach(n=>{
+   if(names.filter(x=>x===n).length>1 && !duplicates.includes(n)){
+      duplicates.push(n);
+   }
+ });
+
+ if(duplicates.length){
+   result.push('⚠️ Doppelte Funktionen:');
+   duplicates.forEach(x=>result.push('• '+x));
+ }else{
+   result.push('✅ Keine doppelten Funktionen erkannt');
+ }
+
+ const lines=code.split('\n').length;
+ result.push('📄 Zeilen: '+lines);
+
+ if(lines>1500){
+   result.push('⚠️ Datei ist sehr groß. Aufteilung in Module empfohlen.');
+ }
+
+ const unused=[];
+ names.forEach(n=>{
+   const re=new RegExp(n+'\\s*\\(','g');
+   const count=(code.match(re)||[]).length;
+   if(count<=1) unused.push(n);
+ });
+
+ if(unused.length){
+     result.push('💡 Möglicherweise unbenutzt:');
+     unused.slice(0,20).forEach(x=>result.push('• '+x));
+ }
+
+ document.getElementById('analysisResult').innerHTML=
+   '<div class="feedPanel">'+result.join('<br>')+'</div>';
+}
+
 render();
 </script>
 </body>
