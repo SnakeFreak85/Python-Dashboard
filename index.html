@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard</title>
+<title>Sascha's Python Dashboard V305</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard</div>
+<div class="logo">🐍 Sascha's Python Dashboard V305</div>
 </header>
 
 <div class="content">
@@ -326,7 +326,7 @@ ${a.sex}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
 <br>
-<button onclick="editFullAnimal(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="toggleWeightForm('${t}',${i})">⚖️ Gewicht</button><div id="weight_${t}_${i}"></div><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">📱 QR-Code</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="averageWeightGain('${t}',${i})">📊 Trend</button><button onclick="showWeightChart('${t}',${i})">📈 Diagramm</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
+<button onclick="openAnimalEditor(\'${t}\',${i})">✏️ Vollständig bearbeiten</button><button onclick="toggleWeightForm('${t}',${i})">⚖️ Gewicht</button><div id="weight_${t}_${i}"></div><button onclick="showWeightHistoryPage(\'${t}\',${i})">📈 Verlauf</button><input type="file" accept="image/*" onchange="uploadPhoto(\'${t}\',${i},this)"><button onclick="showQrData(\'${t}\',${i})">📱 QR-Code</button><button onclick="growthAnalysis(\'${t}\',${i})">📈 Analyse</button><button onclick="averageWeightGain('${t}',${i})">📊 Trend</button><button onclick="showWeightChart('${t}',${i})">📈 Diagramm</button><button onclick="animalReport(\'${t}\',${i})">📄 Bericht</button><button onclick="exportAnimalPdf(\'${t}\',${i})">⬇️ PDF</button><button onclick="showFeedHistoryPage('${t}',${i})">📜 Fütterungen</button><button onclick="toggleFeedForm(\'${t}\',${i})">🍽️ Fütterung</button><div id="feed_${t}_${i}"></div><button onclick="showShedHistoryPage('${t}',${i})">📜 Häutungen</button><button onclick="toggleShedForm('${t}',${i})">🧤 Häutung</button><div id="shed_${t}_${i}"></div>
 <button onclick="moveOffspringToSale('${t}',${i})">➡️ In Verkauf</button><button onclick="delAnimal('${t}',${i})">🗑️ Löschen</button>
 </div>`).join('');
 }
@@ -429,7 +429,7 @@ save();
 
 
 
-function editFullAnimal(t,i){
+function openAnimalEditor(t,i){
  const a=db[t][i];
 
  const n=prompt('Name',a.name||'');
@@ -638,7 +638,7 @@ function showWeightHistoryPage(t,i){
 }
 
 
-function editFullAnimal(t,i){
+function openAnimalEditor(t,i){
  const a=db[t][i];
  const n=prompt('Name',a.name); if(n===null)return;
  a.name=n;
