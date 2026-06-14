@@ -201,7 +201,7 @@ color:white !important;
 </div>
 
 <script>
-let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"sales":[],"archive":[]}');
+let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"archive":[]}');
 
 let qrScannerInstance=null;
 
@@ -1583,6 +1583,26 @@ function estimateMarketValue(morph){
  return min+'–'+max+' €';
 }
 
+
+function inventoryStatsPanel(){
+ let animals=[...(db.koenig||[]),...(db.boas||[]),...(db.geckos||[]),...(db.spinnen||[])];
+ let buy=0,sell=0,potential=0;
+ let ids={}; let dup=[];
+ animals.forEach(a=>{
+   buy+=Number(a.buyPrice||0);
+   sell+=Number(a.price||0);
+   potential+=Number(a.price||0)-Number(a.buyPrice||0);
+   if(a.uid){
+     if(ids[a.uid]) dup.push(a.uid);
+     ids[a.uid]=1;
+   }
+ });
+ return '<div class="card"><h3>💰 Bestandswerte</h3>📦 Tiere: '+animals.length+
+ '<br>💶 Einkauf: '+buy+' €<br>📈 Marktwert: '+sell+
+ ' €<br>🚀 Potenzial: '+potential+' €'+
+ (dup.length?'<br><b>⚠️ UID-Dubletten: '+dup.length+'</b>':'')+
+ '</div>';
+}
 function render(){
 ensurePermanentIds();
 ['koenig','boas','geckos','spinnen'].forEach(t=>{
@@ -1598,7 +1618,7 @@ ensurePermanentIds();
  });
 });
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
+dashInfo.innerHTML=dashboardInfo()+inventoryStatsPanel()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
@@ -1621,18 +1641,7 @@ clutchList.innerHTML=db.clutches.map((x,i)=>`
 <button onclick="clutchPdf(${i})">📄 PDF</button>
 <button onclick="deleteClutch(${i})">🗑️ Löschen</button><button onclick="createOffspring(${i})">🐣 Jungtiere erzeugen</button><button onclick="clutchForecast(${i})">🧬 Prognose</button><div id="forecast_${i}"></div>
 </div>`).join('');
-saleList.innerHTML=db.sales.map(x=>`<div class='animal'>
-<b>${x.name}</b><br>
-🧬 ${x.morph||'-'}<br>
-⚥ ${x.sex||'Unbestimmt'}<br>
-🏠 ${x.origin||'-'}<br>
-👩 ${x.mother||'-'} × 👨 ${x.father||'-'}<br>
-🐣 ${x.clutch||'-'}<br>
-💰 ${x.price||'-'} €<br>
-<button onclick="editSale('${x.name}')">✏️ Bearbeiten</button>
-<button onclick="returnToStock('${x.name}')">↩️ Zurück in Bestand</button>
-<button onclick="markSold('${x.name}')">✅ Verkauft</button>
-</div>`).join('');
+
 archiveList.innerHTML=db.archive.map((x,i)=>`<div class='animal'>
 <b>${x.name||'-'}</b><br>
 🧬 ${x.morph||'-'}<br>
@@ -2706,5 +2715,39 @@ function calculateAdvancedMarketValue(animal){
 }
 </script>
 
+
+<script>
+// V325 sichere Erweiterungen
+
+function archiveSearch(){
+ const q=(document.getElementById('archiveSearch')||{}).value?.toLowerCase()||'';
+ const list=(db.archive||[]).filter(a=>
+   !q || [a.name,a.morph,a.sex,a.origin].join(' ').toLowerCase().includes(q)
+ );
+ const box=document.getElementById('archiveList');
+ if(!box) return;
+ box.innerHTML=list.map((x,i)=>`<div class='animal'>
+ <b>${x.name||'-'}</b><br>🧬 ${x.morph||'-'}<br>
+ <button onclick="restoreArchived(${i})">↩️ Wiederherstellen</button>
+ <button onclick="deleteArchived(${i})">🗑️ Endgültig löschen</button>
+ </div>`).join('');
+}
+
+function animalStats(a){
+ return {
+   feeds:(a.feeds||[]).length,
+   sheds:(a.sheds||[]).length,
+   weights:(a.weights||[]).length
+ };
+}
+
+setTimeout(()=>{
+ const arch=document.querySelector('#archiv .card');
+ if(arch && !document.getElementById('archiveSearch')){
+   arch.insertAdjacentHTML('afterbegin',
+    "<input id='archiveSearch' placeholder='🔎 Archiv durchsuchen' onkeyup='archiveSearch()'>");
+ }
+},500);
+</script>
 </body>
 </html>
