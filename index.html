@@ -2468,6 +2468,62 @@ function renderProjectPlanner(){
 }
 </script>
 
+
+<script>
+// V310 - Komfortable Gelegebearbeitung
+function openClutchEditor(i){
+  const c = (db.clutches||[])[i];
+  if(!c) return;
+
+  const html = `
+  <div id="clutchEditorModal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;overflow:auto;">
+    <div style="background:white;margin:20px;padding:16px;border-radius:12px;">
+      <h3>🥚 Gelege bearbeiten</h3>
+
+      <label>Verpaarungsdatum</label>
+      <input type="date" id="editPairDate" value="${c.pairDate||''}" style="width:100%">
+
+      <label>Eiablagedatum</label>
+      <input type="date" id="editLayDate" value="${c.layDate||''}" style="width:100%">
+
+      <label>Schlupfdatum</label>
+      <input type="date" id="editHatchDate" value="${c.hatchDate||''}" style="width:100%">
+
+      <label>Eier</label>
+      <input type="number" id="editEggs" value="${c.eggs||0}" style="width:100%">
+
+      <label>Geschlüpft</label>
+      <input type="number" id="editHatched" value="${c.hatched||0}" style="width:100%">
+
+      <label>Bemerkungen</label>
+      <textarea id="editNote" style="width:100%">${c.note||''}</textarea>
+
+      <br><br>
+      <button onclick="saveClutchEditor(${i})">💾 Speichern</button>
+      <button onclick="document.getElementById('clutchEditorModal').remove()">❌ Abbrechen</button>
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function saveClutchEditor(i){
+  const c=(db.clutches||[])[i];
+  if(!c) return;
+
+  c.pairDate=document.getElementById('editPairDate').value;
+  c.layDate=document.getElementById('editLayDate').value;
+  c.hatchDate=document.getElementById('editHatchDate').value;
+  c.eggs=parseInt(document.getElementById('editEggs').value||0);
+  c.hatched=parseInt(document.getElementById('editHatched').value||0);
+  c.note=document.getElementById('editNote').value;
+
+  if(typeof save==='function') save();
+
+  document.getElementById('clutchEditorModal')?.remove();
+}
+</script>
+
 </body>
 </html>
 <!-- GENETIK_ENGINE_V327 vorbereitet -->
