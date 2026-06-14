@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V305</title>
+<title>Sascha's Python Dashboard</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V305</div>
+<div class="logo">🐍 Sascha's Python Dashboard</div>
 </header>
 
 <div class="content">
@@ -2623,22 +2623,3 @@ function calculateAdvancedMarketValue(animal){
 
 </body>
 </html>
-<!-- GENETIK_ENGINE_V327 vorbereitet -->
-
-
-function editClutch(i){
- const c=db.clutches[i];
-
- const n=prompt('Projektname',c.name||'');
- if(n===null) return;
-
- c.name=n;
- c.pairDate=prompt('Verpaarungsdatum (YYYY-MM-DD)',c.pairDate||'') ?? c.pairDate;
- c.layDate=prompt('Eiablagedatum (YYYY-MM-DD)',c.layDate||'') ?? c.layDate;
- c.hatchDate=prompt('Schlupfdatum (leer lassen wenn noch Inkubation)',c.hatchDate||'') ?? c.hatchDate;
- c.eggs=prompt('Eieranzahl',c.eggs||0) ?? c.eggs;
- c.hatched=prompt('Geschlüpft',c.hatched||0) ?? c.hatched;
- c.note=prompt('Bemerkungen',c.note||'') ?? c.note;
-
- save();
-}
