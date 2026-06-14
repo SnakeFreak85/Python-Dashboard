@@ -67,7 +67,7 @@ color:white !important;
 <a href="#" onclick="showPage('geckos')">🦎 Leopardgeckos</a>
 <a href="#" onclick="showPage('spinnen')">🕷 Vogelspinnen</a>
 <a href="#" onclick="showPage('nachzucht')">🐣 Nachzuchten</a>
-<a href="#" onclick="showPage('verkauf')">💰 Verkaufstiere</a>
+
 <a href="#" onclick="showPage('archiv')">📁 Archiv</a>
 <a href="#" onclick="showPage('morphs')">🧬 Morph-Datenbank</a><a href="#" onclick="showPage('projekte')">🚀 Projektplaner</a><a href="#" onclick="showPage('termine')">📅 Termine</a><a href="#" onclick="showPage('backup')">💾 Backup</a><a href="#" onclick="showPage('developer')">🧠 Entwickler KI</a>
 </div>
@@ -266,7 +266,7 @@ return `<div class='card'>
 <select id='${type}_sex'>
 <option>Unbestimmt</option><option>Weiblich</option><option>Männlich</option>
 </select>
-<input id='${type}_price' type='number' placeholder='Verkaufspreis €'>
+<input id='${type}_buyprice' type='number' placeholder='Einkaufspreis €'><input id='${type}_price' type='number' placeholder='Verkaufspreis €'>
 <select id='${type}_status'>
 <option>Bestand</option>
 <option>Verkauf</option>
@@ -288,7 +288,7 @@ weight:document.getElementById(t+'_weight').value,
 origin:document.getElementById(t+'_origin').value,
 birth:document.getElementById(t+'_birth').value,
 sex:document.getElementById(t+'_sex').value,
-price:(document.getElementById(t+'_price')||{}).value||'',
+buyPrice:(document.getElementById(t+'_buyprice')||{}).value||'',price:(document.getElementById(t+'_price')||{}).value||'',
 status:(document.getElementById(t+'_status')||{}).value||'Bestand',
 type:t
 });
@@ -317,7 +317,12 @@ ${a.photo?'<img src="'+a.photo+'" style="max-width:120px;max-height:120px;border
 ${a.morph}<br>🐣 Schlupf: ${(a.birth||'-')}<br>
 ⚖ ${a.weight||0} g<br>
 🏠 ${a.origin||'-'}<br>
-${a.sex}<br>💰 ${a.price||'-'} €<br>📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
+${a.sex}<br>
+💰 Einkauf: ${a.buyPrice||'-'} €<br>
+📈 Marktwert: ${(estimateMarketValue(a.morph||'').text)}<br>
+💵 Verkauf: ${a.price||'-'} €<br>
+📊 Entwicklung: ${(a.buyPrice&&estimateMarketValue(a.morph||'').min)?('ca. +'+(estimateMarketValue(a.morph||'').min-Number(a.buyPrice))+' €'): '-'}<br>
+📌 ${a.status||'Bestand'}<br>${a.clutch?('🧬 Herkunft: '+a.clutch+'<br>👩 '+(a.mother||'-')+' × 👨 '+(a.father||'-')+'<br>'):''}<button onclick="showPedigree(this)">🌳 Stammbaum</button><br>🍽 Fütterungen: ${(a.feeds||[]).length}<br>
 ⏰ Letzte Fütterung: ${((a.feeds||[]).length ? (typeof (a.feeds||[]).slice(-1)[0]==='object' ? (a.feeds||[]).slice(-1)[0].date : (a.feeds||[]).slice(-1)[0]) : '-')}<br>
 🧤 Häutungen: ${(a.sheds||[]).length}<br>
 ⏰ Letzte Häutung: ${((a.sheds||[]).length ? (typeof (a.sheds||[]).slice(-1)[0]==='object' ? (a.sheds||[]).slice(-1)[0].date : (a.sheds||[]).slice(-1)[0]) : '-')}<br>
@@ -2521,6 +2526,26 @@ function saveClutchEditor(i){
   if(typeof save==='function') save();
 
   document.getElementById('clutchEditorModal')?.remove();
+}
+</script>
+
+
+<script>
+function estimateMarketValue(morph){
+ const m=(morph||'').toLowerCase();
+ let min=50,max=100;
+
+ if(m.includes('clown')){min+=250;max+=500;}
+ if(m.includes('pied')){min+=250;max+=500;}
+ if(m.includes('desert ghost')){min+=300;max+=600;}
+ if(m.includes('cryptic')){min+=250;max+=500;}
+ if(m.includes('ultramel')){min+=300;max+=700;}
+ if(m.includes('leopard')){min+=50;max+=100;}
+ if(m.includes('red stripe')){min+=50;max+=100;}
+ if(m.includes('orange dream')){min+=50;max+=100;}
+ if(m.includes('pastel')){min+=20;max+=50;}
+
+ return min+"–"+max+" €";
 }
 </script>
 
