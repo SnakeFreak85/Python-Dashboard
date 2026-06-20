@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V326 Final Stable</title>
+<title>Sascha's Python Dashboard V329 Final Stable</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -73,7 +73,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V326 Final Stable</div>
+<div class="logo">🐍 Sascha's Python Dashboard V329 Final Stable</div>
 </header>
 
 <div class="content">
@@ -107,7 +107,7 @@ color:white !important;
 </div>
 <div id='dashInfo'></div>
 <div class="card" id="v326Dashboard">
-<h3>📊 V326 Bestandsübersicht</h3>
+<h3>📊 V329 Bestandsübersicht</h3>
 <div id="v326Stats"></div>
 <div id="uidWarnings" style="color:red"></div>
 </div><div class="grid">
@@ -1563,18 +1563,15 @@ function getProfitPotential(a){
 
 
 function calculateAdvancedMarketValue(a){
+  const est=estimateMarketValue((a && a.morph) ? a.morph : '');
+  if(est && est!=='50–100 €') return est;
   const sell=Number((a&&a.price)||0);
   const buy=Number((a&&a.buyPrice)||0);
-
-  if(sell>0){
-    return Math.round(sell*0.95)+'–'+Math.round(sell*1.05)+' €';
+  const base=sell||buy;
+  if(base>0){
+    return Math.round(base*0.9)+'–'+Math.round(base*1.2)+' €';
   }
-
-  if(buy>0){
-    return Math.round(buy*1.03)+'–'+Math.round(buy*2.08)+' €';
-  }
-
-  return estimateMarketValue((a && a.morph) ? a.morph : '');
+  return est;
 }
 
 function estimateMarketValue(morph){
@@ -2691,18 +2688,15 @@ function getProfitPotential(a){
 
 
 function calculateAdvancedMarketValue(a){
+  const est=estimateMarketValue((a && a.morph) ? a.morph : '');
+  if(est && est!=='50–100 €') return est;
   const sell=Number((a&&a.price)||0);
   const buy=Number((a&&a.buyPrice)||0);
-
-  if(sell>0){
-    return Math.round(sell*0.95)+'–'+Math.round(sell*1.05)+' €';
+  const base=sell||buy;
+  if(base>0){
+    return Math.round(base*0.9)+'–'+Math.round(base*1.2)+' €';
   }
-
-  if(buy>0){
-    return Math.round(buy*1.03)+'–'+Math.round(buy*2.08)+' €';
-  }
-
-  return estimateMarketValue((a && a.morph) ? a.morph : '');
+  return est;
 }
 
 function estimateMarketValue(morph){
@@ -2793,7 +2787,7 @@ setTimeout(()=>{
 </script>
 
 <script>
-function renderV326Dashboard(){
+function renderV329Dashboard(){
  try{
  let animals=[...(db.koenig||[]),...(db.boas||[]),...(db.geckos||[]),...(db.spinnen||[])];
  let buy=0,sell=0,pot=0;
@@ -2811,7 +2805,41 @@ function renderV326Dashboard(){
  }catch(e){}
 }
 const _render_old=render;
-render=function(){ _render_old(); renderV326Dashboard(); }
+render=function(){ _render_old(); renderV329Dashboard(); }
 </script>
+
+<script>
+// V329 AutoSave + Backup System
+(function(){
+ const KEY='spd_v53';
+ function backup(){
+   try{
+     const data=localStorage.getItem(KEY);
+     if(data){
+       localStorage.setItem(KEY+'_backup1',data);
+       localStorage.setItem(KEY+'_backup2',data);
+     }
+   }catch(e){}
+ }
+ setInterval(backup,60000);
+ window.addEventListener('beforeunload',backup);
+})();
+</script>
+
+
+<script>
+// V329 Enterprise Recovery Layer
+(function(){
+ const KEY='spd_v53';
+ function safeSave(){
+   try{
+     localStorage.setItem(KEY, JSON.stringify(window.db||{}));
+   }catch(e){ console.error(e); }
+ }
+ window.addEventListener('beforeunload', safeSave);
+ window.addEventListener('error', e=>console.error('V329',e.message));
+})();
+</script>
+
 </body>
 </html>
