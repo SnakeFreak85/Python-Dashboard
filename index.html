@@ -225,6 +225,14 @@ let qrScannerInstance=null;
 function save(){
 localStorage.setItem('spd_v53',JSON.stringify(db));
 render(); try{renderProjectPlanner();}catch(e){}
+
+try{
+ if(gToken){
+   const s=document.getElementById('gdriveStatus');
+   if(s) s.innerHTML='✅ Google verbunden';
+ }
+}catch(e){}
+
 }
 
 function toggleQrScanner(){
@@ -2935,7 +2943,8 @@ window.CloudEdition={
    const data=localStorage.getItem('spd_cloud_backup');
    if(data){
       localStorage.setItem('spd_v53',data);
-      location.reload();
+      db=JSON.parse(data); save(); render();
+try{document.getElementById('gdriveStatus').innerHTML='✅ Google verbunden';}catch(e){}
    }else{
       alert('Kein Cloud-Backup vorhanden');
    }
@@ -2964,6 +2973,10 @@ const GOOGLE_API_KEY='AIzaSyAYlyALAgFPFF2xkHdew6rUIEuIS_FM7o0';
 const DRIVE_FILE='spd_v335_backup.json';
 
 let gToken='';
+try{
+ gToken=localStorage.getItem('gdrive_token')||'';
+}catch(e){}
+
 
 async function googleDriveLogin(){
   document.getElementById('gdriveStatus').innerHTML='Anmeldung wird vorbereitet...';
@@ -2973,6 +2986,7 @@ async function googleDriveLogin(){
       scope:'https://www.googleapis.com/auth/drive.appdata',
       callback:(resp)=>{
         gToken=resp.access_token;
+try{localStorage.setItem('gdrive_token', gToken);}catch(e){};
         document.getElementById('gdriveStatus').innerHTML='✅ Google verbunden';
         resolve(true);
       }
@@ -3015,7 +3029,8 @@ async function googleDriveLoad(){
 
   localStorage.setItem('spd_v53',data);
   alert('✅ Daten aus Google Drive geladen');
-  location.reload();
+  db=JSON.parse(data); save(); render();
+try{document.getElementById('gdriveStatus').innerHTML='✅ Google verbunden';}catch(e){}
 }
 </script>
 </body>
