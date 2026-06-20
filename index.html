@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V329 Final Stable</title>
+<title>Sascha's Python Dashboard V335 GoogleDriveSync</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -53,7 +53,11 @@ color:white !important;
 .feedPanel{border:1px solid #ccc;padding:10px;margin-top:8px;border-radius:8px;background:#fafafa}
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="https://unpkg.com/html5-qrcode"></script></head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
+
+</head>
 <body>
 
 <button id="menuBtn" onclick="openMenu()">☰</button>
@@ -73,7 +77,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V329 Final Stable</div>
+<div class="logo">🐍 Sascha's Python Dashboard V335 GoogleDriveSync</div>
 </header>
 
 <div class="content">
@@ -182,6 +186,14 @@ color:white !important;
 
 
 
+
+<div class="card">
+<h2>☁️ Google Drive Sync V334</h2>
+<button onclick="googleDriveLogin()">Google Login</button>
+<button onclick="googleDriveSave()">Cloud speichern</button>
+<button onclick="googleDriveLoad()">Cloud laden</button>
+<div id="gdriveStatus">Nicht verbunden</div>
+</div>
 <div id="developer" class="section">
 <div class="card">
 <h2>🧠 Entwickler KI</h2>
@@ -2841,5 +2853,171 @@ render=function(){ _render_old(); renderV329Dashboard(); }
 })();
 </script>
 
+
+<!-- V330 Cloud Edition -->
+<script>
+window.V330_CLOUD=true;
+
+async function cloudExport(){
+  const data=localStorage.getItem('spd_v53')||'{}';
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='SPD_V330_CloudBackup.json';
+  a.click();
+}
+
+async function cloudImport(input){
+ const f=input.files[0];
+ if(!f) return;
+ const txt=await f.text();
+ localStorage.setItem('spd_v53',txt);
+ alert('V330 Cloud Backup geladen. Seite neu laden.');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+ const backup=document.getElementById('backup');
+ if(!backup) return;
+
+ const card=document.createElement('div');
+ card.className='card';
+ card.innerHTML=`
+ <h2>☁️ V330 Cloud Edition</h2>
+ <p>Google-Drive vorbereitet. Lokaler Offline-Betrieb bleibt aktiv.</p>
+ <button onclick="cloudExport()">☁️ Cloud Backup exportieren</button>
+ <input type="file" onchange="cloudImport(this)">
+ <p>Status: Cloud-Modul installiert</p>`;
+ backup.prepend(card);
+});
+</script>
+
+
+<!-- V331 Cloud Sync Module -->
+<script>
+window.CLOUD_SYNC={
+ enabled:false,
+ clientId:"DEINE_GOOGLE_CLIENT_ID",
+ async save(){
+   try{
+     localStorage.setItem("spd_cloud_lastsync",new Date().toISOString());
+     console.log("Cloud-Sync vorbereitet");
+   }catch(e){console.log(e);}
+ },
+ async load(){
+   return true;
+ }
+};
+
+const oldSave=save;
+save=function(){
+  oldSave();
+  if(window.CLOUD_SYNC){window.CLOUD_SYNC.save();}
+};
+</script>
+
+
+<!-- V334 Google Drive Ready -->
+<script>
+window.CloudEdition={
+ version:"V334",
+ autoSave:true,
+ lastSync:null,
+
+ async saveToCloud(){
+   const data=localStorage.getItem('spd_v53');
+   localStorage.setItem('spd_cloud_backup',data||'{}');
+   this.lastSync=new Date().toISOString();
+   localStorage.setItem('spd_cloud_lastsync',this.lastSync);
+   alert('☁️ Cloud-Speicherung vorbereitet (Google Drive API kann hier angeschlossen werden).');
+ },
+
+ async loadFromCloud(){
+   const data=localStorage.getItem('spd_cloud_backup');
+   if(data){
+      localStorage.setItem('spd_v53',data);
+      location.reload();
+   }else{
+      alert('Kein Cloud-Backup vorhanden');
+   }
+ }
+};
+
+document.addEventListener("DOMContentLoaded",()=>{
+ const backup=document.getElementById("backup");
+ if(backup){
+   backup.insertAdjacentHTML("beforeend",`
+   <div class="card">
+     <h3>☁️ Cloud Edition V334</h3>
+     <button onclick="CloudEdition.saveToCloud()">Cloud speichern</button>
+     <button onclick="CloudEdition.loadFromCloud()">Cloud laden</button>
+     <div id="cloudStatus"></div>
+   </div>`);
+ }
+});
+</script>
+
+
+<script>
+
+const GOOGLE_CLIENT_ID='923995580181-vbtua7122vsh385e1bdp7vfuqd49m3q3.apps.googleusercontent.com';
+const GOOGLE_API_KEY='AIzaSyAYlyALAgFPFF2xkHdew6rUIEuIS_FM7o0';
+const DRIVE_FILE='spd_v335_backup.json';
+
+let gToken='';
+
+async function googleDriveLogin(){
+  document.getElementById('gdriveStatus').innerHTML='Anmeldung wird vorbereitet...';
+  return new Promise((resolve)=>{
+    google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope:'https://www.googleapis.com/auth/drive.appdata',
+      callback:(resp)=>{
+        gToken=resp.access_token;
+        document.getElementById('gdriveStatus').innerHTML='✅ Google verbunden';
+        resolve(true);
+      }
+    }).requestAccessToken();
+  });
+}
+
+async function googleDriveSave(){
+  if(!gToken){ await googleDriveLogin(); }
+  const data=localStorage.getItem('spd_v53')||'{}';
+  const blob=new Blob([data],{type:'application/json'});
+
+  const metadata={name:DRIVE_FILE, parents:['appDataFolder']};
+  const form=new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)],{type:'application/json'}));
+  form.append('file', blob);
+
+  await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+    method:'POST',
+    headers:{Authorization:'Bearer '+gToken},
+    body:form
+  });
+
+  alert('✅ Backup in Google Drive gespeichert');
+}
+
+async function googleDriveLoad(){
+  if(!gToken){ await googleDriveLogin(); }
+
+  const list=await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)',{
+    headers:{Authorization:'Bearer '+gToken}
+  }).then(r=>r.json());
+
+  const file=(list.files||[]).find(f=>f.name===DRIVE_FILE);
+  if(!file){ alert('Kein Cloud Backup gefunden'); return; }
+
+  const data=await fetch('https://www.googleapis.com/drive/v3/files/'+file.id+'?alt=media',{
+    headers:{Authorization:'Bearer '+gToken}
+  }).then(r=>r.text());
+
+  localStorage.setItem('spd_v53',data);
+  alert('✅ Daten aus Google Drive geladen');
+  location.reload();
+}
+</script>
 </body>
+
 </html>
