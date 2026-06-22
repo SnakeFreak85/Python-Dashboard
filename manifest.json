@@ -1,18 +1,23 @@
 {
-  "id": "/",
+  "id": "/Python-Dashboard/",
   "name": "Terraristik Dashboard",
   "short_name": "Terraristik",
   "description": "Terraristik Verwaltung mit Google Drive Sync",
-  "start_url": "./",
-  "scope": "./",
+
+  "start_url": "/Python-Dashboard/",
+  "scope": "/Python-Dashboard/",
+
   "display": "standalone",
   "orientation": "portrait",
+
   "background_color": "#ffffff",
   "theme_color": "#24384d",
+
   "categories": [
     "productivity",
     "utilities"
   ],
+
   "icons": [
     {
       "src": "icon-192.png",
