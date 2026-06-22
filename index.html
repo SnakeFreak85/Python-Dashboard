@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V335 GoogleDriveSync</title>
+<title>Sascha's Python Dashboard V340 GoogleDriveSync Pro</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -80,7 +80,7 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V335 GoogleDriveSync</div>
+<div class="logo">🐍 Sascha's Python Dashboard V340 GoogleDriveSync Pro</div>
 </header>
 
 <div class="content">
@@ -224,6 +224,13 @@ color:white !important;
 let db=JSON.parse(localStorage.getItem('spd_v53')||'{"koenig":[],"boas":[],"geckos":[],"spinnen":[],"clutches":[],"sales":[],"archive":[]}');
 
 let qrScannerInstance=null;
+
+function getAnimalCount(){
+ try{
+  return (db.koenig||[]).length+(db.boas||[]).length+(db.geckos||[]).length+(db.spinnen||[]).length;
+ }catch(e){return 0;}
+}
+
 
 function save(){
 localStorage.setItem('spd_v53',JSON.stringify(db));
@@ -2973,7 +2980,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 const GOOGLE_CLIENT_ID='923995580181-vbtua7122vsh385e1bdp7vfuqd49m3q3.apps.googleusercontent.com';
 const GOOGLE_API_KEY='AIzaSyAYlyALAgFPFF2xkHdew6rUIEuIS_FM7o0';
-const DRIVE_FILE='spd_v335_backup.json';
+const DRIVE_FILE='TerraristikDashboardBackup.json';
 
 let gToken='';
 try{
@@ -2999,19 +3006,41 @@ try{localStorage.setItem('gdrive_token', gToken);}catch(e){};
 
 async function googleDriveSave(){
   if(!gToken){ await googleDriveLogin(); }
+
+  if(getAnimalCount()===0){
+    if(!confirm('Der Bestand ist aktuell leer. Wirklich in die Cloud speichern?')) return;
+  }
+
   const data=localStorage.getItem('spd_v53')||'{}';
   const blob=new Blob([data],{type:'application/json'});
 
-  const metadata={name:DRIVE_FILE, parents:['appDataFolder']};
-  const form=new FormData();
-  form.append('metadata', new Blob([JSON.stringify(metadata)],{type:'application/json'}));
-  form.append('file', blob);
+  const list=await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name)',{
+    headers:{Authorization:'Bearer '+gToken}
+  }).then(r=>r.json());
 
-  await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
-    method:'POST',
-    headers:{Authorization:'Bearer '+gToken},
-    body:form
-  });
+  const existing=(list.files||[]).find(f=>f.name===DRIVE_FILE);
+
+  if(existing){
+    await fetch('https://www.googleapis.com/upload/drive/v3/files/'+existing.id+'?uploadType=media',{
+      method:'PATCH',
+      headers:{
+        Authorization:'Bearer '+gToken,
+        'Content-Type':'application/json'
+      },
+      body:data
+    });
+  }else{
+    const metadata={name:DRIVE_FILE, parents:['appDataFolder']};
+    const form=new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)],{type:'application/json'}));
+    form.append('file', blob);
+
+    await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+gToken},
+      body:form
+    });
+  }
 
   alert('✅ Backup in Google Drive gespeichert');
 }
@@ -3038,7 +3067,7 @@ try{document.getElementById('gdriveStatus').innerHTML='✅ Google verbunden';}ca
 </script>
 
 <script>
-localStorage.setItem('spd_version','V338');
+localStorage.setItem('spd_version','V340');
 window.addEventListener('load',function(){
  try{
    var savedToken=localStorage.getItem('gdrive_token');
