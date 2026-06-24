@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard V340 GoogleDriveSync Pro</title>
+<title>Sascha's Python Dashboard</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -80,14 +80,12 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard V340 GoogleDriveSync Pro</div>
+<div class="logo">🐍 Sascha's Python Dashboard</div>
 </header>
 
 <div class="content">
 <div class="card">
-<h2>🚧 V300 Struktur-Update</h2>
-<p>Vorbereitung für Formulare, QR-System, Scanner und Android-App.</p>
-</div>
+
 
 
 <div id="home" class="section active">
@@ -137,7 +135,7 @@ color:white !important;
 <label>👩 Mutter</label><select id="motherName" onchange="checkRelationship()"></select>
 <label>👨 Vater</label><select id="fatherName" onchange="checkRelationship()"></select><div id="relationshipWarning" style="color:red;font-weight:bold;margin:6px 0"></div>
 <label>❤️ Verpaarungsdatum</label><input id="pairDate" type="date">
-<label>🥚 Eiablagedatum</label><input id="layDate" type="date">
+<label>🥚 Eiablagedatum</label><input id="layDate" type="date" onchange="document.getElementById('hatchDate').value=calculateHatchDate(this.value)">
 <input id="eggCount" type="number" placeholder="Eieranzahl">
 <label>🐣 Schlupfdatum</label><input id="hatchDate" type="date">
 <input id="hatchedCount" type="number" placeholder="Geschlüpft">
@@ -191,7 +189,7 @@ color:white !important;
 
 
 <div class="card">
-<h2>☁️ Google Drive Sync V334</h2>
+<h2>☁️ Google Drive Sync</h2>
 <button onclick="googleDriveLogin()">Google Login</button>
 <button onclick="googleDriveSave()">Cloud speichern</button>
 <button onclick="googleDriveLoad()">Cloud laden</button>
@@ -344,6 +342,13 @@ function moveSale(t,i){
 db.sales.push(db[t][i]);
 db[t].splice(i,1);
 save();
+try{
+ document.getElementById('clutchName').value='';
+ document.getElementById('eggCount').value='';
+ document.getElementById('hatchedCount').value='';
+ document.getElementById('clutchNote').value='';
+}catch(e){}
+alert('Gelege gespeichert');
 }
 
 function draw(t,title,target){
@@ -856,7 +861,9 @@ function showWeightChart(t,i){
 
 function dashboardInfo(){
  let total=(db.koenig||[]).length+(db.boas||[]).length+(db.geckos||[]).length+(db.spinnen||[]).length;
- return '<div class="card"><h3>📊 Übersicht</h3>Gesamtbestand: '+total+'<br>📁 Archiv: '+(db.archive||[]).length+'<br>🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
+ let wert=0,buywert=0;
+ ['koenig','boas','geckos','spinnen'].forEach(t=>(db[t]||[]).forEach(a=>{wert+=Number(a.price||0);buywert+=Number(a.buyPrice||0);}));
+ return '<div class="card"><h3>📊 Übersicht</h3>Gesamtbestand: '+total+'<br>💰 Bestandswert: '+wert.toFixed(2)+' €<br>💵 Kaufwert: '+buywert.toFixed(2)+' €<br>📁 Archiv: '+(db.archive||[]).length+'<br>🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
 }
 
 
@@ -1668,7 +1675,7 @@ ensurePermanentIds();
  });
 });
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+breedingStats();
+dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
