@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sascha's Python Dashboard</title>
+<title>Sascha's Python Dashboard V350 Clean Edition</title>
 <style>
 body{margin:0;font-family:Arial;background:#ececec}
 header{background:#24384d;color:#fff;padding:40px 20px;text-align:center}
@@ -80,12 +80,14 @@ color:white !important;
 </div>
 
 <header>
-<div class="logo">🐍 Sascha's Python Dashboard</div>
+<div class="logo">🐍 Sascha's Python Dashboard V350 Clean Edition</div>
 </header>
 
 <div class="content">
 <div class="card">
-
+<h2>🚧 V300 Struktur-Update</h2>
+<p>Vorbereitung für Formulare, QR-System, Scanner und Android-App.</p>
+</div>
 
 
 <div id="home" class="section active">
@@ -189,7 +191,7 @@ color:white !important;
 
 
 <div class="card">
-<h2>☁️ Google Drive Sync</h2>
+<h2>☁️ Google Drive Sync V334</h2>
 <button onclick="googleDriveLogin()">Google Login</button>
 <button onclick="googleDriveSave()">Cloud speichern</button>
 <button onclick="googleDriveLoad()">Cloud laden</button>
@@ -668,6 +670,12 @@ function uploadPhoto(t,i,input){
  reader.readAsDataURL(file);
 }
 
+
+function goBackToSection(sectionId){
+ document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+ const s=document.getElementById(sectionId);
+ if(s) s.classList.add('active');
+}
 function showWeightHistoryPage(t,i){
  const a=db[t][i];
  let content='<h2>⚖️ Gewichtshistorie - '+a.name+'</h2>';
@@ -690,7 +698,7 @@ function showWeightHistoryPage(t,i){
       }
    });
  }
- content+='</div><button onclick="history.back()">Zurück</button>';
+ content+='</div><button onclick="goBackToSection('koenig')">Zurück</button>';
  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
  let div=document.getElementById('weightHistoryPage');
  if(!div){
@@ -840,7 +848,7 @@ function showWeightChart(t,i){
  }
 
  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
- div.innerHTML='<div class="card"><h2>📈 Gewichtsdiagramm - '+a.name+'</h2><canvas id="weightCanvas" width="320" height="200"></canvas><br><button onclick="history.back()">Zurück</button></div>';
+ div.innerHTML='<div class="card"><h2>📈 Gewichtsdiagramm - '+a.name+'</h2><canvas id="weightCanvas" width="320" height="200"></canvas><br><button onclick="goBackToSection('koenig')">Zurück</button></div>';
  div.classList.add('active');
 
  setTimeout(()=>{
