@@ -328,6 +328,8 @@ status:(document.getElementById(t+'_status')||{}).value||'Bestand',
 type:t
 });
 save();
+render();
+alert('Gelege gespeichert');
 }
 
 function delAnimal(t,i){
@@ -367,6 +369,8 @@ ${a.sex}<br>
 }
 
 function saveClutch(){
+// V341 fix
+
 const n=clutchName.value.trim();
 if(!n)return;
 db.clutches.push({
@@ -681,7 +685,7 @@ function showWeightHistoryPage(t,i){
       }
    });
  }
- content+='</div><button onclick="showPage(\'home\')">Zurück</button>';
+ content+='</div><button onclick="history.back()">Zurück</button>';
  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
  let div=document.getElementById('weightHistoryPage');
  if(!div){
@@ -831,7 +835,7 @@ function showWeightChart(t,i){
  }
 
  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
- div.innerHTML='<div class="card"><h2>📈 Gewichtsdiagramm - '+a.name+'</h2><canvas id="weightCanvas" width="320" height="200"></canvas><br><button onclick="showPage(\'home\')">Zurück</button></div>';
+ div.innerHTML='<div class="card"><h2>📈 Gewichtsdiagramm - '+a.name+'</h2><canvas id="weightCanvas" width="320" height="200"></canvas><br><button onclick="history.back()">Zurück</button></div>';
  div.classList.add('active');
 
  setTimeout(()=>{
@@ -1641,6 +1645,14 @@ function getMarketValueStats(){
  return {min,max,avg,count};
 }
 
+
+function calculateHatchDate(layDate){
+ try{
+  const d=new Date(layDate);
+  d.setDate(d.getDate()+55);
+  return d.toISOString().split('T')[0];
+ }catch(e){return '';}
+}
 function render(){
 ensurePermanentIds();
 ['koenig','boas','geckos','spinnen'].forEach(t=>{
@@ -1656,7 +1668,7 @@ ensurePermanentIds();
  });
 });
 populateBreederDropdowns();
-dashInfo.innerHTML=dashboardInfo()+feedingReminderPanel()+dashboardWarnings()+smartWarningsPanel()+breedingCalendar()+breedingStats()+dueTodayPanel()+importantDatesPanel()+offspringOverview();
+dashInfo.innerHTML=dashboardInfo()+dashboardWarnings()+breedingStats();
 c1.textContent=db.koenig.length;
 c2.textContent=db.boas.length;
 c3.textContent=db.geckos.length;
