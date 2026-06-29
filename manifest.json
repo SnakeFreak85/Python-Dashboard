@@ -1,8 +1,9 @@
 {
   "id": "/Python-Dashboard/",
-  "name": "Terraristik Dashboard",
-  "short_name": "Terraristik",
-  "description": "Terraristik Verwaltung mit Google Drive Sync",
+  "name": "Sascha's Python Dashboard",
+  "short_name": "Python Dashboard",
+  "description": "Version 1.0 der Terraristik-Verwaltung mit Bestand, Nachzucht, Backup und Google Drive Sync.",
+  "version": "1.0.0",
 
   "start_url": "/Python-Dashboard/",
   "scope": "/Python-Dashboard/",
