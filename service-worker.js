@@ -1,4 +1,4 @@
-const CACHE_NAME = "terraristik-v1";
+const CACHE_NAME = "python-dashboard-v1.0.0";
 
 self.addEventListener("install", event => {
   self.skipWaiting();
