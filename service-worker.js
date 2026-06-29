@@ -1,4 +1,4 @@
-const CACHE_NAME = "python-dashboard-v1.0.0";
+const CACHE_NAME = "python-dashboard-v1.0.1";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -13,14 +13,17 @@ const APP_ASSETS = [
 
 self.addEventListener("install", event => {
   self.skipWaiting();
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS)).catch(() => undefined)
+  );
 });
 
 self.addEventListener("activate", event => {
-  self.clients.claim();
+  event.waitUntil(self.clients.claim());
 });
 
 function withV1Assets(html){
+  if(!html) return "";
   if(html.indexOf("v1-core.js") !== -1) return html;
   const css = '<link rel="stylesheet" href="./v1.css">';
   const scriptOpen = '<scr' + 'ipt src="./';
@@ -29,17 +32,31 @@ function withV1Assets(html){
   return html.replace("</head>", css + "</head>").replace("</body>", scripts + "</body>");
 }
 
+function htmlResponse(html){
+  return new Response(withV1Assets(html), {headers:{"Content-Type":"text/html; charset=utf-8"}});
+}
+
+async function navigationResponse(request){
+  try{
+    const response = await fetch(request);
+    const html = await response.text();
+    return htmlResponse(html);
+  }catch(error){
+    const cached = await caches.match("./index.html");
+    if(cached){
+      const html = await cached.text();
+      return htmlResponse(html);
+    }
+    return htmlResponse("<!DOCTYPE html><html lang=\"de\"><head><meta charset=\"UTF-8\"><title>NG Terrarium</title></head><body><h1>NG Terrarium</h1><p>Offline-Daten sind noch nicht verfügbar.</p></body></html>");
+  }
+}
+
 self.addEventListener("fetch", event => {
   const request = event.request;
   if(request.method !== "GET") return;
 
   if(request.mode === "navigate"){
-    event.respondWith(
-      fetch(request)
-        .then(response => response.text())
-        .then(html => new Response(withV1Assets(html), {headers:{"Content-Type":"text/html; charset=utf-8"}}))
-        .catch(() => caches.match("./index.html").then(response => response.text()).then(html => new Response(withV1Assets(html), {headers:{"Content-Type":"text/html; charset=utf-8"}})))
-    );
+    event.respondWith(navigationResponse(request));
     return;
   }
 
