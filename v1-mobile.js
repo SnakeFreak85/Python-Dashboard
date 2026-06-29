@@ -29,6 +29,33 @@
     }
   }
 
+  function cleanLegacyHomeCards(){
+    const home = document.getElementById('home');
+    if(!home) return;
+    const blocked = [
+      'V300 Struktur-Update',
+      'Vorbereitung für Formulare, QR-System, Scanner und Android-App.',
+      'NG Terrarium 1.0',
+      'Schneller Zugriff auf Bestand, Pflege, Nachzucht, Termine und Backup.',
+      'Verwaltung für Bestand, Pflege, Nachzucht, Termine und Verkauf.'
+    ];
+    const ngt = document.getElementById('ngtDashboard');
+    if(ngt) ngt.remove();
+    Array.from(home.querySelectorAll('.card')).forEach(card => {
+      const text = (card.textContent || '').replace(/\s+/g, ' ').trim();
+      if(blocked.some(item => text.includes(item))){
+        card.remove();
+      }
+    });
+  }
+
+  function watchHomeCleanup(){
+    const home = document.getElementById('home');
+    if(!home || window.__ngtMobileCleanupObserver) return;
+    window.__ngtMobileCleanupObserver = new MutationObserver(cleanLegacyHomeCards);
+    window.__ngtMobileCleanupObserver.observe(home, {childList:true, subtree:true});
+  }
+
   function registerServiceWorker(){
     if(!('serviceWorker' in navigator)) return;
     navigator.serviceWorker.register('./service-worker.js').then(registration => {
@@ -57,6 +84,11 @@
   ready(function(){
     markStandalone();
     openInitialPage();
+    cleanLegacyHomeCards();
+    watchHomeCleanup();
+    setTimeout(cleanLegacyHomeCards, 100);
+    setTimeout(cleanLegacyHomeCards, 500);
+    setTimeout(cleanLegacyHomeCards, 1500);
     registerServiceWorker();
   });
 })();
