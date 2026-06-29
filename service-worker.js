@@ -1,4 +1,4 @@
-const CACHE_NAME = "python-dashboard-v1.0.2";
+const CACHE_NAME = "python-dashboard-v1.0.3";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -9,7 +9,8 @@ const APP_ASSETS = [
   "./v1-core.js",
   "./v1-dashboard.js",
   "./v1-profile.js",
-  "./v1-mobile.js"
+  "./v1-mobile.js",
+  "./v1-fixes.js"
 ];
 
 self.addEventListener("install", event => {
@@ -29,13 +30,22 @@ self.addEventListener("activate", event => {
   event.waitUntil(self.clients.claim());
 });
 
-function withV1Assets(html){
+function patchLegacyHtml(html){
   if(!html) return "";
+  return html
+    .replace(/goBackToSection\('koenig'\)/g, "goBackToSection(\\'koenig\\')")
+    .replace(/goBackToSection\('boas'\)/g, "goBackToSection(\\'boas\\')")
+    .replace(/goBackToSection\('geckos'\)/g, "goBackToSection(\\'geckos\\')")
+    .replace(/goBackToSection\('spinnen'\)/g, "goBackToSection(\\'spinnen\\')");
+}
+
+function withV1Assets(html){
+  html = patchLegacyHtml(html);
   if(html.indexOf("v1-core.js") !== -1) return html;
   const css = '<link rel="stylesheet" href="./v1.css">';
   const scriptOpen = '<scr' + 'ipt src="./';
   const scriptClose = '"></scr' + 'ipt>';
-  const scripts = scriptOpen + 'v1-core.js' + scriptClose + scriptOpen + 'v1-profile.js' + scriptClose + scriptOpen + 'v1-dashboard.js' + scriptClose + scriptOpen + 'v1-mobile.js' + scriptClose;
+  const scripts = scriptOpen + 'v1-core.js' + scriptClose + scriptOpen + 'v1-profile.js' + scriptClose + scriptOpen + 'v1-dashboard.js' + scriptClose + scriptOpen + 'v1-mobile.js' + scriptClose + scriptOpen + 'v1-fixes.js' + scriptClose;
   return html.replace("</head>", css + "</head>").replace("</body>", scripts + "</body>");
 }
 
@@ -45,7 +55,7 @@ function htmlResponse(html){
 
 async function navigationResponse(request){
   try{
-    const response = await fetch(request);
+    const response = await fetch(request, {cache:"no-store"});
     const html = await response.text();
     return htmlResponse(html);
   }catch(error){
