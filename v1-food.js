@@ -45,15 +45,16 @@
   function reduceFood(prey, amount, accepted){
     if(!accepted) return;
     const entry = normalizeAmount(prey, amount);
-    const item = findFood(entry.name);
-    if(!item) getDb().foodInventory.push({name: entry.name, qty:0});
+    if(!findFood(entry.name)) getDb().foodInventory.push({name: entry.name, qty:0});
     const target = findFood(entry.name);
     target.qty = Math.max(0, Number(target.qty || 0) - entry.qty);
     saveDb();
   }
 
-  function lowFoodItems(){
-    return getDb().foodInventory.filter(item => Number(item.qty || 0) <= 3);
+  function visibleFoodItems(){
+    return getDb().foodInventory
+      .filter(item => Number(item.qty || 0) > 0)
+      .sort((a,b)=>a.name.localeCompare(b.name,'de'));
   }
 
   function renderFoodPage(){
@@ -66,8 +67,7 @@
       section.className = 'section';
       content.appendChild(section);
     }
-    const items = getDb().foodInventory;
-    section.innerHTML = '<div class="card"><h2>🥩 Futterbestand</h2><p class="ngt-muted">Hier kannst du alle Futtertiergrößen pflegen. Bei gespeicherter, angenommener Fütterung wird der Bestand automatisch reduziert.</p>'+
+    section.innerHTML = '<div class="card"><h2>🥩 Futterbestand</h2><p class="ngt-muted">Hier kannst du Futtertiergrößen pflegen. Bei gespeicherter, angenommener Fütterung wird der Bestand automatisch reduziert.</p>'+
       '<div class="ngt-form-grid"><input id="foodName" placeholder="Futtertiergröße, z. B. Ratte 120g"><input id="foodQty" type="number" min="0" placeholder="Bestand"><button id="addFoodBtn">Hinzufügen / aktualisieren</button></div>'+
       '<div id="foodList"></div></div>';
     byId('addFoodBtn').onclick = addOrUpdateFood;
@@ -77,18 +77,18 @@
   function renderFoodList(){
     const list = byId('foodList');
     if(!list) return;
-    const rows = getDb().foodInventory.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).map((item,index) => {
-      const warn = Number(item.qty || 0) <= 3 ? ' ngt-warn' : '';
-      return '<div class="feedPanel'+warn+'"><b>'+escapeHtml(item.name)+'</b><br>Bestand: <input data-food-index="'+index+'" type="number" min="0" value="'+Number(item.qty||0)+'"><button data-food-save="'+index+'">Speichern</button></div>';
+    const sorted = getDb().foodInventory.slice().sort((a,b)=>a.name.localeCompare(b.name,'de'));
+    const rows = sorted.map((item,index) => {
+      return '<div class="feedPanel"><b>'+escapeHtml(item.name)+'</b><br>Bestand: <input data-food-index="'+index+'" type="number" min="0" value="'+Number(item.qty||0)+'"><button data-food-save="'+index+'">Speichern</button></div>';
     }).join('');
     list.innerHTML = rows || 'Noch kein Futterbestand angelegt.';
     list.querySelectorAll('[data-food-save]').forEach(btn => btn.onclick = function(){
       const index = Number(this.getAttribute('data-food-save'));
       const input = list.querySelector('[data-food-index="'+index+'"]');
-      getDb().foodInventory.slice().sort((a,b)=>a.name.localeCompare(b.name,'de'))[index].qty = Number(input.value || 0);
+      sorted[index].qty = Number(input.value || 0);
       saveDb();
       renderFoodList();
-      renderFoodWarning();
+      renderFoodOverview();
     });
   }
 
@@ -101,24 +101,27 @@
     else getDb().foodInventory.push({name, qty});
     saveDb();
     renderFoodList();
-    renderFoodWarning();
+    renderFoodOverview();
   }
 
-  function renderFoodWarning(){
+  function renderFoodOverview(){
     const home = byId('home');
     if(!home) return;
-    let box = byId('foodWarning');
-    const lows = lowFoodItems();
-    if(!lows.length){ if(box) box.remove(); return; }
+    const oldWarning = byId('foodWarning');
+    if(oldWarning) oldWarning.remove();
+    let box = byId('foodOverview');
+    const items = visibleFoodItems();
+    if(!items.length){ if(box) box.remove(); return; }
     if(!box){
       box = document.createElement('div');
-      box.id = 'foodWarning';
+      box.id = 'foodOverview';
       box.className = 'card';
-      const firstCard = home.querySelector('.card');
-      home.insertBefore(box, firstCard ? firstCard.nextSibling : home.firstChild);
+      const dash = byId('dashInfo');
+      if(dash) dash.insertAdjacentElement('afterend', box);
+      else home.insertBefore(box, home.firstChild);
     }
-    box.innerHTML = '<h2>⚠️ Futterbestand niedrig</h2><p>Folgende Futtertiergrößen sind bei 3 oder weniger:</p>'+
-      lows.map(item => '<div class="feedPanel ngt-warn"><b>'+escapeHtml(item.name)+'</b><br>Bestand: '+Number(item.qty||0)+'</div>').join('');
+    box.innerHTML = '<h2>🥩 Futterbestand</h2><p class="ngt-muted">Vorhandene Futtertiere:</p>'+
+      items.map(item => '<div class="feedPanel"><b>'+escapeHtml(item.name)+'</b><br>Bestand: '+Number(item.qty||0)+'</div>').join('');
   }
 
   function escapeHtml(value){
@@ -149,7 +152,7 @@
       const accepted = acceptedEl ? acceptedEl.value === 'true' : true;
       const result = original.apply(this, arguments);
       reduceFood(prey, amount, accepted);
-      renderFoodWarning();
+      renderFoodOverview();
       renderFoodList();
       return result;
     };
@@ -163,7 +166,7 @@
       const result = original.apply(this, arguments);
       addMenuItem();
       renderFoodPage();
-      renderFoodWarning();
+      renderFoodOverview();
       patchSaveFeed();
       return result;
     };
@@ -173,10 +176,10 @@
     getDb();
     addMenuItem();
     renderFoodPage();
-    renderFoodWarning();
+    renderFoodOverview();
     patchSaveFeed();
     patchRender();
-    window.NGTFood = {renderFoodPage, renderFoodWarning, reduceFood};
+    window.NGTFood = {renderFoodPage, renderFoodOverview, reduceFood};
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
