@@ -1,7 +1,8 @@
-const CACHE_NAME = "python-dashboard-v1.0.3";
+const CACHE_NAME = "python-dashboard-v1.0.4";
 const APP_ASSETS = [
   "./",
   "./index.html",
+  "./install.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png",
