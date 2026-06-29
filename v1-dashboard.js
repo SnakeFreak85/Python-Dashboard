@@ -1,11 +1,24 @@
 (function(){
   'use strict';
   function ready(fn){document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn):fn();}
+  function parseDate(value){
+    if(!value) return null;
+    const text=String(value).trim();
+    let match=text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(match) return new Date(Number(match[1]),Number(match[2])-1,Number(match[3]));
+    match=text.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+    if(match) return new Date(Number(match[3]),Number(match[2])-1,Number(match[1]));
+    const parsed=new Date(text);
+    return Number.isNaN(parsed.getTime())?null:parsed;
+  }
+  function sameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
   function daysSince(dateText){
-    if(!dateText) return Infinity;
-    const parts=String(dateText).includes('.')?String(dateText).split('.').reverse().join('-'):String(dateText);
-    const date=new Date(parts);
-    return Number.isNaN(date.getTime())?Infinity:Math.floor((Date.now()-date.getTime())/86400000);
+    const date=parseDate(dateText);
+    if(!date) return Infinity;
+    const today=new Date();
+    const start=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+    const other=new Date(date.getFullYear(),date.getMonth(),date.getDate());
+    return Math.floor((start-other)/86400000);
   }
   function lastDate(list){
     if(!Array.isArray(list)||!list.length) return '';
@@ -22,13 +35,13 @@
     const animals=ngt.allAnimals();
     const byType={}, bySex={}, reminders=[], hatch=[];
     let overdue=0, today=0, weightWarnings=0, losses=0;
-    const todayIso=new Date().toISOString().slice(0,10);
+    const now=new Date();
     animals.forEach(({type,animal})=>{
       const label=ngt.TYPE_LABELS[type]||type;
       byType[label]=(byType[label]||0)+1;
       bySex[animal.sex||'Unbestimmt']=(bySex[animal.sex||'Unbestimmt']||0)+1;
       const lf=lastDate(animal.feeds);
-      if(lf===todayIso) today++;
+      if(sameDay(parseDate(lf),now)) today++;
       if(daysSince(lf)>14){overdue++; reminders.push('Fütterung prüfen: '+(animal.name||animal.displayId));}
       if(!animal.weight&&!animal.weights.length){weightWarnings++; reminders.push('Gewicht fehlt: '+(animal.name||animal.displayId));}
     });
