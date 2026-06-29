@@ -16,6 +16,37 @@
     try{ localStorage.setItem('spd_v53', JSON.stringify(ensureDb())); }catch(error){}
   }
 
+  function euro(value){
+    const number = Number(value || 0);
+    return number.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+  }
+
+  function toNumber(value){
+    if(value == null || value === '') return 0;
+    if(typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    const normalized = String(value).replace(/[^0-9,.-]/g,'').replace(',', '.');
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function animalMarketValue(animal){
+    const explicit = toNumber(animal.salePrice || animal.price || animal.marketValue || animal.value);
+    if(explicit > 0) return explicit;
+    if(typeof window.calculateAdvancedMarketValue === 'function'){
+      try{
+        const calculated = toNumber(window.calculateAdvancedMarketValue(animal));
+        if(calculated > 0) return calculated;
+      }catch(error){}
+    }
+    if(typeof window.estimateMarketValue === 'function'){
+      try{
+        const estimated = toNumber(window.estimateMarketValue(animal));
+        if(estimated > 0) return estimated;
+      }catch(error){}
+    }
+    return toNumber(animal.buyPrice || animal.purchasePrice || animal.einkaufspreis);
+  }
+
   function closeMenu(){
     const drawer = byId('drawer');
     const overlay = byId('overlay');
@@ -58,6 +89,29 @@
       (db[type] || []).forEach((animal,index) => out.push({type,index,animal}));
     });
     return out;
+  }
+
+  function dashboardInfo(){
+    const db = ensureDb();
+    const animals = allAnimals();
+    const total = animals.length;
+    let inventoryValue = 0;
+    let purchaseValue = 0;
+    animals.forEach(({animal}) => {
+      inventoryValue += animalMarketValue(animal);
+      purchaseValue += toNumber(animal.buyPrice || animal.purchasePrice || animal.einkaufspreis);
+    });
+    return '<div class="card"><h3>📊 Übersicht</h3>'+
+      'Gesamtbestand: '+total+'<br>'+
+      '💰 Bestandswert: '+euro(inventoryValue)+'<br>'+
+      '💵 Kaufwert: '+euro(purchaseValue)+'<br>'+
+      '📁 Archiv: '+(db.archive||[]).length+'<br>'+
+      '🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
+  }
+
+  function refreshOverview(){
+    const dash = byId('dashInfo');
+    if(dash){ dash.innerHTML = dashboardInfo(); }
   }
 
   function findAnimalByQr(){
@@ -171,18 +225,32 @@
     });
   }
 
+  function patchRender(){
+    if(window.__ngtValueRenderPatched || typeof window.render !== 'function') return;
+    window.__ngtValueRenderPatched = true;
+    const original = window.render;
+    window.render = function(){
+      const result = original.apply(this, arguments);
+      refreshOverview();
+      return result;
+    };
+  }
+
   function init(){
     ensureDb();
     window.openMenu = openMenu;
     window.closeMenu = closeMenu;
     window.showPage = showPage;
     window.getDisplayId = getDisplayId;
+    window.dashboardInfo = dashboardInfo;
     window.findAnimalByQr = findAnimalByQr;
     window.showQrData = showQrData;
     window.closeQr = closeQr;
     window.toggleQrScanner = toggleQrScanner;
     wireMenuLinks();
     wireQuickLinks();
+    patchRender();
+    refreshOverview();
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
