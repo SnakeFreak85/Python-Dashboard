@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0d1722">
-  <link rel="manifest" href="manifest.json">
-  <title>NG Terrarium installieren</title>
+  <link rel="manifest" href="manifest.json?v=1.0.10">
+  <title>NG Terrarium aktualisieren</title>
   <style>
     html,body{margin:0;min-height:100dvh;background:#101820;color:#f5f7fb;font-family:Arial,sans-serif;color-scheme:dark}
     body{display:grid;place-items:center;padding:24px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
@@ -16,8 +16,8 @@
 <body>
   <main class="box">
     <h1>NG Terrarium</h1>
-    <p class="muted">Die App wird für dein Handy vorbereitet. Danach öffnet sie automatisch.</p>
-    <p id="status">Service Worker wird installiert…</p>
+    <p class="muted">Die App wird aktualisiert. Alte Handy-Caches werden bereinigt.</p>
+    <p id="status">Aktualisierung wird vorbereitet…</p>
     <button id="openBtn" type="button">App öffnen</button>
   </main>
   <script>
@@ -25,26 +25,37 @@
       'use strict';
       const status = document.getElementById('status');
       const openBtn = document.getElementById('openBtn');
-      function openApp(){ window.location.href = './?source=install'; }
+      function openApp(){ window.location.replace('./?source=install&v=1.0.10'); }
       openBtn.addEventListener('click', openApp);
-      if(!('serviceWorker' in navigator)){
-        status.textContent = 'Service Worker wird von diesem Browser nicht unterstützt. Die App wird normal geöffnet.';
-        return;
-      }
-      navigator.serviceWorker.register('./service-worker.js').then(registration => {
-        status.textContent = 'Installation vorbereitet. App wird geöffnet…';
-        if(registration.waiting){ registration.waiting.postMessage({type:'SKIP_WAITING'}); }
-        if(registration.active || navigator.serviceWorker.controller){ setTimeout(openApp, 700); }
-        else{
-          const worker = registration.installing;
-          if(worker){
-            worker.addEventListener('statechange', () => {
-              if(worker.state === 'activated') openApp();
-            });
-          }else{ setTimeout(openApp, 1000); }
+
+      async function clearOldState(){
+        status.textContent = 'Alte Caches werden gelöscht…';
+        if(window.caches){
+          const keys = await caches.keys();
+          await Promise.all(keys.map(key => caches.delete(key)));
         }
-      }).catch(() => {
-        status.textContent = 'Installation konnte nicht vorbereitet werden. Du kannst die App trotzdem öffnen.';
+        if('serviceWorker' in navigator){
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(reg => reg.unregister()));
+        }
+      }
+
+      async function installFresh(){
+        if(!('serviceWorker' in navigator)){
+          status.textContent = 'Service Worker wird nicht unterstützt. App wird normal geöffnet.';
+          setTimeout(openApp, 700);
+          return;
+        }
+        status.textContent = 'Neue App-Version wird installiert…';
+        const registration = await navigator.serviceWorker.register('./service-worker.js?v=1.0.10', {updateViaCache:'none'});
+        await registration.update();
+        if(registration.waiting){ registration.waiting.postMessage({type:'SKIP_WAITING'}); }
+        status.textContent = 'Aktualisierung fertig. App wird geöffnet…';
+        setTimeout(openApp, 900);
+      }
+
+      clearOldState().then(installFresh).catch(() => {
+        status.textContent = 'Automatische Aktualisierung fehlgeschlagen. Bitte Browserdaten für diese Seite löschen oder App neu installieren.';
       });
     })();
   </script>
