@@ -3,9 +3,9 @@
   "name": "NG Terrarium",
   "short_name": "Terrarium",
   "description": "Terraristik-Management-App für Bestand, Pflege, Nachzucht, Termine, Backup und Google Drive Sync.",
-  "version": "1.0.1",
+  "version": "1.0.2",
 
-  "start_url": "/Python-Dashboard/?source=pwa",
+  "start_url": "/Python-Dashboard/install.html",
   "scope": "/Python-Dashboard/",
 
   "display": "standalone",
