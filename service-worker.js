@@ -10,7 +10,11 @@ self.addEventListener("install", event => {
         "./index.html",
         "./manifest.json",
         "./icon-192.png",
-        "./icon-512.png"
+        "./icon-512.png",
+        "./v1.css",
+        "./v1-core.js",
+        "./v1-dashboard.js",
+        "./v1-profile.js"
       ]);
     })
   );
