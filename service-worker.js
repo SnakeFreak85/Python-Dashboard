@@ -1,4 +1,4 @@
-const CACHE_NAME = "python-dashboard-v1.0.1";
+const CACHE_NAME = "python-dashboard-v1.0.2";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -8,7 +8,8 @@ const APP_ASSETS = [
   "./v1.css",
   "./v1-core.js",
   "./v1-dashboard.js",
-  "./v1-profile.js"
+  "./v1-profile.js",
+  "./v1-mobile.js"
 ];
 
 self.addEventListener("install", event => {
@@ -16,6 +17,12 @@ self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS)).catch(() => undefined)
   );
+});
+
+self.addEventListener("message", event => {
+  if(event.data && event.data.type === "SKIP_WAITING"){
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", event => {
@@ -28,7 +35,7 @@ function withV1Assets(html){
   const css = '<link rel="stylesheet" href="./v1.css">';
   const scriptOpen = '<scr' + 'ipt src="./';
   const scriptClose = '"></scr' + 'ipt>';
-  const scripts = scriptOpen + 'v1-core.js' + scriptClose + scriptOpen + 'v1-profile.js' + scriptClose + scriptOpen + 'v1-dashboard.js' + scriptClose;
+  const scripts = scriptOpen + 'v1-core.js' + scriptClose + scriptOpen + 'v1-profile.js' + scriptClose + scriptOpen + 'v1-dashboard.js' + scriptClose + scriptOpen + 'v1-mobile.js' + scriptClose;
   return html.replace("</head>", css + "</head>").replace("</body>", scripts + "</body>");
 }
 
