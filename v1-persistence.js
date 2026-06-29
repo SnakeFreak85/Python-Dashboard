@@ -21,6 +21,7 @@
   function loadRuntimeGuard(){ loadScriptOnce('./v1-runtime-guard.js?v=1.0.18','data-ngt-runtime-guard'); }
   function loadLegacyStabilizer(){ loadScriptOnce('./v1-legacy-stabilizer.js?v=1.0.19','data-ngt-legacy-stabilizer'); }
   function loadStatsEngine(){ loadScriptOnce('./v1-stats-engine.js?v=1.0.20','data-ngt-stats-engine'); }
+  function loadAiAssistant(){ loadScriptOnce('./v1-ai-assistant.js?v=1.0.21','data-ngt-ai-assistant'); }
 
   function fallbackDb(){ return {koenig:[],boas:[],geckos:[],spinnen:[],clutches:[],sales:[],archive:[]}; }
   function parseJson(value){ try{ return value ? JSON.parse(value) : null; }catch(error){ return null; } }
@@ -97,6 +98,7 @@
     loadRuntimeGuard();
     loadLegacyStabilizer();
     loadStatsEngine();
+    loadAiAssistant();
     window.db = normalizeDb(bestAvailableDb());
     writeAll(window.db);
     patchSave();
