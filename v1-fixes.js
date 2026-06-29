@@ -33,16 +33,10 @@
     const explicit = toNumber(animal.salePrice || animal.price || animal.marketValue || animal.value);
     if(explicit > 0) return explicit;
     if(typeof window.calculateAdvancedMarketValue === 'function'){
-      try{
-        const calculated = toNumber(window.calculateAdvancedMarketValue(animal));
-        if(calculated > 0) return calculated;
-      }catch(error){}
+      try{ const calculated = toNumber(window.calculateAdvancedMarketValue(animal)); if(calculated > 0) return calculated; }catch(error){}
     }
     if(typeof window.estimateMarketValue === 'function'){
-      try{
-        const estimated = toNumber(window.estimateMarketValue(animal));
-        if(estimated > 0) return estimated;
-      }catch(error){}
+      try{ const estimated = toNumber(window.estimateMarketValue(animal)); if(estimated > 0) return estimated; }catch(error){}
     }
     return toNumber(animal.buyPrice || animal.purchasePrice || animal.einkaufspreis);
   }
@@ -66,6 +60,7 @@
     if(!target) return;
     document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
     target.classList.add('active');
+    if(id === 'home') cleanHomeIntro();
     if(id === 'projekte' && typeof window.renderProjectPlanner === 'function'){
       try{ window.renderProjectPlanner(); }catch(error){}
     }
@@ -85,16 +80,13 @@
   function allAnimals(){
     const db = ensureDb();
     const out = [];
-    TYPES.forEach(type => {
-      (db[type] || []).forEach((animal,index) => out.push({type,index,animal}));
-    });
+    TYPES.forEach(type => { (db[type] || []).forEach((animal,index) => out.push({type,index,animal})); });
     return out;
   }
 
   function dashboardInfo(){
     const db = ensureDb();
     const animals = allAnimals();
-    const total = animals.length;
     let inventoryValue = 0;
     let purchaseValue = 0;
     animals.forEach(({animal}) => {
@@ -102,16 +94,30 @@
       purchaseValue += toNumber(animal.buyPrice || animal.purchasePrice || animal.einkaufspreis);
     });
     return '<div class="card"><h3>📊 Übersicht</h3>'+
-      'Gesamtbestand: '+total+'<br>'+
+      'Gesamtbestand: '+animals.length+'<br>'+
       '💰 Bestandswert: '+euro(inventoryValue)+'<br>'+
       '💵 Kaufwert: '+euro(purchaseValue)+'<br>'+
       '📁 Archiv: '+(db.archive||[]).length+'<br>'+
       '🐣 Nachzuchten: '+(db.clutches||[]).length+'</div>';
   }
 
+  function cleanHomeIntro(){
+    const home = byId('home');
+    if(!home) return;
+    const ngt = byId('ngtDashboard');
+    if(ngt) ngt.remove();
+    Array.from(home.querySelectorAll('.card')).forEach(card => {
+      const text = (card.textContent || '').trim();
+      if(text.includes('V300 Struktur-Update') || text.includes('NG Terrarium 1.0')){
+        card.remove();
+      }
+    });
+  }
+
   function refreshOverview(){
     const dash = byId('dashInfo');
     if(dash){ dash.innerHTML = dashboardInfo(); }
+    cleanHomeIntro();
   }
 
   function findAnimalByQr(){
@@ -120,15 +126,12 @@
     const raw = (input && input.value || '').trim();
     const id = raw.split('|')[0].trim().toUpperCase();
     if(!id){ if(result) result.innerHTML = 'Bitte QR-ID eingeben oder scannen.'; return; }
-
     const hit = allAnimals().find(item => getDisplayId(item.animal,item.index,item.type).toUpperCase() === id);
     if(!hit){ if(result) result.innerHTML = '❌ Kein Tier gefunden'; return; }
-
     if(result) result.innerHTML = '✅ Gefunden: <b>' + (hit.animal.name || 'Tier') + '</b> (' + id + ')';
     showPage(hit.type);
     setTimeout(() => {
-      const cards = document.querySelectorAll('#' + hit.type + ' .animal');
-      const card = cards[hit.index];
+      const card = document.querySelectorAll('#' + hit.type + ' .animal')[hit.index];
       if(card){
         card.scrollIntoView({behavior:'smooth',block:'center'});
         card.style.outline = '3px solid #69d2c4';
@@ -145,29 +148,20 @@
     const birth = animal.birth || animal.hatchDate || '-';
     const morph = animal.morph || animal.species || '-';
     const qrText = id + '|' + (animal.name || '') + '|' + morph + '|' + birth;
-
     const modal = byId('qrModal');
     const title = byId('qrTitle');
     const box = byId('qrCodeBox');
     const input = byId('qrSearchId');
     if(input) input.value = id;
     if(!modal || !title || !box){ alert(qrText); return; }
-
     modal.style.display = 'block';
     title.innerHTML = '🏷️ ' + id + '<br>🐍 ' + (animal.name || 'Tier') + '<br>🧬 ' + morph + '<br>🐣 ' + birth;
     box.innerHTML = '';
-
-    if(typeof window.QRCode === 'function'){
-      new window.QRCode(box,{text:qrText,width:220,height:220});
-    }else{
-      box.innerHTML = '<p>QR-Bibliothek nicht geladen.</p><code>' + qrText + '</code>';
-    }
+    if(typeof window.QRCode === 'function') new window.QRCode(box,{text:qrText,width:220,height:220});
+    else box.innerHTML = '<p>QR-Bibliothek nicht geladen.</p><code>' + qrText + '</code>';
   }
 
-  function closeQr(){
-    const modal = byId('qrModal');
-    if(modal) modal.style.display = 'none';
-  }
+  function closeQr(){ const modal = byId('qrModal'); if(modal) modal.style.display = 'none'; }
 
   function toggleQrScanner(){
     const el = byId('qrScanner');
@@ -185,22 +179,14 @@
     }
     try{
       window.qrScannerInstance = new window.Html5Qrcode('qrScanner');
-      window.qrScannerInstance.start(
-        {facingMode:'environment'},
-        {fps:10, qrbox:{width:250,height:250}},
-        decodedText => {
-          const input = byId('qrSearchId');
-          if(input) input.value = decodedText;
-          findAnimalByQr();
-          try{ window.qrScannerInstance.stop(); }catch(error){}
-          el.style.display = 'none';
-        }
-      ).catch(error => {
-        el.innerHTML = 'Kamera konnte nicht gestartet werden. Bitte Berechtigung prüfen oder ID manuell eingeben.';
-      });
-    }catch(error){
-      el.innerHTML = 'QR-Scanner konnte nicht gestartet werden.';
-    }
+      window.qrScannerInstance.start({facingMode:'environment'},{fps:10, qrbox:{width:250,height:250}}, decodedText => {
+        const input = byId('qrSearchId');
+        if(input) input.value = decodedText;
+        findAnimalByQr();
+        try{ window.qrScannerInstance.stop(); }catch(error){}
+        el.style.display = 'none';
+      }).catch(() => { el.innerHTML = 'Kamera konnte nicht gestartet werden. Bitte Berechtigung prüfen oder ID manuell eingeben.'; });
+    }catch(error){ el.innerHTML = 'QR-Scanner konnte nicht gestartet werden.'; }
   }
 
   function wireMenuLinks(){
@@ -208,20 +194,14 @@
       const match = String(link.getAttribute('onclick') || '').match(/showPage\('([^']+)'\)/);
       if(!match) return;
       link.removeAttribute('onclick');
-      link.addEventListener('click', event => {
-        event.preventDefault();
-        showPage(match[1]);
-      });
+      link.addEventListener('click', event => { event.preventDefault(); showPage(match[1]); });
     });
   }
 
   function wireQuickLinks(){
     document.querySelectorAll('[data-page],[data-ngt-page]').forEach(button => {
       const page = button.getAttribute('data-page') || button.getAttribute('data-ngt-page');
-      button.addEventListener('click', event => {
-        event.preventDefault();
-        showPage(page);
-      });
+      button.addEventListener('click', event => { event.preventDefault(); showPage(page); });
     });
   }
 
@@ -232,6 +212,7 @@
     window.render = function(){
       const result = original.apply(this, arguments);
       refreshOverview();
+      cleanHomeIntro();
       return result;
     };
   }
@@ -251,6 +232,8 @@
     wireQuickLinks();
     patchRender();
     refreshOverview();
+    cleanHomeIntro();
+    setTimeout(cleanHomeIntro, 300);
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
