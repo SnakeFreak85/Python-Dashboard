@@ -3,6 +3,17 @@
   function h(value){return window.NGT?window.NGT.escapeHtml(value):String(value||'');}
   function today(){return new Date().toISOString().slice(0,10);}
   function close(){const modal=document.getElementById('ngtAnimalModal'); if(modal) modal.remove();}
+  function cleanIntroCards(){
+    const content=document.querySelector('.content');
+    if(!content) return;
+    const cards=content.querySelectorAll('.card');
+    cards.forEach(card=>{
+      const text=(card.textContent||'');
+      if(text.includes('V300 Struktur-Update')||text.includes('NG Terrarium 1.0')) card.remove();
+    });
+    const ngt=document.getElementById('ngtDashboard');
+    if(ngt) ngt.remove();
+  }
   function healthTable(animal){
     if(!animal.health||!animal.health.length) return '<p class="ngt-muted">Keine Einträge vorhanden.</p>';
     return '<table class="ngt-table"><tr><th>Datum</th><th>Kontakt</th><th>Eintrag</th><th>Notiz</th></tr>'+animal.health.map(e=>
@@ -59,6 +70,7 @@
     return '<h3>Dokumente</h3><div class="feedPanel">'+(docs.length?docs.map(x=>h(x.name||x)).join('<br>'):'Noch keine Dokumente hinterlegt')+'</div>';
   }
   function enhanceAnimalCards(){
+    cleanIntroCards();
     if(!window.NGT) return;
     window.NGT.TYPES.forEach(type=>{
       const section=document.getElementById(type);
@@ -78,6 +90,9 @@
     window.NGT.openAnimalProfile=openAnimalProfile;
     window.NGT.enhanceAnimalCards=enhanceAnimalCards;
     enhanceAnimalCards();
+    cleanIntroCards();
+    setTimeout(cleanIntroCards,400);
+    setTimeout(cleanIntroCards,1200);
   }
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
 })();
