@@ -4,37 +4,75 @@
   const TYPES = ['koenig','boas','geckos','spinnen'];
 
   function byId(id){ return document.getElementById(id); }
+  function store(){ return window.NGTStore || null; }
 
   function getDb(){
+    const s = store();
+    if(s && typeof s.getDb === 'function') return s.getDb();
+    try{ if(typeof db !== 'undefined' && db) return db; }catch(error){}
     window.db = window.db || {koenig:[],boas:[],geckos:[],spinnen:[],clutches:[],sales:[],archive:[]};
     TYPES.forEach(type => { if(!Array.isArray(window.db[type])) window.db[type] = []; });
     return window.db;
+  }
+
+  function saveDb(){
+    const s = store();
+    if(s && typeof s.save === 'function') return s.save(getDb());
+    try{ localStorage.setItem('spd_v53', JSON.stringify(getDb())); }catch(error){}
   }
 
   function escapeHtml(value){
     return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
 
+  function makeUuid(){
+    return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('ngt-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10));
+  }
+
   function getDisplayId(animal,index,type){
-    if(typeof window.getDisplayId === 'function'){
-      try{ return window.getDisplayId(animal,index,type); }catch(error){}
-    }
+    if(!animal) return '';
     const prefix = {koenig:'KP',boas:'BOA',geckos:'LG',spinnen:'VS'}[type] || 'ID';
-    animal.displayId = animal.displayId || animal.uid || (prefix + '-' + String(index + 1).padStart(3,'0'));
-    animal.uid = animal.uid || animal.displayId;
-    try{ localStorage.setItem('spd_v53', JSON.stringify(getDb())); }catch(error){}
+    animal.uuid = animal.uuid || animal.uid || makeUuid();
+    animal.uid = animal.uid || animal.uuid;
+    animal.displayId = animal.displayId || (prefix + '-' + String(index + 1).padStart(3,'0'));
+    animal.type = animal.type || type;
+    saveDb();
     return animal.displayId;
   }
 
-  function qrPayload(type,index){
-    const db = getDb();
-    const animal = db[type] && db[type][index];
+  function resolveAnimal(type,indexOrId){
+    const s = store();
+    if(s && typeof s.restore === 'function') s.restore();
+
+    if(typeof indexOrId === 'string'){
+      const id = indexOrId.split('|')[0].trim();
+      if(s && typeof s.getAnimalById === 'function'){
+        const found = s.getAnimalById(id);
+        if(found) return found;
+      }
+      return allAnimals().find(item => [item.animal.uuid,item.animal.uid,item.animal.displayId].map(x => String(x||'').toLowerCase()).includes(id.toLowerCase())) || null;
+    }
+
+    const dbData = getDb();
+    const animal = dbData[type] && dbData[type][indexOrId];
     if(!animal) return null;
-    const id = getDisplayId(animal,index,type);
+    getDisplayId(animal,indexOrId,type);
+    return {type,index:indexOrId,animal};
+  }
+
+  function qrPayload(type,indexOrId){
+    const resolved = resolveAnimal(type,indexOrId);
+    if(!resolved) return null;
+    const animal = resolved.animal;
+    const id = getDisplayId(animal,resolved.index,resolved.type);
+    const payloadId = animal.uuid || animal.uid || id;
     return {
+      type: resolved.type,
+      index: resolved.index,
       animal,
       id,
-      text: id + '|' + (animal.name || '') + '|' + (animal.morph || animal.species || '') + '|' + (animal.birth || animal.hatchDate || '')
+      payloadId,
+      text: payloadId + '|' + (animal.name || '') + '|' + (animal.morph || animal.species || '') + '|' + (animal.birth || animal.hatchDate || '')
     };
   }
 
@@ -57,9 +95,7 @@
       box.innerHTML = '';
       new window.QRCode(box,{text,width:240,height:240,correctLevel:window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : undefined});
       return true;
-    }catch(error){
-      return false;
-    }
+    }catch(error){ return false; }
   }
 
   function renderQrWithApi(box,text){
@@ -73,28 +109,25 @@
     box.appendChild(img);
   }
 
-  function showQrData(type,index){
-    const payload = qrPayload(type,index);
-    if(!payload){ alert('Tier nicht gefunden. Bitte Seite neu laden.'); return; }
+  function showQrData(type,indexOrId){
+    const payload = qrPayload(type,indexOrId);
+    if(!payload){ alert('Tier nicht gefunden. Bitte Tierliste neu laden und erneut versuchen.'); return; }
     const modal = ensureQrModal();
     const title = byId('qrTitle');
     const box = byId('qrCodeBox');
     const plain = byId('qrPlainText');
     modal.style.display = 'block';
     title.innerHTML = '📱 QR-Code<br><small>' + escapeHtml(payload.id) + ' · ' + escapeHtml(payload.animal.name || 'Tier') + '</small>';
-    plain.textContent = payload.text;
+    if(plain) plain.textContent = payload.text;
     if(!renderQrWithLibrary(box,payload.text)) renderQrWithApi(box,payload.text);
   }
 
-  function closeQr(){
-    const modal = byId('qrModal');
-    if(modal) modal.style.display = 'none';
-  }
+  function closeQr(){ const modal = byId('qrModal'); if(modal) modal.style.display = 'none'; }
 
   function allAnimals(){
-    const db = getDb();
+    const dbData = getDb();
     const list = [];
-    TYPES.forEach(type => (db[type] || []).forEach((animal,index) => list.push({type,index,animal,id:getDisplayId(animal,index,type)})));
+    TYPES.forEach(type => (dbData[type] || []).forEach((animal,index) => list.push({type,index,animal,id:getDisplayId(animal,index,type)})));
     return list;
   }
 
@@ -102,11 +135,12 @@
     const input = byId('qrSearchId');
     const result = byId('qrSearchResult');
     const raw = (input && input.value || '').trim();
-    const searchId = raw.split('|')[0].trim().toUpperCase();
-    if(!searchId){ if(result) result.textContent = 'Bitte QR-ID eingeben oder scannen.'; return; }
-    const hit = allAnimals().find(item => String(item.id || '').toUpperCase() === searchId);
+    if(!raw){ if(result) result.textContent = 'Bitte QR-ID eingeben oder scannen.'; return; }
+    const id = raw.split('|')[0].trim();
+    const hit = resolveAnimal('',id);
     if(!hit){ if(result) result.textContent = 'Kein Tier gefunden.'; return; }
-    if(result) result.innerHTML = 'Gefunden: <b>' + escapeHtml(hit.animal.name || 'Tier') + '</b> (' + escapeHtml(hit.id) + ')';
+    const displayId = getDisplayId(hit.animal,hit.index,hit.type);
+    if(result) result.innerHTML = 'Gefunden: <b>' + escapeHtml(hit.animal.name || 'Tier') + '</b> (' + escapeHtml(displayId) + ')';
     if(typeof window.showPage === 'function') window.showPage(hit.type);
     setTimeout(() => {
       const card = document.querySelectorAll('#' + hit.type + ' .animal')[hit.index];
@@ -123,10 +157,13 @@
       const section = byId(type);
       if(!section) return;
       section.querySelectorAll('.animal').forEach((card,index) => {
+        const dbData = getDb();
+        const animal = dbData[type] && dbData[type][index];
+        if(animal) getDisplayId(animal,index,type);
         const buttons = Array.from(card.querySelectorAll('button'));
         buttons.forEach(button => {
           const attr = button.getAttribute('onclick') || '';
-          if(attr.includes('showQrData')){
+          if(attr.includes('showQrData') || button.textContent.includes('QR')){
             button.onclick = function(event){ event.preventDefault(); showQrData(type,index); };
           }
         });
@@ -151,6 +188,7 @@
     window.findAnimalByQr = findAnimalByQr;
     patchRender();
     patchButtons();
+    setTimeout(patchButtons,300);
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
