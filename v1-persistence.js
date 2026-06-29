@@ -6,6 +6,15 @@
   const SNAPSHOT_KEY = 'spd_v53_last_good';
   const TYPES = ['koenig','boas','geckos','spinnen'];
 
+  function loadStoreBridge(){
+    if(document.querySelector('script[data-ngt-store-bridge]')) return;
+    const script=document.createElement('script');
+    script.src='./v1-store-bridge.js?v=1.0.15';
+    script.defer=true;
+    script.setAttribute('data-ngt-store-bridge','true');
+    document.head.appendChild(script);
+  }
+
   function fallbackDb(){
     return {koenig:[],boas:[],geckos:[],spinnen:[],clutches:[],sales:[],archive:[]};
   }
@@ -112,13 +121,13 @@
     window.__ngtPersistenceRenderPatched = true;
     const original = window.render;
     window.render = function(){
-      normalizeDb(window.db || bestAvailableDb());
-      writeAll(window.db);
+      if(window.db) normalizeDb(window.db);
       return original.apply(this, arguments);
     };
   }
 
   function init(){
+    loadStoreBridge();
     window.db = normalizeDb(bestAvailableDb());
     writeAll(window.db);
     patchSave();
