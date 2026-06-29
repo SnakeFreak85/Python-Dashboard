@@ -15,27 +15,13 @@
     document.head.appendChild(script);
   }
 
-  function loadStoreBridge(){
-    loadScriptOnce('./v1-store-bridge.js?v=1.0.15','data-ngt-store-bridge');
-  }
+  function loadStoreBridge(){ loadScriptOnce('./v1-store-bridge.js?v=1.0.15','data-ngt-store-bridge'); }
+  function loadDriveGuard(){ loadScriptOnce('./v1-drive-guard.js?v=1.0.16','data-ngt-drive-guard'); }
+  function loadAnimalActions(){ loadScriptOnce('./v1-animal-actions.js?v=1.0.17','data-ngt-animal-actions'); }
 
-  function loadDriveGuard(){
-    loadScriptOnce('./v1-drive-guard.js?v=1.0.16','data-ngt-drive-guard');
-  }
-
-  function fallbackDb(){
-    return {koenig:[],boas:[],geckos:[],spinnen:[],clutches:[],sales:[],archive:[]};
-  }
-
-  function parseJson(value){
-    try{ return value ? JSON.parse(value) : null; }catch(error){ return null; }
-  }
-
-  function countAnimals(data){
-    if(!data) return 0;
-    return TYPES.reduce((sum,type) => sum + (Array.isArray(data[type]) ? data[type].length : 0), 0);
-  }
-
+  function fallbackDb(){ return {koenig:[],boas:[],geckos:[],spinnen:[],clutches:[],sales:[],archive:[]}; }
+  function parseJson(value){ try{ return value ? JSON.parse(value) : null; }catch(error){ return null; } }
+  function countAnimals(data){ if(!data) return 0; return TYPES.reduce((sum,type) => sum + (Array.isArray(data[type]) ? data[type].length : 0), 0); }
   function normalizeDb(data){
     data = data && typeof data === 'object' ? data : fallbackDb();
     TYPES.forEach(type => { if(!Array.isArray(data[type])) data[type] = []; });
@@ -43,12 +29,7 @@
     TYPES.forEach(type => data[type].forEach((animal,index) => normalizeAnimal(animal,type,index)));
     return data;
   }
-
-  function uuid(){
-    if(window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
-    return 'ngt-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10);
-  }
-
+  function uuid(){ if(window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID(); return 'ngt-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,10); }
   function normalizeAnimal(animal,type,index){
     if(!animal || typeof animal !== 'object') return animal;
     const prefix = {koenig:'KP',boas:'BOA',geckos:'LG',spinnen:'VS'}[type] || 'ID';
@@ -61,7 +42,6 @@
     animal.weights = Array.isArray(animal.weights) ? animal.weights : [];
     return animal;
   }
-
   function bestAvailableDb(){
     const primary = parseJson(localStorage.getItem(STORAGE_KEY));
     const backup = parseJson(localStorage.getItem(BACKUP_KEY));
@@ -70,7 +50,6 @@
     if(!options.length) return fallbackDb();
     return options.sort((a,b) => countAnimals(b) - countAnimals(a))[0];
   }
-
   function writeAll(data){
     const normalized = normalizeDb(data);
     const serialized = JSON.stringify(normalized);
@@ -80,19 +59,12 @@
     window.db = normalized;
     return normalized;
   }
-
   function patchSave(){
     if(window.__ngtPersistenceSavePatched || typeof window.save !== 'function') return;
     window.__ngtPersistenceSavePatched = true;
     const original = window.save;
-    window.save = function(){
-      writeAll(window.db || fallbackDb());
-      const result = original.apply(this, arguments);
-      writeAll(window.db || fallbackDb());
-      return result;
-    };
+    window.save = function(){ writeAll(window.db || fallbackDb()); const result = original.apply(this, arguments); writeAll(window.db || fallbackDb()); return result; };
   }
-
   function patchAddAnimal(){
     if(window.__ngtAddAnimalPatched || typeof window.addAnimal !== 'function') return;
     window.__ngtAddAnimalPatched = true;
@@ -102,37 +74,28 @@
       const result = original.apply(this, arguments);
       normalizeDb(window.db);
       const list = window.db && window.db[type];
-      if(Array.isArray(list) && list.length){
-        normalizeAnimal(list[list.length - 1], type, list.length - 1);
-      }
+      if(Array.isArray(list) && list.length){ normalizeAnimal(list[list.length - 1], type, list.length - 1); }
       writeAll(window.db);
       if(typeof window.render === 'function') window.render();
-      if(countAnimals(window.db) <= before){
-        console.warn('Tier wurde nicht hinzugefügt oder nicht erkannt.');
-      }
+      if(countAnimals(window.db) <= before){ console.warn('Tier wurde nicht hinzugefügt oder nicht erkannt.'); }
       return result;
     };
   }
-
   function patchRender(){
     if(window.__ngtPersistenceRenderPatched || typeof window.render !== 'function') return;
     window.__ngtPersistenceRenderPatched = true;
     const original = window.render;
-    window.render = function(){
-      if(window.db) normalizeDb(window.db);
-      return original.apply(this, arguments);
-    };
+    window.render = function(){ if(window.db) normalizeDb(window.db); return original.apply(this, arguments); };
   }
-
   function init(){
     loadStoreBridge();
     loadDriveGuard();
+    loadAnimalActions();
     window.db = normalizeDb(bestAvailableDb());
     writeAll(window.db);
     patchSave();
     patchAddAnimal();
     patchRender();
   }
-
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
