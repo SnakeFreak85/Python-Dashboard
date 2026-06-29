@@ -3,6 +3,17 @@
 
   function byId(id){ return document.getElementById(id); }
 
+  function patchAssistantLink(){
+    const link = byId('menuKiAssistent');
+    if(!link) return;
+    link.href = './ki-assistent.html?v=1.0.24';
+    link.onclick = null;
+    link.addEventListener('click', function(event){
+      event.preventDefault();
+      window.location.href = './ki-assistent.html?v=1.0.24';
+    }, {once:true});
+  }
+
   function ensureInputStyles(){
     const input = byId('aiAssistantInput');
     if(!input) return;
@@ -21,65 +32,10 @@
     input.style.display = 'block';
   }
 
-  function focusInput(){
-    const input = byId('aiAssistantInput');
-    if(!input) return;
-    ensureInputStyles();
-    try{ input.focus({preventScroll:false}); }catch(error){ input.focus(); }
-  }
-
-  function protectTextInputEvents(){
-    document.addEventListener('touchstart', function(event){
-      if(event.target && event.target.id === 'aiAssistantInput'){
-        event.stopPropagation();
-        setTimeout(focusInput, 0);
-      }
-    }, true);
-    document.addEventListener('pointerdown', function(event){
-      if(event.target && event.target.id === 'aiAssistantInput'){
-        event.stopPropagation();
-        setTimeout(focusInput, 0);
-      }
-    }, true);
-    document.addEventListener('click', function(event){
-      if(event.target && event.target.id === 'aiAssistantInput'){
-        event.stopPropagation();
-        setTimeout(focusInput, 0);
-      }
-    }, true);
-  }
-
-  function patchMenuOpen(){
-    const link = byId('menuKiAssistent');
-    if(!link || link.__ngtInputFix) return;
-    link.__ngtInputFix = true;
-    link.addEventListener('click', function(){
-      setTimeout(function(){
-        ensureInputStyles();
-        focusInput();
-      }, 400);
-    });
-  }
-
-  function patchRender(){
-    if(window.__ngtAiInputFixRenderPatched || typeof window.render !== 'function') return;
-    window.__ngtAiInputFixRenderPatched = true;
-    const original = window.render;
-    window.render = function(){
-      const result = original.apply(this, arguments);
-      setTimeout(function(){ ensureInputStyles(); patchMenuOpen(); }, 50);
-      return result;
-    };
-  }
-
   function init(){
+    patchAssistantLink();
     ensureInputStyles();
-    protectTextInputEvents();
-    patchMenuOpen();
-    patchRender();
-    setTimeout(ensureInputStyles, 300);
-    setTimeout(ensureInputStyles, 1000);
-    window.NGTAIFocusInput = focusInput;
+    setInterval(patchAssistantLink, 500);
   }
 
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
