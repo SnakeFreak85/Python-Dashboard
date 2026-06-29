@@ -6,13 +6,21 @@
   const SNAPSHOT_KEY = 'spd_v53_last_good';
   const TYPES = ['koenig','boas','geckos','spinnen'];
 
-  function loadStoreBridge(){
-    if(document.querySelector('script[data-ngt-store-bridge]')) return;
+  function loadScriptOnce(src,attr){
+    if(document.querySelector('script['+attr+']')) return;
     const script=document.createElement('script');
-    script.src='./v1-store-bridge.js?v=1.0.15';
+    script.src=src;
     script.defer=true;
-    script.setAttribute('data-ngt-store-bridge','true');
+    script.setAttribute(attr,'true');
     document.head.appendChild(script);
+  }
+
+  function loadStoreBridge(){
+    loadScriptOnce('./v1-store-bridge.js?v=1.0.15','data-ngt-store-bridge');
+  }
+
+  function loadDriveGuard(){
+    loadScriptOnce('./v1-drive-guard.js?v=1.0.16','data-ngt-drive-guard');
   }
 
   function fallbackDb(){
@@ -73,16 +81,6 @@
     return normalized;
   }
 
-  function restoreIfNeeded(){
-    const current = normalizeDb(window.db || bestAvailableDb());
-    const best = bestAvailableDb();
-    if(countAnimals(best) > countAnimals(current)){
-      writeAll(best);
-    }else{
-      writeAll(current);
-    }
-  }
-
   function patchSave(){
     if(window.__ngtPersistenceSavePatched || typeof window.save !== 'function') return;
     window.__ngtPersistenceSavePatched = true;
@@ -128,6 +126,7 @@
 
   function init(){
     loadStoreBridge();
+    loadDriveGuard();
     window.db = normalizeDb(bestAvailableDb());
     writeAll(window.db);
     patchSave();
