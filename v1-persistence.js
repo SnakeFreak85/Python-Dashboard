@@ -23,6 +23,7 @@
   function loadStatsEngine(){ loadScriptOnce('./v1-stats-engine.js?v=1.0.20','data-ngt-stats-engine'); }
   function loadAiAssistant(){ loadScriptOnce('./v1-ai-assistant.js?v=1.0.21','data-ngt-ai-assistant'); }
   function loadAiInputFix(){ loadScriptOnce('./v1-ai-input-fix.js?v=1.0.22','data-ngt-ai-input-fix'); }
+  function loadAiStablePage(){ loadScriptOnce('./v1-ai-stable-page.js?v=1.0.23','data-ngt-ai-stable-page'); }
 
   function fallbackDb(){ return {koenig:[],boas:[],geckos:[],spinnen:[],clutches:[],sales:[],archive:[]}; }
   function parseJson(value){ try{ return value ? JSON.parse(value) : null; }catch(error){ return null; } }
@@ -101,6 +102,7 @@
     loadStatsEngine();
     loadAiAssistant();
     loadAiInputFix();
+    loadAiStablePage();
     window.db = normalizeDb(bestAvailableDb());
     writeAll(window.db);
     patchSave();
