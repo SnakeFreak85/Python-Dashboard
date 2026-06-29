@@ -19,6 +19,7 @@
   function loadDriveGuard(){ loadScriptOnce('./v1-drive-guard.js?v=1.0.16','data-ngt-drive-guard'); }
   function loadAnimalActions(){ loadScriptOnce('./v1-animal-actions.js?v=1.0.17','data-ngt-animal-actions'); }
   function loadRuntimeGuard(){ loadScriptOnce('./v1-runtime-guard.js?v=1.0.18','data-ngt-runtime-guard'); }
+  function loadLegacyStabilizer(){ loadScriptOnce('./v1-legacy-stabilizer.js?v=1.0.19','data-ngt-legacy-stabilizer'); }
 
   function fallbackDb(){ return {koenig:[],boas:[],geckos:[],spinnen:[],clutches:[],sales:[],archive:[]}; }
   function parseJson(value){ try{ return value ? JSON.parse(value) : null; }catch(error){ return null; } }
@@ -93,6 +94,7 @@
     loadDriveGuard();
     loadAnimalActions();
     loadRuntimeGuard();
+    loadLegacyStabilizer();
     window.db = normalizeDb(bestAvailableDb());
     writeAll(window.db);
     patchSave();
