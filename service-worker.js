@@ -1,4 +1,4 @@
-const CACHE_NAME = "python-dashboard-v1.0.12";
+const CACHE_NAME = "python-dashboard-v1.0.13";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -13,7 +13,8 @@ const APP_ASSETS = [
   "./v1-mobile.js",
   "./v1-fixes.js",
   "./v1-food.js",
-  "./v1-photo.js"
+  "./v1-photo.js",
+  "./v1-qr.js"
 ];
 
 self.addEventListener("install", event => {
@@ -48,7 +49,7 @@ function withV1Assets(html){
   const css = '<link rel="stylesheet" href="./v1.css">';
   const scriptOpen = '<scr' + 'ipt src="./';
   const scriptClose = '"></scr' + 'ipt>';
-  const scripts = scriptOpen + 'v1-core.js' + scriptClose + scriptOpen + 'v1-profile.js' + scriptClose + scriptOpen + 'v1-dashboard.js' + scriptClose + scriptOpen + 'v1-mobile.js' + scriptClose + scriptOpen + 'v1-fixes.js' + scriptClose + scriptOpen + 'v1-food.js' + scriptClose + scriptOpen + 'v1-photo.js' + scriptClose;
+  const scripts = scriptOpen + 'v1-core.js' + scriptClose + scriptOpen + 'v1-profile.js' + scriptClose + scriptOpen + 'v1-dashboard.js' + scriptClose + scriptOpen + 'v1-mobile.js' + scriptClose + scriptOpen + 'v1-fixes.js' + scriptClose + scriptOpen + 'v1-food.js' + scriptClose + scriptOpen + 'v1-photo.js' + scriptClose + scriptOpen + 'v1-qr.js' + scriptClose;
   return html.replace("</head>", css + "</head>").replace("</body>", scripts + "</body>");
 }
 
