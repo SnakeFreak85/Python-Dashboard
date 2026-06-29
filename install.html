@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0d1722">
-  <link rel="manifest" href="manifest.json?v=1.0.14">
+  <link rel="manifest" href="manifest.json?v=1.0.17">
   <title>NG Terrarium aktualisieren</title>
   <style>
     html,body{margin:0;min-height:100dvh;background:#101820;color:#f5f7fb;font-family:Arial,sans-serif;color-scheme:dark}
@@ -25,7 +25,7 @@
       'use strict';
       const status = document.getElementById('status');
       const openBtn = document.getElementById('openBtn');
-      function openApp(){ window.location.replace('./?source=install&v=1.0.14'); }
+      function openApp(){ window.location.replace('./?source=install&v=1.0.17'); }
       openBtn.addEventListener('click', openApp);
 
       async function clearOldState(){
@@ -47,7 +47,7 @@
           return;
         }
         status.textContent = 'Neue App-Version wird installiert…';
-        const registration = await navigator.serviceWorker.register('./service-worker.js?v=1.0.14', {updateViaCache:'none'});
+        const registration = await navigator.serviceWorker.register('./service-worker.js?v=1.0.17', {updateViaCache:'none'});
         await registration.update();
         if(registration.waiting){ registration.waiting.postMessage({type:'SKIP_WAITING'}); }
         status.textContent = 'Aktualisierung fertig. App wird geöffnet…';
