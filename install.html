@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d1722">
+  <link rel="manifest" href="manifest.json">
+  <title>NG Terrarium installieren</title>
+  <style>
+    html,body{margin:0;min-height:100dvh;background:#101820;color:#f5f7fb;font-family:Arial,sans-serif;color-scheme:dark}
+    body{display:grid;place-items:center;padding:24px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+    .box{max-width:520px;background:#172331;border:1px solid #304255;border-radius:20px;padding:22px;box-shadow:0 16px 40px rgba(0,0,0,.3)}
+    h1{margin-top:0}.muted{color:#aab7c4}button{width:100%;min-height:48px;border:1px solid #304255;border-radius:12px;background:#0f1a25;color:#f5f7fb;font-size:16px;font-weight:700}
+  </style>
+</head>
+<body>
+  <main class="box">
+    <h1>NG Terrarium</h1>
+    <p class="muted">Die App wird für dein Handy vorbereitet. Danach öffnet sie automatisch.</p>
+    <p id="status">Service Worker wird installiert…</p>
+    <button id="openBtn" type="button">App öffnen</button>
+  </main>
+  <script>
+    (function(){
+      'use strict';
+      const status = document.getElementById('status');
+      const openBtn = document.getElementById('openBtn');
+      function openApp(){ window.location.href = './?source=install'; }
+      openBtn.addEventListener('click', openApp);
+      if(!('serviceWorker' in navigator)){
+        status.textContent = 'Service Worker wird von diesem Browser nicht unterstützt. Die App wird normal geöffnet.';
+        return;
+      }
+      navigator.serviceWorker.register('./service-worker.js').then(registration => {
+        status.textContent = 'Installation vorbereitet. App wird geöffnet…';
+        if(registration.waiting){ registration.waiting.postMessage({type:'SKIP_WAITING'}); }
+        if(registration.active || navigator.serviceWorker.controller){ setTimeout(openApp, 700); }
+        else{
+          const worker = registration.installing;
+          if(worker){
+            worker.addEventListener('statechange', () => {
+              if(worker.state === 'activated') openApp();
+            });
+          }else{ setTimeout(openApp, 1000); }
+        }
+      }).catch(() => {
+        status.textContent = 'Installation konnte nicht vorbereitet werden. Du kannst die App trotzdem öffnen.';
+      });
+    })();
+  </script>
+</body>
+</html>
