@@ -9,7 +9,7 @@ function loadAnalytics(){
 }
 function nav(){
  const d=document.getElementById('drawer');
- d.innerHTML=`<button onclick="NGT500.route('dashboard')">🏠 Startseite</button><button onclick="NGT500.route('animals',{t:'koenig'})">🐍 Königspythons</button><button onclick="NGT500.route('animals',{t:'boas'})">🐍 Boas</button><button onclick="NGT500.route('animals',{t:'geckos'})">🦎 Leopardgeckos</button><button onclick="NGT500.route('animals',{t:'spinnen'})">🕷 Vogelspinnen</button><button onclick="NGT500.route('food')">🥩 Futter</button><button onclick="NGT500.route('qr')">📷 QR-System</button><button onclick="NGT500.route('assistant')">🤖 KI Assistent</button><button onclick="NGTApp.loadAnalytics()">📊 Analyse</button><button onclick="NGT500.route('backup')">💾 Backup</button><a href="./index.html">↩️ V400 öffnen</a>`;
+ d.innerHTML=`<button onclick="NGT500.route('dashboard')">🏠 Startseite</button><button onclick="NGT500.route('chat')">💬 KI-Chat</button><button onclick="NGT500.route('assistant')">🤖 KI Assistent</button><button onclick="NGT500.route('animals',{t:'koenig'})">🐍 Königspythons</button><button onclick="NGT500.route('animals',{t:'boas'})">🐍 Boas</button><button onclick="NGT500.route('animals',{t:'geckos'})">🦎 Leopardgeckos</button><button onclick="NGT500.route('animals',{t:'spinnen'})">🕷 Vogelspinnen</button><button onclick="NGT500.route('food')">🥩 Futter</button><button onclick="NGT500.route('qr')">📷 QR-System</button><button onclick="NGTApp.loadAnalytics()">📊 Analyse</button><button onclick="NGT500.route('backup')">💾 Backup</button><a href="./index.html">↩️ V400 öffnen</a>`;
 }
 function init(){
  document.getElementById('menuBtn').onclick=NGT500.openMenu;
