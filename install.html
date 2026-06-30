@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0d1722">
-  <link rel="manifest" href="manifest.json?v=1.0.17">
-  <title>NG Terrarium aktualisieren</title>
+  <meta name="theme-color" content="#07111b">
+  <link rel="manifest" href="manifest.json?v=1.0.4">
+  <title>TerraControl aktualisieren</title>
   <style>
-    html,body{margin:0;min-height:100dvh;background:#101820;color:#f5f7fb;font-family:Arial,sans-serif;color-scheme:dark}
+    html,body{margin:0;min-height:100dvh;background:radial-gradient(circle at top,#102437 0,#07111b 46%,#050b11 100%);color:#f7f9fc;font-family:Arial,sans-serif;color-scheme:dark}
     body{display:grid;place-items:center;padding:24px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
-    .box{max-width:520px;background:#172331;border:1px solid #304255;border-radius:20px;padding:22px;box-shadow:0 16px 40px rgba(0,0,0,.3)}
-    h1{margin-top:0}.muted{color:#aab7c4}button{width:100%;min-height:48px;border:1px solid #304255;border-radius:12px;background:#0f1a25;color:#f5f7fb;font-size:16px;font-weight:700}
+    .box{max-width:520px;background:linear-gradient(180deg,#17283a,#101d2b);border:1px solid #34506c;border-radius:24px;padding:24px;box-shadow:0 18px 44px rgba(0,0,0,.34)}
+    h1{margin:0 0 4px;font-size:38px;line-height:1}.sub{font-size:20px;font-weight:800;margin-bottom:22px}.muted{color:#aab7c4;font-size:18px;line-height:1.35}button{width:100%;min-height:52px;border:1px solid #34506c;border-radius:15px;background:#0f1a25;color:#f5f7fb;font-size:17px;font-weight:800}
   </style>
 </head>
 <body>
   <main class="box">
-    <h1>NG Terrarium</h1>
-    <p class="muted">Die App wird aktualisiert. Alte Handy-Caches werden bereinigt.</p>
+    <h1>TerraControl</h1>
+    <div class="sub">Terraristik Dashboard</div>
+    <p class="muted">Die App wird aktualisiert und lokale App-Caches werden bereinigt.</p>
     <p id="status">Aktualisierung wird vorbereitet…</p>
     <button id="openBtn" type="button">App öffnen</button>
   </main>
@@ -25,7 +26,7 @@
       'use strict';
       const status = document.getElementById('status');
       const openBtn = document.getElementById('openBtn');
-      function openApp(){ window.location.replace('./?source=install&v=1.0.17'); }
+      function openApp(){ window.location.replace('./?source=install&v=1.0.4'); }
       openBtn.addEventListener('click', openApp);
 
       async function clearOldState(){
@@ -42,12 +43,12 @@
 
       async function installFresh(){
         if(!('serviceWorker' in navigator)){
-          status.textContent = 'Service Worker wird nicht unterstützt. App wird normal geöffnet.';
+          status.textContent = 'App wird geöffnet…';
           setTimeout(openApp, 700);
           return;
         }
-        status.textContent = 'Neue App-Version wird installiert…';
-        const registration = await navigator.serviceWorker.register('./service-worker.js?v=1.0.17', {updateViaCache:'none'});
+        status.textContent = 'TerraControl wird vorbereitet…';
+        const registration = await navigator.serviceWorker.register('./service-worker.js?v=1.0.4', {updateViaCache:'none'});
         await registration.update();
         if(registration.waiting){ registration.waiting.postMessage({type:'SKIP_WAITING'}); }
         status.textContent = 'Aktualisierung fertig. App wird geöffnet…';
