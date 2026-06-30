@@ -3,46 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d1722">
-<title>NG Terrarium V400</title>
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="./v400.css?v=400.2">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<meta http-equiv="refresh" content="0; url=./v500.html?v=500.4">
+<title>NG Terrarium</title>
+<script>location.replace('./v500.html?v=500.4');</script>
 </head>
-<body>
-<header><h1>🐍 NG Terrarium<br>V400 Clean</h1></header>
-<button class="menuBtn" onclick="NGT.openMenu()">☰</button>
-<div id="overlay" class="overlay" onclick="NGT.closeMenu()"></div>
-<nav id="drawer" class="drawer">
-<button onclick="NGT.setPage('home')">🏠 Startseite</button>
-<button onclick="NGT.setPage('koenig')">🐍 Königspythons</button>
-<button onclick="NGT.setPage('boas')">🐍 Boas</button>
-<button onclick="NGT.setPage('geckos')">🦎 Leopardgeckos</button>
-<button onclick="NGT.setPage('spinnen')">🕷 Vogelspinnen</button>
-<button onclick="NGT.setPage('food')">🥩 Futter</button>
-<a href="./ki-assistent.html?v=1.0.36">🤖 KI Assistent</a>
-<button onclick="NGT.setPage('backup')">💾 Backup</button>
-</nav>
-<main class="wrap">
-<section id="home" class="section active">
-<div class="card"><h2>Willkommen</h2><input id="globalSearch" placeholder="🔎 Tier suchen..." oninput="NGT.search()"><div id="searchResults" class="card hidden"></div><p class="muted">Stabile V400-Basis für Bestand, Pflege, Futter, QR und KI-Assistent.</p></div>
-<div class="card"><h2>🤖 KI Assistent</h2><p class="muted">Schnelle Eingabe für Fütterungen, Häutungen, Gewichte und Futterbestand.</p><a class="btn" href="./ki-assistent.html?v=1.0.36">🤖 KI Assistent öffnen</a></div>
-<div class="card"><h2>📊 Bestandsübersicht</h2><div id="overview"></div></div>
-<div class="card"><h2>📷 QR-System</h2><input id="qrSearchId" placeholder="Tiername oder QR-ID eingeben"><button onclick="NGT.findQr()">🔍 Tier öffnen</button><div id="qrSearchResult"></div></div>
-<div class="card"><h2>🥩 Futterbestand</h2><div id="foodOverview"></div></div>
-<div class="card"><h2>🕘 Letzte Aktivitäten</h2><div id="recent"></div></div>
-</section>
-<section id="koenig" class="section"><div class="card"><h2>🐍 Königspythons</h2><button onclick="NGT.addAnimal('koenig')">➕ Tier anlegen</button><div id="koenigList"></div></div></section>
-<section id="boas" class="section"><div class="card"><h2>🐍 Boas</h2><button onclick="NGT.addAnimal('boas')">➕ Tier anlegen</button><div id="boasList"></div></div></section>
-<section id="geckos" class="section"><div class="card"><h2>🦎 Leopardgeckos</h2><button onclick="NGT.addAnimal('geckos')">➕ Tier anlegen</button><div id="geckosList"></div></div></section>
-<section id="spinnen" class="section"><div class="card"><h2>🕷 Vogelspinnen</h2><button onclick="NGT.addAnimal('spinnen')">➕ Tier anlegen</button><div id="spinnenList"></div></div></section>
-<section id="food" class="section"><div class="card"><h2>🥩 Futter</h2><input id="foodName" placeholder="z. B. 200g Ratte"><input id="foodQty" type="number" placeholder="Bestand"><button onclick="NGT.foodAdd()">💾 Futterbestand speichern</button><div id="foodList"></div></div></section>
-<section id="backup" class="section"><div class="card"><h2>💾 Backup</h2><button onclick="NGT.exportData()">⬇️ Backup exportieren</button><input type="file" accept="application/json" onchange="NGT.importData(this.files[0])"><p class="muted">Google Drive wird in V400 als nächster Schritt sauber neu eingebunden.</p></div></section>
-</main>
-<div id="modal" class="modal"><div class="modalBox"><h2 id="modalTitle">Tier bearbeiten</h2><input id="ae_name" placeholder="Name"><input id="ae_morph" placeholder="Morph"><input id="ae_weight" type="number" placeholder="Gewicht"><input id="ae_origin" placeholder="Herkunft"><input id="ae_birth" type="date" placeholder="Geburtsdatum"><input id="ae_buy" type="number" placeholder="Kaufpreis"><input id="ae_price" type="number" placeholder="Verkaufspreis"><select id="ae_sex"><option>Unbestimmt</option><option>Männlich</option><option>Weiblich</option></select><select id="ae_status"><option>Bestand</option><option>Nachzucht</option><option>Archiv</option></select><select id="ae_feeder"></select><textarea id="ae_note" placeholder="Notizen"></textarea><button onclick="NGT.saveEditor()">💾 Speichern</button><button class="danger" onclick="NGT.closeEditor()">❌ Abbrechen</button></div></div>
-<div id="logModal" class="modal"><div class="modalBox"><h2 id="logTitle">Verlauf</h2><div id="logAnimal" class="hidden"></div><div class="subcard"><h3>🍴 Fütterung</h3><input id="feedDate" type="date"><select id="feedPrey"></select><select id="feedStatus"><option value="gefressen">Gefressen</option><option value="verweigert">Verweigert</option></select><button onclick="NGT.addFeed()">Fütterung speichern</button></div><div class="subcard"><h3>🧤 Häutung</h3><input id="shedDate" type="date"><button onclick="NGT.addShed()">Häutung speichern</button></div><div class="subcard"><h3>⚖️ Gewicht</h3><input id="weightDate" type="date"><input id="weightValue" type="number" placeholder="Gewicht in g"><button onclick="NGT.addWeight()">Gewicht speichern</button></div><div id="logList"></div><button onclick="NGT.closeLog()">Schließen</button></div></div>
-<div id="qrModal" class="modal"><div class="modalBox"><h2 id="qrTitle">QR-Code</h2><div class="qrBox"><div id="qrCode"></div><div id="qrText"></div></div><button onclick="document.getElementById('qrModal').classList.remove('show')">Schließen</button></div></div>
-<script src="./v400-app.js?v=400.1"></script>
-<script src="./v400-phase1.js?v=400.1"></script>
+<body style="background:#0d1722;color:white;font-family:Arial,sans-serif;padding:24px">
+<h1>🐍 NG Terrarium</h1>
+<p>V500 wird geladen...</p>
+<p><a style="color:#69d2c4" href="./v500.html?v=500.4">V500 öffnen</a></p>
 </body>
 </html>
