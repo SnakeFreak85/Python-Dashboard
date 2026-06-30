@@ -6,68 +6,37 @@
 <title>NG Terrarium Abgabe PDF</title>
 <link rel="stylesheet" href="./v500/styles.css?v=500.2">
 <style>
-.printSheet{background:#fff;color:#111;border-radius:18px;padding:28px;margin:18px 0;font-family:Arial,sans-serif}.printHead{display:flex;justify-content:space-between;gap:18px;border-bottom:4px solid #172331;padding-bottom:14px;margin-bottom:18px}.brand{font-size:28px;font-weight:800}.tag{background:#172331;color:white;border-radius:999px;padding:8px 14px;display:inline-block}.pdfGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pdfBox{border:1px solid #d9e0e7;border-radius:14px;padding:14px;background:#f7f9fb}.pdfBox h3{margin:0 0 10px}.pdfTable{width:100%;border-collapse:collapse}.pdfTable th,.pdfTable td{border-bottom:1px solid #d9e0e7;text-align:left;padding:8px;font-size:13px}.sign{height:70px;border-bottom:1px solid #111;margin-top:32px}.pageBreak{page-break-before:always}.noPrint{display:block}@media print{body{background:#fff;color:#000}.appHeader,.noPrint{display:none!important}.wrap{max-width:none;padding:0}.printSheet{box-shadow:none;border-radius:0;margin:0;min-height:100vh}.card{box-shadow:none;border:0}.pageBreak{page-break-before:always}.pdfBox{break-inside:avoid}.photo{max-height:160px}}
+.printPage{background:#fff;color:#111;border-radius:18px;padding:28px;margin:18px 0;font-family:Arial,sans-serif;box-shadow:0 12px 28px rgba(0,0,0,.18)}.pdfTop{display:flex;justify-content:space-between;gap:18px;border-bottom:4px solid #172331;padding-bottom:14px;margin-bottom:18px}.brand{font-size:30px;font-weight:900}.sub{color:#445}.badge{background:#172331;color:#fff;border-radius:999px;padding:9px 14px;height:max-content}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.box{border:1px solid #d9e0e7;border-radius:14px;padding:14px;background:#f7f9fb;margin:14px 0}.box h3{margin:0 0 10px}.kv{display:flex;justify-content:space-between;border-bottom:1px solid #e2e7ec;padding:7px 0;gap:14px}.kv span{color:#566}.kv b{text-align:right}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #d9e0e7;text-align:left;padding:8px;font-size:13px}.empty{color:#667}.signs>div>div{height:70px;border-bottom:1px solid #111;margin-top:32px}.pageBreak{page-break-before:always}.noPrint{display:block}@media print{body{background:#fff;color:#000}.appHeader,.noPrint{display:none!important}.wrap{max-width:none;padding:0}.printPage{box-shadow:none;border-radius:0;margin:0;min-height:100vh}.pageBreak{page-break-before:always}.box{break-inside:avoid}}
 </style>
 </head>
 <body>
-<header class="appHeader"><h1>NG Terrarium</h1><div class="version">Abgabe & PDF</div></header>
+<header class="appHeader"><h1>NG Terrarium</h1><div class="version">Abgabe & PDF V2</div></header>
 <main class="wrap">
 <div class="card noPrint">
 <h2>Abgabe & PDF</h2>
-<p class="muted">Verkäuferdaten speichern, Käufer eintragen, Tier auswählen und anschließend als PDF drucken/speichern.</p>
+<p class="muted">Verkäuferdaten speichern, Käufer eintragen, Vorschau prüfen und als PDF speichern.</p>
+<div id="msg"></div>
 <h3>Verkäuferdaten</h3>
 <input id="sName" placeholder="Name Verkäufer">
 <input id="sStreet" placeholder="Straße / Hausnummer">
 <input id="sCity" placeholder="PLZ / Ort">
 <input id="sContact" placeholder="Telefon / E-Mail">
-<button onclick="saveSeller()">Verkäufer speichern</button>
+<button id="saveSeller">Verkäufer speichern</button>
 <h3>Käuferdaten</h3>
 <input id="bName" placeholder="Name Käufer">
 <input id="bStreet" placeholder="Straße / Hausnummer Käufer">
 <input id="bCity" placeholder="PLZ / Ort Käufer">
 <input id="bContact" placeholder="Telefon / E-Mail Käufer">
 <h3>Tier</h3>
-<select id="animalSel" onchange="renderDoc()"></select>
+<select id="animalSel"></select>
 <textarea id="remarks" placeholder="Sonstige Bemerkungen"></textarea>
-<div class="btnRow"><button onclick="renderDoc()">Vorschau erstellen</button><button onclick="window.print()">PDF / Drucken</button></div>
+<div class="btnRow"><button id="previewBtn">Vorschau erstellen</button><button id="printBtn">PDF / Drucken</button></div>
 <a class="btn" href="./v500.html">Zurück zur App</a>
 </div>
 <div id="doc"></div>
 </main>
 <script src="./v500/core.js?v=500.1"></script>
 <script src="./v500/store.js?v=500.1"></script>
-<script>
-const SELLER_KEY='ngt_seller_profile_v1';
-function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function seller(){try{return JSON.parse(localStorage.getItem(SELLER_KEY)||'{}')}catch(e){return {}}}
-function saveSeller(){const s={name:sName.value,street:sStreet.value,city:sCity.value,contact:sContact.value};localStorage.setItem(SELLER_KEY,JSON.stringify(s));alert('Verkäufer gespeichert')}
-function loadSeller(){const s=seller();sName.value=s.name||'';sStreet.value=s.street||'';sCity.value=s.city||'';sContact.value=s.contact||''}
-function animals(){return NGTStore.allAnimals().filter(x=>x.a.status!=='Archiv')}
-function urlPick(){const u=new URLSearchParams(location.search);return {t:u.get('t'),i:u.get('i')}}
-function fillAnimals(){const pick=urlPick();animalSel.innerHTML=animals().map(x=>'<option value="'+x.type+'|'+x.index+'">'+esc(x.a.name)+' · '+esc(x.type)+'</option>').join('');if(pick.t&&pick.i!==null){animalSel.value=pick.t+'|'+pick.i}}
-function val(id){return document.getElementById(id).value||''}
-function currentAnimal(){const p=animalSel.value.split('|');return NGTStore.animal(p[0],Number(p[1]))}
-function field(a,names){for(const n of names){if(a[n])return a[n]}return ''}
-function origin(a){return field(a,['originType','origin','herkunft','nachzucht'])||'ENZ/FNZ nicht hinterlegt'}
-function parents(a){const f=field(a,['father','vater','sire','dad']);const m=field(a,['mother','mutter','dam','mom']);return {f:f||'-',m:m||'-'}}
-function table(rows,cols){if(!rows||!rows.length)return '<p>Keine Daten.</p>';return '<table class="pdfTable"><thead><tr>'+cols.map(c=>'<th>'+esc(c[0])+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td>'+esc(c[1](r)||'')+'</td>').join('')+'</tr>').join('')+'</tbody></table>'}
-function renderDoc(){const a=currentAnimal();if(!a)return;const s=seller();const b={name:val('bName'),street:val('bStreet'),city:val('bCity'),contact:val('bContact')};const p=parents(a);const today=new Date().toLocaleDateString('de-DE');const feeds=(a.feeds||[]).slice().sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));const sheds=(a.sheds||[]).slice().sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));const weights=(a.weights||[]).slice().sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')));doc.innerHTML=`
-<section class="printSheet">
- <div class="printHead"><div><div class="brand">NG Terrarium</div><div>Moderner Abgabenachweis</div></div><div><span class="tag">${esc(today)}</span></div></div>
- <h1>Abgabenachweis</h1>
- <div class="pdfGrid"><div class="pdfBox"><h3>Verkäufer</h3>${esc(s.name)}<br>${esc(s.street)}<br>${esc(s.city)}<br>${esc(s.contact)}</div><div class="pdfBox"><h3>Käufer</h3>${esc(b.name)}<br>${esc(b.street)}<br>${esc(b.city)}<br>${esc(b.contact)}</div></div>
- <div class="pdfBox" style="margin-top:14px"><h3>Tierdaten</h3><div class="pdfGrid"><div>Name: <b>${esc(a.name)}</b><br>ID: ${esc(a.uuid||a.id||a.uid||'')}<br>Schlupf: ${esc(a.birth||a.hatchDate||'-')}<br>Geschlecht: ${esc(a.sex||'-')}</div><div>Morph: <b>${esc(a.morph||'-')}</b><br>Herkunft: ${esc(origin(a))}<br>Vater: ${esc(p.f)}<br>Mutter: ${esc(p.m)}</div></div></div>
- <div class="pdfBox" style="margin-top:14px"><h3>Erklärung</h3>Das oben genannte Tier wurde am ${esc(today)} an den Käufer übergeben. Die bekannten Tierdaten und bisherigen Pflegedaten sind nach bestem Wissen dokumentiert.</div>
- <div class="pdfGrid"><div><div class="sign"></div>Unterschrift Verkäufer</div><div><div class="sign"></div>Unterschrift Käufer</div></div>
-</section>
-<section class="printSheet pageBreak">
- <div class="printHead"><div><div class="brand">Tierakte</div><div>${esc(a.name)} · ${esc(a.morph||'')}</div></div><div><span class="tag">${esc(a.uuid||a.id||a.uid||'')}</span></div></div>
- <div class="pdfGrid"><div class="pdfBox"><h3>Stammdaten</h3>Name: ${esc(a.name)}<br>ID: ${esc(a.uuid||a.id||a.uid||'')}<br>Schlupf: ${esc(a.birth||a.hatchDate||'-')}<br>Morph: ${esc(a.morph||'-')}</div><div class="pdfBox"><h3>Bemerkungen</h3>${esc(val('remarks')||a.note||'-')}</div></div>
- <div class="pdfBox"><h3>Gewichtshistorie</h3>${table(weights,[['Datum',r=>r.date],['Gewicht',r=>(r.weight||'')+'g'],['Notiz',r=>r.note]])}</div>
- <div class="pdfBox"><h3>Fütterungshistorie</h3>${table(feeds,[['Datum',r=>r.date],['Futter',r=>(r.amount||'')+'g '+(r.prey||'')],['Status',r=>r.accepted===false?'verweigert':'gefressen']])}</div>
- <div class="pdfBox"><h3>Häutungshistorie</h3>${table(sheds,[['Datum',r=>r.date],['Status',r=>r.complete===false?'unvollständig':'vollständig'],['Notiz',r=>r.note]])}</div>
-</section>`}
-document.addEventListener('DOMContentLoaded',()=>{loadSeller();fillAnimals();renderDoc()});
-</script>
+<script src="./v500/pdf-v2.js?v=500.1"></script>
 </body>
 </html>
