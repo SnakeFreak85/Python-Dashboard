@@ -27,7 +27,7 @@
 <input id="bCity" placeholder="PLZ / Ort Käufer">
 <input id="bContact" placeholder="Telefon / E-Mail Käufer">
 <h3>Tier</h3>
-<select id="animalSel"></select>
+<select id="animalSel" onchange="renderDoc()"></select>
 <textarea id="remarks" placeholder="Sonstige Bemerkungen"></textarea>
 <div class="btnRow"><button onclick="renderDoc()">Vorschau erstellen</button><button onclick="window.print()">PDF / Drucken</button></div>
 <a class="btn" href="./v500.html">Zurück zur App</a>
@@ -43,7 +43,8 @@ function seller(){try{return JSON.parse(localStorage.getItem(SELLER_KEY)||'{}')}
 function saveSeller(){const s={name:sName.value,street:sStreet.value,city:sCity.value,contact:sContact.value};localStorage.setItem(SELLER_KEY,JSON.stringify(s));alert('Verkäufer gespeichert')}
 function loadSeller(){const s=seller();sName.value=s.name||'';sStreet.value=s.street||'';sCity.value=s.city||'';sContact.value=s.contact||''}
 function animals(){return NGTStore.allAnimals().filter(x=>x.a.status!=='Archiv')}
-function fillAnimals(){animalSel.innerHTML=animals().map(x=>'<option value="'+x.type+'|'+x.index+'">'+esc(x.a.name)+' · '+esc(x.type)+'</option>').join('')}
+function urlPick(){const u=new URLSearchParams(location.search);return {t:u.get('t'),i:u.get('i')}}
+function fillAnimals(){const pick=urlPick();animalSel.innerHTML=animals().map(x=>'<option value="'+x.type+'|'+x.index+'">'+esc(x.a.name)+' · '+esc(x.type)+'</option>').join('');if(pick.t&&pick.i!==null){animalSel.value=pick.t+'|'+pick.i}}
 function val(id){return document.getElementById(id).value||''}
 function currentAnimal(){const p=animalSel.value.split('|');return NGTStore.animal(p[0],Number(p[1]))}
 function field(a,names){for(const n of names){if(a[n])return a[n]}return ''}
@@ -54,10 +55,7 @@ function renderDoc(){const a=currentAnimal();if(!a)return;const s=seller();const
 <section class="printSheet">
  <div class="printHead"><div><div class="brand">NG Terrarium</div><div>Moderner Abgabenachweis</div></div><div><span class="tag">${esc(today)}</span></div></div>
  <h1>Abgabenachweis</h1>
- <div class="pdfGrid">
-  <div class="pdfBox"><h3>Verkäufer</h3>${esc(s.name)}<br>${esc(s.street)}<br>${esc(s.city)}<br>${esc(s.contact)}</div>
-  <div class="pdfBox"><h3>Käufer</h3>${esc(b.name)}<br>${esc(b.street)}<br>${esc(b.city)}<br>${esc(b.contact)}</div>
- </div>
+ <div class="pdfGrid"><div class="pdfBox"><h3>Verkäufer</h3>${esc(s.name)}<br>${esc(s.street)}<br>${esc(s.city)}<br>${esc(s.contact)}</div><div class="pdfBox"><h3>Käufer</h3>${esc(b.name)}<br>${esc(b.street)}<br>${esc(b.city)}<br>${esc(b.contact)}</div></div>
  <div class="pdfBox" style="margin-top:14px"><h3>Tierdaten</h3><div class="pdfGrid"><div>Name: <b>${esc(a.name)}</b><br>ID: ${esc(a.uuid||a.id||a.uid||'')}<br>Schlupf: ${esc(a.birth||a.hatchDate||'-')}<br>Geschlecht: ${esc(a.sex||'-')}</div><div>Morph: <b>${esc(a.morph||'-')}</b><br>Herkunft: ${esc(origin(a))}<br>Vater: ${esc(p.f)}<br>Mutter: ${esc(p.m)}</div></div></div>
  <div class="pdfBox" style="margin-top:14px"><h3>Erklärung</h3>Das oben genannte Tier wurde am ${esc(today)} an den Käufer übergeben. Die bekannten Tierdaten und bisherigen Pflegedaten sind nach bestem Wissen dokumentiert.</div>
  <div class="pdfGrid"><div><div class="sign"></div>Unterschrift Verkäufer</div><div><div class="sign"></div>Unterschrift Käufer</div></div>
