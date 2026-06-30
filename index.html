@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0d1722">
 <title>NG Terrarium V400</title>
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="./v400.css?v=400.1">
+<link rel="stylesheet" href="./v400.css?v=400.2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -25,8 +25,9 @@
 </nav>
 <main class="wrap">
 <section id="home" class="section active">
-<div class="card"><h2>📊 Bestandsübersicht</h2><div id="overview"></div></div>
 <div class="card"><h2>Willkommen</h2><input id="globalSearch" placeholder="🔎 Tier suchen..." oninput="NGT.search()"><div id="searchResults" class="card hidden"></div><p class="muted">Stabile V400-Basis für Bestand, Pflege, Futter, QR und KI-Assistent.</p></div>
+<div class="card"><h2>🤖 KI Assistent</h2><p class="muted">Schnelle Eingabe für Fütterungen, Häutungen, Gewichte und Futterbestand.</p><a class="btn" href="./ki-assistent.html?v=1.0.36">🤖 KI Assistent öffnen</a></div>
+<div class="card"><h2>📊 Bestandsübersicht</h2><div id="overview"></div></div>
 <div class="card"><h2>📷 QR-System</h2><input id="qrSearchId" placeholder="Tiername oder QR-ID eingeben"><button onclick="NGT.findQr()">🔍 Tier öffnen</button><div id="qrSearchResult"></div></div>
 <div class="card"><h2>🥩 Futterbestand</h2><div id="foodOverview"></div></div>
 <div class="card"><h2>🕘 Letzte Aktivitäten</h2><div id="recent"></div></div>
