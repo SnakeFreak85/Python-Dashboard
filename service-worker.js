@@ -1,4 +1,4 @@
-const CACHE_NAME = "python-dashboard-safe-2026-06-30-1";
+const CACHE_NAME = "terracontrol-v1";
 
 self.addEventListener("install", event => {
   self.skipWaiting();
