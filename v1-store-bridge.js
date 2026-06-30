@@ -37,7 +37,15 @@
   }
 
   function count(data){data=data||live();return TYPES.reduce((s,t)=>s+(Array.isArray(data[t])?data[t].length:0),0);}
-  function score(data){data=data||live();return count(data)*1000+(data.clutches||[]).length*100+(data.sales||[]).length*50+(data.archive||[]).length*25+(data.foodInventory||[]).filter(x=>Number(x.qty||0)>0).length;}
+  function historyCount(data){
+    data=data||live();
+    return TYPES.reduce((sum,t)=>sum+(Array.isArray(data[t])?data[t].reduce((n,a)=>n+(Array.isArray(a.feeds)?a.feeds.length:0)+(Array.isArray(a.weights)?a.weights.length:0)+(Array.isArray(a.sheds)?a.sheds.length:0),0):0),0);
+  }
+  function updatedMs(data){const d=Date.parse((data&&data.__updatedAt)||(data&&data.__assistantUpdatedAt)||'');return Number.isFinite(d)?d:0;}
+  function score(data){
+    data=data||live();
+    return count(data)*1000000+historyCount(data)*10000+(data.clutches||[]).length*1000+(data.sales||[]).length*500+(data.archive||[]).length*250+(data.foodInventory||[]).filter(x=>Number(x.qty||0)>0).length*25+Math.floor(updatedMs(data)/1000000000);
+  }
 
   function best(){
     const list=[live(),parse(localStorage.getItem(KEY)),parse(localStorage.getItem(BACKUP)),parse(localStorage.getItem(SNAPSHOT))].filter(Boolean).map(normalize);
@@ -80,7 +88,7 @@
     if(window.__ngtStoreSavePatched||typeof window.save!=='function')return;
     window.__ngtStoreSavePatched=true;
     const old=window.save;
-    window.save=function(){persist(live());const r=old.apply(this,arguments);persist(live());return r;};
+    window.save=function(){restore();const r=old.apply(this,arguments);persist(live());return r;};
   }
 
   function patchAddAnimal(){
@@ -90,7 +98,7 @@
     window.addAnimal=function(type){restore();const r=old.apply(this,arguments);const data=normalize(live());const arr=data[type]||[];if(arr.length)normalizeAnimal(arr[arr.length-1],type,arr.length-1);persist(data);if(typeof window.render==='function')window.render();return r;};
   }
 
-  function expose(){window.NGTStore={getDb:live,setDb:setLive,save:persist,restore,normalize,count,score,getAnimalById};}
+  function expose(){window.NGTStore={getDb:live,setDb:setLive,save:persist,restore,normalize,count,score,historyCount,getAnimalById};}
   function init(){restore();expose();patchSave();patchAddAnimal();}
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
 })();
