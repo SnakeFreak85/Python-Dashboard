@@ -18,16 +18,17 @@
 <body>
   <main class="card">
     <h1>🤖 KI Assistent</h1>
-    <p class="muted">Diese Seite nutzt jetzt denselben zentralen Datenkern wie die Haupt-App.</p>
-    <textarea id="cmd" autocomplete="off" spellcheck="true" placeholder="Füge bei Medusa folgende Fütterungen hinzu:
-19.06.2026 - 200 gramm Ratte
-21.06.2026 - 200 gramm Ratte
-30.06.2026 - 200 gramm Ratte"></textarea>
+    <p class="muted">Kurzbefehle: <b>Medusa 30.06.2026 gefressen</b> oder <b>Medusa 200 gramm Ratte</b> als Standard-Futter.</p>
+    <textarea id="cmd" autocomplete="off" spellcheck="true" placeholder="Medusa 200 gramm Ratte
+Caramel 150 gramm Ratte
+
+Medusa 30.06.2026 gefressen
+Caramel 30.06.2026 verweigert"></textarea>
     <button id="run" type="button">Befehl ausführen</button>
-    <a class="btn" href="./?source=assistant&v=1.0.28">Zurück zur App</a>
+    <a class="btn" href="./?source=assistant&v=1.0.29">Zurück zur App</a>
     <div id="out" class="result"></div>
   </main>
-<script src="./v1-data-manager.js?v=1.0.28"></script>
+<script src="./v1-data-manager.js?v=1.0.29"></script>
 <script>
 (function(){
 'use strict';
@@ -35,14 +36,13 @@ function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function parseDate(v){const m=String(v||'').match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2,4})/);if(!m)return '';return (m[3].length===2?'20'+m[3]:m[3])+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');}
 function pretty(d){const p=String(d||'').split('-');return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:d;}
-function animalName(text){const m=String(text).match(/(?:bei|für)\s+([\wäöüÄÖÜß\- ]+?)\s+(?:folgende|futter|fütter|haeut|häut|gewicht|gewichte|hinzu|eintragen|anlegen)/i);return m?m[1].trim():'';}
-function typeOf(text){const l=norm(text);if(l.includes('futterbestand')||l.includes('bestand an futter'))return 'food';if(l.includes('gewicht'))return 'weight';if(l.includes('haut')||l.includes('haeut'))return 'shed';if(l.includes('futter')||l.includes('ratte')||l.includes('maus'))return 'feed';return 'unknown';}
-function feed(line){const date=parseDate(line);if(!date)return null;const l=norm(line);let prey='Ratte';if(l.includes('maus'))prey='Maus';else if(l.includes('asf'))prey='ASF';else if(l.includes('kuken')||l.includes('kueken'))prey='Küken';else if(l.includes('heimchen'))prey='Heimchen';else if(l.includes('schabe'))prey='Schabe';const g=(line.match(/(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)/i)||[])[1]||'';const amount=g.replace(',','.');return {date:date,prey:prey,amount:amount,size:amount?amount+'g':'',qty:1,accepted:true,status:'Gefressen',result:'Gefressen',note:'KI Assistent'};}
-function weight(line){const date=parseDate(line);const g=(line.match(/(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)/i)||[])[1];return date&&g?{date:date,weight:Number(g.replace(',','.')),note:'KI Assistent'}:null;}
-function shed(line){const date=parseDate(line);if(!date)return null;const l=norm(line);let quality='ok';if(l.includes('problem'))quality='Problem';else if(l.includes('schlecht'))quality='schlecht';else if(l.includes('gut')||l.includes('komplett'))quality='gut';return {date:date,quality:quality,complete:quality!=='Problem'&&quality!=='schlecht',note:'KI Assistent'};}
-function food(line){const m=line.match(/(.+?)\s*(?:-|:)\s*(\d+)\s*$/);return m?{name:m[1].replace(/^bestand\s*/i,'').trim(),qty:Number(m[2])||0}:null;}
-function waitForData(fn){if(window.NGTData){fn();return;}setTimeout(()=>waitForData(fn),100);}
-function run(){waitForData(function(){const text=document.getElementById('cmd').value;const out=document.getElementById('out');const t=typeOf(text);const lines=text.split(/\n|;/).map(x=>x.trim()).filter(Boolean);let entries=[];let targetName=animalName(text);if(t==='feed'||t==='weight'||t==='shed'){const hit=window.NGTData.findAnimal(targetName);if(!hit){out.innerHTML='<div class="panel warn">❌ Tier nicht gefunden.</div>';return;}targetName=hit.animal.uuid||hit.animal.name||targetName;entries=lines.map(t==='feed'?feed:t==='weight'?weight:shed).filter(Boolean);entries.forEach(e=>{if(t==='feed')window.NGTData.addFeed(targetName,e);if(t==='weight')window.NGTData.addWeight(targetName,e);if(t==='shed')window.NGTData.addShed(targetName,e);});}else if(t==='food'){entries=lines.map(food).filter(Boolean);entries.forEach(e=>window.NGTData.setFood(e.name,e.qty));}else{out.innerHTML='<div class="panel warn">❌ Befehl nicht erkannt.</div>';return;}if(!entries.length){out.innerHTML='<div class="panel warn">❌ Keine Einträge erkannt.</div>';return;}out.innerHTML='<div class="panel ok">✅ '+entries.length+' Einträge über DataManager gespeichert.</div>'+entries.map(e=>'<div class="panel">'+esc(pretty(e.date||''))+' '+esc(e.prey||e.name||'')+' '+esc(e.size||e.weight||e.qty||'')+'</div>').join('');});}
+function resultFromText(line){const l=norm(line);if(l.includes('verweigert')||l.includes('nicht gefressen')||l.includes('abgelehnt'))return false;if(l.includes('gefressen')||l.includes('angenommen'))return true;return null;}
+function feederText(line){const m=String(line).match(/(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)\s*(ratte|maus|asf|küken|kueken|heimchen|schabe)/i);return m?(m[1].replace(',','.')+' gramm '+m[2]):'';}
+function lineAnimal(line){let cleaned=String(line).replace(/\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}/g,' ').replace(/\d+(?:[,.]\d+)?\s*(?:g|gramm|gr)\s*(ratte|maus|asf|küken|kueken|heimchen|schabe)/ig,' ').replace(/gefressen|verweigert|angenommen|abgelehnt|nicht gefressen/ig,' ').trim();return cleaned.split(/\s+/)[0]||cleaned;}
+function foodStock(line){const m=String(line).match(/bestand\s+(.+?)\s*(?:-|:|auf)?\s*(\d+)\s*$/i);return m?{name:m[1].trim(),qty:Number(m[2])||0}:null;}
+function wait(fn){if(window.NGTData){fn();return;}setTimeout(()=>wait(fn),100);}
+function executeLine(line){const date=parseDate(line);const animal=lineAnimal(line);const ftxt=feederText(line);const eaten=resultFromText(line);const stock=foodStock(line);if(stock){window.NGTData.setFood(stock.name,stock.qty);return {kind:'food',text:'Bestand '+stock.name+' = '+stock.qty};}if(!animal)return {error:'Kein Tier erkannt: '+line};const hit=window.NGTData.findAnimal(animal);if(!hit)return {error:'Tier nicht gefunden: '+animal};const id=hit.animal.uuid||hit.animal.name||animal;if(ftxt&&!date){window.NGTData.setDefaultFeeder(id,ftxt);return {kind:'default',text:(hit.animal.name||animal)+' Standard: '+ftxt};}if(date){let entry={date:date,accepted:eaten!==false,note:'KI Assistent'};if(ftxt){const p=window.NGTData.feederParts(ftxt);entry.prey=p.prey;entry.amount=p.amount;entry.size=p.size;}const saved=window.NGTData.addFeed(id,entry);const used=saved&&saved.animal&&saved.animal.feeds?saved.animal.feeds.find(f=>f.date===date&&f.note==='KI Assistent'):entry;const label=((used&&used.amount)?used.amount+'g ':'')+(used&&used.prey?used.prey:'');if(used&&used.accepted&&label.trim())window.NGTData.reduceFood(label.trim(),1);return {kind:'feed',text:(hit.animal.name||animal)+' '+pretty(date)+' '+(used&&used.accepted?'gefressen':'verweigert')+' '+label};}return {error:'Kein Datum oder Standard-Futter erkannt: '+line};}
+function run(){wait(function(){const out=document.getElementById('out');const lines=document.getElementById('cmd').value.split(/\n|;/).map(x=>x.trim()).filter(Boolean);const results=lines.map(executeLine);const errors=results.filter(r=>r.error);const ok=results.filter(r=>!r.error);out.innerHTML=(ok.length?'<div class="panel ok">✅ '+ok.length+' Befehl(e) gespeichert.</div>':'')+ok.map(r=>'<div class="panel">'+esc(r.text)+'</div>').join('')+errors.map(r=>'<div class="panel warn">❌ '+esc(r.error)+'</div>').join('');});}
 document.getElementById('run').addEventListener('click',run);
 })();
 </script>
