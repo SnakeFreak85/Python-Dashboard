@@ -1,54 +1,23 @@
 {
   "id": "/Python-Dashboard/",
-  "name": "NG Terrarium",
-  "short_name": "Terrarium",
-  "description": "Terraristik-Management-App für Bestand, Pflege, Nachzucht, Termine, Backup und Google Drive Sync.",
-  "version": "1.0.2",
-
+  "name": "TerraControl",
+  "short_name": "TerraControl",
+  "description": "Terraristik Dashboard für Bestand, Pflege, Dokumentation, Abgabe, Analyse und Backup.",
+  "version": "1.0.3",
   "start_url": "/Python-Dashboard/install.html",
   "scope": "/Python-Dashboard/",
-
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
-
   "background_color": "#101820",
   "theme_color": "#0d1722",
-
-  "categories": [
-    "productivity",
-    "utilities"
-  ],
-
+  "categories": ["productivity", "utilities"],
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
   ],
-
   "shortcuts": [
-    {
-      "name": "Bestand",
-      "short_name": "Bestand",
-      "description": "Tierbestand öffnen",
-      "url": "/Python-Dashboard/?page=bestand",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Backup",
-      "short_name": "Backup",
-      "description": "Backup-Center öffnen",
-      "url": "/Python-Dashboard/?page=backup",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
-    }
+    {"name": "Bestand", "short_name": "Bestand", "description": "Tierbestand öffnen", "url": "/Python-Dashboard/?page=bestand", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]},
+    {"name": "Backup", "short_name": "Backup", "description": "Backup-Center öffnen", "url": "/Python-Dashboard/?page=backup", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]}
   ]
 }
