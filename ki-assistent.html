@@ -10,7 +10,7 @@
     body{padding:16px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
     .card{max-width:760px;margin:0 auto;background:#172331;border:1px solid #304255;border-radius:18px;padding:16px;box-shadow:0 14px 34px rgba(0,0,0,.25)}
     h1{margin:0 0 8px}.muted{color:#aab7c4;line-height:1.45}
-    textarea{display:block;width:100%;min-height:260px;box-sizing:border-box;border-radius:14px;padding:14px;background:#0f1a25;color:#f5f7fb;border:1px solid #69d2c4;font-size:16px;line-height:1.45;resize:vertical}
+    textarea{display:block;width:100%;min-height:320px;box-sizing:border-box;border-radius:14px;padding:14px;background:#0f1a25;color:#f5f7fb;border:1px solid #69d2c4;font-size:16px;line-height:1.45;resize:vertical}
     button,a.btn{display:block;width:100%;box-sizing:border-box;text-align:center;margin-top:12px;min-height:48px;border:1px solid #304255;border-radius:12px;background:#0f1a25;color:#f5f7fb;font-size:16px;font-weight:700;text-decoration:none;line-height:48px}
     .result{margin-top:12px}.panel{background:#0f1a25;border:1px solid #304255;border-radius:12px;padding:10px;margin-top:8px}.ok{border-color:#69d2c4}.warn{border-color:#e06c75}
   </style>
@@ -18,14 +18,29 @@
 <body>
   <main class="card">
     <h1>🤖 KI Assistent</h1>
-    <p class="muted">Kurzbefehle: <b>Medusa 30.06.2026 gefressen</b> oder <b>Medusa 30.06.2026 verweigert</b>. In beiden Fällen wird der Futterbestand reduziert.</p>
-    <textarea id="cmd" autocomplete="off" spellcheck="true" placeholder="Medusa 200 gramm Ratte
-Caramel 150 gramm Ratte
+    <p class="muted">Versteht Kurzbefehle und Blöcke für Fütterungen, Häutungen, Gewichte und Futterbestand.</p>
+    <textarea id="cmd" autocomplete="off" spellcheck="true" placeholder="Medusa gehäutet
+Medusa 2450 gramm
 
-Medusa 30.06.2026 gefressen
-Caramel 30.06.2026 verweigert"></textarea>
+Medusa
+26.06.2026 200 gramm
+27.06.2026 200 gramm verweigert
+
+Häutungen
+Medusa
+25.06.2026
+26.06.2026
+
+Gewichte
+Medusa
+25.06.2026 2500 gramm
+27.06.2026 2800 gramm
+
+Erhöhe Futterbestand
+200 gramm 18
+150 gramm 21"></textarea>
     <button id="run" type="button">Befehl ausführen</button>
-    <a class="btn" href="./?source=assistant&v=1.0.31">Zurück zur App</a>
+    <a class="btn" href="./?source=assistant&v=1.0.32">Zurück zur App</a>
     <div id="out" class="result"></div>
   </main>
 <script src="./v1-data-manager.js?v=1.0.30"></script>
@@ -37,12 +52,19 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 function parseDate(v){const m=String(v||'').match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2,4})/);if(!m)return '';return (m[3].length===2?'20'+m[3]:m[3])+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');}
 function pretty(d){const p=String(d||'').split('-');return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:d;}
 function resultFromText(line){const l=norm(line);if(l.includes('verweigert')||l.includes('nicht gefressen')||l.includes('abgelehnt'))return false;if(l.includes('gefressen')||l.includes('angenommen'))return true;return null;}
-function feederText(line){const m=String(line).match(/(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)\s*(ratte|maus|asf|küken|kueken|heimchen|schabe)/i);return m?(m[1].replace(',','.')+' gramm '+m[2]):'';}
-function lineAnimal(line){let cleaned=String(line).replace(/\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}/g,' ').replace(/\d+(?:[,.]\d+)?\s*(?:g|gramm|gr)\s*(ratte|maus|asf|küken|kueken|heimchen|schabe)/ig,' ').replace(/gefressen|verweigert|angenommen|abgelehnt|nicht gefressen/ig,' ').trim();return cleaned.split(/\s+/)[0]||cleaned;}
-function foodStock(line){const m=String(line).match(/bestand\s+(.+?)\s*(?:-|:|auf)?\s*(\d+)\s*$/i);return m?{name:m[1].trim(),qty:Number(m[2])||0}:null;}
+function grams(line){const m=String(line||'').match(/(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)\b/i);return m?m[1].replace(',','.'):'';}
+function feederText(line){const m=String(line).match(/(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)\s*(ratte|maus|asf|küken|kueken|heimchen|schabe)?/i);if(!m)return '';return m[1].replace(',','.')+' gramm '+(m[2]||'Ratte');}
+function stockNameFromGrams(g){return String(g).replace(',','.')+'g Ratte';}
 function wait(fn){if(window.NGTData){fn();return;}setTimeout(()=>wait(fn),100);}
-function executeLine(line){const date=parseDate(line);const animal=lineAnimal(line);const ftxt=feederText(line);const eaten=resultFromText(line);const stock=foodStock(line);if(stock){window.NGTData.setFood(stock.name,stock.qty);return {kind:'food',text:'Bestand '+stock.name+' = '+stock.qty};}if(!animal)return {error:'Kein Tier erkannt: '+line};const hit=window.NGTData.findAnimal(animal);if(!hit)return {error:'Tier nicht gefunden: '+animal};const id=hit.animal.uuid||hit.animal.name||animal;if(ftxt&&!date){window.NGTData.setDefaultFeeder(id,ftxt);return {kind:'default',text:(hit.animal.name||animal)+' Standard: '+ftxt};}if(date){let entry={date:date,accepted:eaten!==false,note:'KI Assistent'};if(ftxt){const p=window.NGTData.feederParts(ftxt);entry.prey=p.prey;entry.amount=p.amount;entry.size=p.size;}const saved=window.NGTData.addFeed(id,entry);const used=saved&&saved.animal&&saved.animal.feeds?saved.animal.feeds.find(f=>f.date===date&&f.note==='KI Assistent'):entry;const label=((used&&used.amount)?used.amount+'g ':'')+(used&&used.prey?used.prey:'');if(label.trim())window.NGTData.reduceFood(label.trim(),1);return {kind:'feed',text:(hit.animal.name||animal)+' '+pretty(date)+' '+(used&&used.accepted?'gefressen':'verweigert')+' '+label+' · Bestand reduziert'};}return {error:'Kein Datum oder Standard-Futter erkannt: '+line};}
-function run(){wait(function(){const out=document.getElementById('out');const lines=document.getElementById('cmd').value.split(/\n|;/).map(x=>x.trim()).filter(Boolean);const results=lines.map(executeLine);const errors=results.filter(r=>r.error);const ok=results.filter(r=>!r.error);out.innerHTML=(ok.length?'<div class="panel ok">✅ '+ok.length+' Befehl(e) gespeichert.</div>':'')+ok.map(r=>'<div class="panel">'+esc(r.text)+'</div>').join('')+errors.map(r=>'<div class="panel warn">❌ '+esc(r.error)+'</div>').join('');});}
+function cleanAnimalFromLine(line){return String(line).replace(/\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4}/g,' ').replace(/\d+(?:[,.]\d+)?\s*(?:g|gramm|gr)\s*(ratte|maus|asf|küken|kueken|heimchen|schabe)?/ig,' ').replace(/gehäutet|gehaeutet|häutung|haeutung|gefressen|verweigert|angenommen|abgelehnt|nicht gefressen/ig,' ').trim().split(/\s+/)[0]||'';}
+function commandKind(line,currentKind){const l=norm(line);if(l==='haeutungen'||l==='hautungen'||l==='häutungen')return 'shed';if(l==='gewichte'||l==='gewicht')return 'weight';if(l.includes('futterbestand'))return 'stock';if(l.includes('futterungen')||l.includes('futterung')||l.includes('fütterungen')||l.includes('fütterung'))return 'feed';return currentKind;}
+function animalExists(name){return name&&window.NGTData.findAnimal(name);}
+function addFeed(animal,line){const date=parseDate(line)||new Date().toISOString().slice(0,10);const eaten=resultFromText(line);const ftxt=feederText(line);const entry={date:date,accepted:eaten!==false,note:'KI Assistent'};if(ftxt){const p=window.NGTData.feederParts(ftxt);entry.prey=p.prey;entry.amount=p.amount;entry.size=p.size;}const saved=window.NGTData.addFeed(animal,entry);const used=saved&&saved.animal&&saved.animal.feeds?saved.animal.feeds.find(f=>f.date===date&&f.note==='KI Assistent'):entry;const label=((used&&used.amount)?used.amount+'g ':'')+(used&&used.prey?used.prey:'');if(label.trim())window.NGTData.reduceFood(label.trim(),1);return (saved&&saved.animal&&saved.animal.name||animal)+' '+pretty(date)+' '+(used&&used.accepted?'gefressen':'verweigert')+' '+label+' · Bestand reduziert';}
+function addShed(animal,line){const date=parseDate(line)||new Date().toISOString().slice(0,10);const saved=window.NGTData.addShed(animal,{date:date,quality:'ok',complete:true,note:'KI Assistent'});return (saved&&saved.animal&&saved.animal.name||animal)+' Häutung '+pretty(date);}
+function addWeight(animal,line){const date=parseDate(line)||new Date().toISOString().slice(0,10);const g=grams(line);if(!g)return null;const saved=window.NGTData.addWeight(animal,{date:date,weight:Number(g),note:'KI Assistent'});return (saved&&saved.animal&&saved.animal.name||animal)+' Gewicht '+pretty(date)+' '+g+'g';}
+function setStock(line){const m=String(line).match(/(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)\s*(ratte|maus|asf|küken|kueken|heimchen|schabe)?\s+(\d+)\s*$/i);if(!m)return null;const name=m[1].replace(',','.')+'g '+(m[2]||'Ratte');const qty=Number(m[3])||0;window.NGTData.setFood(name,qty);return 'Bestand '+name+' = '+qty;}
+function executeLines(lines){let kind='feed';let animal='';const ok=[];const errors=[];for(const raw of lines){const line=raw.trim();if(!line)continue;const nk=commandKind(line,kind);if(nk!==kind||['shed','weight','stock','feed'].includes(nk)&&norm(line).match(/^(haeutungen|hautungen|häutungen|gewichte|gewicht|futterbestand|erhöhe futterbestand|erhoehe futterbestand)$/)){kind=nk;continue;}if(kind==='stock'||norm(line).includes('futterbestand')){const res=setStock(line);res?ok.push(res):errors.push('Futterbestand nicht erkannt: '+line);continue;}const possibleAnimal=cleanAnimalFromLine(line)||line;if(animalExists(possibleAnimal)&&!parseDate(line)&&!grams(line)&&!norm(line).includes('gehaeutet')&&!norm(line).includes('gehäutet')){animal=possibleAnimal;continue;}const inlineAnimal=animalExists(possibleAnimal)?possibleAnimal:animal;if(!inlineAnimal){errors.push('Kein Tier gewählt: '+line);continue;}const l=norm(line);if(l.includes('gehaeutet')||l.includes('gehäutet')||kind==='shed'&&parseDate(line)){const res=addShed(inlineAnimal,line);ok.push(res);continue;}if(kind==='weight'||(grams(line)&&!feederText(line)&&!l.includes('gefressen')&&!l.includes('verweigert'))){const res=addWeight(inlineAnimal,line);res?ok.push(res):errors.push('Gewicht nicht erkannt: '+line);continue;}if(parseDate(line)||l.includes('gefressen')||l.includes('verweigert')||feederText(line)){ok.push(addFeed(inlineAnimal,line));continue;}errors.push('Befehl nicht erkannt: '+line);}return {ok,errors};}
+function run(){wait(function(){const out=document.getElementById('out');const lines=document.getElementById('cmd').value.split(/\n|;/).map(x=>x.trim()).filter(Boolean);const r=executeLines(lines);out.innerHTML=(r.ok.length?'<div class="panel ok">✅ '+r.ok.length+' Eintrag/Einträge gespeichert.</div>':'')+r.ok.map(x=>'<div class="panel">'+esc(x)+'</div>').join('')+r.errors.map(x=>'<div class="panel warn">❌ '+esc(x)+'</div>').join('');});}
 document.getElementById('run').addEventListener('click',run);
 })();
 </script>
