@@ -43,5 +43,6 @@
 <div id="logModal" class="modal"><div class="modalBox"><h2 id="logTitle">Verlauf</h2><div id="logAnimal" class="hidden"></div><div class="subcard"><h3>🍴 Fütterung</h3><input id="feedDate" type="date"><select id="feedPrey"></select><select id="feedStatus"><option value="gefressen">Gefressen</option><option value="verweigert">Verweigert</option></select><button onclick="NGT.addFeed()">Fütterung speichern</button></div><div class="subcard"><h3>🧤 Häutung</h3><input id="shedDate" type="date"><button onclick="NGT.addShed()">Häutung speichern</button></div><div class="subcard"><h3>⚖️ Gewicht</h3><input id="weightDate" type="date"><input id="weightValue" type="number" placeholder="Gewicht in g"><button onclick="NGT.addWeight()">Gewicht speichern</button></div><div id="logList"></div><button onclick="NGT.closeLog()">Schließen</button></div></div>
 <div id="qrModal" class="modal"><div class="modalBox"><h2 id="qrTitle">QR-Code</h2><div class="qrBox"><div id="qrCode"></div><div id="qrText"></div></div><button onclick="document.getElementById('qrModal').classList.remove('show')">Schließen</button></div></div>
 <script src="./v400-app.js?v=400.1"></script>
+<script src="./v400-phase1.js?v=400.1"></script>
 </body>
 </html>
