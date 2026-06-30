@@ -26,9 +26,11 @@ function ensure(a){a.uuid=a.uuid||a.uid||uid();a.uid=a.uid||a.uuid;a.photos=Arra
 function overview(a){const p=(a.photos||[])[0],lf=(a.feeds||[]).slice(-1)[0],lw=(a.weights||[]).slice(-1)[0];return `<div class="subcard">${p?`<img class="profilePhoto" src="${p.data}">`:''}<br>Kaufwert: ${esc(a.buyPrice||0)} €<br>Letzte Fütterung: ${lf?esc(lf.date)+' '+(lf.accepted===false?'verweigert':'gefressen'):'-'}<br>Gewicht: ${lw?esc(lw.weight)+'g am '+esc(lw.date):'-'}<br>Fotos: ${(a.photos||[]).length}<br>Notizen:<br>${esc(a.note||'-')}</div>`}
 function photos(a){return `<div class="subcard"><input type="file" accept="image/*" onchange="NGTPhase1.addPhoto(this.files[0])"><input id="photoNote" placeholder="Notiz zum Foto"></div>`+(a.photos||[]).map((p,i)=>`<div class="subcard"><img class="profileThumb" src="${p.data}"><b>${esc(p.date||'')}</b><br>${esc(p.note||'')}<button class="danger" onclick="NGTPhase1.deletePhoto(${i})">Foto löschen</button></div>`).join('')}
 function analysis(a){const refused=(a.feeds||[]).filter(f=>f.accepted===false).length,accepted=(a.feeds||[]).filter(f=>f.accepted!==false).length,first=(a.weights||[])[0],last=(a.weights||[]).slice(-1)[0];let diff='-';if(first&&last&&first!==last)diff=(Number(last.weight)-Number(first.weight))+'g';return `<div class="subcard">Fütterungen angenommen: ${accepted}<br>Verweigert: ${refused}<br>Häutungen: ${(a.sheds||[]).length}<br>Gewichtsentwicklung: ${diff}<br>Fotos: ${(a.photos||[]).length}</div>`}
-function addPhoto(file){if(!file)return;const r=new FileReader();r.onload=()=>{const db=load();const a=(db[profileType]||[])[profileIndex];ensure(a);a.photos.push({id:uid(),date:new Date().toISOString().slice(0,10),note:($('photoNote')?.value||''),data:r.result});save(db);profileTab='photos';render();location.reload();};r.readAsDataURL(file)}
-function deletePhoto(i){if(!confirm('Foto löschen?'))return;const db=load();const a=(db[profileType]||[])[profileIndex];a.photos.splice(i,1);save(db);profileTab='photos';render();location.reload();}
-function patchCards(){const db=load();allAnimals(db).forEach(({t,i,a})=>{ensure(a);});save(db);}
-window.NGTPhase1={open,close,tab,addPhoto,deletePhoto,patchCards};
-document.addEventListener('DOMContentLoaded',()=>{inject();patchCards();});
+function addPhoto(file){if(!file)return;const r=new FileReader();r.onload=()=>{const db=load();const a=(db[profileType]||[])[profileIndex];ensure(a);a.photos.push({id:uid(),date:new Date().toISOString().slice(0,10),note:($('photoNote')?.value||''),data:r.result});save(db);profileTab='photos';render();};r.readAsDataURL(file)}
+function deletePhoto(i){if(!confirm('Foto löschen?'))return;const db=load();const a=(db[profileType]||[])[profileIndex];a.photos.splice(i,1);save(db);profileTab='photos';render();}
+function patchCards(){const db=load();allAnimals(db).forEach(({a})=>ensure(a));save(db);}
+function expose(){window.NGTPhase1={open,close,tab,addPhoto,deletePhoto,patchCards};window.NGT=window.NGT||{};window.NGT.profile=open;}
+document.addEventListener('DOMContentLoaded',()=>{inject();patchCards();expose();});
+setTimeout(expose,100);
+setTimeout(expose,500);
 })();
