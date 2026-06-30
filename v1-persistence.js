@@ -8,6 +8,7 @@ function patchSave(){if(window.__ngtPersistenceSavePatched||typeof window.save!=
 function patchAddAnimal(){if(window.__ngtAddAnimalPatched||typeof window.addAnimal!=='function')return;window.__ngtAddAnimalPatched=true;const old=window.addAnimal;window.addAnimal=function(type){getDb();const r=old.apply(this,arguments);saveDb(window.db||getDb(),'add-animal');if(window.NGTV2)window.NGTV2.emit('animal:created',{type:type});if(typeof window.render==='function')window.render();return r;};}
 function patchRender(){if(window.__ngtPersistenceRenderPatched||typeof window.render!=='function')return;window.__ngtPersistenceRenderPatched=true;const old=window.render;window.render=function(){getDb();return old.apply(this,arguments);};}
 function init(){
+ load('./v2-loader.js?v=2.0.4','data-ngt-v2-loader');
  load('./v2-core.js?v=2.0.1','data-ngt-v2-core');
  load('./v1-data-manager.js?v=1.0.30','data-ngt-data-manager');
  load('./v1-store-bridge.js?v=1.0.26','data-ngt-store-bridge');
