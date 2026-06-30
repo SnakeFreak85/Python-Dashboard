@@ -1,23 +1,24 @@
 {
-  "id": "/Python-Dashboard/",
+  "id": "/Python-Dashboard/terracontrol",
   "name": "TerraControl",
   "short_name": "TerraControl",
   "description": "Terraristik Dashboard für Bestand, Pflege, Dokumentation, Abgabe, Analyse und Backup.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "start_url": "/Python-Dashboard/install.html",
   "scope": "/Python-Dashboard/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
-  "background_color": "#101820",
-  "theme_color": "#0d1722",
+  "background_color": "#07111b",
+  "theme_color": "#07111b",
   "categories": ["productivity", "utilities"],
   "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"},
     {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
     {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
   ],
   "shortcuts": [
-    {"name": "Bestand", "short_name": "Bestand", "description": "Tierbestand öffnen", "url": "/Python-Dashboard/?page=bestand", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]},
-    {"name": "Backup", "short_name": "Backup", "description": "Backup-Center öffnen", "url": "/Python-Dashboard/?page=backup", "icons": [{"src": "icon-192.png", "sizes": "192x192"}]}
+    {"name": "Bestand", "short_name": "Bestand", "description": "Tierbestand öffnen", "url": "/Python-Dashboard/?page=bestand", "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]},
+    {"name": "Backup", "short_name": "Backup", "description": "Backup-Center öffnen", "url": "/Python-Dashboard/?page=backup", "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml"}]}
   ]
 }
