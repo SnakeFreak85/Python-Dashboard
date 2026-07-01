@@ -1,0 +1,42 @@
+Datenschutzerklärung Entwurf für TerraControl
+
+Stand: vor Veröffentlichung final prüfen.
+
+1. Verantwortlicher
+Die verantwortliche Person wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.
+
+2. Zweck der App
+TerraControl dient der Verwaltung von Terrarientieren, Pflegeereignissen, Dokumenten, QR-Tierpässen, Abgabenachweisen, Backups und Cloud-Sicherungen.
+
+3. Lokal gespeicherte Daten
+Die App speichert Daten lokal auf dem Gerät oder im App-Speicher. Dazu können gehören:
+- Tierdaten
+- Fütterungen
+- Häutungen
+- Gewichtsdaten
+- Fotos
+- Verkäuferdaten
+- Käuferdaten für Dokumente
+- Einstellungen
+- Backup-Daten
+
+4. Google Login und Google Drive
+Wenn der Nutzer Google Login oder Cloud-Backup aktiviert, werden ausgewählte Daten im Google Drive des angemeldeten Nutzers gespeichert. Dazu gehören TerraControl Backups und optional Foto-Dateien.
+
+5. Kamera
+Die Kamera wird nur verwendet, wenn der Nutzer den QR-Scanner öffnet. Die Kamera dient ausschließlich dem Scannen von QR-Codes.
+
+6. Internet
+Internet wird für Google Login, Google Drive Backup und Cloud-Synchronisierung benötigt.
+
+7. Weitergabe an Dritte
+TerraControl verkauft keine Nutzerdaten. Daten werden nur an Dienste übertragen, die der Nutzer aktiv verwendet, zum Beispiel Google Drive.
+
+8. Löschung
+Nutzer können lokale Daten in der App löschen oder App-Daten über das Betriebssystem entfernen. Google Drive Backups können im eigenen Google Drive gelöscht werden.
+
+9. Medizinischer Hinweis
+TerraControl ersetzt keine tierärztliche Beratung.
+
+10. Kontakt
+Kontaktangaben werden vor Veröffentlichung ergänzt.
