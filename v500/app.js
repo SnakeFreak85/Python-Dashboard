@@ -21,9 +21,16 @@ function loadReleaseTest(){
  s.onload=function(){NGT500.route('releaseTest')};
  document.head.appendChild(s);
 }
+function loadAccount(){
+ if(NGT500.modules.account){NGT500.route('account');return;}
+ const s=document.createElement('script');
+ s.src='./v500/modules/account.js?v=1.0';
+ s.onload=function(){NGT500.route('account')};
+ document.head.appendChild(s);
+}
 function nav(){
  const d=document.getElementById('drawer');
- d.innerHTML='<button onclick="NGT500.route(\'dashboard\')">Startseite</button><button onclick="NGT500.route(\'chat\')">TerraControl KI</button><button onclick="NGT500.route(\'assistant\')">Schnelleingabe</button><button onclick="NGT500.route(\'animals\',{t:\'koenig\'})">Königspythons</button><button onclick="NGT500.route(\'animals\',{t:\'boas\'})">Boas</button><button onclick="NGT500.route(\'animals\',{t:\'geckos\'})">Leopardgeckos</button><button onclick="NGT500.route(\'animals\',{t:\'spinnen\'})">Vogelspinnen</button><button onclick="NGT500.route(\'food\')">Futterbestand</button><button onclick="NGT500.route(\'qr\')">QR/Tierpass</button><button onclick="NGTApp.loadAnalytics()">Analyse</button><button onclick="NGT500.route(\'backup\')">Backup</button><button onclick="NGTApp.loadSettings()">Einstellungen</button><button onclick="NGTApp.loadReleaseTest()">Release-Test</button>';
+ d.innerHTML='<button onclick="NGT500.route(\'dashboard\')">Startseite</button><button onclick="NGT500.route(\'chat\')">TerraControl KI</button><button onclick="NGT500.route(\'assistant\')">Schnelleingabe</button><button onclick="NGT500.route(\'animals\',{t:\'koenig\'})">Königspythons</button><button onclick="NGT500.route(\'animals\',{t:\'boas\'})">Boas</button><button onclick="NGT500.route(\'animals\',{t:\'geckos\'})">Leopardgeckos</button><button onclick="NGT500.route(\'animals\',{t:\'spinnen\'})">Vogelspinnen</button><button onclick="NGT500.route(\'food\')">Futterbestand</button><button onclick="NGT500.route(\'qr\')">QR/Tierpass</button><button onclick="NGTApp.loadAnalytics()">Analyse</button><button onclick="NGT500.route(\'backup\')">Backup</button><button onclick="NGTApp.loadSettings()">Einstellungen</button><button onclick="NGTApp.loadAccount()">Konto</button><button onclick="NGTApp.loadReleaseTest()">Release-Test</button>';
 }
 function init(){
  document.getElementById('menuBtn').onclick=NGT500.openMenu;
@@ -31,6 +38,6 @@ function init(){
  nav();
  NGT500.route('dashboard');
 }
-window.NGTApp={loadAnalytics,loadSettings,loadReleaseTest};
+window.NGTApp={loadAnalytics,loadSettings,loadReleaseTest,loadAccount};
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
 })();
