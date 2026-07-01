@@ -1,0 +1,31 @@
+TerraControl Play Store Listing
+
+App-Name: TerraControl
+
+Kurzbeschreibung:
+Terraristik-Verwaltung mit Tierbestand, Pflege, QR-Tierpass, PDF-Nachweis und Cloud-Backup.
+
+Lange Beschreibung:
+TerraControl ist ein Terraristik Dashboard zur Verwaltung von Terrarientieren.
+
+Die App hilft dabei, Tierbestand, Fütterungen, Häutungen, Gewichte, Futterbestand, Dokumente und Cloud-Sicherungen übersichtlich zu verwalten.
+
+Funktionen:
+- Tierbestand verwalten
+- Fütterungen dokumentieren
+- Häutungen erfassen
+- Gewichte verfolgen
+- Futterbestand nutzen
+- Smart Dashboard mit Warnungen
+- QR-Tierpass erstellen und scannen
+- Abgabenachweis als PDF erzeugen
+- Tierfotos verwalten
+- Google Login nutzen
+- Cloud-Backup über Google Drive erstellen
+- lokale Backups exportieren und importieren
+
+TerraControl richtet sich an Halter und Züchter, die ihre Tiere strukturiert dokumentieren möchten.
+
+Hinweis: TerraControl ersetzt keine tierärztliche Beratung.
+
+Kategorie: Tools, Produktivität oder Lifestyle
