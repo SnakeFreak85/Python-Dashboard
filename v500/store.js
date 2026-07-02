@@ -1,6 +1,7 @@
 (function(){
 'use strict';
 const KEY='spd_v53';
+const LEGACY_RESTORE_KEY='ngt_v500_data';
 const TYPES=['koenig','boas','geckos','spinnen'];
 const LABELS={koenig:'🐍 Königspythons',boas:'🐍 Boas',geckos:'🦎 Leopardgeckos',spinnen:'🕷 Vogelspinnen'};
 const PREY=['Ratte 10g','Ratte 20g','Ratte 30g','Ratte 50g','Ratte 70g','Ratte 90g','Ratte 120g','Ratte 150g','Ratte 200g','Ratte 250g','Maus 10g','Maus 20g','Maus 30g','Maus 50g','ASF 20g','ASF 30g','ASF 50g','Küken','Heimchen klein','Heimchen mittel','Heimchen groß','Schabe klein','Schabe mittel','Schabe groß'];
@@ -10,7 +11,7 @@ function foodKey(s){const p=parseFeeder(s);if(!p.prey)return String(s||'').toLow
 function foodLabel(s){const p=parseFeeder(s);return p.amount?`${p.amount}g ${p.prey}`:(p.prey||String(s||''))}
 function normalizeFoodItem(f){f=f||{};f.name=f.name||f.label||'';f.key=foodKey(f.name);f.id=f.id||('food_'+f.key);f.label=foodLabel(f.name);f.qty=Number(f.qty||0);return f}
 function normalize(d){d=d||base();TYPES.forEach(t=>{if(!Array.isArray(d[t]))d[t]=[];d[t].forEach((a,i)=>{a.uuid=a.uuid||a.uid||NGT500.uid();a.uid=a.uid||a.uuid;a.type=a.type||t;a.name=a.name||a.displayId||`${t}-${i+1}`;a.status=a.status||'Bestand';a.feeds=Array.isArray(a.feeds)?a.feeds:[];a.sheds=Array.isArray(a.sheds)?a.sheds:[];a.weights=Array.isArray(a.weights)?a.weights:[];a.photos=Array.isArray(a.photos)?a.photos:[];a.feeds.sort(byDate);a.sheds.sort(byDate);a.weights.sort(byDate);a.defaultFeeder=a.defaultFeeder||a.futterStandard||a.standardFeed||'';a.defaultFeederKey=foodKey(a.defaultFeeder);});});['clutches','sales','archive','foodInventory'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});d.foodInventory=d.foodInventory.map(normalizeFoodItem);return d}
-function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||'null')||base())}catch(e){return base()}}
+function load(){try{const restored=localStorage.getItem(LEGACY_RESTORE_KEY);if(restored){const migrated=normalize(JSON.parse(restored));localStorage.setItem(KEY,JSON.stringify(migrated));localStorage.removeItem(LEGACY_RESTORE_KEY);return migrated}return normalize(JSON.parse(localStorage.getItem(KEY)||'null')||base())}catch(e){return base()}}
 let db=load();
 function save(){normalize(db);localStorage.setItem(KEY,JSON.stringify(db));NGT500.emit('store:changed',db)}
 function data(){return db}
