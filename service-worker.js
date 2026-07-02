@@ -1,4 +1,4 @@
-const TC_CACHE='terracontrol-v1-0-0-rc1';
+const TC_CACHE='terracontrol-v1-0-1-rc2';
 const APP_SHELL=[
   './',
   './v500.html',
