@@ -48,6 +48,79 @@ function updateCloudStatus(){
  }
 }
 
+function isSignedIn(){
+ try{
+  const p=JSON.parse(localStorage.getItem('tc_user_profile')||'{}')||{};
+  return !!p.email;
+ }catch(e){
+  return false;
+ }
+}
+
+function cloudActions(){
+ const signed=isSignedIn();
+ return `<div class="subcard">
+  <h3>☁️ Cloud-Synchronisierung</h3>
+  <p><b>Status:</b><br><span id="dashboardCloudStatusInline">${NGT500.esc(cloudLabel())}</span></p>
+  <div class="btnRow">
+   ${signed?'':`<button onclick="NGTDashboard.googleSignIn()">Mit Google anmelden</button>`}
+   <button onclick="NGTDashboard.firestoreSave()">Jetzt synchronisieren</button>
+   <button onclick="NGTDashboard.firestoreLoad()">Aus Cloud laden</button>
+  </div>
+ </div>`;
+}
+
+function updateCloudStatusInline(){
+ const el=document.getElementById('dashboardCloudStatusInline');
+ if(el){
+  el.textContent=cloudLabel();
+ }
+}
+
+async function googleSignIn(){
+ if(!window.NGTFirebaseSync){
+  alert('Firebase-Sync lädt noch. Bitte kurz warten.');
+  return;
+ }
+ try{
+  await NGTFirebaseSync.signIn();
+ }catch(e){
+  alert('Firebase-Anmeldung fehlgeschlagen: '+(e.message||e));
+ }
+}
+
+async function firestoreSave(){
+ if(!window.NGTFirebaseSync){
+  alert('Firebase-Sync lädt noch.');
+  return;
+ }
+ try{
+  await NGTFirebaseSync.saveCloud();
+  alert('Firestore synchronisiert.');
+  updateCloudStatus();
+  updateCloudStatusInline();
+ }catch(e){
+  alert('Firestore speichern fehlgeschlagen: '+(e.message||e));
+ }
+}
+
+async function firestoreLoad(){
+ if(!window.NGTFirebaseSync){
+  alert('Firebase-Sync lädt noch.');
+  return;
+ }
+ if(!confirm('Daten aus der Cloud laden? Lokale Daten können überschrieben werden.')){
+  return;
+ }
+ try{
+  await NGTFirebaseSync.loadCloud();
+  alert('Cloud-Daten geladen. App wird neu gestartet.');
+  location.reload();
+ }catch(e){
+  alert('Cloud laden fehlgeschlagen: '+(e.message||e));
+ }
+}
+
 function foodStatus(){
  try{
   const d=NGTStore.data();
@@ -119,6 +192,8 @@ function render(){
    <div class="stat">🍽️ Futter<b>${NGT500.esc(foodStatus())}</b></div>
   </div>
 
+  ${cloudActions()}
+
   <input placeholder="Tier suchen nach Name, ID, Morph, Geschlecht, Eltern oder Futter..." oninput="NGTDashboard.search(this.value)">
   <div id="searchBox"></div>
  </div>
@@ -138,12 +213,16 @@ function render(){
 
 function afterRender(){
  updateCloudStatus();
+ updateCloudStatusInline();
 
  if(statusTimer){
   clearInterval(statusTimer);
  }
 
- statusTimer=setInterval(updateCloudStatus,1500);
+ statusTimer=setInterval(function(){
+  updateCloudStatus();
+  updateCloudStatusInline();
+ },1500);
 }
 
 function textFor(x){
@@ -198,7 +277,10 @@ function search(q){
 
 window.NGTDashboard={
  search,
- updateCloudStatus
+ updateCloudStatus,
+ googleSignIn,
+ firestoreSave,
+ firestoreLoad
 };
 
 NGT500.register('dashboard',{
