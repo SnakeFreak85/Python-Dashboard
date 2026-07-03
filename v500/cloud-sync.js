@@ -8,175 +8,279 @@ let timer=null;
 let running=false;
 
 function load(k){
-  try{return JSON.parse(localStorage.getItem(k)||'{}')||{}}
-  catch(e){return {}}
+    try{
+        return JSON.parse(localStorage.getItem(k)||'{}')||{};
+    }catch(e){
+        return {};
+    }
 }
 
-function save(k,o){
-  localStorage.setItem(k,JSON.stringify(o||{}));
+function save(k,v){
+    localStorage.setItem(k,JSON.stringify(v));
 }
 
 function cfg(){
-  return Object.assign({
-    enabled:true,
-    delayMs:15000,
-    minIntervalMs:60000,
-    checkOnStart:true,
-    syncOnClose:true
-  }, load(CFG));
+    return Object.assign({
+        enabled:true,
+        delayMs:12000,
+        minIntervalMs:20000,
+        checkOnStart:true
+    },load(CFG));
 }
 
-function setConfig(o){
-  save(CFG,Object.assign(cfg(),o||{}));
-  return cfg();
+function setConfig(v){
+    save(CFG,Object.assign(cfg(),v||{}));
+    return cfg();
 }
 
 function state(){
-  return load(STATE);
+    return load(STATE);
 }
 
-function hash(){
-  try{
-    const d=NGTStore.data?NGTStore.data():{};
-    const txt=JSON.stringify(d);
-    return String(txt.length)+'-'+btoa(unescape(encodeURIComponent(txt.slice(0,2000)))).slice(0,32);
-  }catch(e){
-    return String(Date.now());
-  }
+function hasCloud(){
+    return !!(window.NGTCloudBackup && NGTCloudBackup.uploadToDrive);
 }
 
 function markDirty(reason){
-  const s=state();
-  s.dirty=true;
-  s.reason=reason||'Änderung';
-  s.lastChangeAt=new Date().toISOString();
-  s.hash=hash();
-  s.enabled=true;
-  save(STATE,s);
+
+    const s=state();
+
+    s.dirty=true;
+    s.reason=reason||'Änderung';
+    s.lastChangeAt=new Date().toISOString();
+    s.status='pending';
+
+    save(STATE,s);
+
+    schedule();
 }
 
-function canRun(force){
-  const c=cfg();
-  const s=state();
+function schedule(){
 
-  if(!c.enabled && !force)return false;
-  if(running)return false;
-  if(!window.NGTCloudBackup || !NGTCloudBackup.uploadToDrive)return false;
+    if(timer){
+        clearTimeout(timer);
+    }
 
-  if(!force && s.lastSyncAt && Date.now()-new Date(s.lastSyncAt).getTime()<c.minIntervalMs && !s.dirty){
-    return false;
-  }
+    timer=setTimeout(function(){
 
-  return true;
+        syncNow(false);
+
+    },cfg().delayMs);
+
 }
 
 function syncNow(force){
-  force=!!force;
 
-  if(!canRun(force))return Promise.resolve(false);
+    force=!!force;
 
-  const s=state();
-
-  if(!force && !s.dirty && s.lastSyncAt){
-    return Promise.resolve(false);
-  }
-
-  running=true;
-  s.status='syncing';
-  s.startedAt=new Date().toISOString();
-  save(STATE,s);
-
-  return NGTCloudBackup.uploadToDrive()
-    .then(meta=>{
-      const n=state();
-      n.dirty=false;
-      n.status='ok';
-      n.lastSyncAt=new Date().toISOString();
-      n.lastDriveFileId=meta.driveFileId||'';
-      n.lastBackupName=meta.lastBackupName||'';
-      n.error='';
-      save(STATE,n);
-      return true;
-    })
-    .catch(e=>{
-      const n=state();
-      n.status='error';
-      n.error=e.message||String(e);
-      n.lastErrorAt=new Date().toISOString();
-      save(STATE,n);
-      throw e;
-    })
-    .finally(()=>{
-      running=false;
-    });
-}
-
-function syncBeforeClose(){
-  const s=state();
-
-  if(!cfg().syncOnClose)return;
-  if(!s.dirty)return;
-
-  if(window.NGTCloudBackup && NGTCloudBackup.uploadToDrive){
-    syncNow(true).catch(()=>{});
-  }
-}
-
-function start(){
-  setConfig({enabled:true});
-
-  if(window.NGT500 && NGT500.on){
-    NGT500.on('store:changed',function(){
-      markDirty('Lokale Daten geändert');
-    });
-  }
-
-  window.addEventListener('pagehide',syncBeforeClose);
-
-  document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='hidden'){
-      syncBeforeClose();
+    if(running){
+        return Promise.resolve(false);
     }
-  });
 
-  if(cfg().checkOnStart){
-    markDirty('Startprüfung');
-  }
+    if(!hasCloud()){
+
+        const s=state();
+        s.status="waiting-cloud";
+        save(STATE,s);
+
+        return Promise.resolve(false);
+
+    }
+
+    const s=state();
+
+    if(!force){
+
+        if(!s.dirty){
+            return Promise.resolve(false);
+        }
+
+        if(s.lastSyncAt){
+
+            const diff=Date.now()-new Date(s.lastSyncAt).getTime();
+
+            if(diff<cfg().minIntervalMs){
+
+                schedule();
+                return Promise.resolve(false);
+
+            }
+
+        }
+
+    }
+
+    running=true;
+
+    s.status="syncing";
+    save(STATE,s);
+
+    return NGTCloudBackup.uploadToDrive()
+
+        .then(function(meta){
+
+            const n=state();
+
+            n.dirty=false;
+            n.status="ok";
+            n.error="";
+            n.lastSyncAt=new Date().toISOString();
+
+            if(meta){
+
+                n.lastDriveFileId=meta.driveFileId||"";
+                n.lastBackupName=meta.lastBackupName||"";
+
+            }
+
+            save(STATE,n);
+
+            return true;
+
+        })
+
+        .catch(function(err){
+
+            const n=state();
+
+            n.status="error";
+            n.error=err.message||String(err);
+
+            save(STATE,n);
+
+            return false;
+
+        })
+
+        .finally(function(){
+
+            running=false;
+
+        });
+
 }
 
 function enable(v){
-  setConfig({enabled:v!==false});
-  const s=state();
-  s.enabled=v!==false;
-  save(STATE,s);
-  if(v!==false)markDirty('Auto-Sync aktiviert');
+
+    setConfig({
+        enabled:v!==false
+    });
+
+    if(v!==false){
+
+        markDirty("AutoSync aktiviert");
+
+    }
+
 }
 
 function label(){
-  const s=state();
 
-  if(!cfg().enabled)return 'Auto-Sync aus';
-  if(s.status==='syncing')return 'Synchronisierung läuft...';
-  if(s.status==='error')return 'Sync-Fehler: '+(s.error||'unbekannt');
-  if(s.dirty)return 'Auto-Sync aktiv – Änderungen werden beim Schließen gesichert';
-  if(s.lastSyncAt)return 'Letzte Auto-Sicherung: '+new Date(s.lastSyncAt).toLocaleString('de-DE');
+    const s=state();
 
-  return 'Auto-Sync aktiv';
+    if(!cfg().enabled){
+
+        return "AutoSync aus";
+
+    }
+
+    if(s.status==="waiting-cloud"){
+
+        return "Cloud wird vorbereitet...";
+
+    }
+
+    if(s.status==="pending"){
+
+        return "Änderungen werden automatisch gespeichert...";
+
+    }
+
+    if(s.status==="syncing"){
+
+        return "Synchronisierung läuft...";
+
+    }
+
+    if(s.status==="error"){
+
+        return "Synchronisierung fehlgeschlagen";
+
+    }
+
+    if(s.lastSyncAt){
+
+        return "Letzte Sicherung: "+new Date(s.lastSyncAt).toLocaleString("de-DE");
+
+    }
+
+    return "AutoSync aktiv";
+
+}
+
+function start(){
+
+    setConfig({
+        enabled:true
+    });
+
+    if(window.NGT500 && NGT500.on){
+
+        NGT500.on("store:changed",function(){
+
+            markDirty("Daten geändert");
+
+        });
+
+    }
+
+    window.addEventListener("online",function(){
+
+        if(state().dirty){
+
+            schedule();
+
+        }
+
+    });
+
+    document.addEventListener("visibilitychange",function(){
+
+        if(document.visibilityState==="visible"){
+
+            if(state().dirty){
+
+                schedule();
+
+            }
+
+        }
+
+    });
+
 }
 
 window.NGTCloudSync={
-  cfg,
-  setConfig,
-  state,
-  markDirty,
-  syncNow,
-  start,
-  enable,
-  label
+
+    cfg,
+    setConfig,
+    state,
+    enable,
+    markDirty,
+    syncNow,
+    label,
+    start
+
 };
 
-document.readyState==='loading'
-  ? document.addEventListener('DOMContentLoaded',start)
-  : start();
+if(document.readyState==="loading"){
+
+    document.addEventListener("DOMContentLoaded",start);
+
+}else{
+
+    start();
+
+}
 
 })();
