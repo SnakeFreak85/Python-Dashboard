@@ -1,45 +1,363 @@
-(function(){
-'use strict';
-const KEY='tc_user_profile';
-const GOOGLE_KEY='ngt_google_user';
-const CLIENT_KEY='terracontrol_google_client_id';
-const DRIVE_TOKEN_KEY='terracontrol_drive_token_v1';
-const DEFAULT_CLIENT='923995580181-vbtua7122vsh385e1bdp7vfuqd49m3q3.apps.googleusercontent.com';
-function esc(v){return NGT500.esc(v||'')}
-function get(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){return {}}}
-function first(v){return String(v||'').split(' ')[0]||''}
-function clientId(){return DEFAULT_CLIENT}
-function cleanAuthConfig(){localStorage.removeItem(CLIENT_KEY)}
-function clearDriveToken(){localStorage.removeItem(DRIVE_TOKEN_KEY)}
-function cloudStatus(){if(!window.NGTCloudBackup)return {};return NGTCloudBackup.status()||{}}
-function syncText(){return window.NGTCloudSync?NGTCloudSync.label():'Auto-Sync lädt...'}
-function syncIsOn(){return window.NGTCloudSync&&NGTCloudSync.cfg().enabled}
-function animalCount(){try{return NGTStore.allAnimals?NGTStore.allAnimals().length:0}catch(e){return 0}}
-function loadCloud(cb){if(window.NGTCloudBackup){cb();return;}const c=document.createElement('script');c.src='./v500/cloud-backup.js?v=1.0.4-restorefix';c.onload=cb;c.onerror=function(){alert('Cloud-Modul konnte nicht geladen werden.')};document.head.appendChild(c)}
-function autoRestoreLatest(){if(animalCount()>0)return;if(localStorage.getItem('terracontrol_rc3_restore_checked'))return;loadCloud(function(){NGTCloudBackup.listDriveBackups(1).then(function(files){if(!files||!files.length){localStorage.setItem('terracontrol_rc3_restore_checked',new Date().toISOString());return;}return NGTCloudBackup.downloadDriveFile(files[0].id).then(function(obj){NGTCloudBackup.restoreFromObject(obj);localStorage.setItem('terracontrol_rc3_restore_checked',new Date().toISOString());alert('Cloud-Backup wiederhergestellt. TerraControl wird neu geladen.');location.reload()})}).catch(function(e){console.warn('Auto-Restore fehlgeschlagen',e);NGT500.toast&&NGT500.toast('Automatische Wiederherstellung benötigt Drive-Freigabe. Bitte Button nutzen.','warn')})})}
-function restoreLatestDrive(){if(!confirm('Neuestes TerraControl-Backup aus Google Drive wiederherstellen?'))return;loadCloud(function(){const box=document.getElementById('driveBackups');if(box)box.innerHTML='<div class="subcard">Google Drive wird geprüft...</div>';NGTCloudBackup.listDriveBackups(1).then(function(files){if(!files||!files.length)throw new Error('Kein TerraControl-Backup in Google Drive gefunden.');if(box)box.innerHTML='<div class="subcard">Backup wird geladen...</div>';return NGTCloudBackup.downloadDriveFile(files[0].id)}).then(function(obj){NGTCloudBackup.restoreFromObject(obj);localStorage.setItem('terracontrol_rc3_restore_checked',new Date().toISOString());alert('Backup wurde wiederhergestellt. TerraControl wird neu geladen.');location.reload()}).catch(function(e){clearDriveToken();if(box)box.innerHTML='<div class="subcard danger">'+esc(e.message)+'</div>';alert(e.message+'\n\nBitte erneut versuchen und Google Drive Zugriff erlauben.')})})}
-function render(){cleanAuthConfig();const p=get();const ok=!!p.email;const st=cloudStatus();const last=st.lastBackupAt?new Date(st.lastBackupAt).toLocaleString('de-DE'):'Noch keine Sicherung';const lastPhoto=st.lastPhotoBackupAt?new Date(st.lastPhotoBackupAt).toLocaleString('de-DE'):'Noch keine Foto-Sicherung';return `<div class="card"><h2>👤 Konto</h2><p class="muted">Google-Anmeldung, Cloud-Sicherung und Gerätewechsel.</p>${ok?`<div class="subcard ok">${p.picture?`<img src="${esc(p.picture)}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;float:right;margin-left:12px">`:''}<b>Angemeldet</b><br>${esc(p.name)}<br>${esc(p.email)}<br><span class="muted">Willkommen ${esc(first(p.given_name||p.name))}</span></div>`:`<div class="subcard"><b>Noch nicht angemeldet</b><br><span class="muted">Melde dich mit Google an.</span></div>`}<div class="subcard"><h3>👤 Anmeldung</h3><div id="googleLoginBox"><button onclick="NGTAccount.googleSignIn()">Mit Google anmelden</button></div><p class="muted">Drive-Zugriff bleibt jetzt erhalten. Bei leerem Gerät kann das neueste Backup aktiv wiederhergestellt werden.</p></div><div class="subcard"><h3>☁️ Cloud</h3><p><b>Status:</b> ${ok?'Konto verbunden':'Konto nicht verbunden'}</p><p><b>Letzte Datensicherung:</b><br>${esc(last)}</p><p><b>Automatische Synchronisierung:</b><br>${esc(syncText())}</p><div class="btnRow"><button onclick="NGTAccount.toggleSync()">${syncIsOn()?'Auto-Sync ausschalten':'Auto-Sync einschalten'}</button><button onclick="NGTAccount.syncNow()">Jetzt synchronisieren</button><button onclick="NGTAccount.cloudDriveBackup()">In Google Drive sichern</button><button onclick="NGTAccount.restoreLatestDrive()">Daten aus Google Drive wiederherstellen</button><button onclick="NGTAccount.cloudListDrive()">Backup-Historie</button></div></div><div class="subcard"><h3>📸 Foto-Cloud</h3><p><b>Letzte Foto-Sicherung:</b><br>${esc(lastPhoto)}${st.photoCount?` · ${esc(st.photoCount)} Fotos`:''}</p><div class="btnRow"><button onclick="NGTAccount.photoBackup()">Fotos sichern</button><button onclick="NGTAccount.photoRestore()">Fotos wiederherstellen</button></div></div><div class="subcard"><h3>📦 Lokale Sicherung</h3><div class="btnRow"><button onclick="NGTAccount.cloudBackup()">Datei sichern</button><button onclick="NGTAccount.cloudRestorePick()">Datei wiederherstellen</button></div><input id="cloudRestoreFile" type="file" accept="application/json,.json" style="display:none" onchange="NGTAccount.cloudRestore(this.files[0])"></div><div id="driveBackups"></div><button class="danger" onclick="NGTAccount.clear()">Abmelden / Profil entfernen</button></div>`}
-function saveProfile(p){localStorage.setItem(KEY,JSON.stringify(p));localStorage.setItem(GOOGLE_KEY,JSON.stringify(p))}
-function save(){NGT500.toast&&NGT500.toast('Profil wird jetzt über Google verwaltet.','warn')}
-function saveClientId(){cleanAuthConfig();alert('Google-Konfiguration wurde zurückgesetzt.')}
-function clear(){if(confirm('Konto-Daten lokal entfernen?')){localStorage.removeItem(KEY);localStorage.removeItem(GOOGLE_KEY);localStorage.removeItem('terracontrol_rc3_restore_checked');cleanAuthConfig();clearDriveToken();NGT500.route('account')}}
-function decodeJwt(token){try{const part=token.split('.')[1]||'';const b64=part.replace(/-/g,'+').replace(/_/g,'/');const json=decodeURIComponent(atob(b64).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));return JSON.parse(json)}catch(e){return {}}}
-function onCredential(res){const d=decodeJwt(res&&res.credential||'');if(!d.email){alert('Google-Anmeldung konnte nicht gelesen werden.');return;}const p={name:d.name||'',displayName:d.name||'',given_name:d.given_name||first(d.name||''),family_name:d.family_name||'',email:d.email||'',picture:d.picture||'',sub:d.sub||'',provider:'google',updatedAt:new Date().toISOString()};saveProfile(p);NGT500.route('account');setTimeout(autoRestoreLatest,800)}
-function loadGoogle(cb){if(window.google&&google.accounts&&google.accounts.id){cb();return;}const s=document.createElement('script');s.src='https://accounts.'+'google.com/gsi/client';s.async=true;s.defer=true;s.onload=cb;s.onerror=function(){alert('Google Login konnte nicht geladen werden.')};document.head.appendChild(s)}
-function googleSignIn(){cleanAuthConfig();localStorage.removeItem('terracontrol_rc3_restore_checked');loadGoogle(function(){try{google.accounts.id.initialize({client_id:clientId(),callback:onCredential});google.accounts.id.prompt(function(n){if(n&&n.isNotDisplayed&&n.isNotDisplayed()){renderButton()}});renderButton()}catch(e){alert('Google Login Fehler: '+e.message)}})}
-function renderButton(){const box=document.getElementById('googleLoginBox');if(!box||!(window.google&&google.accounts&&google.accounts.id))return;box.innerHTML='<div id="googleBtn"></div>';google.accounts.id.renderButton(document.getElementById('googleBtn'),{theme:'outline',size:'large',width:300,text:'signin_with'});}
-function cloudBackup(){loadCloud(function(){NGTCloudBackup.download();alert('Cloud-Backup erstellt und als Datei gespeichert.');NGT500.route('account')})}
-function cloudDriveBackup(){loadCloud(function(){const box=document.getElementById('driveBackups');if(box)box.innerHTML='<div class="subcard">Google Drive Sicherung läuft...</div>';NGTCloudBackup.uploadToDrive().then(function(){alert('Backup wurde in Google Drive gespeichert.');NGT500.route('account')}).catch(function(e){if(box)box.innerHTML='<div class="subcard danger">'+esc(e.message)+'</div>';alert(e.message)})})}
-function photoBackup(){loadCloud(function(){if(!NGTCloudBackup.uploadPhotos){alert('Foto-Cloud lädt noch.');return;}NGTCloudBackup.uploadPhotos().then(function(r){alert('Foto-Sicherung fertig. Gesichert: '+r.uploaded+' Fotos.');NGT500.route('account')}).catch(function(e){alert(e.message)})})}
-function photoRestore(){loadCloud(function(){if(!NGTCloudBackup.restorePhotos){alert('Foto-Cloud lädt noch.');return;}if(!confirm('Fotos aus Google Drive wiederherstellen?'))return;NGTCloudBackup.restorePhotos().then(function(r){alert('Fotos wiederhergestellt: '+r.restored);location.reload()}).catch(function(e){alert(e.message)})})}
-function cloudListDrive(){loadCloud(function(){const box=document.getElementById('driveBackups');box.innerHTML='<div class="subcard">Backup-Historie wird geladen...</div>';NGTCloudBackup.listDriveBackups(20).then(function(files){box.innerHTML=files.length?'<div class="subcard"><h3>Backup-Historie</h3><p class="muted">'+files.length+' Backups gefunden.</p></div>'+files.map(f=>`<div class="subcard"><b>${esc(f.name)}</b><br>${esc(new Date(f.createdTime).toLocaleString('de-DE'))}<div class="btnRow"><button onclick="NGTAccount.restoreDrive('${esc(f.id)}')">Wiederherstellen</button><button class="danger" onclick="NGTAccount.deleteDrive('${esc(f.id)}')">Löschen</button></div></div>`).join(''):'<div class="subcard">Keine TerraControl-Backups in Google Drive gefunden.</div>'}).catch(function(e){box.innerHTML='<div class="subcard danger">'+esc(e.message)+'</div>'})})}
-function cleanupDrive(){loadCloud(function(){NGTCloudBackup.cleanupDriveBackups(20).then(function(r){alert('Aufgeräumt. Gelöscht: '+r.deleted);cloudListDrive()}).catch(function(e){alert(e.message)})})}
-function deleteDrive(id){if(!confirm('Dieses Backup aus Google Drive löschen?'))return;loadCloud(function(){NGTCloudBackup.deleteDriveFile(id).then(function(){alert('Backup gelöscht.');cloudListDrive()}).catch(function(e){alert(e.message)})})}
-function restoreDrive(id){if(!confirm('Dieses Google-Drive-Backup wiederherstellen? Aktuelle lokale Daten können überschrieben werden.'))return;loadCloud(function(){NGTCloudBackup.downloadDriveFile(id).then(function(obj){NGTCloudBackup.restoreFromObject(obj);localStorage.setItem('terracontrol_rc3_restore_checked',new Date().toISOString());alert('Backup wiederhergestellt. App wird neu geladen.');location.reload()}).catch(function(e){alert(e.message)})})}
-function cloudRestorePick(){document.getElementById('cloudRestoreFile').click()}
-function cloudRestore(file){if(!file)return;if(!confirm('Backup wiederherstellen? Aktuelle lokale Daten können überschrieben werden.'))return;loadCloud(function(){NGTCloudBackup.importFile(file).then(function(){alert('Backup wiederhergestellt. App wird neu geladen.');location.reload()}).catch(function(e){alert('Import fehlgeschlagen: '+e.message)})})}
-function toggleSync(){if(!window.NGTCloudSync){alert('Auto-Sync lädt noch.');return;}NGTCloudSync.enable(!NGTCloudSync.cfg().enabled);NGT500.route('account')}
-function syncNow(){loadCloud(function(){if(!window.NGTCloudSync){alert('Auto-Sync lädt noch.');return;}NGTCloudSync.setConfig({enabled:true});NGTCloudSync.markDirty('Manuell');NGTCloudSync.syncNow().then(function(){alert('Synchronisiert.');NGT500.route('account')}).catch(function(e){alert(e.message)})})}
-function afterRender(){cleanAuthConfig();loadCloud(function(){});if(!window.NGTCloudSync){const y=document.createElement('script');y.src='./v500/cloud-sync.js?v=1.0.4-restorefix';document.head.appendChild(y)}setTimeout(function(){loadGoogle(function(){try{google.accounts.id.initialize({client_id:clientId(),callback:onCredential});renderButton()}catch(e){}})},150);if(get().email)setTimeout(autoRestoreLatest,1200)}
-window.NGTAccount={save,saveClientId,clear,googleSignIn,cloudBackup,cloudDriveBackup,cloudRestorePick,cloudRestore,cloudListDrive,restoreDrive,restoreLatestDrive,deleteDrive,cleanupDrive,toggleSync,syncNow,photoBackup,photoRestore};NGT500.register('account',{render,afterRender});
-})();
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TerraControl account.js RC4</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:20px;background:#0d1722;color:#eef4ff}
+textarea{width:100%;height:80vh;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;line-height:1.4;background:#07111d;color:#eef4ff;border:1px solid #29415a;border-radius:10px;padding:12px;box-sizing:border-box}
+button{font-size:16px;padding:12px 16px;border-radius:10px;border:0;margin-bottom:12px}
+code{background:#07111d;padding:2px 6px;border-radius:5px}
+</style>
+</head>
+<body>
+<h1>TerraControl account.js RC4</h1>
+<p>Alles im Feld markieren/kopieren und komplett in <code>v500/modules/account.js</code> einfügen.</p>
+<button onclick="navigator.clipboard.writeText(document.getElementById('code').value).then(()=>alert('Code kopiert'))">Code kopieren</button>
+<textarea id="code" spellcheck="false">(function(){
+&#x27;use strict&#x27;;
+
+const KEY=&#x27;tc_user_profile&#x27;;
+const GOOGLE_KEY=&#x27;ngt_google_user&#x27;;
+
+function esc(v){
+ return NGT500.esc(v||&#x27;&#x27;);
+}
+
+function get(){
+ try{
+  return JSON.parse(localStorage.getItem(KEY)||&#x27;{}&#x27;)||{};
+ }catch(e){
+  return {};
+ }
+}
+
+function first(v){
+ return String(v||&#x27;&#x27;).split(&#x27; &#x27;)[0]||&#x27;&#x27;;
+}
+
+function animalCount(){
+ try{
+  return NGTStore.allAnimals ? NGTStore.allAnimals().length : 0;
+ }catch(e){
+  return 0;
+ }
+}
+
+function syncText(){
+ if(window.NGTFirebaseSync){
+  return NGTFirebaseSync.label();
+ }
+ return &#x27;Firestore lädt...&#x27;;
+}
+
+function loadDrive(cb){
+ if(window.NGTCloudBackup){
+  cb();
+  return;
+ }
+
+ const s=document.createElement(&#x27;script&#x27;);
+ s.src=&#x27;./v500/cloud-backup.js?v=1.0.4-exportonly&#x27;;
+ s.onload=cb;
+ s.onerror=function(){
+  alert(&#x27;Drive-Backup-Modul konnte nicht geladen werden.&#x27;);
+ };
+ document.head.appendChild(s);
+}
+
+function render(){
+ const p=get();
+ const ok=!!p.email;
+ const displayName=p.name||p.displayName||&#x27;&#x27;;
+ const welcome=first(p.given_name||p.name||p.displayName);
+
+ return `&lt;div class=&quot;card&quot;&gt;
+  &lt;h2&gt;👤 Konto&lt;/h2&gt;
+  &lt;p class=&quot;muted&quot;&gt;Firebase-Anmeldung, Firestore-Synchronisierung und optionale Backup-Dateien.&lt;/p&gt;
+
+  ${ok?`&lt;div class=&quot;subcard ok&quot;&gt;
+   ${p.picture?`&lt;img src=&quot;${esc(p.picture)}&quot; style=&quot;width:72px;height:72px;border-radius:50%;object-fit:cover;float:right;margin-left:12px&quot;&gt;`:&#x27;&#x27;}
+   &lt;b&gt;Angemeldet&lt;/b&gt;&lt;br&gt;
+   ${esc(displayName)}&lt;br&gt;
+   ${esc(p.email)}&lt;br&gt;
+   &lt;span class=&quot;muted&quot;&gt;Willkommen ${esc(welcome)}&lt;/span&gt;
+  &lt;/div&gt;`:`&lt;div class=&quot;subcard&quot;&gt;
+   &lt;b&gt;Noch nicht angemeldet&lt;/b&gt;&lt;br&gt;
+   &lt;span class=&quot;muted&quot;&gt;Melde dich mit Google/Firebase an.&lt;/span&gt;
+  &lt;/div&gt;`}
+
+  &lt;div class=&quot;subcard&quot;&gt;
+   &lt;h3&gt;🔥 Firebase / Firestore&lt;/h3&gt;
+   &lt;p&gt;&lt;b&gt;Status:&lt;/b&gt;&lt;br&gt;${esc(syncText())}&lt;/p&gt;
+   &lt;p&gt;&lt;b&gt;Lokale Tiere:&lt;/b&gt;&lt;br&gt;${animalCount()}&lt;/p&gt;
+   &lt;p class=&quot;muted&quot;&gt;Firestore ist jetzt der Hauptspeicher. Tiere werden automatisch geladen und nach Änderungen automatisch gespeichert.&lt;/p&gt;
+   &lt;div class=&quot;btnRow&quot;&gt;
+    &lt;button onclick=&quot;NGTAccount.googleSignIn()&quot;&gt;Mit Google anmelden&lt;/button&gt;
+    &lt;button onclick=&quot;NGTAccount.firestoreSave()&quot;&gt;Jetzt in Firestore speichern&lt;/button&gt;
+    &lt;button onclick=&quot;NGTAccount.firestoreLoad()&quot;&gt;Aus Firestore laden&lt;/button&gt;
+   &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;subcard&quot;&gt;
+   &lt;h3&gt;📦 Lokale Sicherung&lt;/h3&gt;
+   &lt;p class=&quot;muted&quot;&gt;Lokales Backup als Datei. Unabhängig von Firebase.&lt;/p&gt;
+   &lt;div class=&quot;btnRow&quot;&gt;
+    &lt;button onclick=&quot;NGTAccount.localBackup()&quot;&gt;Backup-Datei speichern&lt;/button&gt;
+    &lt;button onclick=&quot;NGTAccount.localRestorePick()&quot;&gt;Backup-Datei laden&lt;/button&gt;
+   &lt;/div&gt;
+   &lt;input id=&quot;accountRestoreFile&quot; type=&quot;file&quot; accept=&quot;application/json,.json&quot; style=&quot;display:none&quot; onchange=&quot;NGTAccount.localRestore(this.files[0])&quot;&gt;
+  &lt;/div&gt;
+
+  &lt;div class=&quot;subcard&quot;&gt;
+   &lt;h3&gt;☁️ Google Drive optional&lt;/h3&gt;
+   &lt;p class=&quot;muted&quot;&gt;Drive ist nur noch optionales Datei-Backup, nicht mehr Haupt-Synchronisierung.&lt;/p&gt;
+   &lt;div class=&quot;btnRow&quot;&gt;
+    &lt;button onclick=&quot;NGTAccount.driveBackup()&quot;&gt;In Google Drive sichern&lt;/button&gt;
+    &lt;button onclick=&quot;NGTAccount.driveRestoreLatest()&quot;&gt;Neuestes Drive-Backup laden&lt;/button&gt;
+    &lt;button onclick=&quot;NGTAccount.driveList()&quot;&gt;Backup-Historie&lt;/button&gt;
+   &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div id=&quot;driveBackups&quot;&gt;&lt;/div&gt;
+
+  &lt;button class=&quot;danger&quot; onclick=&quot;NGTAccount.clear()&quot;&gt;Abmelden / Profil entfernen&lt;/button&gt;
+ &lt;/div&gt;`;
+}
+
+async function googleSignIn(){
+ if(window.NGTFirebaseSync){
+  try{
+   await NGTFirebaseSync.signIn();
+   return;
+  }catch(e){
+   alert(&#x27;Firebase-Anmeldung fehlgeschlagen: &#x27;+(e.message||e));
+   return;
+  }
+ }
+
+ alert(&#x27;Firebase-Sync ist noch nicht geladen. Bitte App neu laden.&#x27;);
+}
+
+async function firestoreSave(){
+ if(!window.NGTFirebaseSync){
+  alert(&#x27;Firebase-Sync lädt noch.&#x27;);
+  return;
+ }
+
+ try{
+  await NGTFirebaseSync.saveCloud();
+  alert(&#x27;Firestore gespeichert.&#x27;);
+  NGT500.route(&#x27;account&#x27;);
+ }catch(e){
+  alert(&#x27;Firestore speichern fehlgeschlagen: &#x27;+(e.message||e));
+ }
+}
+
+async function firestoreLoad(){
+ if(!window.NGTFirebaseSync){
+  alert(&#x27;Firebase-Sync lädt noch.&#x27;);
+  return;
+ }
+
+ if(!confirm(&#x27;Daten aus Firestore laden? Lokale Daten können überschrieben werden.&#x27;)){
+  return;
+ }
+
+ try{
+  await NGTFirebaseSync.loadCloud();
+  alert(&#x27;Firestore geladen. App wird neu gestartet.&#x27;);
+  location.reload();
+ }catch(e){
+  alert(&#x27;Firestore laden fehlgeschlagen: &#x27;+(e.message||e));
+ }
+}
+
+function localBackup(){
+ const payload={
+  app:&#x27;TerraControl&#x27;,
+  type:&#x27;local-backup&#x27;,
+  version:&#x27;1.0.4-rc4&#x27;,
+  createdAt:new Date().toISOString(),
+  data:NGTStore.data()
+ };
+
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:&#x27;application/json&#x27;});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement(&#x27;a&#x27;);
+ a.href=url;
+ a.download=&#x27;TerraControl-Backup-&#x27;+new Date().toISOString().slice(0,19).replace(/[:.]/g,&#x27;-&#x27;)+&#x27;.json&#x27;;
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ URL.revokeObjectURL(url);
+}
+
+function localRestorePick(){
+ const el=document.getElementById(&#x27;accountRestoreFile&#x27;);
+ if(el){
+  el.click();
+ }
+}
+
+function localRestore(file){
+ if(!file){
+  return;
+ }
+
+ if(!confirm(&#x27;Backup-Datei laden? Aktuelle lokale Daten können überschrieben werden.&#x27;)){
+  return;
+ }
+
+ const r=new FileReader();
+ r.onload=function(){
+  try{
+   const obj=JSON.parse(String(r.result||&#x27;{}&#x27;));
+   const data=obj.data||obj;
+   NGTStore.importJson(JSON.stringify(data));
+   alert(&#x27;Backup geladen. App wird neu gestartet.&#x27;);
+   location.reload();
+  }catch(e){
+   alert(&#x27;Import fehlgeschlagen: &#x27;+(e.message||e));
+  }
+ };
+ r.onerror=function(){
+  alert(&#x27;Datei konnte nicht gelesen werden.&#x27;);
+ };
+ r.readAsText(file);
+}
+
+function driveBackup(){
+ loadDrive(function(){
+  NGTCloudBackup.uploadToDrive()
+   .then(function(){
+    alert(&#x27;Drive-Backup gespeichert.&#x27;);
+   })
+   .catch(function(e){
+    alert(e.message||String(e));
+   });
+ });
+}
+
+function driveRestoreLatest(){
+ if(!confirm(&#x27;Neuestes Google-Drive-Backup laden? Aktuelle lokale Daten können überschrieben werden.&#x27;)){
+  return;
+ }
+
+ loadDrive(function(){
+  NGTCloudBackup.listDriveBackups(1)
+   .then(function(files){
+    if(!files||!files.length){
+     throw new Error(&#x27;Kein Drive-Backup gefunden.&#x27;);
+    }
+    return NGTCloudBackup.downloadDriveFile(files[0].id);
+   })
+   .then(function(obj){
+    NGTCloudBackup.restoreFromObject(obj);
+    alert(&#x27;Drive-Backup geladen. App wird neu gestartet.&#x27;);
+    location.reload();
+   })
+   .catch(function(e){
+    alert(e.message||String(e));
+   });
+ });
+}
+
+function driveList(){
+ loadDrive(function(){
+  const box=document.getElementById(&#x27;driveBackups&#x27;);
+  if(!box){
+   return;
+  }
+
+  box.innerHTML=&#x27;&lt;div class=&quot;subcard&quot;&gt;Backup-Historie wird geladen...&lt;/div&gt;&#x27;;
+
+  NGTCloudBackup.listDriveBackups(20)
+   .then(function(files){
+    if(!files||!files.length){
+     box.innerHTML=&#x27;&lt;div class=&quot;subcard&quot;&gt;Keine Drive-Backups gefunden.&lt;/div&gt;&#x27;;
+     return;
+    }
+
+    box.innerHTML=&#x27;&lt;div class=&quot;subcard&quot;&gt;&lt;h3&gt;Backup-Historie&lt;/h3&gt;&lt;p class=&quot;muted&quot;&gt;&#x27;+files.length+&#x27; Backups gefunden.&lt;/p&gt;&lt;/div&gt;&#x27;+
+     files.map(function(f){
+      return `&lt;div class=&quot;subcard&quot;&gt;
+       &lt;b&gt;${esc(f.name)}&lt;/b&gt;&lt;br&gt;
+       ${esc(new Date(f.createdTime).toLocaleString(&#x27;de-DE&#x27;))}
+       &lt;div class=&quot;btnRow&quot;&gt;
+        &lt;button onclick=&quot;NGTAccount.driveRestore(&#x27;${esc(f.id)}&#x27;)&quot;&gt;Wiederherstellen&lt;/button&gt;
+       &lt;/div&gt;
+      &lt;/div&gt;`;
+     }).join(&#x27;&#x27;);
+   })
+   .catch(function(e){
+    box.innerHTML=&#x27;&lt;div class=&quot;subcard danger&quot;&gt;&#x27;+esc(e.message||String(e))+&#x27;&lt;/div&gt;&#x27;;
+   });
+ });
+}
+
+function driveRestore(id){
+ if(!confirm(&#x27;Dieses Drive-Backup wiederherstellen? Aktuelle lokale Daten können überschrieben werden.&#x27;)){
+  return;
+ }
+
+ loadDrive(function(){
+  NGTCloudBackup.downloadDriveFile(id)
+   .then(function(obj){
+    NGTCloudBackup.restoreFromObject(obj);
+    alert(&#x27;Backup wiederhergestellt. App wird neu gestartet.&#x27;);
+    location.reload();
+   })
+   .catch(function(e){
+    alert(e.message||String(e));
+   });
+ });
+}
+
+async function clear(){
+ if(!confirm(&#x27;Konto lokal entfernen? Lokale Tierdaten bleiben erhalten.&#x27;)){
+  return;
+ }
+
+ localStorage.removeItem(KEY);
+ localStorage.removeItem(GOOGLE_KEY);
+
+ if(window.NGTFirebaseSync){
+  try{
+   await NGTFirebaseSync.signOut();
+  }catch(e){}
+ }
+
+ NGT500.route(&#x27;account&#x27;);
+}
+
+function afterRender(){
+ setTimeout(function(){
+  try{
+   if(window.NGTDashboard&amp;&amp;NGTDashboard.updateCloudStatus){
+    NGTDashboard.updateCloudStatus();
+   }
+  }catch(e){}
+ },200);
+}
+
+window.NGTAccount={
+ googleSignIn,
+ firestoreSave,
+ firestoreLoad,
+ localBackup,
+ localRestorePick,
+ localRestore,
+ driveBackup,
+ driveRestoreLatest,
+ driveList,
+ driveRestore,
+ clear
+};
+
+NGT500.register(&#x27;account&#x27;,{render,afterRender});
+
+})();</textarea>
+</body>
+</html>
