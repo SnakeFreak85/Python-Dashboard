@@ -1,30 +1,31 @@
 (function(){
 'use strict';
+const V='1.0.4-syncfix';
 function loadAnalytics(){
  if(NGT500.modules.analytics){NGT500.route('analytics');return;}
  const s=document.createElement('script');
- s.src='./v500/modules/analytics.js?v=1.0.0-rc1';
+ s.src='./v500/modules/analytics.js?v='+V;
  s.onload=function(){NGT500.route('analytics')};
  document.head.appendChild(s);
 }
 function loadSettings(){
  if(NGT500.modules.settings){NGT500.route('settings');return;}
  const s=document.createElement('script');
- s.src='./v500/modules/settings.js?v=1.0.0-rc1';
+ s.src='./v500/modules/settings.js?v='+V;
  s.onload=function(){NGT500.route('settings')};
  document.head.appendChild(s);
 }
 function loadReleaseTest(){
  if(NGT500.modules.releaseTest){NGT500.route('releaseTest');return;}
  const s=document.createElement('script');
- s.src='./v500/modules/release-test.js?v=1.0.0-rc1';
+ s.src='./v500/modules/release-test.js?v='+V;
  s.onload=function(){NGT500.route('releaseTest')};
  document.head.appendChild(s);
 }
 function loadAccount(){
  if(NGT500.modules.account){NGT500.route('account');return;}
  const s=document.createElement('script');
- s.src='./v500/modules/account.js?v=1.0.0-rc1';
+ s.src='./v500/modules/account.js?v='+V;
  s.onload=function(){NGT500.route('account')};
  document.head.appendChild(s);
 }
