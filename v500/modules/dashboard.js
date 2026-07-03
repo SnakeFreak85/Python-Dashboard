@@ -48,33 +48,12 @@ function updateCloudStatus(){
  }
 }
 
-function isSignedIn(){
- try{
-  const p=JSON.parse(localStorage.getItem('tc_user_profile')||'{}')||{};
-  return !!p.email;
- }catch(e){
-  return false;
- }
-}
-
-function cloudActions(){
- const signed=isSignedIn();
- return `<div class="subcard">
-  <h3>☁️ Cloud-Synchronisierung</h3>
-  <p><b>Status:</b><br><span id="dashboardCloudStatusInline">${NGT500.esc(cloudLabel())}</span></p>
-  <div class="btnRow">
-   ${signed?'':`<button onclick="NGTDashboard.googleSignIn()">Mit Google anmelden</button>`}
-   <button onclick="NGTDashboard.firestoreSave()">Jetzt synchronisieren</button>
-   <button onclick="NGTDashboard.firestoreLoad()">Aus Cloud laden</button>
-  </div>
+function topCloudButtons(){
+ return `<div class="btnRow" style="margin:14px 0 18px 0">
+  <button onclick="NGTDashboard.googleSignIn()">Mit Google anmelden</button>
+  <button onclick="NGTDashboard.firestoreSave()">Jetzt in Firestore speichern</button>
+  <button onclick="NGTDashboard.firestoreLoad()">Aus Firestore laden</button>
  </div>`;
-}
-
-function updateCloudStatusInline(){
- const el=document.getElementById('dashboardCloudStatusInline');
- if(el){
-  el.textContent=cloudLabel();
- }
 }
 
 async function googleSignIn(){
@@ -96,9 +75,8 @@ async function firestoreSave(){
  }
  try{
   await NGTFirebaseSync.saveCloud();
-  alert('Firestore synchronisiert.');
+  alert('Firestore gespeichert.');
   updateCloudStatus();
-  updateCloudStatusInline();
  }catch(e){
   alert('Firestore speichern fehlgeschlagen: '+(e.message||e));
  }
@@ -109,15 +87,15 @@ async function firestoreLoad(){
   alert('Firebase-Sync lädt noch.');
   return;
  }
- if(!confirm('Daten aus der Cloud laden? Lokale Daten können überschrieben werden.')){
+ if(!confirm('Daten aus Firestore laden? Lokale Daten können überschrieben werden.')){
   return;
  }
  try{
   await NGTFirebaseSync.loadCloud();
-  alert('Cloud-Daten geladen. App wird neu gestartet.');
+  alert('Firestore geladen. App wird neu gestartet.');
   location.reload();
  }catch(e){
-  alert('Cloud laden fehlgeschlagen: '+(e.message||e));
+  alert('Firestore laden fehlgeschlagen: '+(e.message||e));
  }
 }
 
@@ -185,14 +163,14 @@ function render(){
   <h2>Hallo${name?' '+NGT500.esc(name):''} 👋</h2>
   <p class="muted">Schön, dass du wieder da bist.</p>
 
+  ${topCloudButtons()}
+
   <div class="grid">
    <div class="stat">🐍 Tiere<b>${all.length}</b></div>
    <div class="stat">⚠️ Warnungen<b>${wc}</b></div>
    <div class="stat">☁️ Cloud<b id="dashboardCloudStatus">${NGT500.esc(cloudLabel())}</b></div>
    <div class="stat">🍽️ Futter<b>${NGT500.esc(foodStatus())}</b></div>
   </div>
-
-  ${cloudActions()}
 
   <input placeholder="Tier suchen nach Name, ID, Morph, Geschlecht, Eltern oder Futter..." oninput="NGTDashboard.search(this.value)">
   <div id="searchBox"></div>
@@ -213,16 +191,12 @@ function render(){
 
 function afterRender(){
  updateCloudStatus();
- updateCloudStatusInline();
 
  if(statusTimer){
   clearInterval(statusTimer);
  }
 
- statusTimer=setInterval(function(){
-  updateCloudStatus();
-  updateCloudStatusInline();
- },1500);
+ statusTimer=setInterval(updateCloudStatus,1500);
 }
 
 function textFor(x){
