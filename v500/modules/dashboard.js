@@ -8,9 +8,15 @@ function userName(){
  if(seller.name)return String(seller.name).split(' ')[0];
  return '';
 }
-function activeAnimals(){return NGTStore.allAnimals().filter(x=>!['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status))}
-function cloudLabel(){try{if(window.NGTCloudSync)return NGTCloudSync.label();const st=JSON.parse(localStorage.getItem('terracontrol_cloud_meta_v1')||'{}');return st.lastBackupAt?'Gesichert '+new Date(st.lastBackupAt).toLocaleDateString('de-DE'):'Nicht gesichert'}catch(e){return 'Nicht geprüft'}}
-function updateCloudStatus(){const el=document.getElementById('dashboardCloudStatus');if(el)el.textContent=cloudLabel()}
+function activeAnimals(){return NGTStore.allAnimals().filter(x=>!['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status))}tBackupAt?'Gesichert '+new Date(st.lastBackupAt).toLocaleDateString('de-DE'):'Nicht gesichert'}catch(e){return 'Nicht geprüft'}}
+function cloudLabel(){
+ try{
+  if(window.NGTFirebaseSync)return NGTFirebaseSync.label();
+  return 'Firestore lädt...';
+ }catch(e){
+  return 'Nicht geprüft';
+ }
+}
 function foodStatus(){try{const d=NGTStore.data();const n=(d.foodInventory||[]).reduce((s,x)=>s+Number(x.qty||0),0);return n>0?String(n)+' Bestand':'prüfen'}catch(e){return 'prüfen'}}
 function warningCount(){try{const all=activeAnimals();let n=0;all.forEach(x=>{const a=x.a||{};const weights=a.weights||[];const feeds=a.feeds||[];if(weights.length>1){const last=Number(weights[weights.length-1].weight||0),prev=Number(weights[weights.length-2].weight||0);if(last&&prev&&last<prev)n++}const lastFeed=feeds.length?feeds[feeds.length-1].date:'';const interval=Number(a.feedIntervalDays||a.feedingInterval||a.feedInterval||14);if(lastFeed&&((Date.now()-new Date(lastFeed).getTime())/86400000)>interval)n++});return n}catch(e){return 0}}
 function render(){
