@@ -64,31 +64,15 @@ function quickActions(){
    <button onclick="NGTDashboard.openHknImport()">📄 Tier aus Herkunftsnachweis anlegen</button>
    <button onclick="NGT500.route('animals',{t:'koenig'})">➕ Tier manuell anlegen</button>
   </div>
-  <input id="hknImportFile" type="file" accept="image/*,.pdf" capture="environment" style="display:none" onchange="NGTDashboard.handleHknFile(this.files[0])">
  </div>`;
 }
 
 function openHknImport(){
- const el=document.getElementById('hknImportFile');
- if(el)el.click();
-}
-
-function handleHknFile(file){
- if(!file)return;
- const reader=new FileReader();
- reader.onload=function(){
-  try{
-   sessionStorage.setItem('terracontrol_hkn_import_v1',JSON.stringify({
-    name:file.name||'Herkunftsnachweis',
-    type:file.type||'',
-    data:String(reader.result||''),
-    at:new Date().toISOString()
-   }));
-  }catch(e){}
-  NGT500.route('animals',{t:'koenig',hkn:1});
- };
- reader.onerror=function(){alert('HKN-Datei konnte nicht gelesen werden.')};
- reader.readAsDataURL(file);
+ if(window.NGTHKNImport&&NGTHKNImport.open){
+  NGTHKNImport.open();
+  return;
+ }
+ alert('HKN-Import lädt noch. Bitte App neu laden.');
 }
 
 async function googleSignIn(){
@@ -291,8 +275,7 @@ window.NGTDashboard={
  googleSignIn,
  firestoreSave,
  firestoreLoad,
- openHknImport,
- handleHknFile
+ openHknImport
 };
 
 NGT500.register('dashboard',{
