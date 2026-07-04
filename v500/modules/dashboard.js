@@ -81,13 +81,18 @@ function loadScript(src){
 
 async function openHknImport(){
  try{
-  if(!(window.NGTHKNImport&&NGTHKNImport.open)){
-   await loadScript('./v500/hkn-import.js?v=1.0.4-rc5');
-  }
-  if(window.NGTHKNImport&&NGTHKNImport.open){
-   NGTHKNImport.open();
+  if(window.NGTHknImport){
+   NGTHknImport.run();
    return;
   }
+
+  await loadScript('./v500/hkn-import.js?v='+Date.now());
+
+  if(window.NGTHknImport){
+   NGTHknImport.run();
+   return;
+  }
+
   throw new Error('HKN-Import nicht verfügbar.');
  }catch(e){
   alert('HKN-Import konnte nicht gestartet werden: '+(e.message||e));
