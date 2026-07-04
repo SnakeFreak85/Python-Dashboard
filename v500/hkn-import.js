@@ -99,8 +99,44 @@ function apply(data){
  if(note&&!note.value)note.value=data.note;
 }
 
+function fileInput(){
+ let el=document.getElementById('hknRuntimeFileInput');
+ if(el)return el;
+ el=document.createElement('input');
+ el.id='hknRuntimeFileInput';
+ el.type='file';
+ el.accept='image/*,.pdf';
+ el.setAttribute('capture','environment');
+ el.style.display='none';
+ document.body.appendChild(el);
+ return el;
+}
+
 async function run(){
- alert('Schnellversion aktiv: Bitte OCR-Text aus dem HKN einfügen oder automatisch auswerten, sobald OCR verfügbar ist.');
+ const input=fileInput();
+ input.value='';
+ input.onchange=function(){
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(){
+   try{
+    sessionStorage.setItem('terracontrol_hkn_import_v1',JSON.stringify({
+     name:file.name||'Herkunftsnachweis',
+     type:file.type||'',
+     data:String(reader.result||''),
+     at:new Date().toISOString()
+    }));
+   }catch(e){
+    alert('HKN konnte nicht zwischengespeichert werden: '+(e.message||e));
+    return;
+   }
+   NGT500.route('animals',{t:'koenig',hkn:1});
+  };
+  reader.onerror=function(){alert('HKN-Datei konnte nicht gelesen werden.')};
+  reader.readAsDataURL(file);
+ };
+ input.click();
 }
 
 function applyManual(){
