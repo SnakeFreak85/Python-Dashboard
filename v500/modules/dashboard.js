@@ -56,6 +56,41 @@ function topCloudButtons(){
  </div>`;
 }
 
+function quickActions(){
+ return `<div class="subcard">
+  <h3>🚀 Schnellaktionen</h3>
+  <p class="muted">Tiere schneller anlegen oder wichtige Aktionen direkt starten.</p>
+  <div class="btnRow">
+   <button onclick="NGTDashboard.openHknImport()">📄 Tier aus Herkunftsnachweis anlegen</button>
+   <button onclick="NGT500.route('animals',{t:'koenig'})">➕ Tier manuell anlegen</button>
+  </div>
+  <input id="hknImportFile" type="file" accept="image/*,.pdf" capture="environment" style="display:none" onchange="NGTDashboard.handleHknFile(this.files[0])">
+ </div>`;
+}
+
+function openHknImport(){
+ const el=document.getElementById('hknImportFile');
+ if(el)el.click();
+}
+
+function handleHknFile(file){
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=function(){
+  try{
+   sessionStorage.setItem('terracontrol_hkn_import_v1',JSON.stringify({
+    name:file.name||'Herkunftsnachweis',
+    type:file.type||'',
+    data:String(reader.result||''),
+    at:new Date().toISOString()
+   }));
+  }catch(e){}
+  NGT500.route('animals',{t:'koenig',hkn:1});
+ };
+ reader.onerror=function(){alert('HKN-Datei konnte nicht gelesen werden.')};
+ reader.readAsDataURL(file);
+}
+
 async function googleSignIn(){
  if(!window.NGTFirebaseSync){
   alert('Firebase-Sync lädt noch. Bitte kurz warten.');
@@ -164,6 +199,7 @@ function render(){
   <p class="muted">Schön, dass du wieder da bist.</p>
 
   ${topCloudButtons()}
+  ${quickActions()}
 
   <div class="grid">
    <div class="stat">🐍 Tiere<b>${all.length}</b></div>
@@ -254,7 +290,9 @@ window.NGTDashboard={
  updateCloudStatus,
  googleSignIn,
  firestoreSave,
- firestoreLoad
+ firestoreLoad,
+ openHknImport,
+ handleHknFile
 };
 
 NGT500.register('dashboard',{
