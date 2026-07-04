@@ -67,12 +67,31 @@ function quickActions(){
  </div>`;
 }
 
-function openHknImport(){
- if(window.NGTHKNImport&&NGTHKNImport.open){
-  NGTHKNImport.open();
-  return;
+function loadScript(src){
+ return new Promise(function(resolve,reject){
+  const existing=[].slice.call(document.scripts).find(function(s){return s.src&&s.src.indexOf(src)>=0});
+  if(existing){resolve();return;}
+  const s=document.createElement('script');
+  s.src=src;
+  s.onload=resolve;
+  s.onerror=function(){reject(new Error('Modul konnte nicht geladen werden: '+src))};
+  document.head.appendChild(s);
+ });
+}
+
+async function openHknImport(){
+ try{
+  if(!(window.NGTHKNImport&&NGTHKNImport.open)){
+   await loadScript('./v500/hkn-import.js?v=1.0.4-rc5');
+  }
+  if(window.NGTHKNImport&&NGTHKNImport.open){
+   NGTHKNImport.open();
+   return;
+  }
+  throw new Error('HKN-Import nicht verfügbar.');
+ }catch(e){
+  alert('HKN-Import konnte nicht gestartet werden: '+(e.message||e));
  }
- alert('HKN-Import lädt noch. Bitte App neu laden.');
 }
 
 async function googleSignIn(){
