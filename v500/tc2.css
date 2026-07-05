@@ -243,3 +243,87 @@ body:not(.tc2RefMode) .menuBtn {
   height: 58px !important;
   border-radius: 16px !important;
 }
+/* TC2 Drawer und Formularseiten gezielt angleichen */
+
+.drawer {
+  background: linear-gradient(180deg,#20384d,#0b1722) !important;
+  border-right: 1px solid rgba(125,170,210,.28) !important;
+  box-shadow: 18px 0 50px rgba(0,0,0,.45) !important;
+  padding: 96px 14px 24px !important;
+}
+
+.drawer button,
+.drawer a {
+  min-height: 58px !important;
+  margin: 0 0 10px !important;
+  padding: 14px 18px !important;
+  border-radius: 18px !important;
+  background: rgba(10,24,36,.72) !important;
+  border: 1px solid rgba(125,170,210,.24) !important;
+  color: #f4f7fb !important;
+  font-size: 19px !important;
+  font-weight: 900 !important;
+  text-align: left !important;
+}
+
+.drawer button:hover,
+.drawer a:hover {
+  border-color: rgba(139,220,63,.55) !important;
+}
+
+body:not(.tc2RefMode) form,
+body:not(.tc2RefMode) .form,
+body:not(.tc2RefMode) .editor,
+body:not(.tc2RefMode) .animalForm {
+  background: rgba(19,36,52,.92) !important;
+  border: 1px solid rgba(125,170,210,.22) !important;
+  border-radius: 24px !important;
+  padding: 18px !important;
+}
+
+body:not(.tc2RefMode) input,
+body:not(.tc2RefMode) select,
+body:not(.tc2RefMode) textarea {
+  min-height: 54px !important;
+  margin-bottom: 10px !important;
+  padding: 14px 16px !important;
+  font-size: 17px !important;
+  background: #071521 !important;
+  border: 1px solid rgba(125,170,210,.32) !important;
+  border-radius: 18px !important;
+  color: #f4f7fb !important;
+  outline: none !important;
+}
+
+body:not(.tc2RefMode) textarea {
+  min-height: 120px !important;
+}
+
+body:not(.tc2RefMode) input::placeholder,
+body:not(.tc2RefMode) textarea::placeholder {
+  color: rgba(244,247,251,.42) !important;
+}
+
+body:not(.tc2RefMode) label {
+  color: #dce6ef !important;
+  font-weight: 800 !important;
+}
+
+body:not(.tc2RefMode) .btnRow,
+body:not(.tc2RefMode) .buttonRow {
+  gap: 10px !important;
+}
+
+body:not(.tc2RefMode) button {
+  min-height: 50px;
+  border-radius: 18px !important;
+}
+
+body:not(.tc2RefMode) .card h2 {
+  font-size: 26px !important;
+  margin-bottom: 18px !important;
+}
+
+body:not(.tc2RefMode) .card {
+  padding: 18px !important;
+}
