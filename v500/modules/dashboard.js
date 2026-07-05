@@ -111,18 +111,8 @@ function toggleBestand(){
  el.classList.toggle('hidden');
 }
 
-function toggleSmart(){
- const el=document.getElementById('smartPanel');
- if(!el)return;
- if(el.innerHTML.trim()){
-  el.innerHTML='';
-  el.classList.add('hidden');
-  return;
- }
- const smart=window.NGTSmartDashboard ? NGTSmartDashboard.render() : '<div class="subcard">Smart Dashboard lädt noch.</div>';
- el.innerHTML=smart;
- el.classList.remove('hidden');
- setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);
+function openSmartDashboard(){
+ NGT500.route('smartDashboard');
 }
 
 function openTerrariums(){
@@ -168,24 +158,50 @@ function render(){
     ${actionCard('⚡','KI Schnelleingabe','Fütterung, Gewicht, Häutung','NGT500.route(\'assistant\')')}
     ${actionCard('➕','Tier manuell anlegen','Neues Tier erfassen','NGTDashboard.manualAnimal()')}
     ${actionCard('🍽️','Futterbestand hinzufügen','Bestände verwalten','NGT500.route(\'food\')')}
-    ${actionCard('🐾','Bestand','Tiergruppen öffnen','NGTDashboard.toggleBestand()','tc2Accent')}
-    ${actionCard('🏡','Terrarienverwaltung','Anlagen, Racks, Fächer','NGTDashboard.openTerrariums()')}
-    ${actionCard('📊','Smart Dashboard','Übersicht öffnen','NGTDashboard.toggleSmart()','tc2Wide')}
    </div>
   </div>
 
-  <div id="bestandPanel" class="card hidden">
-   <h2>Bestand</h2>
-   <p class="muted">Dein Bestand wird später automatisch aus den angelegten Tieren aufgebaut.</p>
-   <div class="tc2SpeciesGrid">
-    <button onclick="NGT500.route('animals',{t:'koenig'})">🐍 Königspythons</button>
-    <button onclick="NGT500.route('animals',{t:'boas'})">🐍 Boas</button>
-    <button onclick="NGT500.route('animals',{t:'spinnen'})">🕷️ Vogelspinnen</button>
-    <button onclick="NGT500.route('animals',{t:'geckos'})">🦎 Leopardgeckos</button>
+  <div class="tc2Stock card">
+   <button class="tc2SectionButton" onclick="NGTDashboard.toggleBestand()">
+    <span class="tc2ActionIcon">🐾</span>
+    <span><b>Bestand</b><small>Wähle eine Tiergruppe aus</small></span>
+    <span class="tc2Chevron">⌄</span>
+   </button>
+
+   <div id="bestandPanel" class="hidden">
+    <div class="tc2SpeciesGrid">
+     <button onclick="NGT500.route('animals',{t:'koenig'})">🐍 Königspythons</button>
+     <button onclick="NGT500.route('animals',{t:'boas'})">🐍 Boas</button>
+     <button onclick="NGT500.route('animals',{t:'spinnen'})">🕷️ Vogelspinnen</button>
+     <button onclick="NGT500.route('animals',{t:'geckos'})">🦎 Leopardgeckos</button>
+    </div>
    </div>
   </div>
 
-  <div id="smartPanel" class="tc2SmartPanel hidden"></div>
+  <button class="tc2SmartCard card" onclick="NGTDashboard.openSmartDashboard()">
+   <span class="tc2ActionIcon">📊</span>
+   <span><b>Smart Dashboard</b><small>Deine intelligente Übersicht</small></span>
+   <span class="tc2Chevron">›</span>
+  </button>
+ </section>`;
+}
+
+function smartRender(){
+ const body=window.NGTSmartDashboard
+  ? NGTSmartDashboard.render()
+  : '<div class="card"><h2>Smart Dashboard</h2><p class="muted">Smart Dashboard lädt noch.</p></div>';
+
+ return `<section class="tc2SmartPage">
+  <div class="tc2Hero card">
+   <div class="tc2Topline">
+    <div>
+     <div class="tc2Brand">Smart Dashboard</div>
+     <div class="tc2Sub">Deine intelligente Übersicht</div>
+    </div>
+    <div class="tc2Status">${NGT500.esc(cloudLabel())}</div>
+   </div>
+  </div>
+  ${body}
  </section>`;
 }
 
@@ -203,9 +219,10 @@ window.NGTDashboard={
  openHknImport,
  manualAnimal,
  toggleBestand,
- toggleSmart,
+ openSmartDashboard,
  openTerrariums
 };
 
 NGT500.register('dashboard',{render,afterRender});
+NGT500.register('smartDashboard',{render:smartRender});
 })();
