@@ -20,12 +20,6 @@ function userName(){
  return '';
 }
 
-function activeAnimals(){
- return NGTStore.allAnimals().filter(function(x){
-  return !['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status);
- });
-}
-
 function cloudLabel(){
  try{
   if(window.NGTFirebaseSync){return NGTFirebaseSync.label();}
@@ -144,12 +138,9 @@ function actionCard(icon,title,sub,onclick,extra){
 
 function render(){
  const name=userName();
+
  return `<section class="tc2Home">
   <div class="tc2Hero card">
-   <div class="tc2Creature tc2Snake">🐍</div>
-   <div class="tc2Creature tc2Spider">🕷️</div>
-   <div class="tc2Creature tc2Gecko">🦎</div>
-
    <div class="tc2Topline">
     <div>
      <div class="tc2Brand">TerraControl</div>
@@ -185,7 +176,7 @@ function render(){
 
   <div id="bestandPanel" class="card hidden">
    <h2>Bestand</h2>
-   <p class="muted">Wähle eine Tiergruppe aus.</p>
+   <p class="muted">Dein Bestand wird später automatisch aus den angelegten Tieren aufgebaut.</p>
    <div class="tc2SpeciesGrid">
     <button onclick="NGT500.route('animals',{t:'koenig'})">🐍 Königspythons</button>
     <button onclick="NGT500.route('animals',{t:'boas'})">🐍 Boas</button>
