@@ -35,7 +35,7 @@ body.tc2RefMode .menuBtn {
 
 .tc2AppTop {
   display: grid;
-  grid-template-columns: 46px 1fr auto 38px;
+  grid-template-columns: 46px minmax(0, 1fr) 86px 38px;
   align-items: center;
   gap: 10px;
   margin: 4px 0 16px;
@@ -49,11 +49,16 @@ body.tc2RefMode .menuBtn {
   font-size: 28px !important;
 }
 
+.tc2HeadTitle {
+  min-width: 0;
+}
+
 .tc2HeadTitle h1 {
   margin: 0;
   font-size: 24px;
   line-height: 1;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .tc2HeadTitle p {
@@ -64,16 +69,17 @@ body.tc2RefMode .menuBtn {
 
 .tc2Sync {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 1px 5px;
   align-items: center;
   font-size: 11px;
   color: #dfffe8;
-  max-width: 96px;
+  min-width: 0;
 }
 
 .tc2Sync b {
   line-height: 1.05;
+  overflow-wrap: anywhere;
 }
 
 .tc2Sync small {
@@ -180,7 +186,7 @@ body.tc2RefMode .menuBtn {
 
 .tc2Quick {
   display: grid !important;
-  grid-template-columns: 38px 1fr 14px;
+  grid-template-columns: 38px minmax(0, 1fr) 14px;
   align-items: center;
   gap: 9px;
   min-height: 74px !important;
@@ -202,7 +208,6 @@ body.tc2RefMode .menuBtn {
   display: block;
   font-size: 13px;
   line-height: 1.12;
-  word-break: normal;
 }
 
 .tc2Quick small {
@@ -236,7 +241,7 @@ body.tc2RefMode .menuBtn {
 
 .tc2BestandHead {
   display: grid !important;
-  grid-template-columns: 42px 1fr auto;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   width: 100%;
@@ -276,13 +281,13 @@ body.tc2RefMode .menuBtn {
 }
 
 .tc2Species button {
-  flex: 0 0 86px;
-  width: 86px;
-  height: 82px;
+  flex: 0 0 84px;
+  width: 84px;
+  height: 80px;
   margin: 0 !important;
   border-radius: 14px !important;
   color: #8bdc3f !important;
-  font-size: 28px !important;
+  font-size: 27px !important;
   padding: 8px !important;
 }
 
@@ -296,7 +301,7 @@ body.tc2RefMode .menuBtn {
 
 .tc2SmartLink {
   display: grid !important;
-  grid-template-columns: 42px 1fr auto;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   width: 100%;
@@ -317,32 +322,35 @@ body.tc2RefMode .menuBtn {
   background: rgba(19, 36, 52, .92);
   border: 1px solid rgba(125, 170, 210, .18);
   border-radius: 14px;
-  padding: 12px 8px;
+  padding: 12px 6px;
   text-align: center;
+  min-width: 0;
 }
 
 .tc2Stats span {
   display: block;
   color: #8bdc3f;
-  font-size: 26px;
+  font-size: 24px;
 }
 
 .tc2Stats b {
   display: block;
-  font-size: 26px;
+  font-size: 25px;
   margin-top: 8px;
 }
 
 .tc2Stats small {
   display: block;
+  font-size: 12px;
 }
 
 .tc2Stats em {
   display: block;
   color: #8bdc3f;
-  font-size: 11px;
+  font-size: 10px;
   font-style: normal;
   margin-top: 7px;
+  line-height: 1.15;
 }
 
 .tc2Stats .warn {
@@ -365,6 +373,7 @@ body.tc2RefMode .menuBtn {
   color: #8bdc3f !important;
   margin: 0 !important;
   padding: 0 !important;
+  font-size: 13px !important;
 }
 
 .tc2ChartCard,
@@ -376,14 +385,14 @@ body.tc2RefMode .menuBtn {
 
 .tc2ChartRow {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: 128px minmax(0, 1fr);
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .tc2Donut {
-  width: 120px;
-  height: 120px;
+  width: 118px;
+  height: 118px;
   border-radius: 50%;
   background: conic-gradient(#39c538 0 28%, #247ad9 28% 48%, #7435c9 48% 78%, #f58a00 78% 100%);
   display: grid;
@@ -415,18 +424,20 @@ body.tc2RefMode .menuBtn {
   list-style: none;
   margin: 0;
   padding: 0;
+  min-width: 0;
 }
 
 .tc2ChartRow li {
   display: grid;
-  grid-template-columns: 18px 1fr auto;
-  gap: 8px;
-  margin: 12px 0;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  gap: 7px;
+  margin: 11px 0;
+  font-size: 14px;
 }
 
 .tc2ChartRow i {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   margin-top: 3px;
 }
@@ -438,8 +449,8 @@ body.tc2RefMode .menuBtn {
 
 .tc2ListRow {
   display: grid;
-  grid-template-columns: 38px 1fr auto 16px;
-  gap: 10px;
+  grid-template-columns: 36px minmax(0, 1fr) 72px 14px;
+  gap: 8px;
   align-items: center;
   padding: 9px 0;
   border-bottom: 1px solid rgba(255, 255, 255, .06);
@@ -447,22 +458,26 @@ body.tc2RefMode .menuBtn {
 
 .tc2ListRow span {
   color: #8bdc3f;
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .tc2ListRow b {
   display: block;
+  font-size: 14px;
+  line-height: 1.15;
 }
 
 .tc2ListRow small {
   display: block;
   color: #aeb9c4;
+  font-size: 12px;
 }
 
 .tc2ListRow em {
   font-style: normal;
   text-align: right;
   color: #dce5ee;
+  font-size: 13px;
 }
 
 .tc2More {
@@ -473,8 +488,14 @@ body.tc2RefMode .menuBtn {
 
 .tc2FoodGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(112px, 1fr));
   gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tc2FoodGrid::-webkit-scrollbar {
+  display: none;
 }
 
 .tc2Food {
@@ -482,6 +503,7 @@ body.tc2RefMode .menuBtn {
   border: 1px solid rgba(255, 255, 255, .06);
   border-radius: 10px;
   padding: 10px;
+  min-width: 112px;
 }
 
 .tc2Food b {
@@ -525,15 +547,17 @@ body.tc2RefMode .menuBtn {
 
 .tc2BottomNav {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
   bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
   background: #0b1c2a;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   padding: 8px 8px 10px;
-  max-width: 430px;
-  margin: auto;
+  z-index: 80;
 }
 
 .tc2BottomNav button {
@@ -541,12 +565,13 @@ body.tc2RefMode .menuBtn {
   background: transparent !important;
   border: 0 !important;
   color: #aeb9c4 !important;
-  font-size: 22px !important;
+  font-size: 20px !important;
+  min-width: 0;
 }
 
 .tc2BottomNav span {
   display: block;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .tc2BottomNav .on {
@@ -559,13 +584,28 @@ body.tc2RefMode .menuBtn {
   display: none !important;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 390px) {
+  body.tc2RefMode .wrap {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .tc2AppTop {
+    grid-template-columns: 46px minmax(0, 1fr) 78px 36px;
+    gap: 8px;
+  }
+
   .tc2HeadTitle h1 {
     font-size: 22px;
   }
 
+  .tc2Sync {
+    max-width: 78px;
+    font-size: 10px;
+  }
+
   .tc2Quick {
-    grid-template-columns: 34px 1fr 12px;
+    grid-template-columns: 34px minmax(0, 1fr) 12px;
     gap: 8px;
     padding: 10px !important;
   }
@@ -576,5 +616,18 @@ body.tc2RefMode .menuBtn {
 
   .tc2Quick small {
     font-size: 11px;
+  }
+
+  .tc2ChartRow {
+    grid-template-columns: 112px minmax(0, 1fr);
+  }
+
+  .tc2Donut {
+    width: 106px;
+    height: 106px;
+  }
+
+  .tc2ListRow {
+    grid-template-columns: 32px minmax(0, 1fr) 64px 12px;
   }
 }
