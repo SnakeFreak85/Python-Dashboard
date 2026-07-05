@@ -3,6 +3,16 @@
 
 let statusTimer=null;
 
+function setTc2Mode(on){
+ document.body.classList.toggle('tc2DashboardMode',!!on);
+}
+
+if(window.NGT500&&NGT500.on){
+ NGT500.on('route',function(e){
+  setTc2Mode(e&&['dashboard','smartDashboard'].includes(e.name));
+ });
+}
+
 function userName(){
  const keys=['tc_user_profile','terracontrol_user','ngt_user','ngt_google_user'];
  for(const k of keys){
@@ -13,20 +23,14 @@ function userName(){
    if(u.displayName)return String(u.displayName).split(' ')[0];
   }catch(e){}
  }
- try{
-  const seller=JSON.parse(localStorage.getItem('ngt_seller_profile_v1')||'{}');
-  if(seller.name)return String(seller.name).split(' ')[0];
- }catch(e){}
  return '';
 }
 
 function cloudLabel(){
  try{
   if(window.NGTFirebaseSync)return NGTFirebaseSync.label();
-  return 'Synchronisiert';
- }catch(e){
-  return 'Synchronisiert';
- }
+ }catch(e){}
+ return 'Synchronisiert';
 }
 
 function updateCloudStatus(){
@@ -36,9 +40,7 @@ function updateCloudStatus(){
 
 function loadScript(src){
  return new Promise(function(resolve,reject){
-  const existing=[].slice.call(document.scripts).find(function(s){
-   return s.src&&s.src.indexOf(src)>=0;
-  });
+  const existing=[].slice.call(document.scripts).find(function(s){return s.src&&s.src.indexOf(src)>=0});
   if(existing){resolve();return;}
   const s=document.createElement('script');
   s.src=src;
@@ -91,10 +93,6 @@ function openSmartDashboard(){
  NGT500.route('smartDashboard');
 }
 
-function openTerrariums(){
- alert('Terrarienverwaltung kommt in Phase 2.');
-}
-
 function quick(icon,title,sub,onclick){
  return `<button class="tc2Quick" onclick="${onclick}">
   <span class="tc2QuickIcon">${icon}</span>
@@ -104,86 +102,82 @@ function quick(icon,title,sub,onclick){
 }
 
 function render(){
+ setTc2Mode(true);
  const name=userName();
+
  return `<section class="tc2Home">
-
-  <section class="tc2Hero card">
-   <div class="tc2HeroTop">
-    <div>
-     <div class="tc2Brand">TerraControl</div>
-     <div class="tc2Sub">Version 1.0.4 RC5</div>
-    </div>
-    <div class="tc2CloudStatus">☁️ <span id="dashboardCloudStatus">${NGT500.esc(cloudLabel())}</span></div>
+  <header class="tc2Top">
+   <div class="tc2Title">
+    <h1>TerraControl</h1>
+    <p>Version 1.0.4 RC6</p>
    </div>
-
-   <div class="tc2CloudRow">
-    <button onclick="NGTDashboard.googleSignIn()">Anmelden</button>
-    <button onclick="NGTDashboard.firestoreSave()">Speichern</button>
-    <button onclick="NGTDashboard.firestoreLoad()">Laden</button>
+   <div class="tc2Sync">
+    <span>☁️</span>
+    <b id="dashboardCloudStatus">${NGT500.esc(cloudLabel())}</b>
+    <small>Heute, 09:58</small>
    </div>
+  </header>
 
-   <div class="tc2Welcome">
-    <div class="tc2AnimalMark tc2MarkSnake">🐍</div>
-    <div class="tc2AnimalMark tc2MarkSpider">🕷️</div>
-    <div class="tc2AnimalMark tc2MarkGecko">🦎</div>
-    <h2>Hallo${name?' '+NGT500.esc(name):''} 👋</h2>
-    <p>Schön, dass du wieder da bist.</p>
-   </div>
+  <div class="tc2CloudButtons">
+   <button onclick="NGTDashboard.googleSignIn()">Anmelden</button>
+   <button onclick="NGTDashboard.firestoreSave()">Speichern</button>
+   <button onclick="NGTDashboard.firestoreLoad()">Laden</button>
+  </div>
+
+  <section class="tc2WelcomeCard">
+   <div class="tc2Animal tc2Snake">🐍</div>
+   <div class="tc2Animal tc2Spider">🕷️</div>
+   <div class="tc2Animal tc2Gecko">🦎</div>
+   <h2>Hallo${name?' '+NGT500.esc(name):''} 👋</h2>
+   <p>Schön, dass du wieder da bist!</p>
   </section>
 
   <section class="tc2Actions">
    <h2>Schnellaktionen</h2>
    <div class="tc2QuickGrid">
-    ${quick('📄','KI Dokumentenimport','HKN, Notizen, Dokumente','NGTDashboard.openHknImport()')}
-    ${quick('⚡','KI Schnelleingabe','Fütterung, Gewicht, Häutung',"NGT500.route('assistant')")}
-    ${quick('➕','Tier manuell anlegen','Neues Tier erfassen','NGTDashboard.manualAnimal()')}
-    ${quick('🍽️','Futterbestand hinzufügen','Bestände verwalten',"NGT500.route('food')")}
+    ${quick('📄','KI Dokumentenimport','erst anmelden','NGTDashboard.openHknImport()')}
+    ${quick('⚡','KI Schnelleingabe','erst anmelden',"NGT500.route('assistant')")}
+    ${quick('➕','Tier manuell anlegen','erst anmelden','NGTDashboard.manualAnimal()')}
+    ${quick('🍽️','Futterbestand hinzufügen','erst anmelden',"NGT500.route('food')")}
    </div>
   </section>
 
   <section class="tc2Stock card">
-   <button class="tc2LargeRow" onclick="NGTDashboard.toggleBestand()">
-    <span class="tc2LargeIcon">🐾</span>
-    <span><b>Bestand</b><small>Wähle eine Tiergruppe aus</small></span>
+   <button class="tc2StockHead" onclick="NGTDashboard.toggleBestand()">
+    <span class="tc2StockIcon">🐾</span>
+    <span><b>Bestand</b><small>Wähle eine Tierart aus</small></span>
     <span class="tc2Chevron">⌄</span>
    </button>
-   <div id="bestandPanel" class="tc2SpeciesWrap hidden">
-    <div class="tc2SpeciesGrid">
-     <button onclick="NGT500.route('animals',{t:'koenig'})">🐍<span>Königspythons</span></button>
-     <button onclick="NGT500.route('animals',{t:'boas'})">🐍<span>Boas</span></button>
-     <button onclick="NGT500.route('animals',{t:'spinnen'})">🕷️<span>Vogelspinnen</span></button>
-     <button onclick="NGT500.route('animals',{t:'geckos'})">🦎<span>Leopardgeckos</span></button>
-    </div>
+   <div id="bestandPanel" class="tc2SpeciesGrid">
+    <button onclick="NGT500.route('animals',{t:'koenig'})">🐍<span>Königspythons</span></button>
+    <button onclick="NGT500.route('animals',{t:'boas'})">🐍<span>Boas</span></button>
+    <button onclick="NGT500.route('animals',{t:'spinnen'})">🕷️<span>Vogelspinnen</span></button>
+    <button onclick="NGT500.route('animals',{t:'geckos'})">🦎<span>Leopardgeckos</span></button>
    </div>
   </section>
 
   <button class="tc2SmartCard card" onclick="NGTDashboard.openSmartDashboard()">
-   <span class="tc2LargeIcon">📊</span>
+   <span class="tc2SmartIcon">📊</span>
    <span><b>Smart Dashboard</b><small>Deine intelligente Übersicht</small></span>
    <span class="tc2Chevron">›</span>
   </button>
-
  </section>`;
 }
 
 function smartRender(){
- const body=window.NGTSmartDashboard
-  ? NGTSmartDashboard.render()
-  : '<div class="card"><h2>Smart Dashboard</h2><p class="muted">Smart Dashboard lädt noch.</p></div>';
-
+ setTc2Mode(true);
+ const body=window.NGTSmartDashboard?NGTSmartDashboard.render():'<div class="card"><h2>Smart Dashboard</h2><p class="muted">Smart Dashboard lädt noch.</p></div>';
  return `<section class="tc2SmartPage">
-  <section class="tc2SmartHeader">
-   <div>
-    <h1>Smart Dashboard</h1>
-    <p>Deine intelligente Übersicht</p>
-   </div>
-   <div class="tc2CloudStatus">☁️ ${NGT500.esc(cloudLabel())}</div>
-  </section>
+  <header class="tc2Top">
+   <div class="tc2Title"><h1>Smart Dashboard</h1><p>Deine intelligente Übersicht</p></div>
+   <div class="tc2Sync"><span>☁️</span><b>${NGT500.esc(cloudLabel())}</b></div>
+  </header>
   ${body}
  </section>`;
 }
 
 function afterRender(){
+ setTc2Mode(true);
  updateCloudStatus();
  if(statusTimer)clearInterval(statusTimer);
  statusTimer=setInterval(updateCloudStatus,1500);
@@ -197,8 +191,7 @@ window.NGTDashboard={
  openHknImport,
  manualAnimal,
  toggleBestand,
- openSmartDashboard,
- openTerrariums
+ openSmartDashboard
 };
 
 NGT500.register('dashboard',{render,afterRender});
