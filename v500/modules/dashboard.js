@@ -3,25 +3,93 @@
 
 let statusTimer=null;
 
-function tc2(on){document.body.classList.toggle('tc2RefMode',!!on);}
-if(window.NGT500&&NGT500.on){NGT500.on('route',e=>tc2(e&&['dashboard','smartDashboard'].includes(e.name)));}
+function tc2(on){
+ document.body.classList.toggle('tc2RefMode',!!on);
+}
+
+function installRouteGuard(){
+ if(!window.NGT500 || NGT500.__tc2RouteGuardInstalled)return;
+ NGT500.__tc2RouteGuardInstalled=true;
+
+ const originalRoute=NGT500.route;
+ NGT500.route=function(name,args){
+  tc2(name==='dashboard'||name==='smartDashboard');
+  return originalRoute.call(NGT500,name,args);
+ };
+
+ if(NGT500.on){
+  NGT500.on('route',function(e){
+   tc2(e&&(e.name==='dashboard'||e.name==='smartDashboard'));
+  });
+ }
+}
+
+installRouteGuard();
 
 function userName(){
  const keys=['tc_user_profile','terracontrol_user','ngt_user','ngt_google_user'];
- for(const k of keys){try{const u=JSON.parse(localStorage.getItem(k)||'{}');if(u.given_name)return u.given_name;if(u.name)return String(u.name).split(' ')[0];if(u.displayName)return String(u.displayName).split(' ')[0];}catch(e){}}
+ for(const k of keys){
+  try{
+   const u=JSON.parse(localStorage.getItem(k)||'{}');
+   if(u.given_name)return u.given_name;
+   if(u.name)return String(u.name).split(' ')[0];
+   if(u.displayName)return String(u.displayName).split(' ')[0];
+  }catch(e){}
+ }
  return '';
 }
-function cloudLabel(){try{return window.NGTFirebaseSync?NGTFirebaseSync.label():'Synchronisiert';}catch(e){return 'Synchronisiert';}}
-function updateCloudStatus(){const el=document.getElementById('dashboardCloudStatus');if(el)el.textContent=cloudLabel();}
 
-async function googleSignIn(){if(window.NGTFirebaseSync)await NGTFirebaseSync.signIn();}
-async function firestoreSave(){if(window.NGTFirebaseSync){await NGTFirebaseSync.saveCloud();updateCloudStatus();}}
-async function firestoreLoad(){if(window.NGTFirebaseSync&&confirm('Daten aus Firestore laden?')){await NGTFirebaseSync.loadCloud();location.reload();}}
+function cloudLabel(){
+ try{
+  return window.NGTFirebaseSync?NGTFirebaseSync.label():'Synchronisiert';
+ }catch(e){
+  return 'Synchronisiert';
+ }
+}
 
-function openHknImport(){if(window.NGTHknImport)NGTHknImport.run();else alert('HKN-Import lädt noch.');}
-function manualAnimal(){NGT500.route('animals',{t:'koenig'});setTimeout(()=>{if(window.NGTAnimals&&NGTAnimals.openEditor)NGTAnimals.openEditor('koenig');},120);}
-function toggleBestand(){const el=document.getElementById('bestandPanel');if(el)el.classList.toggle('hidden');}
-function openSmartDashboard(){NGT500.route('smartDashboard');}
+function updateCloudStatus(){
+ const el=document.getElementById('dashboardCloudStatus');
+ if(el)el.textContent=cloudLabel();
+}
+
+async function googleSignIn(){
+ if(window.NGTFirebaseSync)await NGTFirebaseSync.signIn();
+}
+
+async function firestoreSave(){
+ if(window.NGTFirebaseSync){
+  await NGTFirebaseSync.saveCloud();
+  updateCloudStatus();
+ }
+}
+
+async function firestoreLoad(){
+ if(window.NGTFirebaseSync&&confirm('Daten aus Firestore laden?')){
+  await NGTFirebaseSync.loadCloud();
+  location.reload();
+ }
+}
+
+function openHknImport(){
+ if(window.NGTHknImport)NGTHknImport.run();
+ else alert('HKN-Import lädt noch.');
+}
+
+function manualAnimal(){
+ NGT500.route('animals',{t:'koenig'});
+ setTimeout(function(){
+  if(window.NGTAnimals&&NGTAnimals.openEditor)NGTAnimals.openEditor('koenig');
+ },120);
+}
+
+function toggleBestand(){
+ const el=document.getElementById('bestandPanel');
+ if(el)el.classList.toggle('hidden');
+}
+
+function openSmartDashboard(){
+ NGT500.route('smartDashboard');
+}
 
 function quick(icon,title,sub,onclick){
  return `<button class="tc2Quick" onclick="${onclick}">
@@ -34,6 +102,7 @@ function quick(icon,title,sub,onclick){
 function render(){
  tc2(true);
  const name=userName();
+
  return `<section class="tc2Screen tc2Start">
 
   <header class="tc2AppTop">
@@ -90,10 +159,11 @@ function render(){
 
 function smartRender(){
  tc2(true);
+
  return `<section class="tc2Screen tc2Smart">
 
   <header class="tc2AppTop">
-   <button class="tc2Menu" onclick="NGT500.route('dashboard')">☰</button>
+   <button class="tc2Menu" onclick="NGT500.openMenu()">☰</button>
    <div class="tc2HeadTitle"><h1>Smart Dashboard</h1><p>Deine intelligente Übersicht</p></div>
    <div class="tc2Sync"><span>☁</span><b>Synchronisiert</b><small>Heute, 09:58</small></div>
    <div class="tc2Avatar">SC</div>
@@ -154,7 +224,9 @@ function smartRender(){
 
 function smartList(title,rows,more){
  return `<section class="tc2Card tc2List"><h2>${title} <button>Alle anzeigen ›</button></h2>
- ${rows.map(r=>`<div class="tc2ListRow"><span>${r[0]}</span><div><b>${r[1]}</b>${r[2]?`<small>${r[2]}</small>`:''}</div><em>${r[3]}${r[4]?`<small>${r[4]}</small>`:''}</em><i>›</i></div>`).join('')}
+ ${rows.map(function(r){
+  return `<div class="tc2ListRow"><span>${r[0]}</span><div><b>${r[1]}</b>${r[2]?`<small>${r[2]}</small>`:''}</div><em>${r[3]}${r[4]?`<small>${r[4]}</small>`:''}</em><i>›</i></div>`;
+ }).join('')}
  ${more?`<p class="tc2More">${more}</p>`:''}</section>`;
 }
 
@@ -169,7 +241,17 @@ function afterRender(){
  statusTimer=setInterval(updateCloudStatus,1500);
 }
 
-window.NGTDashboard={updateCloudStatus,googleSignIn,firestoreSave,firestoreLoad,openHknImport,manualAnimal,toggleBestand,openSmartDashboard};
+window.NGTDashboard={
+ updateCloudStatus,
+ googleSignIn,
+ firestoreSave,
+ firestoreLoad,
+ openHknImport,
+ manualAnimal,
+ toggleBestand,
+ openSmartDashboard
+};
+
 NGT500.register('dashboard',{render,afterRender});
 NGT500.register('smartDashboard',{render:smartRender});
 })();
