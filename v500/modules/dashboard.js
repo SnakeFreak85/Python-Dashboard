@@ -5,22 +5,18 @@ let statusTimer=null;
 
 function userName(){
  const keys=['tc_user_profile','terracontrol_user','ngt_user','ngt_google_user'];
-
  for(const k of keys){
   try{
    const u=JSON.parse(localStorage.getItem(k)||'{}');
-
    if(u.given_name)return u.given_name;
    if(u.name)return String(u.name).split(' ')[0];
    if(u.displayName)return String(u.displayName).split(' ')[0];
   }catch(e){}
  }
-
  try{
   const seller=JSON.parse(localStorage.getItem('ngt_seller_profile_v1')||'{}');
   if(seller.name)return String(seller.name).split(' ')[0];
  }catch(e){}
-
  return '';
 }
 
@@ -32,9 +28,7 @@ function activeAnimals(){
 
 function cloudLabel(){
  try{
-  if(window.NGTFirebaseSync){
-   return NGTFirebaseSync.label();
-  }
+  if(window.NGTFirebaseSync){return NGTFirebaseSync.label();}
   return 'Firestore lädt...';
  }catch(e){
   return 'Nicht geprüft';
@@ -43,28 +37,7 @@ function cloudLabel(){
 
 function updateCloudStatus(){
  const el=document.getElementById('dashboardCloudStatus');
- if(el){
-  el.textContent=cloudLabel();
- }
-}
-
-function topCloudButtons(){
- return `<div class="btnRow" style="margin:14px 0 18px 0">
-  <button onclick="NGTDashboard.googleSignIn()">Mit Google anmelden</button>
-  <button onclick="NGTDashboard.firestoreSave()">Jetzt in Firestore speichern</button>
-  <button onclick="NGTDashboard.firestoreLoad()">Aus Firestore laden</button>
- </div>`;
-}
-
-function quickActions(){
- return `<div class="subcard">
-  <h3>🚀 Schnellaktionen</h3>
-  <p class="muted">Tiere schneller anlegen oder wichtige Aktionen direkt starten.</p>
-  <div class="btnRow">
-   <button onclick="NGTDashboard.openHknImport()">📄 Tier aus Herkunftsnachweis anlegen</button>
-   <button onclick="NGT500.route('animals',{t:'koenig'})">➕ Tier manuell anlegen</button>
-  </div>
- </div>`;
+ if(el){el.textContent=cloudLabel();}
 }
 
 function loadScript(src){
@@ -81,18 +54,9 @@ function loadScript(src){
 
 async function openHknImport(){
  try{
-  if(window.NGTHknImport){
-   NGTHknImport.run();
-   return;
-  }
-
+  if(window.NGTHknImport){NGTHknImport.run();return;}
   await loadScript('./v500/hkn-import.js?v='+Date.now());
-
-  if(window.NGTHknImport){
-   NGTHknImport.run();
-   return;
-  }
-
+  if(window.NGTHknImport){NGTHknImport.run();return;}
   throw new Error('HKN-Import nicht verfügbar.');
  }catch(e){
   alert('HKN-Import konnte nicht gestartet werden: '+(e.message||e));
@@ -130,9 +94,7 @@ async function firestoreLoad(){
   alert('Firebase-Sync lädt noch.');
   return;
  }
- if(!confirm('Daten aus Firestore laden? Lokale Daten können überschrieben werden.')){
-  return;
- }
+ if(!confirm('Daten aus Firestore laden? Lokale Daten können überschrieben werden.')){return;}
  try{
   await NGTFirebaseSync.loadCloud();
   alert('Firestore geladen. App wird neu gestartet.');
@@ -142,169 +104,117 @@ async function firestoreLoad(){
  }
 }
 
-function foodStatus(){
- try{
-  const d=NGTStore.data();
-  const n=(d.foodInventory||[]).reduce(function(s,x){
-   return s+Number(x.qty||0);
-  },0);
-
-  return n>0 ? String(n)+' Bestand' : 'prüfen';
- }catch(e){
-  return 'prüfen';
- }
+function manualAnimal(){
+ NGT500.route('animals',{t:'koenig'});
+ setTimeout(function(){
+  if(window.NGTAnimals&&NGTAnimals.openEditor){NGTAnimals.openEditor('koenig');}
+ },120);
 }
 
-function warningCount(){
- try{
-  const all=activeAnimals();
-  let n=0;
+function toggleBestand(){
+ const el=document.getElementById('bestandPanel');
+ if(!el)return;
+ el.classList.toggle('hidden');
+}
 
-  all.forEach(function(x){
-   const a=x.a||{};
-   const weights=a.weights||[];
-   const feeds=a.feeds||[];
-
-   if(weights.length>1){
-    const last=Number(weights[weights.length-1].weight||0);
-    const prev=Number(weights[weights.length-2].weight||0);
-
-    if(last&&prev&&last<prev){
-     n++;
-    }
-   }
-
-   const lastFeed=feeds.length ? feeds[feeds.length-1].date : '';
-   const interval=Number(a.feedIntervalDays||a.feedingInterval||a.feedInterval||14);
-
-   if(lastFeed&&((Date.now()-new Date(lastFeed).getTime())/86400000)>interval){
-    n++;
-   }
-  });
-
-  return n;
- }catch(e){
-  return 0;
+function toggleSmart(){
+ const el=document.getElementById('smartPanel');
+ if(!el)return;
+ if(el.innerHTML.trim()){
+  el.innerHTML='';
+  el.classList.add('hidden');
+  return;
  }
+ const smart=window.NGTSmartDashboard ? NGTSmartDashboard.render() : '<div class="subcard">Smart Dashboard lädt noch.</div>';
+ el.innerHTML=smart;
+ el.classList.remove('hidden');
+ setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},60);
+}
+
+function openTerrariums(){
+ alert('Terrarienverwaltung kommt in Phase 2.');
+}
+
+function actionCard(icon,title,sub,onclick,extra){
+ return `<button class="tc2Action ${extra||''}" onclick="${onclick}">
+  <span class="tc2ActionIcon">${icon}</span>
+  <span><b>${NGT500.esc(title)}</b><small>${NGT500.esc(sub)}</small></span>
+ </button>`;
 }
 
 function render(){
- const all=activeAnimals();
- const buy=all.reduce(function(s,x){
-  return s+Number(x.a.buyPrice||0);
- },0);
-
- const mv=all.reduce(function(s,x){
-  return s+NGTStore.market(x.a);
- },0);
-
- const smart=window.NGTSmartDashboard ? NGTSmartDashboard.render() : '';
  const name=userName();
- const wc=warningCount();
+ return `<section class="tc2Home">
+  <div class="tc2Hero card">
+   <div class="tc2Creature tc2Snake">🐍</div>
+   <div class="tc2Creature tc2Spider">🕷️</div>
+   <div class="tc2Creature tc2Gecko">🦎</div>
 
- return `<div class="card">
-  <h2>Hallo${name?' '+NGT500.esc(name):''} 👋</h2>
-  <p class="muted">Schön, dass du wieder da bist.</p>
+   <div class="tc2Topline">
+    <div>
+     <div class="tc2Brand">TerraControl</div>
+     <div class="tc2Sub">Version 1.0.4 RC4</div>
+    </div>
+    <div class="tc2Status" id="dashboardCloudStatus">${NGT500.esc(cloudLabel())}</div>
+   </div>
 
-  ${topCloudButtons()}
-  ${quickActions()}
+   <div class="tc2CloudRow">
+    <button onclick="NGTDashboard.googleSignIn()">Anmelden</button>
+    <button onclick="NGTDashboard.firestoreSave()">Speichern</button>
+    <button onclick="NGTDashboard.firestoreLoad()">Laden</button>
+   </div>
 
-  <div class="grid">
-   <div class="stat">🐍 Tiere<b>${all.length}</b></div>
-   <div class="stat">⚠️ Warnungen<b>${wc}</b></div>
-   <div class="stat">☁️ Cloud<b id="dashboardCloudStatus">${NGT500.esc(cloudLabel())}</b></div>
-   <div class="stat">🍽️ Futter<b>${NGT500.esc(foodStatus())}</b></div>
+   <div class="tc2Welcome">
+    <h2>Hallo${name?' '+NGT500.esc(name):''} 👋</h2>
+    <p>Schön, dass du wieder da bist.</p>
+   </div>
   </div>
 
-  <input placeholder="Tier suchen nach Name, ID, Morph, Geschlecht, Eltern oder Futter..." oninput="NGTDashboard.search(this.value)">
-  <div id="searchBox"></div>
- </div>
-
- ${smart}
-
- <div class="card">
-  <h2>Bestandsübersicht</h2>
-  <div class="grid">
-   <div class="stat">Aktiver Bestand<b>${all.length}</b></div>
-   <div class="stat">Kaufwert<b>${NGT500.money(buy)}</b></div>
-   <div class="stat">Marktwert<b>${NGT500.money(mv)}</b></div>
-   <div class="stat">Differenz<b>${NGT500.money(mv-buy)}</b></div>
+  <div class="tc2Actions card">
+   <h2>Schnellaktionen</h2>
+   <div class="tc2ActionGrid">
+    ${actionCard('📄','KI Dokumentenimport','HKN, Notizen, Dokumente','NGTDashboard.openHknImport()')}
+    ${actionCard('⚡','KI Schnelleingabe','Fütterung, Gewicht, Häutung','NGT500.route(\'assistant\')')}
+    ${actionCard('➕','Tier manuell anlegen','Neues Tier erfassen','NGTDashboard.manualAnimal()')}
+    ${actionCard('🍽️','Futterbestand hinzufügen','Bestände verwalten','NGT500.route(\'food\')')}
+    ${actionCard('🐾','Bestand','Tiergruppen öffnen','NGTDashboard.toggleBestand()','tc2Accent')}
+    ${actionCard('🏡','Terrarienverwaltung','Anlagen, Racks, Fächer','NGTDashboard.openTerrariums()')}
+    ${actionCard('📊','Smart Dashboard','Übersicht öffnen','NGTDashboard.toggleSmart()','tc2Wide')}
+   </div>
   </div>
- </div>`;
+
+  <div id="bestandPanel" class="card hidden">
+   <h2>Bestand</h2>
+   <p class="muted">Wähle eine Tiergruppe aus.</p>
+   <div class="tc2SpeciesGrid">
+    <button onclick="NGT500.route('animals',{t:'koenig'})">🐍 Königspythons</button>
+    <button onclick="NGT500.route('animals',{t:'boas'})">🐍 Boas</button>
+    <button onclick="NGT500.route('animals',{t:'spinnen'})">🕷️ Vogelspinnen</button>
+    <button onclick="NGT500.route('animals',{t:'geckos'})">🦎 Leopardgeckos</button>
+   </div>
+  </div>
+
+  <div id="smartPanel" class="tc2SmartPanel hidden"></div>
+ </section>`;
 }
 
 function afterRender(){
  updateCloudStatus();
-
- if(statusTimer){
-  clearInterval(statusTimer);
- }
-
+ if(statusTimer){clearInterval(statusTimer);}
  statusTimer=setInterval(updateCloudStatus,1500);
 }
 
-function textFor(x){
- const a=x.a||{};
-
- return [
-  a.name,
-  a.uuid,
-  a.uid,
-  a.displayId,
-  a.morph,
-  a.sex,
-  a.status,
-  a.birth,
-  a.origin,
-  a.originType,
-  a.father,
-  a.vater,
-  a.sire,
-  a.mother,
-  a.mutter,
-  a.dam,
-  a.defaultFeeder,
-  a.futterStandard,
-  a.standardFeed,
-  a.note
- ].filter(Boolean).join(' ').toLowerCase();
-}
-
-function search(q){
- q=String(q||'').toLowerCase().trim();
-
- const box=document.getElementById('searchBox');
-
- if(!box){
-  return;
- }
-
- if(!q){
-  box.innerHTML='';
-  return;
- }
-
- const rows=activeAnimals().filter(function(x){
-  return textFor(x).includes(q);
- });
-
- box.innerHTML=rows.length
-  ? '<p class="muted">'+rows.length+' Treffer</p>'+rows.map(NGTUI.animalCard).join('')
-  : '<div class="subcard">Keine Treffer gefunden.</div>';
-}
-
 window.NGTDashboard={
- search,
  updateCloudStatus,
  googleSignIn,
  firestoreSave,
  firestoreLoad,
- openHknImport
+ openHknImport,
+ manualAnimal,
+ toggleBestand,
+ toggleSmart,
+ openTerrariums
 };
 
-NGT500.register('dashboard',{
- render,
- afterRender
-});
-
+NGT500.register('dashboard',{render,afterRender});
 })();
