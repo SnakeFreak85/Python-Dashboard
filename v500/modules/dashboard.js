@@ -36,12 +36,14 @@ function updateCloudStatus(){
 
 function loadScript(src){
  return new Promise(function(resolve,reject){
-  const existing=[].slice.call(document.scripts).find(s=>s.src&&s.src.indexOf(src)>=0);
+  const existing=[].slice.call(document.scripts).find(function(s){
+   return s.src&&s.src.indexOf(src)>=0;
+  });
   if(existing){resolve();return;}
   const s=document.createElement('script');
   s.src=src;
   s.onload=resolve;
-  s.onerror=function(){reject(new Error('Modul konnte nicht geladen werden: '+src))};
+  s.onerror=function(){reject(new Error('Modul konnte nicht geladen werden: '+src));};
   document.head.appendChild(s);
  });
 }
@@ -133,9 +135,9 @@ function render(){
    <h2>Schnellaktionen</h2>
    <div class="tc2QuickGrid">
     ${quick('📄','KI Dokumentenimport','HKN, Notizen, Dokumente','NGTDashboard.openHknImport()')}
-    ${quick('⚡','KI Schnelleingabe','Fütterung, Gewicht, Häutung','NGT500.route(\\'assistant\\')')}
+    ${quick('⚡','KI Schnelleingabe','Fütterung, Gewicht, Häutung',"NGT500.route('assistant')")}
     ${quick('➕','Tier manuell anlegen','Neues Tier erfassen','NGTDashboard.manualAnimal()')}
-    ${quick('🍽️','Futterbestand hinzufügen','Bestände verwalten','NGT500.route(\\'food\\')')}
+    ${quick('🍽️','Futterbestand hinzufügen','Bestände verwalten',"NGT500.route('food')")}
    </div>
   </section>
 
