@@ -7,6 +7,28 @@
   overflow: hidden;
 }
 
+.tc2Hero::before {
+  content: "🐍";
+  position: absolute;
+  left: -12px;
+  bottom: -18px;
+  font-size: 86px;
+  opacity: .16;
+  pointer-events: none;
+  transform: rotate(-14deg);
+}
+
+.tc2Hero::after {
+  content: "🕷️";
+  position: absolute;
+  right: 92px;
+  top: 58px;
+  font-size: 74px;
+  opacity: .15;
+  pointer-events: none;
+  transform: rotate(10deg);
+}
+
 .tc2Topline {
   display: flex;
   justify-content: space-between;
@@ -43,10 +65,30 @@
 }
 
 .tc2Welcome {
+  position: relative;
   background: rgba(255, 255, 255, .05);
   border: 1px solid rgba(255, 255, 255, .08);
   border-radius: 20px;
   padding: 14px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.tc2Welcome::after {
+  content: "🦎";
+  position: absolute;
+  right: -10px;
+  bottom: -18px;
+  font-size: 84px;
+  opacity: .18;
+  pointer-events: none;
+  transform: rotate(-10deg);
+}
+
+.tc2Welcome h2,
+.tc2Welcome p {
+  position: relative;
+  z-index: 2;
 }
 
 .tc2Welcome h2 {
@@ -59,25 +101,7 @@
 }
 
 .tc2Creature {
-  position: absolute;
-  font-size: 70px;
-  opacity: .28;
-  pointer-events: none;
-}
-
-.tc2Snake {
-  left: 0;
-  bottom: 0;
-}
-
-.tc2Spider {
-  right: 100px;
-  top: 70px;
-}
-
-.tc2Gecko {
-  right: 0;
-  bottom: 0;
+  display: none;
 }
 
 .tc2ActionGrid {
@@ -135,5 +159,23 @@
   .tc2CloudRow button {
     font-size: 14px;
     padding: 11px 8px;
+  }
+
+  .tc2Hero::before {
+    font-size: 72px;
+    left: -18px;
+    bottom: -20px;
+  }
+
+  .tc2Hero::after {
+    font-size: 62px;
+    right: 28px;
+    top: 82px;
+  }
+
+  .tc2Welcome::after {
+    font-size: 72px;
+    right: -14px;
+    bottom: -18px;
   }
 }
