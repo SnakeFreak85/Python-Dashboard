@@ -1050,3 +1050,100 @@ body:not(.tc2RefMode) .card {
   font-size: 12px !important;
   font-weight: 900 !important;
 }
+/* TC2 Drawer Navigation */
+
+.drawer {
+  background: linear-gradient(180deg,#162c3e,#07131f) !important;
+  border-right: 1px solid rgba(125,170,210,.24) !important;
+  box-shadow: 18px 0 55px rgba(0,0,0,.5) !important;
+  padding: 18px 12px 24px !important;
+  overflow-y: auto;
+}
+
+.tc2DrawerHead {
+  display: grid;
+  grid-template-columns: 52px minmax(0,1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px 8px 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.tc2DrawerLogo {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(180deg,#8bdc3f,#43a83e);
+  color: #06111a;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  font-size: 18px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.28);
+}
+
+.tc2DrawerHead h2 {
+  margin: 0 !important;
+  color: #f4f7fb !important;
+  font-size: 21px !important;
+  line-height: 1 !important;
+}
+
+.tc2DrawerHead p {
+  margin: 6px 0 0;
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2DrawerGroup {
+  margin: 14px 0 18px;
+}
+
+.tc2DrawerGroupTitle {
+  padding: 0 8px 8px;
+  color: #7f8e9d;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 900;
+}
+
+.drawer .tc2DrawerItem {
+  width: 100% !important;
+  min-height: 50px !important;
+  margin: 0 0 8px !important;
+  padding: 10px 12px !important;
+  display: grid !important;
+  grid-template-columns: 34px minmax(0,1fr);
+  gap: 10px;
+  align-items: center;
+  text-align: left !important;
+  border-radius: 16px !important;
+  background: rgba(7,18,29,.48) !important;
+  border: 1px solid rgba(125,170,210,.16) !important;
+  color: #f4f7fb !important;
+  box-shadow: none !important;
+}
+
+.drawer .tc2DrawerItem span {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(139,220,63,.08);
+  border: 1px solid rgba(139,220,63,.18);
+  font-size: 17px;
+}
+
+.drawer .tc2DrawerItem b {
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.drawer .tc2DrawerItem:hover,
+.drawer .tc2DrawerItem:focus {
+  border-color: rgba(139,220,63,.52) !important;
+  background: rgba(139,220,63,.08) !important;
+}
