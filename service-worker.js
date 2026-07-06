@@ -1,4 +1,4 @@
-const TC_CACHE='terracontrol-v1-0-4-rc5';
+const TC_CACHE='terracontrol-v1-0-4-rc10';
 
 const APP_SHELL=[
   './',
@@ -7,14 +7,15 @@ const APP_SHELL=[
   './icon.svg',
   './icon-192.png',
   './icon-512.png',
-  './v500/styles.css',
-  './v500/tc2.css',
-  './v500/core.js',
-  './v500/store.js',
-  './v500/ui.js',
-  './v500/app.js',
-  './v500/smart-dashboard.js',
-  './v500/modules/dashboard.js'
+  './v500/styles.css?v=1.0.4-rc10',
+  './v500/tc2.css?v=1.0.4-rc10',
+  './v500/core.js?v=1.0.4-rc10',
+  './v500/store.js?v=1.0.4-rc10',
+  './v500/ui.js?v=1.0.4-rc10',
+  './v500/app.js?v=1.0.4-rc10',
+  './v500/smart-dashboard.js?v=1.0.4-rc10',
+  './v500/modules/dashboard.js?v=1.0.4-rc10',
+  './v500/firebase-sync.js?v=1.0.4-rc10'
 ];
 
 self.addEventListener('install',event=>{
@@ -38,6 +39,19 @@ self.addEventListener('fetch',event=>{
 
   const url=new URL(event.request.url);
   if(url.origin!==location.origin)return;
+
+  if(url.pathname.endsWith('.js')||url.pathname.endsWith('.css')||url.pathname.endsWith('/v500.html')){
+    event.respondWith(
+      fetch(event.request,{cache:'no-store'})
+        .then(response=>{
+          const copy=response.clone();
+          caches.open(TC_CACHE).then(cache=>cache.put(event.request,copy));
+          return response;
+        })
+        .catch(()=>caches.match(event.request))
+    );
+    return;
+  }
 
   event.respondWith(
     fetch(event.request)
