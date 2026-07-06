@@ -14,17 +14,14 @@ function opt(list,cur){
 }
 
 function hknDraft(){
- try{
-  return JSON.parse(sessionStorage.getItem('terracontrol_hkn_import_v1')||'null');
- }catch(e){
-  return null;
- }
+ try{return JSON.parse(sessionStorage.getItem('terracontrol_hkn_import_v1')||'null')}
+ catch(e){return null}
 }
 
 function hknInfo(){
  const h=hknDraft();
  if(!h)return '';
- return `<div class="subcard ok">
+ return `<div class="subcard ok tc2FormCard">
   <h3>📄 Herkunftsnachweis übernommen</h3>
   <p class="muted">Das Foto wurde übernommen. Die KI-Analyse läuft automatisch und füllt die Felder aus, sobald Daten erkannt wurden.</p>
   ${h.data&&String(h.data).startsWith('data:image')?`<img class="photo" src="${h.data}">`:''}
@@ -39,14 +36,27 @@ function render(args){
  const edit=args.edit;
  const hkn=!!args.hkn;
  const rows=(NGTStore.data()[t]||[]);
- const list=rows.map((a,i)=>NGTUI.animalCard({t,i,a})).join('')||
-  '<div class="subcard"><h3>Noch keine Tiere</h3><p class="muted">Lege dein erstes Tier an. Danach kannst du Fütterungen, Häutungen, Gewichte, Fotos und den digitalen Tierpass pflegen.</p></div>';
- return `<div class="card">
-  <h2>${NGTStore.LABELS[t]}</h2>
-  <button onclick="NGTAnimals.openEditor('${t}')">Tier anlegen</button>
+ const label=NGTStore.LABELS[t]||'Bestand';
+
+ const list=rows.map((a,i)=>NGTUI.animalCard({t,i,a})).join('') ||
+  `<div class="subcard tc2EmptyState">
+    <h3>Noch keine Tiere</h3>
+    <p class="muted">Lege dein erstes Tier an. Danach kannst du Fütterungen, Häutungen, Gewichte, Fotos und den digitalen Tierpass pflegen.</p>
+   </div>`;
+
+ return `<div class="card tc2PageCard tc2AnimalsPage">
+  <div class="tc2PageHead">
+   <div>
+    <h2>${NGT500.esc(label)}</h2>
+    <p class="muted">Dein echter gespeicherter Bestand</p>
+   </div>
+   <button onclick="NGTAnimals.openEditor('${t}')">＋ Tier anlegen</button>
+  </div>
+
   ${hkn?hknInfo()+editor(t,undefined,true):''}
   ${edit!==undefined?editor(t,Number(edit)):''}
-  <div>${list}</div>
+
+  <div class="tc2AnimalList">${list}</div>
  </div>`;
 }
 
@@ -57,37 +67,53 @@ function editor(t,i,fromHkn){
  const defType=a.defaultFeederType||parsed.prey||'Ratte';
  const defSize=a.defaultFeederSize||parsed.size||((NGTStore.FEEDER_SIZES[defType]||[])[0]||'');
  const feedInterval=a.feedIntervalDays||a.feedingInterval||a.feedInterval||14;
- return `<div class="subcard">
+
+ return `<div class="subcard tc2FormCard">
   <h3>${i!==undefined?'Tier bearbeiten':(fromHkn?'Tier aus HKN anlegen':'Tier anlegen')}</h3>
-  <input id="edName" placeholder="Name" value="${NGT500.esc(a.name||'')}">
-  <input id="edMorph" placeholder="Morph" value="${NGT500.esc(a.morph||'')}">
-  <input id="edWeight" type="number" placeholder="Gewicht" value="${NGT500.esc(a.weight||'')}">
-  <input id="edOrigin" placeholder="Herkunft / ENZ / FNZ" value="${NGT500.esc(a.origin||a.originType||'')}">
-  <input id="edBirth" type="date" value="${NGT500.esc(a.birth||a.birthDate||'')}">
-  <input id="edFather" placeholder="Vatertier" value="${NGT500.esc(a.father||a.vater||a.sire||'')}">
-  <input id="edMother" placeholder="Muttertier" value="${NGT500.esc(a.mother||a.mutter||a.dam||'')}">
-  <input id="edFeedInterval" type="number" min="1" placeholder="Fütterungsintervall in Tagen" value="${NGT500.esc(feedInterval)}">
-  <input id="edBuy" type="number" placeholder="Kaufpreis" value="${NGT500.esc(a.buyPrice||'')}">
-  <select id="edSex">
-   <option ${a.sex==='Unbestimmt'?'selected':''}>Unbestimmt</option>
-   <option ${a.sex==='Männlich'?'selected':''}>Männlich</option>
-   <option ${a.sex==='Weiblich'?'selected':''}>Weiblich</option>
-  </select>
-  <select id="edStatus">${statusOptions(a.status||'Bestand')}</select>
+
+  <div class="tc2FormGrid">
+   <input id="edName" placeholder="Name" value="${NGT500.esc(a.name||'')}">
+   <input id="edMorph" placeholder="Morph" value="${NGT500.esc(a.morph||'')}">
+   <input id="edWeight" type="number" placeholder="Gewicht" value="${NGT500.esc(a.weight||'')}">
+   <input id="edOrigin" placeholder="Herkunft / ENZ / FNZ" value="${NGT500.esc(a.origin||a.originType||'')}">
+   <input id="edBirth" type="date" value="${NGT500.esc(a.birth||a.birthDate||'')}">
+   <input id="edFather" placeholder="Vatertier" value="${NGT500.esc(a.father||a.vater||a.sire||'')}">
+   <input id="edMother" placeholder="Muttertier" value="${NGT500.esc(a.mother||a.mutter||a.dam||'')}">
+   <input id="edFeedInterval" type="number" min="1" placeholder="Fütterungsintervall in Tagen" value="${NGT500.esc(feedInterval)}">
+   <input id="edBuy" type="number" placeholder="Kaufpreis" value="${NGT500.esc(a.buyPrice||'')}">
+
+   <select id="edSex">
+    <option ${a.sex==='Unbestimmt'?'selected':''}>Unbestimmt</option>
+    <option ${a.sex==='Männlich'?'selected':''}>Männlich</option>
+    <option ${a.sex==='Weiblich'?'selected':''}>Weiblich</option>
+   </select>
+
+   <select id="edStatus">${statusOptions(a.status||'Bestand')}</select>
+  </div>
+
   <h3>Standardfutter</h3>
-  <select id="edFeederState">
-   <option ${defState==='Frost'?'selected':''}>Frost</option>
-   <option ${defState==='Lebend'?'selected':''}>Lebend</option>
-  </select>
-  <select id="edFeederType" onchange="NGTAnimals.refreshSizeSelect('edFeederType','edFeederSize')">
-   ${opt(NGTStore.FEEDER_TYPES,defType)}
-  </select>
-  <select id="edFeederSize">
-   ${opt(NGTStore.FEEDER_SIZES[defType]||[],defSize)}
-  </select>
+
+  <div class="tc2FormGrid">
+   <select id="edFeederState">
+    <option ${defState==='Frost'?'selected':''}>Frost</option>
+    <option ${defState==='Lebend'?'selected':''}>Lebend</option>
+   </select>
+
+   <select id="edFeederType" onchange="NGTAnimals.refreshSizeSelect('edFeederType','edFeederSize')">
+    ${opt(NGTStore.FEEDER_TYPES,defType)}
+   </select>
+
+   <select id="edFeederSize">
+    ${opt(NGTStore.FEEDER_SIZES[defType]||[],defSize)}
+   </select>
+  </div>
+
   <p class="muted">Gewichtsintervall: 30 Tage festgelegt.</p>
   <textarea id="edNote" placeholder="Notizen">${NGT500.esc(a.note||'')}</textarea>
-  <button onclick="NGTAnimals.save('${t}',${i===undefined?'null':i})">Speichern</button>
+
+  <div class="btnRow">
+   <button onclick="NGTAnimals.save('${t}',${i===undefined?'null':i})">Speichern</button>
+  </div>
  </div>`;
 }
 
@@ -100,7 +126,7 @@ function refreshSizeSelect(typeId,sizeId){
 }
 
 function openEditor(t){
- document.querySelector('.card').insertAdjacentHTML('afterbegin',editor(t));
+ document.querySelector('.tc2AnimalsPage, .card').insertAdjacentHTML('afterbegin',editor(t));
 }
 
 function save(t,i){
@@ -115,6 +141,7 @@ function save(t,i){
  const note=h&&i===null
   ? (noteBase?noteBase+'\n\n':'')+'HKN importiert: '+(h.name||'Herkunftsnachweis')
   : noteBase;
+
  const a={
   ...old,
   name:edName.value.trim()||'Unbenannt',
@@ -144,10 +171,12 @@ function save(t,i){
   standardFeed:feeder,
   note
  };
+
  a.feeds=a.feeds||[];
  a.sheds=a.sheds||[];
  a.weights=a.weights||[];
  a.photos=a.photos||[];
+
  if(h&&h.data&&String(h.data).startsWith('data:image')&&i===null){
   a.photos.unshift({
    date:NGT500.today(),
@@ -157,12 +186,14 @@ function save(t,i){
    cover:false
   });
  }
+
  if(i===null){
   NGTStore.addAnimal(t,a);
   try{sessionStorage.removeItem('terracontrol_hkn_import_v1')}catch(e){}
  }else{
   NGTStore.updateAnimal(t,i,a);
  }
+
  NGT500.route('animals',{t});
 }
 
