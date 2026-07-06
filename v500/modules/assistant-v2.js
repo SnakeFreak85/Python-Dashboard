@@ -1,21 +1,235 @@
 (function(){
 'use strict';
-function commandHelp(){return `<div class="modal"><div class="modalBox"><h2>TerraControl KI · Mögliche Befehle</h2><div class="subcard"><h3>Schnelle Einträge</h3>Medusa hat heute eine 200g Ratte gefressen<br>Apollo hat gestern verweigert<br>Medusa wiegt jetzt 2536 Gramm<br>Medusa hat sich gehäutet</div><div class="subcard"><h3>Futterbestand</h3>Ich habe 25 Ratten 120g gekauft<br>Bestand Ratte 70g auf 10 setzen</div><div class="subcard"><h3>Fragen</h3>Wie geht es Medusa?<br>Welche Tiere müssen gefüttert werden?<br>Welche Tiere müssen gewogen werden?<br>Welche Empfehlungen gibt es?</div><button onclick="NGTAssistant.closeHelp()">Schließen</button></div></div>`}
-function render(){return `<div class="card"><h2>🤖 TerraControl KI</h2><p class="muted">Schnelleingabe für Fütterungen, Gewichte, Häutungen, Futterbestand und Tierfragen.</p><div class="chips"><button onclick="NGTAssistant.showHelp()">Mögliche Befehle</button><button onclick="NGTAssistant.today()">Heute</button><button onclick="NGTAssistant.clearContext()">Kontext löschen</button></div><textarea id="aiText" placeholder="Nachricht oder Befehl eingeben..."></textarea><button onclick="NGTAssistant.preview()">Analysieren</button><button onclick="NGTAssistant.run()">Ausführen</button><div id="aiHelp"></div><div id="aiOut"></div></div>`;}
-function html(s){return NGT500.esc(s||'')}
+
+function esc(v){return NGT500.esc(v||'')}
+
+function commandHelp(){
+ return `<div class="modal">
+  <div class="modalBox tc2ModalBox">
+   <h2>TerraControl KI · Mögliche Befehle</h2>
+
+   <div class="subcard tc2SubCard">
+    <h3>Schnelle Einträge</h3>
+    <div class="tc2ExampleList">
+     <span>Medusa hat heute eine 200g Ratte gefressen</span>
+     <span>Apollo hat gestern verweigert</span>
+     <span>Medusa wiegt jetzt 2536 Gramm</span>
+     <span>Medusa hat sich gehäutet</span>
+    </div>
+   </div>
+
+   <div class="subcard tc2SubCard">
+    <h3>Futterbestand</h3>
+    <div class="tc2ExampleList">
+     <span>Ich habe 25 Ratten 120g gekauft</span>
+     <span>Bestand Ratte 70g auf 10 setzen</span>
+    </div>
+   </div>
+
+   <div class="subcard tc2SubCard">
+    <h3>Fragen</h3>
+    <div class="tc2ExampleList">
+     <span>Wie geht es Medusa?</span>
+     <span>Welche Tiere müssen gefüttert werden?</span>
+     <span>Welche Tiere müssen gewogen werden?</span>
+     <span>Welche Empfehlungen gibt es?</span>
+    </div>
+   </div>
+
+   <button onclick="NGTAssistant.closeHelp()">Schließen</button>
+  </div>
+ </div>`;
+}
+
+function render(){
+ return `<div class="card tc2PageCard tc2AssistantPage">
+  <div class="tc2PageHead">
+   <div>
+    <h2>⚡ Schnelleingabe</h2>
+    <p class="muted">Fütterungen, Gewichte, Häutungen, Futterbestand und Tierfragen per Text erfassen.</p>
+   </div>
+  </div>
+
+  <div class="tc2AssistantHero">
+   <div class="tc2AssistantIcon">🤖</div>
+   <div>
+    <h3>TerraControl KI</h3>
+    <p>Schreibe natürlich, was passiert ist. TerraControl erkennt Tier, Datum, Futter, Gewicht oder Bestand.</p>
+   </div>
+  </div>
+
+  <div class="tc2AssistantChips">
+   <button onclick="NGTAssistant.showHelp()">Mögliche Befehle</button>
+   <button onclick="NGTAssistant.today()">Heute</button>
+   <button onclick="NGTAssistant.clearContext()">Kontext löschen</button>
+  </div>
+
+  <div class="subcard tc2FormCard">
+   <h3>Eingabe</h3>
+   <textarea id="aiText" placeholder="Beispiel: Medusa hat heute Frost Ratte 200 g gefressen..."></textarea>
+   <div class="tc2AssistantActions">
+    <button onclick="NGTAssistant.preview()">Analysieren</button>
+    <button onclick="NGTAssistant.run()">Ausführen</button>
+   </div>
+  </div>
+
+  <div id="aiHelp"></div>
+  <div id="aiOut" class="tc2AssistantOutput"></div>
+ </div>`;
+}
+
+function html(s){return esc(s)}
 function show(s){document.getElementById('aiOut').innerHTML=s}
 function showHelp(){document.getElementById('aiHelp').innerHTML=commandHelp()}
 function closeHelp(){document.getElementById('aiHelp').innerHTML=''}
-function applyStock(p){const ft=p.feeder;const info=p.stock||NGTAIEngine.stockQty(p.raw);if(!ft||!info.qty)return null;const data=NGTStore.data();let item=data.foodInventory.find(x=>NGTAIEngine.norm(x.name)===NGTAIEngine.norm(ft));if(!item){item={name:ft,qty:0};data.foodInventory.push(item)}if(info.mode==='set')item.qty=Math.max(0,Math.abs(info.qty));else item.qty=Math.max(0,Number(item.qty||0)+info.qty);NGTStore.save();return 'Bestand '+ft+': '+item.qty;}
-function applyParsed(p){if(p.intent==='context')return {text:'Kontext: '+p.animal.a.name,animal:p.animal.a};if(p.intent==='stock')return {text:applyStock(p),animal:null};if(!p.animal)return null;const a=p.animal.a;let txt='';if(p.intent==='defaultFeeder'){if(!p.feeder)return null;a.defaultFeeder=p.feeder;a.futterStandard=p.feeder;a.standardFeed=p.feeder;NGTStore.save();txt=a.name+': Standardfutter '+p.feeder;}else if(p.intent==='shed'){a.sheds=a.sheds||[];a.sheds.push({date:p.date,complete:true,note:'TerraControl KI'});NGTStore.save();txt=a.name+': Häutung '+p.date;}else if(p.intent==='weight'){if(!p.grams)return null;a.weights=a.weights||[];a.weights.push({date:p.date,weight:p.grams,note:'TerraControl KI'});a.weight=p.grams;NGTStore.save();txt=a.name+': Gewicht '+p.date+' '+p.grams+'g';}else if(p.intent==='feed'||p.intent==='feed_refused'){const ft=p.feeder||a.defaultFeeder||a.futterStandard||'';const f=NGTStore.parseFeeder(ft);a.feeds=a.feeds||[];a.feeds.push({date:p.date,prey:f.prey,amount:f.amount,accepted:p.intent!=='feed_refused',note:'TerraControl KI'});if(f.label)NGTStore.reduceFood(f.label,1);else NGTStore.save();txt=a.name+': '+p.date+' '+(p.intent==='feed_refused'?'verweigert':'gefressen')+' '+(f.label||'');}else return null;const feedback=window.NGTAIManager?NGTAIManager.afterSave(p,a):'';return {text:txt+feedback,animal:a};}
+
+function applyStock(p){
+ const ft=p.feeder;
+ const info=p.stock||NGTAIEngine.stockQty(p.raw);
+ if(!ft||!info.qty)return null;
+ const data=NGTStore.data();
+ let item=data.foodInventory.find(x=>NGTAIEngine.norm(x.name)===NGTAIEngine.norm(ft));
+ if(!item){
+  item={name:ft,qty:0};
+  data.foodInventory.push(item);
+ }
+ if(info.mode==='set')item.qty=Math.max(0,Math.abs(info.qty));
+ else item.qty=Math.max(0,Number(item.qty||0)+info.qty);
+ NGTStore.save();
+ return 'Bestand '+ft+': '+item.qty;
+}
+
+function applyParsed(p){
+ if(p.intent==='context')return {text:'Kontext: '+p.animal.a.name,animal:p.animal.a};
+ if(p.intent==='stock')return {text:applyStock(p),animal:null};
+ if(!p.animal)return null;
+
+ const a=p.animal.a;
+ let txt='';
+
+ if(p.intent==='defaultFeeder'){
+  if(!p.feeder)return null;
+  a.defaultFeeder=p.feeder;
+  a.futterStandard=p.feeder;
+  a.standardFeed=p.feeder;
+  NGTStore.save();
+  txt=a.name+': Standardfutter '+p.feeder;
+ }else if(p.intent==='shed'){
+  a.sheds=a.sheds||[];
+  a.sheds.push({date:p.date,complete:true,note:'TerraControl KI'});
+  NGTStore.save();
+  txt=a.name+': Häutung '+p.date;
+ }else if(p.intent==='weight'){
+  if(!p.grams)return null;
+  a.weights=a.weights||[];
+  a.weights.push({date:p.date,weight:p.grams,note:'TerraControl KI'});
+  a.weight=p.grams;
+  NGTStore.save();
+  txt=a.name+': Gewicht '+p.date+' '+p.grams+'g';
+ }else if(p.intent==='feed'||p.intent==='feed_refused'){
+  const ft=p.feeder||a.defaultFeeder||a.futterStandard||'';
+  const f=NGTStore.parseFeeder(ft);
+  a.feeds=a.feeds||[];
+  a.feeds.push({date:p.date,prey:f.prey,amount:f.amount,accepted:p.intent!=='feed_refused',note:'TerraControl KI'});
+  if(f.label)NGTStore.reduceFood(f.label,1);
+  else NGTStore.save();
+  txt=a.name+': '+p.date+' '+(p.intent==='feed_refused'?'verweigert':'gefressen')+' '+(f.label||'');
+ }else return null;
+
+ const feedback=window.NGTAIManager?NGTAIManager.afterSave(p,a):'';
+ return {text:txt+feedback,animal:a};
+}
+
 function rawText(){return document.getElementById('aiText').value}
 function parsed(){return (window.NGTAIContext?NGTAIContext.parse:NGTAIEngine.parse)(rawText())}
-function recommendationAnswer(){const q=NGTAIEngine.norm(rawText());if(!window.NGTAIRecommendations)return null;if(/empfehl|kritisch|warnung|hinweis|problem|auffaellig|auffällig/.test(q)){return '<div class="subcard ok"><b>Empfehlungen</b></div>'+NGTAIRecommendations.render(NGTAIRecommendations.build());}return null;}
-function managerQuestion(){const q=NGTAIEngine.norm(rawText());if(!window.NGTAIManager)return null;if(/heute|tagesuebersicht|tagesübersicht|manager/.test(q)&&/was|zeige|übersicht|uebersicht|steht|an/.test(q))return '<div class="subcard ok"><b>Heute</b></div>'+NGTAIManager.renderToday();const hit=NGTAIEngine.findAnimal(rawText());if(hit&&/(wie geht|status|zusammenfassung|ueberblick|überblick)/.test(q))return '<div class="subcard ok"><b>Tier-Zusammenfassung</b><br>'+html(NGTAIManager.animalSummary(hit.a)).replace(/\n/g,'<br>')+'</div>';return null;}
-function answer(){const m=managerQuestion();if(m)return m;const r=recommendationAnswer();if(r)return r;const a=window.NGTAIQuery?NGTAIQuery.query(rawText()):null;return a?NGTAIQuery.renderAnswer(a):null}
-function preview(){const ans=answer();if(ans){show(ans);return;}const ps=parsed();const ctx=window.NGTAIContext?NGTAIContext.get():{};show(`<div class="subcard">Aktueller Kontext: ${html(ctx.lastAnimal||'-')}</div>`+ps.map(p=>`<div class="subcard"><b>${html(p.intent)}</b><br>Text: ${html(p.raw)}<br>Tier: ${p.animal?html(p.animal.a.name):'nicht erkannt'}<br>Datum: ${html(p.date||'-')}<br>Futter: ${html(p.feeder||'-')}<br>Gewicht: ${html(p.grams||'-')}<br>Bestand: ${p.stock?html(p.stock.mode+' '+p.stock.qty):'-'}</div>`).join(''));}
-function run(){const ans=answer();if(ans){show(ans);return;}const ps=parsed();const ok=[];const err=[];ps.forEach(p=>{const r=applyParsed(p);if(r&&r.text)ok.push(r.text);else err.push('Nicht gespeichert: '+p.raw)});show((ok.length?`<div class="subcard ok">✅ ${ok.length} Eintrag/Einträge gespeichert.</div>`:'')+ok.map(x=>`<div class="subcard">${html(x)}</div>`).join('')+err.map(x=>`<div class="subcard danger">❌ ${html(x)}</div>`).join(''));}
-function today(){show(window.NGTAIManager?'<div class="subcard ok"><b>Heute</b></div>'+NGTAIManager.renderToday():'<p>KI-Manager nicht geladen.</p>')}
-function clearContext(){if(window.NGTAIContext)NGTAIContext.clear();show('<div class="subcard ok">Kontext gelöscht.</div>')}
-window.NGTAssistant={preview,run,today,clearContext,showHelp,closeHelp};NGT500.register('assistant',{render});
+
+function recommendationAnswer(){
+ const q=NGTAIEngine.norm(rawText());
+ if(!window.NGTAIRecommendations)return null;
+ if(/empfehl|kritisch|warnung|hinweis|problem|auffaellig|auffällig/.test(q)){
+  return '<div class="subcard tc2SubCard ok"><b>Empfehlungen</b></div>'+NGTAIRecommendations.render(NGTAIRecommendations.build());
+ }
+ return null;
+}
+
+function managerQuestion(){
+ const q=NGTAIEngine.norm(rawText());
+ if(!window.NGTAIManager)return null;
+ if(/heute|tagesuebersicht|tagesübersicht|manager/.test(q)&&/was|zeige|übersicht|uebersicht|steht|an/.test(q)){
+  return '<div class="subcard tc2SubCard ok"><b>Heute</b></div>'+NGTAIManager.renderToday();
+ }
+ const hit=NGTAIEngine.findAnimal(rawText());
+ if(hit&&/(wie geht|status|zusammenfassung|ueberblick|überblick)/.test(q)){
+  return '<div class="subcard tc2SubCard ok"><b>Tier-Zusammenfassung</b><br>'+html(NGTAIManager.animalSummary(hit.a)).replace(/\n/g,'<br>')+'</div>';
+ }
+ return null;
+}
+
+function answer(){
+ const m=managerQuestion();
+ if(m)return m;
+ const r=recommendationAnswer();
+ if(r)return r;
+ const a=window.NGTAIQuery?NGTAIQuery.query(rawText()):null;
+ return a?NGTAIQuery.renderAnswer(a):null;
+}
+
+function preview(){
+ const ans=answer();
+ if(ans){show(ans);return;}
+
+ const ps=parsed();
+ const ctx=window.NGTAIContext?NGTAIContext.get():{};
+
+ show(`<div class="subcard tc2SubCard">
+   <h3>Analyse</h3>
+   <p class="muted">Aktueller Kontext: ${html(ctx.lastAnimal||'-')}</p>
+  </div>`+
+  ps.map(p=>`<div class="subcard tc2SubCard">
+   <h3>${html(p.intent)}</h3>
+   <div class="tc2InfoRows">
+    <div><b>Text</b><span>${html(p.raw)}</span></div>
+    <div><b>Tier</b><span>${p.animal?html(p.animal.a.name):'nicht erkannt'}</span></div>
+    <div><b>Datum</b><span>${html(p.date||'-')}</span></div>
+    <div><b>Futter</b><span>${html(p.feeder||'-')}</span></div>
+    <div><b>Gewicht</b><span>${html(p.grams||'-')}</span></div>
+    <div><b>Bestand</b><span>${p.stock?html(p.stock.mode+' '+p.stock.qty):'-'}</span></div>
+   </div>
+  </div>`).join('')
+ );
+}
+
+function run(){
+ const ans=answer();
+ if(ans){show(ans);return;}
+
+ const ps=parsed();
+ const ok=[];
+ const err=[];
+
+ ps.forEach(p=>{
+  const r=applyParsed(p);
+  if(r&&r.text)ok.push(r.text);
+  else err.push('Nicht gespeichert: '+p.raw);
+ });
+
+ show(
+  (ok.length?`<div class="subcard tc2SubCard ok">✅ ${ok.length} Eintrag/Einträge gespeichert.</div>`:'')+
+  ok.map(x=>`<div class="subcard tc2SubCard">${html(x)}</div>`).join('')+
+  err.map(x=>`<div class="subcard tc2SubCard danger">❌ ${html(x)}</div>`).join('')
+ );
+}
+
+function today(){
+ show(window.NGTAIManager?'<div class="subcard tc2SubCard ok"><b>Heute</b></div>'+NGTAIManager.renderToday():'<p>KI-Manager nicht geladen.</p>');
+}
+
+function clearContext(){
+ if(window.NGTAIContext)NGTAIContext.clear();
+ show('<div class="subcard tc2SubCard ok">Kontext gelöscht.</div>');
+}
+
+window.NGTAssistant={preview,run,today,clearContext,showHelp,closeHelp};
+NGT500.register('assistant',{render});
+
 })();
