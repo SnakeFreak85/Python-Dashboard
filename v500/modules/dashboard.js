@@ -26,6 +26,8 @@ function installRouteGuard(){
 
 installRouteGuard();
 
+function esc(v){return NGT500.esc(v||'')}
+
 function userName(){
  const keys=['tc_user_profile','terracontrol_user','ngt_user','ngt_google_user'];
  for(const k of keys){
@@ -41,9 +43,9 @@ function userName(){
 
 function cloudLabel(){
  try{
-  return window.NGTFirebaseSync?NGTFirebaseSync.label():'Synchronisiert';
+  return window.NGTFirebaseSync?NGTFirebaseSync.label():'Firebase-Anmeldung nötig';
  }catch(e){
-  return 'Synchronisiert';
+  return 'Firebase-Anmeldung nötig';
  }
 }
 
@@ -64,7 +66,7 @@ async function firestoreSave(){
 }
 
 async function firestoreLoad(){
- if(window.NGTFirebaseSync&&confirm('Daten aus Firestore laden?')){
+ if(window.NGTFirebaseSync&&confirm('Daten aus Firestore laden? Lokale Daten können überschrieben werden.')){
   await NGTFirebaseSync.loadCloud();
   location.reload();
  }
@@ -91,12 +93,79 @@ function openSmartDashboard(){
  NGT500.route('smartDashboard');
 }
 
+function allAnimals(){
+ try{return NGTStore.allAnimals().filter(x=>!['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status))}
+ catch(e){return []}
+}
+
+function foodItems(){
+ try{return (NGTStore.data().foodInventory||[]).filter(x=>Number(x.qty||0)>0)}
+ catch(e){return []}
+}
+
+function groupRows(){
+ const rows=[];
+ const animals=allAnimals();
+ (NGTStore.TYPES||[]).forEach(function(t){
+  const count=animals.filter(x=>x.t===t).length;
+  if(count>0){
+   rows.push({
+    t,
+    count,
+    label:(NGTStore.LABELS&&NGTStore.LABELS[t])?NGTStore.LABELS[t]:t
+   });
+  }
+ });
+ return rows;
+}
+
+function latest(list){
+ return (list||[]).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null;
+}
+
+function todayISO(){return new Date().toISOString().slice(0,10)}
+
+function dueToday(){
+ const today=todayISO();
+ const rows=[];
+ allAnimals().forEach(function(x){
+  const a=x.a;
+  const lf=latest(a.feeds);
+  const lw=latest(a.weights);
+  if(lf&&lf.date===today)rows.push({icon:'🍽',name:a.name||'Unbenannt',type:'Fütterung',time:'heute'});
+  if(lw&&lw.date===today)rows.push({icon:'⚖',name:a.name||'Unbenannt',type:'Gewicht',time:'heute'});
+ });
+ return rows;
+}
+
+function recentActivities(){
+ const rows=[];
+ allAnimals().forEach(function(x){
+  const a=x.a;
+  (a.feeds||[]).slice(-3).forEach(f=>rows.push({icon:'🍽',text:'Fütterung erfasst: '+(a.name||'Unbenannt'),date:f.date||''}));
+  (a.weights||[]).slice(-3).forEach(w=>rows.push({icon:'⚖',text:'Gewicht erfasst: '+(a.name||'Unbenannt'),date:w.date||''}));
+  (a.sheds||[]).slice(-3).forEach(s=>rows.push({icon:'🧤',text:'Häutung erfasst: '+(a.name||'Unbenannt'),date:s.date||''}));
+ });
+ return rows.sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,4);
+}
+
 function quick(icon,title,sub,onclick){
  return `<button class="tc2Quick" onclick="${onclick}">
   <span class="tc2GreenIcon">${icon}</span>
-  <span><b>${NGT500.esc(title)}</b><small>${NGT500.esc(sub)}</small></span>
+  <span><b>${esc(title)}</b><small>${esc(sub)}</small></span>
   <em>›</em>
  </button>`;
+}
+
+function renderBestandButtons(){
+ const rows=groupRows();
+ if(!rows.length){
+  return `<div class="tc2Empty">
+   <b>Noch keine Tiere im Bestand.</b>
+   <small>Lege dein erstes Tier über „Tier manuell anlegen“ an. TerraControl baut den Bestand danach automatisch auf.</small>
+  </div>`;
+ }
+ return rows.map(r=>`<button onclick="NGT500.route('animals',{t:'${r.t}'})"><span>${r.label.split(' ')[0]}</span><b>${esc(r.label.replace(/^.\s*/,''))}</b><small>${r.count}</small></button>`).join('');
 }
 
 function render(){
@@ -107,9 +176,9 @@ function render(){
 
   <header class="tc2AppTop">
    <button class="tc2Menu" onclick="NGT500.openMenu()">☰</button>
-   <div class="tc2HeadTitle"><h1>TerraControl</h1><p>Version 1.0.4 RC7</p></div>
-   <div class="tc2Sync"><span>☁</span><b id="dashboardCloudStatus">${NGT500.esc(cloudLabel())}</b><small>Heute, 09:58</small></div>
-   <div class="tc2Avatar">SC</div>
+   <div class="tc2HeadTitle"><h1>TerraControl</h1><p>Version 1.0.4 RC8</p></div>
+   <div class="tc2Sync"><span>☁</span><b id="dashboardCloudStatus">${esc(cloudLabel())}</b><small>Heute</small></div>
+   <div class="tc2Avatar">TC</div>
   </header>
 
   <div class="tc2CloudBtns">
@@ -122,35 +191,32 @@ function render(){
    <div class="tc2Ghost tc2GhostSnake">🐍</div>
    <div class="tc2Ghost tc2GhostSpider">🕷</div>
    <div class="tc2Ghost tc2GhostGecko">🦎</div>
-   <h2>Hallo${name?' '+NGT500.esc(name):''} 👋</h2>
+   <h2>Hallo${name?' '+esc(name):''} 👋</h2>
    <p>Schön, dass du wieder da bist!</p>
   </section>
 
   <h2 class="tc2SectionTitle">Schnellaktionen</h2>
   <div class="tc2QuickGrid">
-   ${quick('▱','KI Dokumentenimport','erst anmelden','NGTDashboard.openHknImport()')}
-   ${quick('ϟ','KI Schnelleingabe','erst anmelden',"NGT500.route('assistant')")}
-   ${quick('＋','Tier manuell anlegen','erst anmelden','NGTDashboard.manualAnimal()')}
-   ${quick('⌂','Futterbestand hinzufügen','erst anmelden',"NGT500.route('food')")}
+   ${quick('▱','KI Dokumentenimport','Dokumente importieren','NGTDashboard.openHknImport()')}
+   ${quick('ϟ','KI Schnelleingabe','Einträge per Text','NGT500.route(\\'assistant\\')')}
+   ${quick('＋','Tier manuell anlegen','Neues Tier erfassen','NGTDashboard.manualAnimal()')}
+   ${quick('⌂','Futterbestand hinzufügen','Bestände verwalten','NGT500.route(\\'food\\')')}
   </div>
 
   <section class="tc2Card tc2Bestand">
    <button class="tc2BestandHead" onclick="NGTDashboard.toggleBestand()">
     <span class="tc2GreenIcon">●●●</span>
-    <span><b>Bestand</b><small>Wähle eine Tierart aus</small></span>
+    <span><b>Bestand</b><small>Nur echte Tiergruppen aus deinem Bestand</small></span>
     <em>⌄</em>
    </button>
    <div id="bestandPanel" class="tc2Species">
-    <button onclick="NGT500.route('animals',{t:'koenig'})"><span>♒</span><b>Königspythons</b></button>
-    <button onclick="NGT500.route('animals',{t:'boas'})"><span>♒</span><b>Boas</b></button>
-    <button onclick="NGT500.route('animals',{t:'spinnen'})"><span>✣</span><b>Vogelspinnen</b></button>
-    <button onclick="NGT500.route('animals',{t:'geckos'})"><span>⌁</span><b>Leopardgeckos</b></button>
+    ${renderBestandButtons()}
    </div>
   </section>
 
   <button class="tc2Card tc2SmartLink" onclick="NGTDashboard.openSmartDashboard()">
    <span class="tc2GreenIcon">▥</span>
-   <span><b>Smart Dashboard</b><small>Deine intelligente Übersicht</small></span>
+   <span><b>Smart Dashboard</b><small>Deine echten Bestandsdaten</small></span>
    <em>›</em>
   </button>
 
@@ -159,75 +225,63 @@ function render(){
 
 function smartRender(){
  tc2(true);
+ const animals=allAnimals();
+ const foods=foodItems();
+ const due=dueToday();
+ const acts=recentActivities();
+ const groups=groupRows();
 
  return `<section class="tc2Screen tc2Smart">
 
   <header class="tc2AppTop">
    <button class="tc2Menu" onclick="NGT500.openMenu()">☰</button>
-   <div class="tc2HeadTitle"><h1>Smart Dashboard</h1><p>Deine intelligente Übersicht</p></div>
-   <div class="tc2Sync"><span>☁</span><b>Synchronisiert</b><small>Heute, 09:58</small></div>
-   <div class="tc2Avatar">SC</div>
+   <div class="tc2HeadTitle"><h1>Smart Dashboard</h1><p>Deine echten Daten</p></div>
+   <div class="tc2Sync"><span>☁</span><b>${esc(cloudLabel())}</b><small>Heute</small></div>
+   <div class="tc2Avatar">TC</div>
   </header>
 
   <div class="tc2Stats">
-   <div><span>●●●</span><b>24</b><small>Tiere</small><em>+2 seit letzter Woche</em></div>
-   <div><span>⌂</span><b>18</b><small>Futterartikel</small><em class="warn">5 niedrig</em></div>
-   <div><span>▣</span><b>7</b><small>Heute fällig</small><em class="warn">3 Fütterungen</em></div>
-   <div><span>▱</span><b>32</b><small>Dokumente</small><em class="blue">2 neu</em></div>
+   <div><span>●●●</span><b>${animals.length}</b><small>Tiere</small><em>echter Bestand</em></div>
+   <div><span>⌂</span><b>${foods.length}</b><small>Futterarten</small><em>erfasst</em></div>
+   <div><span>▣</span><b>${due.length}</b><small>Heute</small><em>Einträge</em></div>
+   <div><span>▱</span><b>${acts.length}</b><small>Aktivitäten</small><em>zuletzt</em></div>
   </div>
 
   <section class="tc2Card tc2ChartCard">
-   <h2>Bestand nach Tierart <button>Alle anzeigen ›</button></h2>
-   <div class="tc2ChartRow">
-    <div class="tc2Donut"><b>24</b><small>Gesamt</small></div>
+   <h2>Bestand nach Tiergruppe</h2>
+   ${groups.length?`<div class="tc2ChartRow">
+    <div class="tc2Donut"><b>${animals.length}</b><small>Gesamt</small></div>
     <ul>
-     <li><i class="g"></i>Königspythons <b>8</b></li>
-     <li><i class="b"></i>Boas <b>5</b></li>
-     <li><i class="p"></i>Vogelspinnen <b>6</b></li>
-     <li><i class="o"></i>Leopardgeckos <b>5</b></li>
+     ${groups.map((g,i)=>`<li><i class="${['g','b','p','o'][i%4]}"></i>${esc(g.label.replace(/^.\s*/,''))} <b>${g.count}</b></li>`).join('')}
     </ul>
-   </div>
+   </div>`:`<div class="tc2Empty"><b>Keine Tiere vorhanden.</b><small>Das Dashboard zeigt Daten, sobald Tiere angelegt oder aus Firestore geladen wurden.</small></div>`}
   </section>
 
-  ${smartList('Heute fällig',[
-   ['♒','Medusa','Fütterung','18:00 Uhr','heute'],
-   ['✣','Grammostola pulchra','Fütterung','19:00 Uhr','heute'],
-   ['⌁','Leo','Fütterung','20:00 Uhr','heute']
-  ],'+ 4 weitere')}
+  <section class="tc2Card tc2List">
+   <h2>Heute fällig</h2>
+   ${due.length?due.map(r=>`<div class="tc2ListRow"><span>${r.icon}</span><div><b>${esc(r.name)}</b><small>${esc(r.type)}</small></div><em>${esc(r.time)}</em><i>›</i></div>`).join(''):`<div class="tc2Empty"><b>Heute nichts fällig.</b><small>Keine Einträge für heute vorhanden.</small></div>`}
+  </section>
 
   <section class="tc2Card">
-   <h2>Futterbestand <button>Alle anzeigen ›</button></h2>
-   <div class="tc2FoodGrid">
-    ${food('Ratte 200g','23 Stück','Ausreichend')}
-    ${food('Ratte 400g','8 Stück','Niedrig','warn')}
-    ${food('Heuschrecken','45 Stück','Ausreichend')}
-    ${food('Mehlwürmer','120 Stück','Ausreichend')}
-   </div>
+   <h2>Futterbestand</h2>
+   ${foods.length?`<div class="tc2FoodGrid">
+    ${foods.map(f=>food(esc(f.label||f.name),Number(f.qty||0)+' Stück',Number(f.qty||0)<=5?'Niedrig':'Ausreichend',Number(f.qty||0)<=5?'warn':'')).join('')}
+   </div>`:`<div class="tc2Empty"><b>Kein Futterbestand erfasst.</b><small>Füge Futter über „Futterbestand hinzufügen“ hinzu.</small></div>`}
   </section>
 
-  ${smartList('Letzte Aktivitäten',[
-   ['＋','Neues Tier hinzugefügt: Python regius "Ghost"','','Heute, 09:15',''],
-   ['▱','Dokument aktualisiert: Medusa - Tierpass','','Heute, 08:42',''],
-   ['⌂','Fütterung erfasst: Grammostola pulchra','','Gestern, 20:10',''],
-   ['▣','Gewicht erfasst: Leo','','Gestern, 19:45','']
-  ])}
+  <section class="tc2Card tc2List">
+   <h2>Letzte Aktivitäten</h2>
+   ${acts.length?acts.map(r=>`<div class="tc2ListRow"><span>${r.icon}</span><div><b>${esc(r.text)}</b><small>${esc(r.date||'-')}</small></div><em></em><i>›</i></div>`).join(''):`<div class="tc2Empty"><b>Noch keine Aktivitäten.</b><small>Fütterungen, Häutungen und Gewichte erscheinen hier nach dem Eintragen.</small></div>`}
+  </section>
 
   <nav class="tc2BottomNav">
    <button class="on">▥<span>Übersicht</span></button>
-   <button>●●●<span>Tiere</span></button>
-   <button>⌂<span>Futter</span></button>
-   <button>▣<span>Kalender</span></button>
-   <button>▱<span>Dokumente</span></button>
+   <button onclick="NGT500.route('dashboard')">●●●<span>Start</span></button>
+   <button onclick="NGT500.route('food')">⌂<span>Futter</span></button>
+   <button onclick="NGT500.route('assistant')">▣<span>KI</span></button>
+   <button onclick="NGT500.route('backup')">▱<span>Backup</span></button>
   </nav>
  </section>`;
-}
-
-function smartList(title,rows,more){
- return `<section class="tc2Card tc2List"><h2>${title} <button>Alle anzeigen ›</button></h2>
- ${rows.map(function(r){
-  return `<div class="tc2ListRow"><span>${r[0]}</span><div><b>${r[1]}</b>${r[2]?`<small>${r[2]}</small>`:''}</div><em>${r[3]}${r[4]?`<small>${r[4]}</small>`:''}</em><i>›</i></div>`;
- }).join('')}
- ${more?`<p class="tc2More">${more}</p>`:''}</section>`;
 }
 
 function food(name,qty,status,cls){
