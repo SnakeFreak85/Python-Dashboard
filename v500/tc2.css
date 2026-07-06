@@ -2352,3 +2352,66 @@ body:not(.tc2RefMode) .wrap {
   font-size: 10px;
   line-height: 1;
 }
+/* TC2 Smart Dashboard Concept */
+
+.tc2SD{display:grid;gap:14px;padding:0 0 92px}
+.tc2SDtop{display:grid;grid-template-columns:58px minmax(0,1fr) auto 48px;align-items:center;gap:12px}
+.tc2SDtop button{width:58px!important;height:58px!important;margin:0!important;border-radius:18px!important;font-size:28px!important}
+.tc2SDtop h2{margin:0;font-size:27px;line-height:1}
+.tc2SDtop p{margin:5px 0 0;color:#aeb9c4;font-size:14px}
+.tc2SDtop strong{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#43a83e;font-size:18px}
+.tc2SDsync{text-align:right;font-size:12px;color:#aeb9c4}
+.tc2SDsync b{display:block;color:#8bdc3f;font-size:12px}
+.tc2SDsync span{display:block;margin-top:3px}
+
+.tc2SDkpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tc2SDkpi{min-height:108px;border-radius:18px;background:rgba(15,32,48,.94);border:1px solid rgba(125,170,210,.22);display:grid;place-items:center;text-align:center;padding:10px 4px}
+.tc2SDkpi span{color:#8bdc3f;font-size:20px;line-height:1}
+.tc2SDkpi b{font-size:29px;line-height:1;color:#f4f7fb}
+.tc2SDkpi small{font-size:12px;color:#d8dee6}
+.tc2SDkpi em{font-style:normal;font-size:10px;color:#8bdc3f}
+.tc2SDkpi.orange em{color:#ff9500}.tc2SDkpi.blue em{color:#2f86e8}
+
+.tc2SDcard{border-radius:22px;background:rgba(15,32,48,.94);border:1px solid rgba(125,170,210,.2);padding:16px}
+.tc2SDcardHead{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;margin-bottom:14px}
+.tc2SDcardHead h3{margin:0;font-size:22px;line-height:1.05}
+.tc2SDcardHead button{margin:0!important;min-height:32px!important;padding:4px 0!important;background:transparent!important;border:0!important;color:#8bdc3f!important;font-size:13px!important}
+
+.tc2SDdonutRow{display:grid;grid-template-columns:126px minmax(0,1fr);gap:18px;align-items:center}
+.tc2SDdonut{width:126px;height:126px;border-radius:50%;display:grid;place-items:center}
+.tc2SDdonut div{width:70px;height:70px;border-radius:50%;background:#102132;display:grid;place-items:center;text-align:center}
+.tc2SDdonut b{font-size:27px}.tc2SDdonut span{font-size:11px;color:#aeb9c4}
+.tc2SDlegend{display:grid;gap:10px}
+.tc2SDlegend button{display:grid!important;grid-template-columns:16px minmax(0,1fr) auto;gap:10px;align-items:center;margin:0!important;padding:0!important;min-height:24px!important;background:transparent!important;border:0!important;text-align:left!important}
+.tc2SDlegend i{width:14px;height:14px;border-radius:50%}
+.tc2SDlegend .c0{background:#63d93f}.tc2SDlegend .c1{background:#2f86e8}.tc2SDlegend .c2{background:#8b3bd6}.tc2SDlegend .c3{background:#ff9500}
+.tc2SDlegend span{font-size:14px}.tc2SDlegend b{font-size:14px}
+
+.tc2SDtask,.tc2SDfood{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto 18px;gap:10px;align-items:center;margin:0!important;padding:12px 0!important;background:transparent!important;border:0!important;border-top:1px solid rgba(255,255,255,.07)!important;text-align:left!important}
+.tc2SDtask:first-of-type,.tc2SDfood:first-of-type{border-top:0!important}
+.tc2SDtask span{font-size:28px}.tc2SDtask b,.tc2SDfood b{font-size:15px}.tc2SDtask small,.tc2SDfood small{display:block;color:#aeb9c4;font-size:12px}
+.tc2SDtask em{font-style:normal;color:#d8dee6;font-size:13px}.tc2SDtask i,.tc2SDfood i{font-style:normal;color:#aeb9c4;font-size:22px}
+.tc2SDmore{text-align:center;color:#8bdc3f;font-weight:900;margin-top:8px}
+
+.tc2SDfoodImg{width:54px;height:40px;border-radius:12px;background:rgba(4,16,25,.55);display:grid;place-items:center;font-size:24px}
+.tc2SDfood em{font-style:normal;padding:6px 9px;border-radius:9px;background:rgba(67,168,62,.16);color:#8bdc3f;font-size:11px}
+.tc2SDfood em.warn{background:rgba(255,149,0,.16);color:#ff9500}
+
+.tc2SDactivity{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}
+.tc2SDactivity:first-of-type{border-top:0}
+.tc2SDactivity b{display:block;font-size:14px}.tc2SDactivity small{color:#aeb9c4;font-size:12px}
+
+.tc2SDempty{padding:14px;border-radius:16px;background:rgba(4,16,25,.42);color:#aeb9c4;font-size:14px}
+
+.tc2SDnav{position:fixed;left:12px;right:12px;bottom:12px;z-index:90;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px;border-radius:22px;background:rgba(8,22,32,.96);border:1px solid rgba(125,170,210,.18);box-shadow:0 20px 45px rgba(0,0,0,.4)}
+.tc2SDnav button{margin:0!important;min-height:56px!important;border-radius:16px!important;background:transparent!important;border:0!important;font-size:18px!important;color:#aeb9c4!important}
+.tc2SDnav button span{display:block;font-size:10px;margin-top:4px}
+.tc2SDnav button.on{background:rgba(99,217,63,.16)!important;color:#8bdc3f!important}
+
+@media(max-width:390px){
+  .tc2SDtop{grid-template-columns:54px minmax(0,1fr) 44px}
+  .tc2SDsync{display:none}
+  .tc2SDkpi{min-height:98px}
+  .tc2SDdonutRow{grid-template-columns:1fr}
+  .tc2SDdonut{margin:auto}
+}
