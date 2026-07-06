@@ -479,3 +479,200 @@ body:not(.tc2RefMode) .card {
     font-size: 24px !important;
   }
 }
+/* TC2 Tierkarten */
+
+.tc2AnimalCard {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 22px;
+  background: rgba(19, 36, 52, .92);
+  border: 1px solid rgba(125, 170, 210, .22);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .24);
+  margin: 0 0 16px;
+}
+
+.tc2AnimalImageWrap {
+  position: relative;
+  width: 100%;
+  background: #071521;
+}
+
+.tc2AnimalPhoto {
+  display: block;
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  background: #071521;
+}
+
+.tc2AnimalPhotoEmpty {
+  height: 210px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #aeb9c4;
+}
+
+.tc2AnimalPhotoEmpty span {
+  display: block;
+  font-size: 38px;
+  margin-bottom: 8px;
+}
+
+.tc2AnimalPhotoEmpty b {
+  display: block;
+  font-size: 15px;
+}
+
+.tc2AnimalBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(7, 18, 29, .78);
+  border: 1px solid rgba(255, 255, 255, .18);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 900;
+  color: #f4f7fb;
+}
+
+.tc2AnimalBody {
+  padding: 16px;
+}
+
+.tc2AnimalTitleRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.tc2AnimalTitleRow h2 {
+  margin: 0 !important;
+  font-size: 26px !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+}
+
+.tc2AnimalPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.tc2AnimalPills span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(139, 220, 63, .09);
+  border: 1px solid rgba(139, 220, 63, .22);
+  color: #dfffe8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tc2AnimalStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tc2AnimalStats div {
+  border-radius: 16px;
+  padding: 13px 12px;
+  background: rgba(7, 18, 29, .48);
+  border: 1px solid rgba(125, 170, 210, .18);
+}
+
+.tc2AnimalStats small {
+  display: block;
+  color: #aeb9c4 !important;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.tc2AnimalStats b {
+  display: block;
+  color: #f4f7fb;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tc2AnimalInfo {
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+  border-radius: 17px;
+  background: rgba(7, 18, 29, .38);
+  border: 1px solid rgba(125, 170, 210, .16);
+  margin-bottom: 14px;
+}
+
+.tc2AnimalInfo div {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.tc2AnimalInfo span {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.tc2AnimalInfo p {
+  margin: 0;
+}
+
+.tc2AnimalInfo b {
+  display: block;
+  color: #f4f7fb;
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+.tc2AnimalInfo small {
+  display: block;
+  color: #aeb9c4 !important;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.tc2AnimalActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.tc2AnimalActions button {
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 9px 8px !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.tc2AnimalActions .danger {
+  grid-column: span 2;
+}
+
+@media (min-width: 700px) {
+  .tc2AnimalCard {
+    display: grid;
+    grid-template-columns: 42% 58%;
+  }
+
+  .tc2AnimalPhoto,
+  .tc2AnimalPhotoEmpty {
+    height: 100%;
+    min-height: 340px;
+  }
+}
