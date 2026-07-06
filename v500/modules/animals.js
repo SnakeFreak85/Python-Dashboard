@@ -50,7 +50,6 @@ function render(args){
     <h2>${NGT500.esc(label)}</h2>
     <p class="muted">Dein echter gespeicherter Bestand</p>
    </div>
-   <button onclick="NGTAnimals.openEditor('${t}')">＋ Tier anlegen</button>
   </div>
 
   ${hkn?hknInfo()+editor(t,undefined,true):''}
