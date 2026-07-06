@@ -2562,3 +2562,138 @@ body:not(.tc2RefMode) .wrap {
   border: 1px solid rgba(255,120,120,.28) !important;
   color: #ffb3b3 !important;
 }
+/* TC2 QR / Tierpass */
+
+.tc2QR {
+  display: grid;
+  gap: 14px;
+  padding: 0 2px 28px;
+}
+
+.tc2QRHero,
+.tc2QRCard,
+.tc2QRResult,
+.tc2QREmpty {
+  border-radius: 24px;
+  background: rgba(13,28,42,.9);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2QRHero {
+  padding: 18px;
+  background: linear-gradient(135deg,rgba(26,52,74,.98),rgba(8,20,31,.98));
+}
+
+.tc2QRHero h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tc2QRHero p,
+.tc2QRCard p,
+.tc2QRResult p,
+.tc2QREmpty p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2QRCard,
+.tc2QRResult,
+.tc2QREmpty {
+  padding: 16px;
+}
+
+.tc2QRHead h3,
+.tc2QRResult h3,
+.tc2QREmpty h3 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2QRActions {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tc2QRActions button,
+.tc2QRPrimary {
+  width: 100%;
+  min-height: 50px !important;
+  margin: 0 !important;
+  border-radius: 17px !important;
+  font-weight: 900 !important;
+}
+
+.tc2QR textarea {
+  width: 100% !important;
+  min-height: 118px !important;
+  margin: 0 0 12px !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  background: rgba(4,16,25,.94) !important;
+  border: 1px solid rgba(125,170,210,.28) !important;
+  color: #f4f7fb !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+}
+
+.tc2QRPassport {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(4,16,25,.45);
+  border: 1px solid rgba(125,170,210,.12);
+  margin-bottom: 14px;
+}
+
+.tc2QRPassport b {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2QRPassport > span {
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2QRPassport div {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 6px 10px;
+  margin-top: 6px;
+}
+
+.tc2QRPassport small {
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2QRPassport strong {
+  font-size: 13px;
+  text-align: right;
+}
+
+.tc2QRBox {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(4,16,25,.45);
+  border: 1px solid rgba(125,170,210,.12);
+}
+
+.tc2QRBox span {
+  color: #aeb9c4;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}

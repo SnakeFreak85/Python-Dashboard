@@ -6,34 +6,36 @@ let currentId='',stream=null,scanTimer=null,detector=null;
 function render(args){
   currentId=args.id||'';
   return `
-    <div class="tc2PageCard tc2Card">
-      <div class="tc2PageHead">
+    <section class="tc2QR">
+      <div class="tc2QRHero">
         <div>
-          <h2>📷 QR / Tierpass</h2>
-          <p class="muted">Tier suchen, QR-Code scannen oder TerraControl-Tierpass importieren.</p>
+          <h2>🏷️ QR / Tierpass</h2>
+          <p>Scannen, suchen oder TerraControl-Tierpass importieren.</p>
         </div>
       </div>
 
-      <div class="tc2FormCard tc2Card">
-        <h3>Scanner</h3>
-        <p class="muted">Nutze die Kamera oder füge einen QR-/Tierpass-Code manuell ein.</p>
-        <div class="btnRow">
-          <button onclick="NGTQR.startScan()">📷 Kamera scannen</button>
-          <button onclick="NGTQR.stopScan()">Scan stoppen</button>
+      <section class="tc2QRCard">
+        <div class="tc2QRHead">
+          <h3>Scanner</h3>
+        </div>
+        <p>Kamera starten oder QR-/Tierpass-Code manuell einfügen.</p>
+        <div class="tc2QRActions">
+          <button onclick="NGTQR.startScan()">📷 Scannen</button>
+          <button onclick="NGTQR.stopScan()">Stoppen</button>
         </div>
         <div id="scanBox"></div>
-      </div>
+      </section>
 
-      <div class="tc2FormCard tc2Card">
-        <h3>Tierpass prüfen</h3>
-        <div class="tc2FormGrid">
-          <textarea id="qrInput" placeholder="Tiername, QR-ID oder TerraControl-Code">${NGT500.esc(currentId)}</textarea>
+      <section class="tc2QRCard">
+        <div class="tc2QRHead">
+          <h3>Tierpass prüfen</h3>
         </div>
-        <button onclick="NGTQR.find()">Prüfen</button>
-      </div>
+        <textarea id="qrInput" placeholder="Tiername, QR-ID oder TerraControl-Code">${NGT500.esc(currentId)}</textarea>
+        <button class="tc2QRPrimary" onclick="NGTQR.find()">Prüfen</button>
+      </section>
 
       <div id="qrResult"></div>
-    </div>
+    </section>
   `;
 }
 
@@ -105,28 +107,32 @@ function groupFor(data){
   return 'koenig';
 }
 
-function previewImport(data){
-  const exists=NGTStore.findAnimal(data.id);
-  const box=document.getElementById('qrResult');
-  box.innerHTML=`
-    <div class="tc2FormCard tc2Card">
+function passportCard(data,exists){
+  return `
+    <section class="tc2QRResult">
       <h3>Digitaler Tierpass erkannt</h3>
-      <div class="tc2EmptyState">
-        <h3>${NGT500.esc(data.name||'Unbenannt')}</h3>
-        <p>
-          ${NGT500.esc(data.morph||'-')} · ${NGT500.esc(data.sex||'-')}<br>
-          Schlupf: ${NGT500.esc(data.birth||'-')}<br>
-          ID: ${NGT500.esc(data.id||'-')}<br>
-          Dokument: ${NGT500.esc(data.doc||'-')}
-        </p>
+      <div class="tc2QRPassport">
+        <b>${NGT500.esc(data.name||'Unbenannt')}</b>
+        <span>${NGT500.esc(data.morph||'-')} · ${NGT500.esc(data.sex||'-')}</span>
+        <div>
+          <small>Schlupf</small><strong>${NGT500.esc(data.birth||'-')}</strong>
+          <small>ID</small><strong>${NGT500.esc(data.id||'-')}</strong>
+          <small>Dokument</small><strong>${NGT500.esc(data.doc||'-')}</strong>
+        </div>
       </div>
       ${
         exists
-          ? '<p class="muted">Dieses Tier existiert bereits im Bestand.</p>'
-          : '<button onclick="NGTQR.importTC()">Tier übernehmen</button>'
+          ? '<p>Dieses Tier existiert bereits im Bestand.</p>'
+          : '<button class="tc2QRPrimary" onclick="NGTQR.importTC()">Tier übernehmen</button>'
       }
-    </div>
+    </section>
   `;
+}
+
+function previewImport(data){
+  const exists=NGTStore.findAnimal(data.id);
+  const box=document.getElementById('qrResult');
+  box.innerHTML=passportCard(data,exists);
 }
 
 function importTC(){
@@ -134,7 +140,7 @@ function importTC(){
   if(!data)return;
 
   if(data.id&&NGTStore.findAnimal(data.id)){
-    document.getElementById('qrResult').innerHTML='<div class="tc2EmptyState"><h3>Bereits vorhanden</h3><p>Dieses Tier ist bereits im Bestand.</p></div>';
+    document.getElementById('qrResult').innerHTML='<div class="tc2QREmpty"><h3>Bereits vorhanden</h3><p>Dieses Tier ist bereits im Bestand.</p></div>';
     return;
   }
 
@@ -161,7 +167,7 @@ function importTC(){
   NGTStore.addAnimal(t,a);
 
   document.getElementById('qrResult').innerHTML=`
-    <div class="tc2EmptyState">
+    <div class="tc2QREmpty">
       <h3>✅ Tier übernommen</h3>
       <p>Der Tierpass wurde erfolgreich in den Bestand importiert.</p>
     </div>
@@ -183,7 +189,7 @@ function find(){
 
   if(!hit){
     box.innerHTML=`
-      <div class="tc2EmptyState">
+      <div class="tc2QREmpty">
         <h3>Tier nicht gefunden</h3>
         <p>Prüfe Name, UUID oder TerraControl-Code und versuche es erneut.</p>
       </div>
@@ -193,13 +199,13 @@ function find(){
 
   box.innerHTML=`
     ${NGTUI.animalCard(hit)}
-    <div class="tc2FormCard tc2Card">
+    <section class="tc2QRResult">
       <h3>QR-Code</h3>
-      <div class="qrBox">
+      <div class="tc2QRBox">
         <div id="qrCode"></div>
-        <div>${NGT500.esc(hit.a.uuid)}</div>
+        <span>${NGT500.esc(hit.a.uuid)}</span>
       </div>
-    </div>
+    </section>
   `;
 
   if(window.QRCode){
@@ -215,15 +221,15 @@ async function startScan(){
   const box=document.getElementById('scanBox');
 
   box.innerHTML=`
-    <div class="tc2EmptyState" style="margin-top:12px">
-      <video id="qrVideo" autoplay playsinline style="width:100%;border-radius:16px;background:#000"></video>
-      <p class="muted">Kamera wird gestartet...</p>
+    <div class="tc2QREmpty" style="margin-top:12px">
+      <video id="qrVideo" autoplay playsinline style="width:100%;border-radius:18px;background:#000"></video>
+      <p>Kamera wird gestartet...</p>
     </div>
   `;
 
   if(!('BarcodeDetector' in window)){
     box.innerHTML=`
-      <div class="tc2EmptyState">
+      <div class="tc2QREmpty">
         <h3>Scanner nicht verfügbar</h3>
         <p>Dieser Browser unterstützt den Kamera-QR-Scanner nicht. Bitte QR-Code kopieren/einfügen oder Chrome auf Android verwenden.</p>
       </div>
@@ -251,10 +257,10 @@ async function startScan(){
       }catch(e){}
     },500);
 
-    box.querySelector('.muted').textContent='QR-Code in die Kamera halten.';
+    box.querySelector('p').textContent='QR-Code in die Kamera halten.';
   }catch(e){
     box.innerHTML=`
-      <div class="tc2EmptyState">
+      <div class="tc2QREmpty">
         <h3>Kamera nicht gestartet</h3>
         <p>Bitte Kameraberechtigung prüfen oder QR-Code manuell einfügen.</p>
       </div>
