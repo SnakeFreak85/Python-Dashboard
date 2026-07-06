@@ -68,53 +68,68 @@ function editor(t,i,fromHkn){
  const defSize=a.defaultFeederSize||parsed.size||((NGTStore.FEEDER_SIZES[defType]||[])[0]||'');
  const feedInterval=a.feedIntervalDays||a.feedingInterval||a.feedInterval||14;
 
- return `<div class="subcard tc2FormCard">
-  <h3>${i!==undefined?'Tier bearbeiten':(fromHkn?'Tier aus HKN anlegen':'Tier anlegen')}</h3>
-
-  <div class="tc2FormGrid">
-   <input id="edName" placeholder="Name" value="${NGT500.esc(a.name||'')}">
-   <input id="edMorph" placeholder="Morph" value="${NGT500.esc(a.morph||'')}">
-   <input id="edWeight" type="number" placeholder="Gewicht" value="${NGT500.esc(a.weight||'')}">
-   <input id="edOrigin" placeholder="Herkunft / ENZ / FNZ" value="${NGT500.esc(a.origin||a.originType||'')}">
-   <input id="edBirth" type="date" value="${NGT500.esc(a.birth||a.birthDate||'')}">
-   <input id="edFather" placeholder="Vatertier" value="${NGT500.esc(a.father||a.vater||a.sire||'')}">
-   <input id="edMother" placeholder="Muttertier" value="${NGT500.esc(a.mother||a.mutter||a.dam||'')}">
-   <input id="edFeedInterval" type="number" min="1" placeholder="Fütterungsintervall in Tagen" value="${NGT500.esc(feedInterval)}">
-   <input id="edBuy" type="number" placeholder="Kaufpreis" value="${NGT500.esc(a.buyPrice||'')}">
-
-   <select id="edSex">
-    <option ${a.sex==='Unbestimmt'?'selected':''}>Unbestimmt</option>
-    <option ${a.sex==='Männlich'?'selected':''}>Männlich</option>
-    <option ${a.sex==='Weiblich'?'selected':''}>Weiblich</option>
-   </select>
-
-   <select id="edStatus">${statusOptions(a.status||'Bestand')}</select>
+ return `<section class="tc2AnimalEditor">
+  <div class="tc2AnimalEditorHead">
+   <div>
+    <h3>${i!==undefined?'Tier bearbeiten':(fromHkn?'Tier aus HKN anlegen':'Tier anlegen')}</h3>
+    <p>Stammdaten, Herkunft und Standardfutter.</p>
+   </div>
   </div>
 
-  <h3>Standardfutter</h3>
-
-  <div class="tc2FormGrid">
-   <select id="edFeederState">
-    <option ${defState==='Frost'?'selected':''}>Frost</option>
-    <option ${defState==='Lebend'?'selected':''}>Lebend</option>
-   </select>
-
-   <select id="edFeederType" onchange="NGTAnimals.refreshSizeSelect('edFeederType','edFeederSize')">
-    ${opt(NGTStore.FEEDER_TYPES,defType)}
-   </select>
-
-   <select id="edFeederSize">
-    ${opt(NGTStore.FEEDER_SIZES[defType]||[],defSize)}
-   </select>
+  <div class="tc2AnimalEditorBlock">
+   <h4>Stammdaten</h4>
+   <div class="tc2AnimalFields">
+    <label><span>Name</span><input id="edName" value="${NGT500.esc(a.name||'')}"></label>
+    <label><span>Morph</span><input id="edMorph" value="${NGT500.esc(a.morph||'')}"></label>
+    <label><span>Gewicht</span><input id="edWeight" type="number" value="${NGT500.esc(a.weight||'')}"></label>
+    <label><span>Geschlecht</span><select id="edSex">
+     <option ${a.sex==='Unbestimmt'?'selected':''}>Unbestimmt</option>
+     <option ${a.sex==='Männlich'?'selected':''}>Männlich</option>
+     <option ${a.sex==='Weiblich'?'selected':''}>Weiblich</option>
+    </select></label>
+    <label><span>Status</span><select id="edStatus">${statusOptions(a.status||'Bestand')}</select></label>
+   </div>
   </div>
 
-  <p class="muted">Gewichtsintervall: 30 Tage festgelegt.</p>
-  <textarea id="edNote" placeholder="Notizen">${NGT500.esc(a.note||'')}</textarea>
+  <div class="tc2AnimalEditorBlock">
+   <h4>Herkunft</h4>
+   <div class="tc2AnimalFields">
+    <label><span>Herkunft / ENZ / FNZ</span><input id="edOrigin" value="${NGT500.esc(a.origin||a.originType||'')}"></label>
+    <label><span>Schlupfdatum</span><input id="edBirth" type="date" value="${NGT500.esc(a.birth||a.birthDate||'')}"></label>
+    <label><span>Vatertier</span><input id="edFather" value="${NGT500.esc(a.father||a.vater||a.sire||'')}"></label>
+    <label><span>Muttertier</span><input id="edMother" value="${NGT500.esc(a.mother||a.mutter||a.dam||'')}"></label>
+    <label><span>Kaufpreis</span><input id="edBuy" type="number" value="${NGT500.esc(a.buyPrice||'')}"></label>
+   </div>
+  </div>
 
-  <div class="btnRow">
+  <div class="tc2AnimalEditorBlock">
+   <h4>Standardfutter</h4>
+   <div class="tc2AnimalFields">
+    <label><span>Intervall in Tagen</span><input id="edFeedInterval" type="number" min="1" value="${NGT500.esc(feedInterval)}"></label>
+    <label><span>Zustand</span><select id="edFeederState">
+     <option ${defState==='Frost'?'selected':''}>Frost</option>
+     <option ${defState==='Lebend'?'selected':''}>Lebend</option>
+    </select></label>
+    <label><span>Futtertier</span><select id="edFeederType" onchange="NGTAnimals.refreshSizeSelect('edFeederType','edFeederSize')">
+     ${opt(NGTStore.FEEDER_TYPES,defType)}
+    </select></label>
+    <label><span>Größe</span><select id="edFeederSize">
+     ${opt(NGTStore.FEEDER_SIZES[defType]||[],defSize)}
+    </select></label>
+   </div>
+   <p>Gewichtsintervall: 30 Tage festgelegt.</p>
+  </div>
+
+  <div class="tc2AnimalEditorBlock">
+   <h4>Notizen</h4>
+   <textarea id="edNote" placeholder="Notizen">${NGT500.esc(a.note||'')}</textarea>
+  </div>
+
+  <div class="tc2AnimalEditorActions">
+   <button onclick="NGT500.route('animals',{t:'${t}'})">Abbrechen</button>
    <button onclick="NGTAnimals.save('${t}',${i===undefined?'null':i})">Speichern</button>
   </div>
- </div>`;
+ </section>`;
 }
 
 function refreshSizeSelect(typeId,sizeId){
