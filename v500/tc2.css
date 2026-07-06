@@ -1650,3 +1650,50 @@ body:not(.tc2RefMode) .wrap {
     left: 16px !important;
   }
 }
+/* TC2 globaler App-Header */
+
+body:not(.tc2RefMode) .tc2GlobalHeader {
+  min-height: 88px !important;
+  padding: 16px 18px !important;
+  display: grid !important;
+  grid-template-columns: 56px minmax(0,1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  background: linear-gradient(180deg,#1b354b,#0b1722) !important;
+  border-bottom: 1px solid rgba(125,170,210,.18) !important;
+}
+
+body:not(.tc2RefMode) .tc2HeaderMenu {
+  position: static !important;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  border-radius: 18px !important;
+  margin: 0 !important;
+  background: rgba(7,18,29,.94) !important;
+  border: 1px solid rgba(125,170,210,.3) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.3) !important;
+}
+
+body:not(.tc2RefMode) .tc2GlobalTitle {
+  min-width: 0 !important;
+}
+
+body:not(.tc2RefMode) .tc2GlobalTitle h1 {
+  font-size: 30px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  letter-spacing: -.5px !important;
+}
+
+body:not(.tc2RefMode) .tc2GlobalTitle .version {
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  margin-top: 4px !important;
+  opacity: .82 !important;
+}
+
+body:not(.tc2RefMode) .wrap {
+  padding-top: 14px !important;
+}
