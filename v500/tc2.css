@@ -1364,3 +1364,116 @@ body:not(.tc2RefMode) .card {
     max-width: 90%;
   }
 }
+/* TC2 Profil Header Fix */
+
+.tc2ProfileTopBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 14px 0;
+}
+
+.tc2ProfileTopBack {
+  justify-self: start;
+  min-height: 40px !important;
+  padding: 8px 13px !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+.tc2ProfileTopStatus {
+  justify-self: end;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(7, 18, 29, .62);
+  border: 1px solid rgba(125, 170, 210, .22);
+  color: #f4f7fb;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.tc2ProfileTopStatus.ok {
+  border-color: rgba(139, 220, 63, .35);
+}
+
+.tc2ProfileTopStatus.warn {
+  border-color: rgba(255, 157, 27, .38);
+}
+
+.tc2ProfileTopStatus.danger {
+  border-color: rgba(255, 91, 107, .45);
+}
+
+.tc2ProfilePage .tc2ProfileHero {
+  min-height: 0;
+  margin: 14px 14px 0;
+  border-radius: 20px;
+  border: 1px solid rgba(125, 170, 210, .18);
+}
+
+.tc2ProfilePage .tc2ProfileHero img {
+  height: 260px;
+  border-radius: 20px;
+}
+
+.tc2ProfileMainTitle {
+  padding: 16px 18px 4px;
+}
+
+.tc2ProfileMainTitle h2 {
+  margin: 0 !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileMainTitle p {
+  margin: 8px 0 0;
+  color: #d6e0ea;
+  font-size: 15px;
+}
+
+.tc2ProfileSubHead {
+  margin: 14px 14px 0;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(7, 18, 29, .45);
+  border: 1px solid rgba(125, 170, 210, .18);
+}
+
+.tc2ProfileSubHead small {
+  display: block;
+  color: #8bdc3f;
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.tc2ProfileSubHead h2 {
+  margin: 0 !important;
+  font-size: 28px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileSubHead p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+@media (max-width:390px) {
+  .tc2ProfileTopBar {
+    grid-template-columns: 1fr;
+  }
+
+  .tc2ProfileTopStatus {
+    justify-self: start;
+  }
+
+  .tc2ProfilePage .tc2ProfileHero img {
+    height: 230px;
+  }
+}
