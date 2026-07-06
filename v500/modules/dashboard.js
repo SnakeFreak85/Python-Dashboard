@@ -170,6 +170,12 @@ function render(){
       <div class="tc2Avatar">TC</div>
     </header>
 
+<section class="tc2CloudBtns">
+  <button onclick="NGTDashboard.googleSignIn()">☁ <span>Anmelden</span></button>
+  <button onclick="NGTDashboard.firestoreSave()">↑ <span>Speichern</span></button>
+  <button onclick="NGTDashboard.firestoreLoad()">↓ <span>Laden</span></button>
+</section>
+
     <section class="tc2Welcome">
       <div class="tc2Ghost tc2GhostSnake">🐍</div>
       <div class="tc2Ghost tc2GhostSpider">🕷</div>
