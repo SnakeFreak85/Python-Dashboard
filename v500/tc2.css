@@ -676,3 +676,282 @@ body:not(.tc2RefMode) .card {
     min-height: 340px;
   }
 }
+/* TC2 Profil / Tierpass */
+
+.tc2ProfilePage {
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+.tc2ProfileHero {
+  position: relative;
+  min-height: 260px;
+  background: #071521;
+  overflow: hidden;
+}
+
+.tc2ProfileHero img {
+  width: 100%;
+  height: 290px;
+  object-fit: cover;
+  display: block;
+}
+
+.tc2ProfileHeroEmpty {
+  height: 260px;
+  display: grid;
+  place-items: center;
+  font-size: 54px;
+  color: #aeb9c4;
+}
+
+.tc2ProfileHeroShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,rgba(0,0,0,.08),rgba(7,18,29,.78));
+  pointer-events: none;
+}
+
+.tc2BackBtn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(7,18,29,.72) !important;
+  backdrop-filter: blur(10px);
+}
+
+.tc2ProfileStatus {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(7,18,29,.75);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #f4f7fb;
+  font-weight: 900;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.tc2ProfileTitle {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+}
+
+.tc2ProfileTitle h2 {
+  margin: 0 !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileTitle p {
+  margin: 8px 0 0;
+  color: #d6e0ea;
+  font-size: 15px;
+}
+
+.tc2ProfileStats {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+  padding: 14px;
+}
+
+.tc2ProfileStats div,
+.tc2ProfileOverviewGrid div {
+  background: rgba(7,18,29,.45);
+  border: 1px solid rgba(125,170,210,.18);
+  border-radius: 16px;
+  padding: 12px 10px;
+}
+
+.tc2ProfileStats small,
+.tc2ProfileOverviewGrid small {
+  display: block;
+  color: #aeb9c4 !important;
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.tc2ProfileStats b,
+.tc2ProfileOverviewGrid b {
+  display: block;
+  color: #f4f7fb;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tc2ProfileSummary {
+  display: grid;
+  gap: 8px;
+  margin: 0 14px 14px;
+  padding: 13px;
+  background: rgba(7,18,29,.38);
+  border: 1px solid rgba(125,170,210,.16);
+  border-radius: 18px;
+}
+
+.tc2ProfileSummary div {
+  display: grid;
+  grid-template-columns: 28px minmax(0,1fr);
+  gap: 8px;
+}
+
+.tc2ProfileSummary p {
+  margin: 0;
+}
+
+.tc2ProfileSummary b {
+  display: block;
+  font-size: 13px;
+}
+
+.tc2ProfileSummary small {
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.tc2Tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 14px 14px;
+  scrollbar-width: none;
+}
+
+.tc2Tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tc2Tabs button {
+  flex: 0 0 auto;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+.tc2Tabs button.on {
+  color: #8bdc3f !important;
+  border-color: rgba(139,220,63,.55) !important;
+  background: rgba(139,220,63,.1) !important;
+}
+
+.tc2ProfileBody {
+  padding: 0 14px 16px;
+}
+
+.tc2SubCard {
+  margin-bottom: 12px !important;
+}
+
+.tc2ProfileOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tc2InfoRows {
+  display: grid;
+  gap: 9px;
+}
+
+.tc2InfoRows div {
+  display: grid;
+  grid-template-columns: 110px minmax(0,1fr);
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.tc2InfoRows b {
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2InfoRows span {
+  color: #f4f7fb;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.tc2ListRowFull {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.tc2ListRowFull b {
+  display: block;
+  font-size: 13px;
+}
+
+.tc2ListRowFull small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.tc2ListRowFull button {
+  min-height: 36px !important;
+  font-size: 11px !important;
+  padding: 7px 10px !important;
+}
+
+.tc2Bar {
+  display: grid;
+  grid-template-columns: 72px minmax(0,1fr) 44px;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.tc2Bar span {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  overflow: hidden;
+}
+
+.tc2Bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #8bdc3f;
+}
+
+.tc2Bar small,
+.tc2Bar b {
+  font-size: 11px;
+}
+
+@media (max-width:390px) {
+  .tc2ProfileTitle h2 {
+    font-size: 30px !important;
+  }
+
+  .tc2ProfileStats,
+  .tc2ProfileOverviewGrid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .tc2InfoRows div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+}
