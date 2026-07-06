@@ -43,9 +43,9 @@ function userName(){
 
 function cloudLabel(){
   try{
-    return window.NGTFirebaseSync?NGTFirebaseSync.label():'Nicht angemeldet';
+    return window.NGTFirebaseSync?NGTFirebaseSync.label():'Firebase-Anmeldung nötig';
   }catch(e){
-    return 'Nicht angemeldet';
+    return 'Firebase-Anmeldung nötig';
   }
 }
 
@@ -104,19 +104,10 @@ function allAnimals(){
   }
 }
 
-function foodItems(){
-  try{
-    return (NGTStore.data().foodInventory||[]).filter(function(x){
-      return Number(x.qty||0)>0;
-    });
-  }catch(e){
-    return [];
-  }
-}
-
 function groupRows(){
   const rows=[];
   const animals=allAnimals();
+
   (NGTStore.TYPES||[]).forEach(function(t){
     const count=animals.filter(function(x){return x.t===t}).length;
     if(count>0){
@@ -127,289 +118,109 @@ function groupRows(){
       });
     }
   });
+
   return rows;
 }
 
-function latest(list){
-  return (list||[]).slice().sort(function(a,b){
-    return String(b.date||'').localeCompare(String(a.date||''));
-  })[0]||null;
-}
-
-function todayISO(){
-  return new Date().toISOString().slice(0,10);
-}
-
-function daysBetween(a,b){
-  const da=new Date(a+'T00:00:00');
-  const db=new Date(b+'T00:00:00');
-  return Math.floor((db-da)/86400000);
-}
-
-function feedingInterval(a){
-  const age=String(a.ageStage||a.stage||'').toLowerCase();
-  if(age.includes('adult'))return 14;
-  if(age.includes('sub'))return 10;
-  if(age.includes('jung')||age.includes('baby'))return 7;
-  return Number(a.feedInterval||a.feedingInterval||a.interval||14);
-}
-
-function dueStats(){
-  const today=todayISO();
-  let overdue=0,todayDue=0,ok=0;
-  const rows=[];
-
-  allAnimals().forEach(function(x){
-    const a=x.a;
-    const lf=latest(a.feeds);
-    if(!lf||!lf.date){
-      overdue++;
-      rows.push({icon:'🍽',name:a.name||'Unbenannt',type:'Keine Fütterung erfasst',state:'Überfällig'});
-      return;
-    }
-
-    const diff=daysBetween(lf.date,today);
-    const interval=feedingInterval(a);
-
-    if(diff>interval){
-      overdue++;
-      rows.push({icon:'🍽',name:a.name||'Unbenannt',type:'Fütterung überfällig',state:'Überfällig'});
-    }else if(diff===interval){
-      todayDue++;
-      rows.push({icon:'🍽',name:a.name||'Unbenannt',type:'Fütterung heute',state:'Heute'});
-    }else{
-      ok++;
-    }
-  });
-
-  return {overdue,today:todayDue,ok,rows:rows.slice(0,4)};
-}
-
-function recentActivities(){
-  const rows=[];
-  allAnimals().forEach(function(x){
-    const a=x.a;
-    (a.feeds||[]).slice(-3).forEach(function(f){
-      rows.push({icon:'🍽',text:'Fütterung: '+(a.name||'Unbenannt'),date:f.date||''});
-    });
-    (a.weights||[]).slice(-3).forEach(function(w){
-      rows.push({icon:'⚖',text:'Gewicht: '+(a.name||'Unbenannt'),date:w.date||''});
-    });
-    (a.sheds||[]).slice(-3).forEach(function(s){
-      rows.push({icon:'🧤',text:'Häutung: '+(a.name||'Unbenannt'),date:s.date||''});
-    });
-  });
-  return rows.sort(function(a,b){
-    return String(b.date).localeCompare(String(a.date));
-  }).slice(0,4);
-}
-
 function quick(icon,title,sub,onclick){
-  return `<button class="tc2DashQuick" onclick="${onclick}">
-    <span>${icon}</span>
-    <b>${esc(title)}</b>
-    <small>${esc(sub)}</small>
+  return `<button class="tc2Quick" onclick="${onclick}">
+    <span class="tc2GreenIcon">${icon}</span>
+    <span><b>${esc(title)}</b><small>${esc(sub)}</small></span>
+    <em>›</em>
   </button>`;
 }
 
-function renderGroups(){
+function renderBestandButtons(){
   const rows=groupRows();
+
   if(!rows.length){
-    return `<div class="tc2DashEmpty">
-      <b>Noch keine Tiere</b>
-      <span>Lege dein erstes Tier an oder lade deine Cloud-Daten.</span>
+    return `<div class="tc2Empty">
+      <b>Noch keine Tiere im Bestand.</b>
+      <small>Lege dein erstes Tier an oder lade deine Cloud-Daten.</small>
     </div>`;
   }
 
-  return `<div class="tc2DashGroupList">
-    ${rows.map(function(r){
-      return `<button onclick="NGT500.route('animals',{t:'${r.t}'})">
-        <span>${esc(r.label.replace(/^.\s*/,''))}</span>
-        <b>${r.count}</b>
-      </button>`;
-    }).join('')}
-  </div>`;
-}
-
-function renderDueRows(rows){
-  if(!rows.length){
-    return `<div class="tc2DashEmpty">
-      <b>Alles ruhig</b>
-      <span>Aktuell gibt es keine kritischen Fütterungshinweise.</span>
-    </div>`;
-  }
-
-  return `<div class="tc2DashTaskList">
-    ${rows.map(function(r){
-      return `<div>
-        <span>${r.icon}</span>
-        <b>${esc(r.name)}</b>
-        <small>${esc(r.type)}</small>
-        <em>${esc(r.state)}</em>
-      </div>`;
-    }).join('')}
-  </div>`;
+  return rows.map(function(r){
+    return `<button onclick="NGT500.route('animals',{t:'${r.t}'})">
+      <span>${r.label.split(' ')[0]}</span>
+      <b>${esc(r.label.replace(/^.\s*/,''))}</b>
+      <small>${r.count}</small>
+    </button>`;
+  }).join('');
 }
 
 function render(){
   tc2(true);
 
   const name=userName();
-  const animals=allAnimals();
-  const foods=foodItems();
-  const due=dueStats();
-  const groups=groupRows();
 
-  return `<section class="tc2Screen tc2DashboardV2">
+  return `<section class="tc2Screen tc2Start">
 
-    <header class="tc2DashTop">
-      <button onclick="NGT500.openMenu()">☰</button>
-      <div>
+    <header class="tc2AppTop">
+      <button class="tc2Menu" onclick="NGT500.openMenu()">☰</button>
+      <div class="tc2HeadTitle">
         <h1>TerraControl</h1>
-        <p id="dashboardCloudStatus">${esc(cloudLabel())}</p>
+        <p>Version 1.0.4 RC11</p>
       </div>
-      <span>TC</span>
+      <div class="tc2Sync">
+        <span>☁</span>
+        <b id="dashboardCloudStatus">${esc(cloudLabel())}</b>
+        <small>Heute</small>
+      </div>
+      <div class="tc2Avatar">TC</div>
     </header>
 
-    <section class="tc2DashHero">
+    <section class="tc2Welcome">
+      <div class="tc2Ghost tc2GhostSnake">🐍</div>
+      <div class="tc2Ghost tc2GhostSpider">🕷</div>
+      <div class="tc2Ghost tc2GhostGecko">🦎</div>
       <h2>Hallo${name?' '+esc(name):''} 👋</h2>
-      <p>Dein Bestand heute auf einen Blick.</p>
-      <div>
-        <b>${animals.length}</b><span>Tiere</span>
-        <b>${due.overdue}</b><span>Überfällig</span>
-        <b>${foods.length}</b><span>Futter</span>
+      <p>Schön, dass du wieder da bist!</p>
+    </section>
+
+    <h2 class="tc2SectionTitle">Schnellaktionen</h2>
+    <div class="tc2QuickGrid">
+      ${quick('▱','KI Dokumentenimport','Dokumente importieren','NGTDashboard.openHknImport()')}
+      ${quick('ϟ','KI Schnelleingabe','Einträge per Text',"NGT500.route('assistant')")}
+      ${quick('＋','Tier manuell anlegen','Neues Tier erfassen','NGTDashboard.manualAnimal()')}
+      ${quick('⌂','Futterbestand hinzufügen','Bestände verwalten',"NGT500.route('food')")}
+    </div>
+
+    <section class="tc2Card tc2Bestand">
+      <button class="tc2BestandHead" onclick="NGTDashboard.toggleBestand()">
+        <span class="tc2GreenIcon">●●●</span>
+        <span><b>Bestand</b><small>Nur echte Tiergruppen aus deinem Bestand</small></span>
+        <em>⌄</em>
+      </button>
+      <div id="bestandPanel" class="tc2Species">
+        ${renderBestandButtons()}
       </div>
     </section>
 
-    <section class="tc2DashCloud">
-      <button onclick="NGTDashboard.googleSignIn()">Anmelden</button>
-      <button onclick="NGTDashboard.firestoreSave()">Cloud speichern</button>
-      <button onclick="NGTDashboard.firestoreLoad()">Cloud laden</button>
-    </section>
-
-    <section class="tc2DashQuickGrid">
-      ${quick('＋','Tier','Anlegen','NGTDashboard.manualAnimal()')}
-      ${quick('⚡','Schnell','Eintragen',"NGT500.route('assistant')")}
-      ${quick('🥩','Futter','Bestand',"NGT500.route('food')")}
-      ${quick('🏷️','QR','Tierpass',"NGT500.route('qr')")}
-    </section>
-
-    <section class="tc2DashCard">
-      <div class="tc2DashCardHead">
-        <h3>Heute</h3>
-        <button onclick="NGTDashboard.openSmartDashboard()">Details</button>
-      </div>
-      <div class="tc2DashStatusGrid">
-        <div><b>${due.overdue}</b><span>Überfällig</span></div>
-        <div><b>${due.today}</b><span>Heute</span></div>
-        <div><b>${due.ok}</b><span>Okay</span></div>
-      </div>
-      ${renderDueRows(due.rows)}
-    </section>
-
-    <section class="tc2DashCard">
-      <div class="tc2DashCardHead">
-        <h3>Bestand</h3>
-        <button onclick="NGTDashboard.toggleBestand()">Anzeigen</button>
-      </div>
-      <div class="tc2DashTotal"><b>${animals.length}</b><span>aktive Tiere</span></div>
-      <div id="bestandPanel">${renderGroups()}</div>
-    </section>
-
-    <button class="tc2DashAi" onclick="NGT500.route('chat')">
-      <span>🤖</span>
-      <div>
-        <b>TerraControl KI</b>
-        <small>Fragen, Analysen und Empfehlungen</small>
-      </div>
+    <button class="tc2Card tc2SmartLink" onclick="NGTDashboard.openSmartDashboard()">
+      <span class="tc2GreenIcon">▥</span>
+      <span><b>Smart Dashboard</b><small>Eigene Analyse-Seite mit deinen echten Daten</small></span>
       <em>›</em>
     </button>
 
   </section>`;
 }
 
-function smartRender(){
-  tc2(true);
+function smartDashboardProxy(){
+  if(window.NGTSmartDashboard&&NGTSmartDashboard.render){
+    return NGTSmartDashboard.render();
+  }
 
-  const animals=allAnimals();
-  const foods=foodItems();
-  const due=dueStats();
-  const acts=recentActivities();
-  const groups=groupRows();
-
-  return `<section class="tc2Screen tc2DashboardV2">
-
-    <header class="tc2DashTop">
-      <button onclick="NGT500.openMenu()">☰</button>
-      <div>
-        <h1>Smart Dashboard</h1>
-        <p>${esc(cloudLabel())}</p>
-      </div>
-      <span>TC</span>
-    </header>
-
-    <section class="tc2DashHero">
-      <h2>Deine echten Daten</h2>
-      <p>Analyse aus Bestand, Futter und Aktivitäten.</p>
-      <div>
-        <b>${animals.length}</b><span>Tiere</span>
-        <b>${foods.length}</b><span>Futter</span>
-        <b>${acts.length}</b><span>Aktivitäten</span>
-      </div>
-    </section>
-
-    <section class="tc2DashCard">
-      <div class="tc2DashCardHead">
-        <h3>Bestand nach Gruppen</h3>
-        <button onclick="NGT500.route('dashboard')">Start</button>
-      </div>
-      ${groups.length?`<div class="tc2DashGroupList">
-        ${groups.map(function(g){
-          return `<button onclick="NGT500.route('animals',{t:'${g.t}'})">
-            <span>${esc(g.label.replace(/^.\s*/,''))}</span>
-            <b>${g.count}</b>
-          </button>`;
-        }).join('')}
-      </div>`:`<div class="tc2DashEmpty"><b>Keine Tiere vorhanden</b><span>Lade Daten oder lege Tiere an.</span></div>`}
-    </section>
-
-    <section class="tc2DashCard">
-      <div class="tc2DashCardHead">
-        <h3>Fälligkeiten</h3>
-      </div>
-      <div class="tc2DashStatusGrid">
-        <div><b>${due.overdue}</b><span>Überfällig</span></div>
-        <div><b>${due.today}</b><span>Heute</span></div>
-        <div><b>${due.ok}</b><span>Okay</span></div>
-      </div>
-      ${renderDueRows(due.rows)}
-    </section>
-
-    <section class="tc2DashCard">
-      <div class="tc2DashCardHead">
-        <h3>Letzte Aktivitäten</h3>
-      </div>
-      ${acts.length?`<div class="tc2DashTaskList">
-        ${acts.map(function(r){
-          return `<div><span>${r.icon}</span><b>${esc(r.text)}</b><small>${esc(r.date||'-')}</small><em>›</em></div>`;
-        }).join('')}
-      </div>`:`<div class="tc2DashEmpty"><b>Noch keine Aktivitäten</b><span>Fütterungen, Gewichte und Häutungen erscheinen hier.</span></div>`}
-    </section>
-
-    <nav class="tc2BottomNav">
-      <button class="on">▥<span>Übersicht</span></button>
-      <button onclick="NGT500.route('dashboard')">●●●<span>Start</span></button>
-      <button onclick="NGT500.route('food')">⌂<span>Futter</span></button>
-      <button onclick="NGT500.route('assistant')">▣<span>KI</span></button>
-      <button onclick="NGT500.route('backup')">▱<span>Backup</span></button>
-    </nav>
-
-  </section>`;
+  return `<div class="card">
+    <h2>Smart Dashboard</h2>
+    <p class="muted">Smart Dashboard lädt noch.</p>
+  </div>`;
 }
 
 function afterRender(){
   tc2(true);
   updateCloudStatus();
+
   if(statusTimer)clearInterval(statusTimer);
   statusTimer=setInterval(updateCloudStatus,1500);
 }
@@ -426,6 +237,6 @@ window.NGTDashboard={
 };
 
 NGT500.register('dashboard',{render,afterRender});
-NGT500.register('smartDashboard',{render:smartRender});
+NGT500.register('smartDashboard',{render:smartDashboardProxy});
 
 })();
