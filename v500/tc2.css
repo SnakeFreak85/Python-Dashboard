@@ -1477,3 +1477,101 @@ body:not(.tc2RefMode) .card {
     height: 230px;
   }
 }
+/* TC2 Feinschliff: Modul-Unterseiten / Einstellungen */
+
+body:not(.tc2RefMode) .wrap {
+  padding-top: 14px !important;
+}
+
+body:not(.tc2RefMode) .menuBtn {
+  position: fixed !important;
+  top: 78px !important;
+  left: 22px !important;
+  z-index: 120 !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 18px !important;
+  background: rgba(7,18,29,.92) !important;
+  border: 1px solid rgba(125,170,210,.28) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.34) !important;
+}
+
+.tc2PageCard {
+  margin-top: 0 !important;
+  border-radius: 24px !important;
+}
+
+.tc2PageHead {
+  padding: 4px 2px 2px !important;
+}
+
+.tc2PageHead h2 {
+  font-size: 30px !important;
+  letter-spacing: -.5px !important;
+}
+
+.tc2PageHead p {
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+}
+
+.tc2FormCard {
+  border-radius: 24px !important;
+  padding: 20px !important;
+  background: rgba(15,31,46,.92) !important;
+}
+
+.tc2FormCard h3 {
+  font-size: 25px !important;
+  margin-bottom: 10px !important;
+}
+
+.tc2FormCard .muted {
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  margin-bottom: 18px !important;
+}
+
+.tc2FormGrid {
+  gap: 12px !important;
+}
+
+.tc2FormGrid input,
+.tc2FormGrid select,
+.tc2FormGrid textarea {
+  min-height: 58px !important;
+  border-radius: 20px !important;
+  background: rgba(3,15,24,.92) !important;
+  text-align: left !important;
+  font-size: 16px !important;
+}
+
+.tc2FormGrid input::placeholder,
+.tc2FormGrid textarea::placeholder {
+  text-align: center !important;
+  color: rgba(244,247,251,.42) !important;
+}
+
+.tc2PageCard > button,
+.tc2FormCard button {
+  width: 100%;
+  min-height: 54px !important;
+  margin-top: 10px !important;
+  border-radius: 18px !important;
+  font-weight: 900 !important;
+}
+
+@media (max-width:390px) {
+  body:not(.tc2RefMode) .menuBtn {
+    top: 74px !important;
+    left: 18px !important;
+  }
+
+  .tc2PageHead h2 {
+    font-size: 28px !important;
+  }
+
+  .tc2FormCard {
+    padding: 18px !important;
+  }
+}
