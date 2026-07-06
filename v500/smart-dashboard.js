@@ -257,11 +257,14 @@ function render(){
 
   return `
     <section class="tc2SmartPage">
-      <div class="tc2SmartHero">
-        <button onclick="NGT500.route('dashboard')">‹ Start</button>
-        <h2>Smart Dashboard</h2>
-        <p>Analyse aus deinen echten TerraControl-Daten.</p>
-      </div>
+      <header class="tc2SmartTop">
+  <button onclick="NGT500.route('dashboard')">‹</button>
+  <div>
+    <h2>Smart Dashboard</h2>
+    <p>Analyse aus echten TerraControl-Daten</p>
+  </div>
+  <span>TC</span>
+</header>
 
       <div class="tc2SmartSummary">
         <div><b>${rows.length}</b><span>Tiere</span></div>
