@@ -955,3 +955,98 @@ body:not(.tc2RefMode) .card {
     gap: 3px;
   }
 }
+/* TC2 Futterverwaltung */
+
+.tc2FoodManageGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.tc2FoodManageCard {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(7,18,29,.45);
+  border: 1px solid rgba(125,170,210,.22);
+  box-shadow: 0 14px 30px rgba(0,0,0,.18);
+}
+
+.tc2FoodManageTop {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 42px;
+  gap: 10px;
+  align-items: center;
+}
+
+.tc2FoodManageTop h3 {
+  margin: 0 !important;
+  font-size: 20px !important;
+  line-height: 1.1 !important;
+}
+
+.tc2FoodManageTop p {
+  margin: 6px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2FoodManageTop span {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(139,220,63,.08);
+  border: 1px solid rgba(139,220,63,.2);
+  font-size: 22px;
+}
+
+.tc2FoodProgress {
+  height: 8px;
+  margin: 16px 0 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  overflow: hidden;
+}
+
+.tc2FoodProgress i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #8bdc3f;
+}
+
+.tc2FoodManageCard.warn .tc2FoodProgress i {
+  background: #ff9d1b;
+}
+
+.tc2FoodManageCard.danger .tc2FoodProgress i {
+  background: #ff5b6b;
+}
+
+.tc2FoodManageStatus {
+  font-weight: 900;
+  color: #8bdc3f;
+  margin-bottom: 14px;
+}
+
+.tc2FoodManageStatus.warn {
+  color: #ff9d1b;
+}
+
+.tc2FoodManageStatus.danger {
+  color: #ff5b6b;
+}
+
+.tc2FoodManageActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.tc2FoodManageActions button {
+  min-height: 44px !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
