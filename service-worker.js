@@ -1,4 +1,4 @@
-const TC_CACHE='terracontrol-v1-0-4-rc10';
+const TC_CACHE='terracontrol-v1-0-4-rc11';
 
 const APP_SHELL=[
   './',
@@ -7,15 +7,15 @@ const APP_SHELL=[
   './icon.svg',
   './icon-192.png',
   './icon-512.png',
-  './v500/styles.css?v=1.0.4-rc10',
-  './v500/tc2.css?v=1.0.4-rc10',
-  './v500/core.js?v=1.0.4-rc10',
-  './v500/store.js?v=1.0.4-rc10',
-  './v500/ui.js?v=1.0.4-rc10',
-  './v500/app.js?v=1.0.4-rc10',
-  './v500/smart-dashboard.js?v=1.0.4-rc10',
-  './v500/modules/dashboard.js?v=1.0.4-rc10',
-  './v500/firebase-sync.js?v=1.0.4-rc10'
+  './v500/styles.css?v=1.0.4-rc11',
+  './v500/tc2.css?v=1.0.4-rc11',
+  './v500/core.js?v=1.0.4-rc11',
+  './v500/store.js?v=1.0.4-rc11',
+  './v500/ui.js?v=1.0.4-rc11',
+  './v500/app.js?v=1.0.4-rc11',
+  './v500/smart-dashboard.js?v=1.0.4-rc11',
+  './v500/modules/dashboard.js?v=1.0.4-rc11',
+  './v500/firebase-sync.js?v=1.0.4-rc11'
 ];
 
 self.addEventListener('install',event=>{

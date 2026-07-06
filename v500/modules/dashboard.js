@@ -200,7 +200,7 @@ function render(){
 
   <header class="tc2AppTop">
    <button class="tc2Menu" onclick="NGT500.openMenu()">☰</button>
-   <div class="tc2HeadTitle"><h1>TerraControl</h1><p>Version 1.0.4 RC8</p></div>
+   <div class="tc2HeadTitle"><h1>TerraControl</h1><p>Version 1.0.4 RC11</p></div>
    <div class="tc2Sync"><span>☁</span><b id="dashboardCloudStatus">${esc(cloudLabel())}</b><small>Heute</small></div>
    <div class="tc2Avatar">TC</div>
   </header>
