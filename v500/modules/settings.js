@@ -4,10 +4,42 @@
 const KEY='terracontrol_settings_v1';
 const SELLER_KEY='ngt_seller_profile_v1';
 
-function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}}
-function seller(){try{return JSON.parse(localStorage.getItem(SELLER_KEY)||'{}')}catch(e){return {}}}
-function cloud(){try{return JSON.parse(localStorage.getItem('terracontrol_cloud_meta_v1')||'{}')}catch(e){return {}}}
-function saveObj(k,o){localStorage.setItem(k,JSON.stringify(o));}
+function storeSettings(){
+  try{
+    const d=NGTStore&&NGTStore.data?NGTStore.data():null;
+    if(!d)return {};
+    d.settings=d.settings||{};
+    return d.settings;
+  }catch(e){return {}}
+}
+
+function legacyLoad(k){
+  try{return JSON.parse(localStorage.getItem(k)||'{}')}catch(e){return {}}
+}
+
+function load(){
+  const st=storeSettings();
+  return Object.keys(st).length?st:legacyLoad(KEY);
+}
+
+function seller(){
+  const st=storeSettings();
+  if(st.seller&&Object.keys(st.seller).length)return st.seller;
+  return legacyLoad(SELLER_KEY);
+}
+
+function cloud(){
+  try{return JSON.parse(localStorage.getItem('terracontrol_cloud_meta_v1')||'{}')}catch(e){return {}}
+}
+
+function saveSettingsToStore(sellerData,defaultsData){
+  const d=NGTStore.data();
+  d.settings=d.settings||{};
+  d.settings.seller=sellerData;
+  d.settings.defaults=defaultsData;
+  NGTStore.save();
+}
+
 function msg(t,type){if(NGT500.toast)NGT500.toast(t,type);else alert(t)}
 function mailto(subject){location.href='mailto:saschad1711@gmail.com?subject='+encodeURIComponent(subject||'TerraControl Feedback')}
 
@@ -26,7 +58,7 @@ function render(){
 
       <div class="tc2FormCard tc2Card">
         <h3>Verkäuferdaten</h3>
-        <p class="muted">Diese Angaben werden für Abgabenachweise und Dokumente verwendet.</p>
+        <p class="muted">Diese Angaben werden im TerraControl-Datenstand gespeichert und für Abgabenachweise verwendet.</p>
         <div class="tc2FormGrid">
           <input id="setSellerName" placeholder="Name" value="${NGT500.esc(p.name||'')}">
           <input id="setSellerStreet" placeholder="Straße / Hausnummer" value="${NGT500.esc(p.street||p.address||'')}">
@@ -95,16 +127,21 @@ function save(){
     email:setSellerMail.value.trim(),
     mail:setSellerMail.value.trim()
   };
-  saveObj(SELLER_KEY,p);
 
-  const s=load();
-  s.defaults={
+  const defaults={
     feedBaby:Number(setFeedBaby.value||7),
     feedSubadult:Number(setFeedSubadult.value||10),
     feedAdult:Number(setFeedAdult.value||14),
     weightDays:Number(setWeightDays.value||30)
   };
-  saveObj(KEY,s);
+
+  saveSettingsToStore(p,defaults);
+
+  try{
+    localStorage.setItem(SELLER_KEY,JSON.stringify(p));
+    localStorage.setItem(KEY,JSON.stringify({seller:p,defaults}));
+  }catch(e){}
+
   msg('Einstellungen gespeichert.');
 }
 
@@ -121,9 +158,7 @@ function imprint(){
   info('<h3>Impressum</h3><p>Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.</p>');
 }
 
-function feedback(){
-  mailto('TerraControl Feedback');
-}
+function feedback(){mailto('TerraControl Feedback')}
 
 function about(){
   info('<h3>Über TerraControl</h3><p>TerraControl ist ein Terraristik Dashboard für Tierbestand, Pflege, Fütterung, Dokumentation, QR-Tierpass, Abgabenachweis und Cloud-Sicherung.</p>');
