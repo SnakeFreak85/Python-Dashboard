@@ -1575,3 +1575,78 @@ body:not(.tc2RefMode) .menuBtn {
     padding: 18px !important;
   }
 }
+/* TC2 App-Rahmen für Modul-Unterseiten */
+
+body:not(.tc2RefMode) .appHeader {
+  min-height: 88px !important;
+  padding: 18px 18px 16px 92px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  background: linear-gradient(180deg,#1a3246,#0b1722) !important;
+  border-bottom: 1px solid rgba(125,170,210,.18) !important;
+}
+
+body:not(.tc2RefMode) .appHeader h1 {
+  font-size: 28px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  letter-spacing: -.4px !important;
+}
+
+body:not(.tc2RefMode) .appHeader .version {
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  margin-top: 4px !important;
+  opacity: .82 !important;
+}
+
+body:not(.tc2RefMode) .menuBtn {
+  position: fixed !important;
+  top: 20px !important;
+  left: 20px !important;
+  z-index: 140 !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 18px !important;
+  background: rgba(7,18,29,.94) !important;
+  border: 1px solid rgba(125,170,210,.3) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.36) !important;
+}
+
+body:not(.tc2RefMode) .wrap {
+  padding-top: 16px !important;
+}
+
+.tc2PageCard {
+  padding: 18px !important;
+  border-radius: 24px !important;
+}
+
+.tc2PageHead {
+  margin-bottom: 18px !important;
+}
+
+.tc2PageHead h2 {
+  font-size: 28px !important;
+}
+
+.tc2FormCard {
+  margin-bottom: 16px !important;
+}
+
+@media (max-width:390px) {
+  body:not(.tc2RefMode) .appHeader {
+    min-height: 82px !important;
+    padding-left: 88px !important;
+  }
+
+  body:not(.tc2RefMode) .appHeader h1 {
+    font-size: 26px !important;
+  }
+
+  body:not(.tc2RefMode) .menuBtn {
+    top: 16px !important;
+    left: 16px !important;
+  }
+}
