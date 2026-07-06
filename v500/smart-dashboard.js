@@ -266,11 +266,28 @@ function render(){
   <span>TC</span>
 </header>
 
-      <div class="tc2SmartSummary">
-        <div><b>${rows.length}</b><span>Tiere</span></div>
-        <div><b>${urgent.length}</b><span>Sofort</span></div>
-        <div><b>${week.feeds+week.weights}</b><span>Woche</span></div>
-      </div>
+      <div class="tc2SmartKpis">
+  <div>
+    <span>🐍</span>
+    <b>${rows.length}</b>
+    <small>Tiere</small>
+  </div>
+  <div>
+    <span>🥩</span>
+    <b>${inv.length}</b>
+    <small>Futter</small>
+  </div>
+  <div>
+    <span>🔴</span>
+    <b>${urgent.length}</b>
+    <small>Sofort</small>
+  </div>
+  <div>
+    <span>📅</span>
+    <b>${week.feeds+week.weights}</b>
+    <small>Woche</small>
+  </div>
+</div>
 
       <section class="tc2SmartPanel">
         <h3>Heute wichtig</h3>
