@@ -23,44 +23,47 @@ function render(){
 
  const list=items.length
   ? `<div class="tc2FoodManageGrid">${items.map(card).join('')}</div>`
-  : `<div class="subcard tc2EmptyState">
+  : `<div class="tc2FoodEmpty">
       <h3>Noch kein Futterbestand</h3>
-      <p class="muted">Füge deinen ersten Futterbestand hinzu. Danach kann TerraControl Bestände automatisch reduzieren, wenn du Fütterungen einträgst.</p>
+      <p>Füge deinen ersten Futterbestand hinzu. Danach kann TerraControl Bestände automatisch reduzieren.</p>
      </div>`;
 
- return `<div class="card tc2PageCard tc2FoodPage">
-  <div class="tc2PageHead">
+ return `<section class="tc2FoodPage">
+  <div class="tc2FoodHero">
    <div>
     <h2>🥩 Futterverwaltung</h2>
-    <p class="muted">Dein echter gespeicherter Futterbestand</p>
+    <p>Dein echter gespeicherter Futterbestand.</p>
    </div>
   </div>
 
-  <div class="subcard tc2FormCard">
-   <h3>Futterbestand hinzufügen</h3>
+  <section class="tc2FoodAdd">
+   <div class="tc2FoodAddHead">
+    <h3>Futterbestand hinzufügen</h3>
+    <p>Art, Größe und aktuellen Bestand erfassen.</p>
+   </div>
 
-   <div class="tc2FormGrid">
-    <select id="foodState">
+   <div class="tc2FoodFields">
+    <label><span>Zustand</span><select id="foodState">
      <option>Frost</option>
      <option>Lebend</option>
-    </select>
+    </select></label>
 
-    <select id="foodType" onchange="NGTFood.refreshSizes()">
+    <label><span>Futtertier</span><select id="foodType" onchange="NGTFood.refreshSizes()">
      ${opt(NGTStore.FEEDER_TYPES,firstType)}
-    </select>
+    </select></label>
 
-    <select id="foodSize">
+    <label><span>Größe</span><select id="foodSize">
      ${opt(NGTStore.FEEDER_SIZES[firstType]||[],(NGTStore.FEEDER_SIZES[firstType]||[])[0])}
-    </select>
+    </select></label>
 
-    <input id="foodQty" type="number" min="0" placeholder="Bestand">
+    <label><span>Bestand</span><input id="foodQty" type="number" min="0" placeholder="0"></label>
    </div>
 
-   <button onclick="NGTFood.save()">💾 Futterbestand speichern</button>
-  </div>
+   <button class="tc2FoodSave" onclick="NGTFood.save()">Futterbestand speichern</button>
+  </section>
 
   ${list}
- </div>`;
+ </section>`;
 }
 
 function card(x,i){
