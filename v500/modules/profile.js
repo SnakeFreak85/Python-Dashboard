@@ -35,7 +35,8 @@ function passportPayload(a){try{let full=JSON.stringify(passportObject(a,true));
 
 function render(args){
  ctx=args||ctx;
- tab=args.tab||tab;
+ tab=(args&&args.tab)?args.tab:'overview';
+
  const a=current();
  if(!a)return '<div class="card tc2PageCard">Tier nicht gefunden.</div>';
  ensure(a);
@@ -43,18 +44,43 @@ function render(args){
  const p=(a.photos||[]).find(x=>x.cover)||(a.photos||[])[0];
  const hs=healthStatus(a);
  const lw=latest(a.weights);
+ const isOverview=tab==='overview';
+
+ const tabTitles={
+  overview:'Übersicht',
+  feeds:'Fütterungen',
+  sheds:'Häutungen',
+  weights:'Gewichte',
+  photos:'Fotos',
+  health:'Gesundheit',
+  life:'Chronik',
+  docs:'Dokumente',
+  charts:'Diagramme',
+  analysis:'Analyse',
+  qr:'Digitaler Tierpass QR'
+ };
 
  return `<div class="card tc2PageCard tc2ProfilePage">
-  <div class="tc2ProfileHero">
-   ${p?`<img src="${p.data}">`:`<div class="tc2ProfileHeroEmpty">📷</div>`}
-   <div class="tc2ProfileHeroShade"></div>
-   <button class="tc2BackBtn" onclick="NGT500.route('animals',{t:'${ctx.t}'})">‹ Bestand</button>
-   <div class="tc2ProfileStatus">${hs.icon} ${esc(hs.txt)}</div>
-   <div class="tc2ProfileTitle">
+  <div class="tc2ProfileTopBar">
+   <button class="tc2ProfileTopBack" onclick="NGT500.route('animals',{t:'${ctx.t}'})">‹ Bestand</button>
+   <div class="tc2ProfileTopStatus ${hs.cls}">${hs.icon} ${esc(hs.txt)}</div>
+  </div>
+
+  ${isOverview?`
+   <div class="tc2ProfileHero">
+    ${p?`<img src="${p.data}">`:`<div class="tc2ProfileHeroEmpty">📷</div>`}
+   </div>
+   <div class="tc2ProfileMainTitle">
     <h2>${esc(a.name||'Unbenannt')}</h2>
     <p>${esc(a.morph||'-')} · ${esc(a.sex||'-')} · ${esc(age(a.birth))}</p>
    </div>
-  </div>
+  `:`
+   <div class="tc2ProfileSubHead">
+    <small>${esc(a.name||'Unbenannt')}</small>
+    <h2>${esc(tabTitles[tab]||'Tierpass')}</h2>
+    <p>${esc(a.morph||'-')} · ${esc(a.sex||'-')} · ${esc(age(a.birth))}</p>
+   </div>
+  `}
 
   <div class="tc2ProfileStats">
    <div><small>Gewicht</small><b>${lw?esc(lw.weight)+' g':'-'}</b></div>
@@ -62,11 +88,13 @@ function render(args){
    <div><small>Intervall</small><b>${esc(a.feedIntervalDays||a.feedingInterval||14)} Tage</b></div>
   </div>
 
-  <div class="tc2ProfileSummary">
-   <div><span>🐀</span><p><b>Standardfutter</b><small>${esc(a.defaultFeeder||'-')}</small></p></div>
-   <div><span>🧬</span><p><b>Eltern</b><small>Vater: ${esc(a.father||a.vater||a.sire||'-')} · Mutter: ${esc(a.mother||a.mutter||a.dam||'-')}</small></p></div>
-   <div><span>🆔</span><p><b>UUID</b><small>${esc(a.uuid||'-')}</small></p></div>
-  </div>
+  ${isOverview?`
+   <div class="tc2ProfileSummary">
+    <div><span>🐀</span><p><b>Standardfutter</b><small>${esc(a.defaultFeeder||'-')}</small></p></div>
+    <div><span>🧬</span><p><b>Eltern</b><small>Vater: ${esc(a.father||a.vater||a.sire||'-')} · Mutter: ${esc(a.mother||a.mutter||a.dam||'-')}</small></p></div>
+    <div><span>🆔</span><p><b>UUID</b><small>${esc(a.uuid||'-')}</small></p></div>
+   </div>
+  `:''}
 
   <div class="tc2Tabs">
    ${tabButton('overview','Übersicht')}
@@ -86,9 +114,7 @@ function render(args){
  </div>`;
 }
 
-function tabButton(id,label){
- return `<button class="${tab===id?'on':''}" onclick="NGTProfile.setTab('${id}')">${label}</button>`;
-}
+function tabButton(id,label){return `<button class="${tab===id?'on':''}" onclick="NGTProfile.setTab('${id}')">${label}</button>`}
 
 function body(a){
  if(tab==='overview')return overview(a);
@@ -116,17 +142,14 @@ function overview(a){
   <div><small>Gewichte</small><b>${(a.weights||[]).length}</b></div>
   <div><small>Gesundheit</small><b>${(a.health||[]).length}</b></div>
  </div>
- <div class="subcard tc2SubCard">
-  <h3>Zusammenfassung</h3>
-  <div class="tc2InfoRows">
-   <div><b>Kaufwert</b><span>${NGT500.money(a.buyPrice||0)}</span></div>
-   <div><b>Marktwert</b><span>${NGT500.money(NGTStore.market(a))}</span></div>
-   <div><b>Letzte Fütterung</b><span>${lf?esc(lf.date)+' '+(lf.accepted===false?'verweigert':'gefressen'):'-'}</span></div>
-   <div><b>Gewicht</b><span>${lw?esc(lw.weight)+' g am '+esc(lw.date):'-'}</span></div>
-   <div><b>Gesundheit</b><span>${lh?esc(lh.date)+' '+esc(lh.title||lh.type):'-'}</span></div>
-   <div><b>Notizen</b><span>${esc(a.note||'-')}</span></div>
-  </div>
- </div>`;
+ <div class="subcard tc2SubCard"><h3>Zusammenfassung</h3><div class="tc2InfoRows">
+  <div><b>Kaufwert</b><span>${NGT500.money(a.buyPrice||0)}</span></div>
+  <div><b>Marktwert</b><span>${NGT500.money(NGTStore.market(a))}</span></div>
+  <div><b>Letzte Fütterung</b><span>${lf?esc(lf.date)+' '+(lf.accepted===false?'verweigert':'gefressen'):'-'}</span></div>
+  <div><b>Gewicht</b><span>${lw?esc(lw.weight)+' g am '+esc(lw.date):'-'}</span></div>
+  <div><b>Gesundheit</b><span>${lh?esc(lh.date)+' '+esc(lh.title||lh.type):'-'}</span></div>
+  <div><b>Notizen</b><span>${esc(a.note||'-')}</span></div>
+ </div></div>`;
 }
 
 function docs(a){
