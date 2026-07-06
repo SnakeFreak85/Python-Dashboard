@@ -43,77 +43,78 @@ function saveSettingsToStore(sellerData,defaultsData){
 function msg(t,type){if(NGT500.toast)NGT500.toast(t,type);else alert(t)}
 function mailto(subject){location.href='mailto:saschad1711@gmail.com?subject='+encodeURIComponent(subject||'TerraControl Feedback')}
 
+function field(id,label,value,type){
+  return `
+    <label class="tc2SettingsField">
+      <span>${label}</span>
+      <input id="${id}" ${type?'type="'+type+'"':''} value="${NGT500.esc(value||'')}">
+    </label>
+  `;
+}
+
 function render(){
   const s=load(),v=s.defaults||{},p=seller(),c=cloud();
   const last=c.lastBackupAt?new Date(c.lastBackupAt).toLocaleString('de-DE'):'Noch keine Sicherung';
 
   return `
-    <div class="tc2PageCard tc2Card">
-      <div class="tc2PageHead">
+    <section class="tc2Settings">
+      <div class="tc2SettingsHero">
         <div>
           <h2>⚙️ Einstellungen</h2>
-          <p class="muted">Persönliche Daten, Standardwerte, Cloud und Support.</p>
+          <p>Persönliche Daten, Standardwerte und Systemfunktionen.</p>
         </div>
       </div>
 
-      <div class="tc2FormCard tc2Card">
-        <h3>Verkäuferdaten</h3>
-        <p class="muted">Diese Angaben werden im TerraControl-Datenstand gespeichert und für Abgabenachweise verwendet.</p>
-        <div class="tc2FormGrid">
-          <input id="setSellerName" placeholder="Name" value="${NGT500.esc(p.name||'')}">
-          <input id="setSellerStreet" placeholder="Straße / Hausnummer" value="${NGT500.esc(p.street||p.address||'')}">
-          <input id="setSellerCity" placeholder="PLZ / Ort" value="${NGT500.esc(p.city||'')}">
-          <input id="setSellerPhone" placeholder="Telefon" value="${NGT500.esc(p.phone||'')}">
-          <input id="setSellerMail" placeholder="E-Mail" value="${NGT500.esc(p.email||p.mail||'')}">
-        </div>
+      <div class="tc2SettingsSection">
+        <h3>👤 Verkäufer</h3>
+        ${field('setSellerName','Name',p.name)}
+        ${field('setSellerStreet','Straße / Hausnummer',p.street||p.address)}
+        ${field('setSellerCity','PLZ / Ort',p.city)}
+        ${field('setSellerPhone','Telefon',p.phone)}
+        ${field('setSellerMail','E-Mail',p.email||p.mail)}
       </div>
 
-      <div class="tc2FormCard tc2Card">
-        <h3>Standardwerte</h3>
-        <p class="muted">Diese Werte dienen als globale Empfehlungen. Einzeltiere können eigene Intervalle haben.</p>
-        <div class="tc2FormGrid">
-          <input id="setFeedBaby" type="number" min="1" placeholder="Fütterungsintervall Jungtier" value="${NGT500.esc(v.feedBaby||7)}">
-          <input id="setFeedSubadult" type="number" min="1" placeholder="Fütterungsintervall Subadult" value="${NGT500.esc(v.feedSubadult||10)}">
-          <input id="setFeedAdult" type="number" min="1" placeholder="Fütterungsintervall Adult" value="${NGT500.esc(v.feedAdult||14)}">
-          <input id="setWeightDays" type="number" min="1" placeholder="Gewichtsintervall" value="${NGT500.esc(v.weightDays||30)}">
-        </div>
+      <div class="tc2SettingsSection">
+        <h3>⚙️ Standardwerte</h3>
+        ${field('setFeedBaby','Fütterungsintervall Jungtier',v.feedBaby||7,'number')}
+        ${field('setFeedSubadult','Fütterungsintervall Subadult',v.feedSubadult||10,'number')}
+        ${field('setFeedAdult','Fütterungsintervall Adult',v.feedAdult||14,'number')}
+        ${field('setWeightDays','Gewichtsintervall',v.weightDays||30,'number')}
       </div>
 
-      <div class="tc2FormCard tc2Card">
+      <div class="tc2SettingsSection">
         <h3>☁️ Cloud & Backup</h3>
-        <div class="tc2EmptyState">
-          <h3>Letzte Sicherung</h3>
-          <p>${NGT500.esc(last)}</p>
+        <div class="tc2SettingsStatus">
+          <span>Letzte Sicherung</span>
+          <b>${NGT500.esc(last)}</b>
         </div>
-        <div class="btnRow">
-          <button onclick="NGTApp.loadAccount&&NGTApp.loadAccount()">Konto & Cloud öffnen</button>
-          <button onclick="NGT500.route('backup')">Lokales Backup</button>
+        <div class="tc2SettingsActions">
+          <button onclick="NGTApp.loadAccount&&NGTApp.loadAccount()">Konto & Cloud</button>
+          <button onclick="NGT500.route('backup')">Backup</button>
         </div>
       </div>
 
-      <div class="tc2FormCard tc2Card">
+      <div class="tc2SettingsSection">
         <h3>📱 App</h3>
-        <div class="tc2EmptyState">
-          <h3>TerraControl</h3>
-          <p>Release Candidate · TC2-Designsystem · Mobile First</p>
+        <div class="tc2SettingsInfo">
+          <b>TerraControl</b>
+          <span>Version 1.0.4 RC11 · TC2 · Mobile First</span>
         </div>
       </div>
 
-      <div class="tc2FormCard tc2Card">
+      <div class="tc2SettingsSection">
         <h3>Rechtliches & Support</h3>
-        <div class="btnRow">
+        <div class="tc2SettingsActions">
           <button onclick="NGTSettings.privacy()">Datenschutz</button>
           <button onclick="NGTSettings.imprint()">Impressum</button>
-        </div>
-        <div class="btnRow">
-          <button onclick="NGTSettings.feedback()">Feedback senden</button>
-          <button onclick="NGTSettings.about()">Über TerraControl</button>
+          <button onclick="NGTSettings.feedback()">Feedback</button>
+          <button onclick="NGTSettings.about()">Über</button>
         </div>
         <div id="settingsInfo"></div>
       </div>
 
-      <button onclick="NGTSettings.save()">Einstellungen speichern</button>
-    </div>
+      <button class="tc2SettingsSave" onclick="NGTSettings.save()">Speichern</button>
+    </section>
   `;
 }
 
@@ -147,21 +148,21 @@ function save(){
 
 function info(html){
   const box=document.getElementById('settingsInfo');
-  if(box)box.innerHTML='<div class="tc2EmptyState" style="margin-top:12px">'+html+'</div>';
+  if(box)box.innerHTML='<div class="tc2SettingsInlineInfo">'+html+'</div>';
 }
 
 function privacy(){
-  info('<h3>Datenschutzerklärung</h3><p>TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen Google Drive des angemeldeten Nutzers. Fotos werden nur nach aktiver Nutzung der Foto-Cloud in Google Drive gespeichert.</p>');
+  info('<h4>Datenschutz</h4><p>TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account.</p>');
 }
 
 function imprint(){
-  info('<h3>Impressum</h3><p>Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.</p>');
+  info('<h4>Impressum</h4><p>Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.</p>');
 }
 
 function feedback(){mailto('TerraControl Feedback')}
 
 function about(){
-  info('<h3>Über TerraControl</h3><p>TerraControl ist ein Terraristik Dashboard für Tierbestand, Pflege, Fütterung, Dokumentation, QR-Tierpass, Abgabenachweis und Cloud-Sicherung.</p>');
+  info('<h4>Über TerraControl</h4><p>Terraristikverwaltung für Bestand, Pflege, Fütterung, QR-Tierpass, Abgabenachweis und Cloud-Sicherung.</p>');
 }
 
 window.NGTSettings={save,privacy,imprint,feedback,about};
