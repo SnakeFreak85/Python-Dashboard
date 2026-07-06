@@ -2415,3 +2415,150 @@ body:not(.tc2RefMode) .wrap {
   .tc2SDdonutRow{grid-template-columns:1fr}
   .tc2SDdonut{margin:auto}
 }
+/* TC2 Konto */
+
+.tc2Account {
+  display: grid;
+  gap: 14px;
+  padding: 0 2px 28px;
+}
+
+.tc2AccountHero,
+.tc2AccountProfile,
+.tc2AccountCard {
+  border-radius: 24px;
+  background: rgba(13,28,42,.9);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2AccountHero {
+  padding: 18px;
+  background: linear-gradient(135deg,rgba(26,52,74,.98),rgba(8,20,31,.98));
+}
+
+.tc2AccountHero h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tc2AccountHero p,
+.tc2AccountCard p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2AccountProfile {
+  display: grid;
+  grid-template-columns: 64px minmax(0,1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+}
+
+.tc2AccountProfile img,
+.tc2AccountAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.tc2AccountAvatar {
+  display: grid;
+  place-items: center;
+  background: #43a83e;
+  color: #fff;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.tc2AccountProfile b {
+  display: block;
+  color: #8bdc3f;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.tc2AccountProfile strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.tc2AccountProfile span {
+  display: block;
+  margin-top: 5px;
+  color: #aeb9c4;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.tc2AccountCard {
+  padding: 16px;
+}
+
+.tc2AccountHead {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tc2AccountHead h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2AccountRows {
+  display: grid;
+  gap: 8px;
+}
+
+.tc2AccountRows div {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(4,16,25,.45);
+  border: 1px solid rgba(125,170,210,.12);
+}
+
+.tc2AccountRows span {
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2AccountRows b {
+  color: #8bdc3f;
+  font-size: 15px;
+  text-align: right;
+}
+
+.tc2AccountActions {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tc2AccountActions button,
+.tc2AccountDanger {
+  width: 100%;
+  min-height: 50px !important;
+  margin: 0 !important;
+  border-radius: 17px !important;
+  font-weight: 900 !important;
+}
+
+.tc2AccountDanger {
+  margin-top: 14px !important;
+  background: rgba(185,45,45,.18) !important;
+  border: 1px solid rgba(255,120,120,.28) !important;
+  color: #ffb3b3 !important;
+}

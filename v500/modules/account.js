@@ -10,45 +10,89 @@ function first(v){return String(v||'').split(' ')[0]||''}
 function animalCount(){try{return NGTStore.allAnimals?NGTStore.allAnimals().length:0}catch(e){return 0}}
 function syncText(){try{return window.NGTFirebaseSync?NGTFirebaseSync.label():'Firestore lädt...'}catch(e){return 'Nicht geprüft'}}
 
+function initials(p){
+  const n=p.name||p.displayName||p.email||'TC';
+  return String(n).split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'TC';
+}
+
 function render(){
- const p=profile();
- const ok=!!p.email;
- const displayName=p.name||p.displayName||'';
- const welcome=first(p.given_name||p.name||p.displayName);
- return `<div class="card">
-  <h2>👤 Konto</h2>
-  <p class="muted">Konto, Cloud-Status und lokale Backup-Dateien.</p>
+  const p=profile();
+  const ok=!!p.email;
+  const displayName=p.name||p.displayName||'';
+  const welcome=first(p.given_name||p.name||p.displayName);
 
-  ${ok?`<div class="subcard ok">
-   ${p.picture?`<img src="${esc(p.picture)}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;float:right;margin-left:12px">`:''}
-   <b>Angemeldet</b><br>
-   ${esc(displayName)}<br>
-   ${esc(p.email)}<br>
-   <span class="muted">Willkommen ${esc(welcome)}</span>
-  </div>`:`<div class="subcard">
-   <b>Noch nicht angemeldet</b><br>
-   <span class="muted">Die Anmeldung befindet sich direkt oben auf der Startseite.</span>
-  </div>`}
+  return `
+    <section class="tc2Account">
+      <div class="tc2AccountHero">
+        <div>
+          <h2>👤 Konto</h2>
+          <p>Konto, Cloud-Status und lokale Sicherungen.</p>
+        </div>
+      </div>
 
-  <div class="subcard">
-   <h3>🔥 Firebase / Firestore</h3>
-   <p><b>Status:</b><br>${esc(syncText())}</p>
-   <p><b>Lokale Tiere:</b><br>${animalCount()}</p>
-   <p class="muted">Anmelden, Speichern und Laden befinden sich ab sofort ganz oben auf der Startseite.</p>
-  </div>
+      <section class="tc2AccountProfile">
+        ${
+          ok
+          ? `
+            ${p.picture
+              ? `<img src="${esc(p.picture)}" alt="">`
+              : `<div class="tc2AccountAvatar">${esc(initials(p))}</div>`
+            }
+            <div>
+              <b>Angemeldet</b>
+              <strong>${esc(displayName||welcome||'TerraControl Nutzer')}</strong>
+              <span>${esc(p.email)}</span>
+            </div>
+          `
+          : `
+            <div class="tc2AccountAvatar">TC</div>
+            <div>
+              <b>Nicht angemeldet</b>
+              <strong>Lokaler Modus</strong>
+              <span>Anmelden, Speichern und Laden befinden sich auf der Startseite.</span>
+            </div>
+          `
+        }
+      </section>
 
-  <div class="subcard">
-   <h3>📦 Lokale Sicherung</h3>
-   <p class="muted">Lokales Backup als Datei. Unabhängig von Firebase.</p>
-   <div class="btnRow">
-    <button onclick="NGTAccount.localBackup()">Backup-Datei speichern</button>
-    <button onclick="NGTAccount.localRestorePick()">Backup-Datei laden</button>
-   </div>
-   <input id="accountRestoreFile" type="file" accept="application/json,.json" style="display:none" onchange="NGTAccount.localRestore(this.files[0])">
-  </div>
+      <section class="tc2AccountCard">
+        <div class="tc2AccountHead">
+          <h3>☁ Cloud</h3>
+        </div>
+        <div class="tc2AccountRows">
+          <div>
+            <span>Status</span>
+            <b>${esc(syncText())}</b>
+          </div>
+          <div>
+            <span>Lokale Tiere</span>
+            <b>${animalCount()}</b>
+          </div>
+        </div>
+        <p>Anmeldung und Cloud-Synchronisation steuerst du über die Startseite.</p>
+      </section>
 
-  <button class="danger" onclick="NGTAccount.clear()">Abmelden / Profil entfernen</button>
- </div>`;
+      <section class="tc2AccountCard">
+        <div class="tc2AccountHead">
+          <h3>📦 Lokale Sicherung</h3>
+        </div>
+        <p>Backup-Dateien funktionieren unabhängig von Firebase und können lokal gespeichert oder wieder geladen werden.</p>
+        <div class="tc2AccountActions">
+          <button onclick="NGTAccount.localBackup()">Backup speichern</button>
+          <button onclick="NGTAccount.localRestorePick()">Backup laden</button>
+        </div>
+        <input id="accountRestoreFile" type="file" accept="application/json,.json" style="display:none" onchange="NGTAccount.localRestore(this.files[0])">
+      </section>
+
+      <section class="tc2AccountCard">
+        <div class="tc2AccountHead">
+          <h3>⚠️ Konto lokal</h3>
+        </div>
+        <p>Entfernt nur das lokale Profil. Tierdaten bleiben auf diesem Gerät erhalten.</p>
+        <button class="tc2AccountDanger" onclick="NGTAccount.clear()">Abmelden / Profil entfernen</button>
+      </section>
+    </section>
+  `;
 }
 
 async function googleSignIn(){if(window.NGTFirebaseSync)return NGTFirebaseSync.signIn()}
@@ -56,49 +100,58 @@ async function firestoreSave(){if(window.NGTFirebaseSync)return NGTFirebaseSync.
 async function firestoreLoad(){if(window.NGTFirebaseSync)return NGTFirebaseSync.loadCloud()}
 
 function localBackup(){
- const payload={app:'TerraControl',type:'local-backup',version:'1.0.4-rc4',createdAt:new Date().toISOString(),data:NGTStore.data()};
- const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
- const url=URL.createObjectURL(blob);
- const a=document.createElement('a');
- a.href=url;
- a.download='TerraControl-Backup-'+new Date().toISOString().slice(0,19).replace(/[:.]/g,'-')+'.json';
- document.body.appendChild(a);
- a.click();
- a.remove();
- URL.revokeObjectURL(url);
+  const payload={app:'TerraControl',type:'local-backup',version:'1.0.4-rc4',createdAt:new Date().toISOString(),data:NGTStore.data()};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='TerraControl-Backup-'+new Date().toISOString().slice(0,19).replace(/[:.]/g,'-')+'.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 function localRestorePick(){
- const el=document.getElementById('accountRestoreFile');
- if(el)el.click();
+  const el=document.getElementById('accountRestoreFile');
+  if(el)el.click();
 }
 
 function localRestore(file){
- if(!file)return;
- if(!confirm('Backup-Datei laden? Aktuelle lokale Daten können überschrieben werden.'))return;
- const r=new FileReader();
- r.onload=function(){
-  try{
-   const obj=JSON.parse(String(r.result||'{}'));
-   const data=obj.data||obj;
-   NGTStore.importJson(JSON.stringify(data));
-   alert('Backup geladen. App wird neu gestartet.');
-   location.reload();
-  }catch(e){alert('Import fehlgeschlagen: '+(e.message||e))}
- };
- r.onerror=function(){alert('Datei konnte nicht gelesen werden.')};
- r.readAsText(file);
+  if(!file)return;
+  if(!confirm('Backup-Datei laden? Aktuelle lokale Daten können überschrieben werden.'))return;
+
+  const r=new FileReader();
+  r.onload=function(){
+    try{
+      const obj=JSON.parse(String(r.result||'{}'));
+      const data=obj.data||obj;
+      NGTStore.importJson(JSON.stringify(data));
+      alert('Backup geladen. App wird neu gestartet.');
+      location.reload();
+    }catch(e){
+      alert('Import fehlgeschlagen: '+(e.message||e));
+    }
+  };
+  r.onerror=function(){alert('Datei konnte nicht gelesen werden.')};
+  r.readAsText(file);
 }
 
 async function clear(){
- if(!confirm('Konto lokal entfernen? Lokale Tierdaten bleiben erhalten.'))return;
- localStorage.removeItem(KEY);
- localStorage.removeItem(GOOGLE_KEY);
- if(window.NGTFirebaseSync){try{await NGTFirebaseSync.signOut()}catch(e){}}
- NGT500.route('account');
+  if(!confirm('Konto lokal entfernen? Lokale Tierdaten bleiben erhalten.'))return;
+  localStorage.removeItem(KEY);
+  localStorage.removeItem(GOOGLE_KEY);
+  if(window.NGTFirebaseSync){
+    try{await NGTFirebaseSync.signOut()}catch(e){}
+  }
+  NGT500.route('account');
 }
 
-function afterRender(){try{if(window.NGTDashboard&&NGTDashboard.updateCloudStatus)NGTDashboard.updateCloudStatus()}catch(e){}}
+function afterRender(){
+  try{
+    if(window.NGTDashboard&&NGTDashboard.updateCloudStatus)NGTDashboard.updateCloudStatus();
+  }catch(e){}
+}
 
 window.NGTAccount={googleSignIn,firestoreSave,firestoreLoad,localBackup,localRestorePick,localRestore,clear};
 NGT500.register('account',{render,afterRender});
