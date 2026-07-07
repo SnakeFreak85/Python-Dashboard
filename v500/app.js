@@ -47,6 +47,27 @@ function navGroup(title,items){
  </div>`;
 }
 
+function dynamicAnimalNav(){
+ try{
+  const map=NGTStore.animalsByGroup?NGTStore.animalsByGroup():{};
+  const groups=Object.keys(map).sort();
+
+  if(!groups.length){
+   return [
+    navButton('＋','Tier anlegen',"NGTDashboard.manualAnimal()")
+   ];
+  }
+
+  return groups.map(function(g){
+   return navButton('●●●',g,"NGT500.route('animals',{group:'"+g.replace(/'/g,"\\'")+"'})");
+  });
+ }catch(e){
+  return [
+   navButton('●●●','Bestand',"NGT500.route('dashboard')")
+  ];
+ }
+}
+
 function nav(){
  const d=document.getElementById('drawer');
 
@@ -63,12 +84,7 @@ function nav(){
    navButton('▥','Smart Dashboard',"NGT500.route('smartDashboard')")
   ])}
 
-  ${navGroup('Tiere',[
-   navButton('🐍','Königspythons',"NGT500.route('animals',{t:'koenig'})"),
-   navButton('🐍','Boas',"NGT500.route('animals',{t:'boas'})"),
-   navButton('🦎','Leopardgeckos',"NGT500.route('animals',{t:'geckos'})"),
-   navButton('🕷','Vogelspinnen',"NGT500.route('animals',{t:'spinnen'})")
-  ])}
+  ${navGroup('Bestand',dynamicAnimalNav())}
 
   ${navGroup('Verwaltung',[
    navButton('🥩','Futterbestand',"NGT500.route('food')"),
@@ -76,10 +92,9 @@ function nav(){
    navButton('💾','Backup',"NGT500.route('backup')")
   ])}
 
-  ${navGroup('KI & Analyse',[
+  ${navGroup('KI',[
    navButton('💬','TerraControl KI',"NGT500.route('chat')"),
-   navButton('⚡','Schnelleingabe',"NGT500.route('assistant')"),
-   navButton('📊','Analyse',"NGTApp.loadAnalytics()")
+   navButton('⚡','Schnelleingabe',"NGT500.route('assistant')")
   ])}
 
   ${navGroup('System',[

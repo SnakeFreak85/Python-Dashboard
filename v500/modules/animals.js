@@ -32,13 +32,19 @@ function hknInfo(){
 
 function render(args){
  args=args||{};
- const t=args.t||'koenig';
+ const t=args.t||'';
+ const group=args.group||'';
  const edit=args.edit;
  const hkn=!!args.hkn;
- const rows=(NGTStore.data()[t]||[]);
- const label=NGTStore.LABELS[t]||'Bestand';
 
- const list=rows.map((a,i)=>NGTUI.animalCard({t,i,a})).join('') ||
+ const all=NGTStore.allAnimals?NGTStore.allAnimals():[];
+ const filtered=group
+  ? all.filter(x=>String(x.a.animalGroup||'Unsortiert')===String(group))
+  : (t ? all.filter(x=>x.t===t) : all);
+
+ const label=group||((NGTStore.LABELS&&NGTStore.LABELS[t])?NGTStore.LABELS[t]:'Bestand');
+
+ const list=filtered.map(x=>NGTUI.animalCard(x)).join('') ||
   `<div class="subcard tc2EmptyState">
     <h3>Noch keine Tiere</h3>
     <p class="muted">Lege dein erstes Tier über die Startseite an. Danach kannst du Fütterungen, Häutungen, Gewichte, Fotos und den digitalen Tierpass pflegen.</p>
