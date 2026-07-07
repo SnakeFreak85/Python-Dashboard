@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-let tab='overview',ctx={t:'koenig',i:0};
+let tab='overview',ctx={t:'',i:0};
 
 function esc(v){return NGT500.esc(v||'')}
 function current(){return NGTStore.animal(ctx.t,ctx.i)}
@@ -11,6 +11,17 @@ function daysSince(d){const t=Date.parse(d||'');return t?Math.floor((Date.now()-
 function age(birth){const t=Date.parse(birth||'');if(!t)return '-';const y=Math.floor((Date.now()-t)/31557600000);return y>0?y+' Jahre':'< 1 Jahr'}
 function s(v,n){return String(v==null?'':v).replace(/[\n\r|]/g,' ').slice(0,n||80)}
 function opt(list,cur){return (list||[]).map(v=>`<option value="${esc(v)}" ${String(cur||'')===String(v)?'selected':''}>${esc(v)}</option>`).join('')}
+
+function sexCode(v){
+ v=String(v||'').toLowerCase();
+ if(v.includes('weib'))return '0.1';
+ if(v.includes('männ')||v.includes('maenn'))return '1.0';
+ return '0.0';
+}
+
+function scientificName(a){
+ return [a.genus,a.species].filter(Boolean).join(' ')||a.animalGroup||'-';
+}
 
 function healthStatus(a){
  let score=0;
@@ -30,8 +41,8 @@ function healthStatus(a){
 }
 
 function smallHistory(a){return {weights:(a.weights||[]).slice(-5).map(x=>({d:s(x.date,10),g:Number(x.weight||0)})),feeds:(a.feeds||[]).slice(-5).map(x=>({d:s(x.date,10),p:s(x.prey,24),g:Number(x.amount||0),ok:x.accepted!==false,state:s(x.state||'',10),size:s(x.size||'',12)})),sheds:(a.sheds||[]).slice(-5).map(x=>({d:s(x.date,10),ok:x.complete!==false}))}}
-function passportObject(a,withHistory){return {app:'TerraControl',type:'animal-passport',v:2,animal:{id:s(a.uuid||a.uid,80),name:s(a.name,60),morph:s(a.morph,60),sex:s(a.sex,20),birth:s(a.birth,10),origin:s(a.origin||a.originType,40),father:s(a.father||a.vater||a.sire,60),mother:s(a.mother||a.mutter||a.dam,60),food:s(a.defaultFeeder,60),feedDays:Number(a.feedIntervalDays||a.feedingInterval||14),weightDays:30},history:withHistory?smallHistory(a):undefined}}
-function passportPayload(a){try{let full=JSON.stringify(passportObject(a,true));if(full.length<1800)return full;let lite=JSON.stringify(passportObject(a,false));if(lite.length<1200)return lite;return ['TC2',s(a.uuid||a.uid,80),s(a.name,50),s(a.morph,50),s(a.sex,20),s(a.birth,10)].join('|')}catch(e){return ['TC2',s(a.uuid||a.uid,80),s(a.name,50)].join('|')}}
+function passportObject(a,withHistory){return {app:'TerraControl',type:'animal-passport',v:3,animal:{id:s(a.publicId||a.displayId||a.uuid||a.uid,80),uuid:s(a.uuid||a.uid,80),name:s(a.name,60),animalGroup:s(a.animalGroup,60),genus:s(a.genus,60),species:s(a.species,60),sex:s(a.sex,20),sexCode:sexCode(a.sex),birth:s(a.birth,10),origin:s(a.origin||a.originType,40),father:s(a.father||a.vater||a.sire,60),mother:s(a.mother||a.mutter||a.dam,60),food:s(a.defaultFeeder,60),feedDays:Number(a.feedIntervalDays||a.feedingInterval||14),weightDays:Number(a.weightIntervalDays||30)},history:withHistory?smallHistory(a):undefined}}
+function passportPayload(a){try{let full=JSON.stringify(passportObject(a,true));if(full.length<1800)return full;let lite=JSON.stringify(passportObject(a,false));if(lite.length<1200)return lite;return ['TC2',s(a.publicId||a.uuid||a.uid,80),s(a.name,50),s(a.genus,50),s(a.species,50),s(a.sex,20),s(a.birth,10)].join('|')}catch(e){return ['TC2',s(a.publicId||a.uuid||a.uid,80),s(a.name,50)].join('|')}}
 
 function render(args){
  ctx=args||ctx;
@@ -44,77 +55,55 @@ function render(args){
  const p=(a.photos||[]).find(x=>x.cover)||(a.photos||[])[0];
  const hs=healthStatus(a);
  const lw=latest(a.weights);
- const isOverview=tab==='overview';
+ const id=a.publicId||a.displayId||a.uuid||'-';
+ const sci=scientificName(a);
 
- const tabTitles={
-  overview:'Übersicht',
-  feeds:'Fütterungen',
-  sheds:'Häutungen',
-  weights:'Gewichte',
-  photos:'Fotos',
-  health:'Gesundheit',
-  life:'Chronik',
-  docs:'Dokumente',
-  charts:'Diagramme',
-  analysis:'Analyse',
-  qr:'Digitaler Tierpass QR'
- };
-
- return `<div class="card tc2PageCard tc2ProfilePage">
+ return `<div class="card tc2PageCard tc2ProfilePage tc2ProfileV3">
   <div class="tc2ProfileTopBar">
-   <button class="tc2ProfileTopBack" onclick="NGT500.route('animals',{t:'${ctx.t}'})">‹ Bestand</button>
+   <button class="tc2ProfileTopBack" onclick="NGT500.route('animals',{group:'${esc(a.animalGroup)}',genus:'${esc(a.genus||'Ohne Gattung')}'})">‹ Bestand</button>
    <div class="tc2ProfileTopStatus ${hs.cls}">${hs.icon} ${esc(hs.txt)}</div>
   </div>
 
-  ${isOverview?`
-   <div class="tc2ProfileHero">
-    ${p?`<img src="${p.data}">`:`<div class="tc2ProfileHeroEmpty">📷</div>`}
-   </div>
-   <div class="tc2ProfileMainTitle">
-    <h2>${esc(a.name||'Unbenannt')}</h2>
-    <p>${esc(a.morph||'-')} · ${esc(a.sex||'-')} · ${esc(age(a.birth))}</p>
-   </div>
-  `:`
-   <div class="tc2ProfileSubHead">
-    <small>${esc(a.name||'Unbenannt')}</small>
-    <h2>${esc(tabTitles[tab]||'Tierpass')}</h2>
-    <p>${esc(a.morph||'-')} · ${esc(a.sex||'-')} · ${esc(age(a.birth))}</p>
-   </div>
-  `}
+  <section class="tc2ProfileIdentity">
+   <b>${esc(id)}</b>
+   ${a.name?`<h2>${esc(a.name)}</h2>`:''}
+   <h3>${esc(sexCode(a.sex)+' '+sci)}</h3>
+   ${a.morph?`<p>${esc(a.morph)}</p>`:''}
+   <small>${esc(a.animalGroup||'Unsortiert')}</small>
+  </section>
 
-  <div class="tc2ProfileStats">
-   <div><small>Gewicht</small><b>${lw?esc(lw.weight)+' g':'-'}</b></div>
-   <div><small>Schlupf</small><b>${esc(a.birth||'-')}</b></div>
-   <div><small>Intervall</small><b>${esc(a.feedIntervalDays||a.feedingInterval||14)} Tage</b></div>
+  <div class="tc2ProfileHero">
+   ${p?`<img src="${p.data}">`:`<div class="tc2ProfileHeroEmpty">📷</div>`}
   </div>
 
-  ${isOverview?`
-   <div class="tc2ProfileSummary">
-    <div><span>🐀</span><p><b>Standardfutter</b><small>${esc(a.defaultFeeder||'-')}</small></p></div>
-    <div><span>🧬</span><p><b>Eltern</b><small>Vater: ${esc(a.father||a.vater||a.sire||'-')} · Mutter: ${esc(a.mother||a.mutter||a.dam||'-')}</small></p></div>
-    <div><span>🆔</span><p><b>UUID</b><small>${esc(a.uuid||'-')}</small></p></div>
-   </div>
-  `:''}
+  <section class="tc2ProfileActionGrid">
+   ${action('✏','Bearbeiten',`NGT500.route('animals',{edit:${ctx.i}})`)}
+   ${action('🍽','Fütterung',`NGTProfile.setTab('feeds')`)}
+   ${action('🦴','Häutung',`NGTProfile.setTab('sheds')`)}
+   ${action('⚖','Gewicht',`NGTProfile.setTab('weights')`)}
+   ${action('📷','Fotos',`NGTProfile.setTab('photos')`)}
+   ${action('🩺','Gesundheit',`NGTProfile.setTab('health')`)}
+   ${action('📄','Dokumente',`NGTProfile.setTab('docs')`)}
+   ${action('▦','Tierpass',`NGTProfile.setTab('qr')`)}
+  </section>
 
-  <div class="tc2Tabs">
-   ${tabButton('overview','Übersicht')}
-   ${tabButton('feeds','Fütterungen')}
-   ${tabButton('sheds','Häutungen')}
-   ${tabButton('weights','Gewichte')}
-   ${tabButton('photos','Fotos')}
-   ${tabButton('health','Gesundheit')}
-   ${tabButton('life','Chronik')}
-   ${tabButton('docs','Dokumente')}
-   ${tabButton('charts','Diagramme')}
-   ${tabButton('analysis','Analyse')}
-   ${tabButton('qr','QR')}
+  <div class="tc2ProfileStats">
+   <div><small>Gewicht</small><b>${lw?esc(lw.weight)+' g':(a.weight?esc(a.weight)+' g':'-')}</b></div>
+   <div><small>Alter</small><b>${esc(age(a.birth))}</b></div>
+   <div><small>Status</small><b>${esc(a.status||'-')}</b></div>
+   <div><small>Intervall</small><b>${esc(a.feedIntervalDays||a.feedingInterval||'-')} Tage</b></div>
   </div>
 
   <div class="tc2ProfileBody">${body(a)}</div>
  </div>`;
 }
 
-function tabButton(id,label){return `<button class="${tab===id?'on':''}" onclick="NGTProfile.setTab('${id}')">${label}</button>`}
+function action(icon,label,onclick){
+ return `<button onclick="${onclick}">
+  <span>${icon}</span>
+  <b>${esc(label)}</b>
+ </button>`;
+}
 
 function body(a){
  if(tab==='overview')return overview(a);
@@ -129,7 +118,7 @@ function body(a){
  if(tab==='analysis')return analysis(a);
  if(tab==='qr'){
   const p=passportPayload(a);
-  return `<div class="subcard tc2SubCard"><h3>Digitaler Tierpass</h3><div class="qrBox"><div id="profileQr"></div></div><p class="muted">QR-Code enthält eine bereinigte TerraControl-Payload.</p><textarea readonly>${esc(p)}</textarea></div>`;
+  return `<div class="subcard tc2SubCard"><h3>Digitaler Tierpass</h3><div class="qrBox"><div id="profileQr"></div></div><p class="muted">QR-Code enthält TerraControl-ID, Tierdaten und optional gekürzte Historie.</p><textarea readonly>${esc(p)}</textarea></div>`;
  }
  return '';
 }
@@ -143,13 +132,14 @@ function overview(a){
   <div><small>Gesundheit</small><b>${(a.health||[]).length}</b></div>
  </div>
  <div class="subcard tc2SubCard"><h3>Zusammenfassung</h3><div class="tc2InfoRows">
-  <div><b>Kaufwert</b><span>${NGT500.money(a.buyPrice||0)}</span></div>
-  <div><b>Marktwert</b><span>${NGT500.money(NGTStore.market(a))}</span></div>
+  <div><b>TerraControl-ID</b><span>${esc(a.publicId||a.displayId||'-')}</span></div>
+  <div><b>Wissenschaftlich</b><span>${esc(sexCode(a.sex)+' '+scientificName(a))}</span></div>
   <div><b>Letzte Fütterung</b><span>${lf?esc(lf.date)+' '+(lf.accepted===false?'verweigert':'gefressen'):'-'}</span></div>
   <div><b>Gewicht</b><span>${lw?esc(lw.weight)+' g am '+esc(lw.date):'-'}</span></div>
   <div><b>Gesundheit</b><span>${lh?esc(lh.date)+' '+esc(lh.title||lh.type):'-'}</span></div>
   <div><b>Notizen</b><span>${esc(a.note||'-')}</span></div>
- </div></div>`;
+ </div></div>
+ <div class="subcard tc2SubCard"><h3>Chronik</h3>${NGTUI.list(NGTUI.timeline(a).slice(0,6))}</div>`;
 }
 
 function docs(a){
@@ -196,7 +186,7 @@ function compressPhoto(file){return new Promise((resolve,reject)=>{const img=new
 async function addPhoto(file){if(!file)return;try{const a=current();a.photos=a.photos||[];const data=await compressPhoto(file);a.photos.push({id:NGT500.uid(),date:NGT500.today(),type:document.getElementById('photoType')?.value||'Sonstige',note:document.getElementById('photoNote')?.value||'',cover:a.photos.length===0,data});NGTStore.save();setTab('photos')}catch(e){alert('Foto konnte nicht dauerhaft gespeichert werden. Bitte kleineres Foto wählen oder Backup/Drive-Speicher aktivieren.')}}
 function setCover(i){const a=current();(a.photos||[]).forEach((p,n)=>p.cover=n===i);NGTStore.save();setTab('photos')}
 function deletePhoto(i){if(confirm('Foto löschen?')){current().photos.splice(i,1);NGTStore.save();setTab('photos')}}
-function afterRender(){const a=current();if(tab==='feeds')setFeedState(document.getElementById('feedState')?.value||'Frost');if(tab==='qr'&&a&&window.QRCode){const box=document.getElementById('profileQr');box.innerHTML='';const payload=passportPayload(a);try{new QRCode(box,{text:payload,width:220,height:220,correctLevel:QRCode.CorrectLevel.L})}catch(e){box.innerHTML='';new QRCode(box,{text:['TC2',s(a.uuid||a.uid,80),s(a.name,50)].join('|'),width:220,height:220,correctLevel:QRCode.CorrectLevel.L})}}}
+function afterRender(){const a=current();if(tab==='feeds')setFeedState(document.getElementById('feedState')?.value||'Frost');if(tab==='qr'&&a&&window.QRCode){const box=document.getElementById('profileQr');box.innerHTML='';const payload=passportPayload(a);try{new QRCode(box,{text:payload,width:220,height:220,correctLevel:QRCode.CorrectLevel.L})}catch(e){box.innerHTML='';new QRCode(box,{text:['TC2',s(a.publicId||a.uuid||a.uid,80),s(a.name,50)].join('|'),width:220,height:220,correctLevel:QRCode.CorrectLevel.L})}}}
 
 window.NGTProfile={setTab,addPhoto,setCover,deletePhoto,addFeed,addShed,addWeight,addHealth,deleteEntry,setFeedState,refreshFeedSizes};
 NGT500.register('profile',{render,afterRender});
