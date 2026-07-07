@@ -3160,27 +3160,39 @@ body:not(.tc2RefMode) .wrap {
 .tc2TaxAnimal img {
   border-radius: 18px !important;
 }
-/* TC2 Tierfoto Sichtbarkeit */
+/* TC2 Foto-Fix V2 */
 
 .tc2ProfileV4 .tc2ProfileHero {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
   background: #071521 !important;
-  padding: 8px !important;
 }
 
 .tc2ProfileV4 .tc2ProfileHero img {
-  object-fit: contain !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: unset !important;
   object-position: center center !important;
-  border-radius: 20px !important;
-  background: #071521 !important;
+  display: block !important;
+  border-radius: 24px !important;
 }
 
 .tc2TaxAnimal div {
+  height: 180px !important;
+  overflow: hidden !important;
   background: #071521 !important;
-  padding: 6px !important;
+  padding: 0 !important;
 }
 
 .tc2TaxAnimal img {
-  object-fit: contain !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
   object-position: center center !important;
-  background: #071521 !important;
+  display: block !important;
 }
