@@ -21,11 +21,6 @@ const LEGACY_GROUPS={
 
 const FEEDER_STATES=['Frost','Lebend'];
 
-/*
-  Übergangsweise bleiben diese Defaults vorhanden,
-  damit bestehende Module nicht brechen.
-  Ziel: später durch dynamischen foodCatalog ersetzen.
-*/
 const FEEDER_SIZES={
   Ratte:['5-9 g','10 g','20 g','30 g','50 g','70 g','90 g','120 g','150 g','200 g','250 g','300 g','350 g','400 g'],
   Maus:['1-2 g','3-4 g','5-6 g','7-10 g','11-14 g','15-19 g','20-24 g','25-29 g','30 g','40 g','50 g'],
@@ -38,7 +33,7 @@ const PREY=FEEDER_STATES.flatMap(state=>FEEDER_TYPES.flatMap(type=>FEEDER_SIZES[
 
 function base(){
   const d={
-    schemaVersion:2,
+    schemaVersion:3,
     animals:[],
     animalGroups:[],
     foodCatalog:[],
@@ -136,6 +131,50 @@ function legacyGroupLabel(t){
   return LEGACY_GROUPS[t]||t||'Bestand';
 }
 
+function fallbackEnsureAnimalId(d,a){
+  if(a.publicId){
+    a.displayId=a.displayId||a.publicId;
+    return a.publicId;
+  }
+
+  const group=String(a.animalGroup||'TC').trim();
+  const code=group.replace(/[^a-zA-Z]/g,'').slice(0,2).toUpperCase()||'TC';
+  const nz=String(a.status||'').toLowerCase()==='nachzucht';
+  const prefix=nz?code+'-NZ':code+'-';
+  let max=0;
+
+  (d.animals||[]).forEach(function(x){
+    const id=String(x.publicId||'').toUpperCase();
+    if(id.startsWith(prefix)){
+      const n=Number(id.replace(prefix,''));
+      if(n>max)max=n;
+    }
+  });
+
+  a.publicId=prefix+String(max+1).padStart(3,'0');
+  a.displayId=a.publicId;
+  return a.publicId;
+}
+
+function ensureAnimalPublicId(d,a){
+  if(window.NGTIdManager&&NGTIdManager.ensureAnimalId){
+    return NGTIdManager.ensureAnimalId(d,a);
+  }
+
+  return fallbackEnsureAnimalId(d,a);
+}
+
+function repairPublicIds(d){
+  if(window.NGTIdManager&&NGTIdManager.repairAnimalIds){
+    NGTIdManager.repairAnimalIds(d);
+    return;
+  }
+
+  (d.animals||[]).forEach(function(a){
+    fallbackEnsureAnimalId(d,a);
+  });
+}
+
 function normalizeAnimal(a,t,i){
   a=a||{};
 
@@ -152,7 +191,7 @@ function normalizeAnimal(a,t,i){
   a.genus=a.genus||a.gattung||a.breed||a.art||'';
   a.species=a.species||a.spezies||a.subspecies||a.unterart||'';
 
-  a.name=a.name||a.displayId||`${group}-${Number(i||0)+1}`;
+  a.name=a.name||'';
   a.status=a.status||'Bestand';
 
   a.feeds=Array.isArray(a.feeds)?a.feeds:[];
@@ -177,6 +216,9 @@ function normalizeAnimal(a,t,i){
   }
 
   a.defaultFeederKey=foodKey(a.defaultFeeder);
+
+  a.publicId=a.publicId||a.displayId||'';
+  a.displayId=a.displayId||a.publicId||'';
 
   return a;
 }
@@ -277,12 +319,14 @@ function normalize(d){
   });
 
   d.settings=d.settings||{};
-  d.schemaVersion=2;
+  d.schemaVersion=3;
 
   migrateLegacyAnimals(d);
 
   d.animals=d.animals.map((a,i)=>normalizeAnimal(a,a.legacyType||a.type,i));
   d.foodInventory=d.foodInventory.map(normalizeFoodItem);
+
+  repairPublicIds(d);
 
   rebuildLegacyArrays(d);
   rebuildGroups(d);
@@ -303,10 +347,6 @@ function load(){
   const d=readJson(KEY);
   if(d)return normalize(d);
 
-  /*
-    Keine automatische Migration alter Test-/Demo-Keys.
-    Neue Tester starten leer.
-  */
   return base();
 }
 
@@ -374,10 +414,13 @@ function findAnimal(q){
   q=String(q||'').toLowerCase().trim();
 
   return allAnimals().find(x=>
+    String(x.a.publicId||'').toLowerCase()===q ||
+    String(x.a.displayId||'').toLowerCase()===q ||
     String(x.a.uuid||'').toLowerCase()===q ||
     String(x.a.uid||'').toLowerCase()===q ||
     String(x.a.name||'').toLowerCase()===q ||
-    String(x.a.displayId||'').toLowerCase()===q
+    String(x.a.genus||'').toLowerCase()===q ||
+    String(x.a.species||'').toLowerCase()===q
   );
 }
 
@@ -392,6 +435,8 @@ function addAnimal(t,a){
 
   const n=normalizeAnimal(a,a.legacyType,(db.animals||[]).length);
 
+  ensureAnimalPublicId(db,n);
+
   db.animals.push(n);
   save();
 
@@ -404,9 +449,14 @@ function updateAnimal(t,i,a){
 
   a.legacyType=a.legacyType||t||old.legacyType||old.type||inferLegacyTypeFromGroup(a.animalGroup)||'';
   a.animalGroup=a.animalGroup||old.animalGroup||legacyGroupLabel(a.legacyType)||'Unsortiert';
+  a.publicId=a.publicId||old.publicId||old.displayId||'';
+  a.displayId=a.displayId||a.publicId||'';
   a.defaultFeederKey=foodKey(a.defaultFeeder||a.futterStandard||a.standardFeed||'');
 
   db.animals[Number(i)]=normalizeAnimal(a,a.legacyType,Number(i));
+
+  ensureAnimalPublicId(db,db.animals[Number(i)]);
+
   save();
 
   return db.animals[Number(i)];
@@ -461,10 +511,6 @@ function market(a){
 }
 
 function feederOptions(t){
-  /*
-    Übergangsfunktion.
-    Später ersetzt durch dynamischen foodCatalog.
-  */
   if(t==='geckos'||t==='spinnen')return INSECT_PREY.slice();
   return PREY.slice();
 }
