@@ -3117,3 +3117,46 @@ body:not(.tc2RefMode) .wrap {
   text-align: right;
   overflow-wrap: anywhere;
 }
+/* TC2 Foto-Fix */
+
+.tc2ProfileHero,
+.tc2TaxAnimal div,
+.tc2TaxAnimalGrid .tc2TaxAnimal div {
+  overflow: hidden !important;
+}
+
+.tc2ProfileHero img,
+.tc2TaxAnimal img,
+.tc2TaxAnimalGrid img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: block !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero {
+  width: 100% !important;
+  height: 240px !important;
+  min-height: 240px !important;
+  max-height: 240px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero img {
+  width: 100% !important;
+  height: 240px !important;
+  object-fit: cover !important;
+}
+
+.tc2TaxAnimal div {
+  width: 100% !important;
+  height: 160px !important;
+  border-radius: 18px !important;
+  background: rgba(7,18,29,.72) !important;
+}
+
+.tc2TaxAnimal img {
+  border-radius: 18px !important;
+}
