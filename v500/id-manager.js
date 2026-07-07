@@ -7,6 +7,23 @@ const GROUP_CODES={
   'Python regius':'KP',
   'Ball Python':'KP',
 
+  'Felsenpython':'FP',
+  'Felsenpythons':'FP',
+  'Python sebae':'FP',
+  'Sebae':'FP',
+
+  'Netzpython':'NP',
+  'Netzpythons':'NP',
+  'Malayopython reticulatus':'NP',
+
+  'Tigerpython':'TP',
+  'Tigerpythons':'TP',
+  'Python bivittatus':'TP',
+
+  'Blutpython':'BP',
+  'Blutpythons':'BP',
+  'Python brongersmai':'BP',
+
   'Vogelspinne':'VS',
   'Vogelspinnen':'VS',
   'Tarantel':'VS',
@@ -33,7 +50,7 @@ const GROUP_CODES={
   'Schaben':'SB',
 
   'Tausendfüßer':'TF',
-  'Tausendfüßer':'TF'
+  'Tausendfuesser':'TF'
 };
 
 function clean(v){
@@ -54,6 +71,12 @@ function groupCode(group){
   const cleaned=clean(raw).toUpperCase();
   if(!cleaned)return 'TC';
 
+  if(cleaned.includes('KOENIGSPYTHON')||cleaned.includes('PYTHON REGIUS')||cleaned.includes('BALL PYTHON'))return 'KP';
+  if(cleaned.includes('FELSENPYTHON')||cleaned.includes('PYTHON SEBAE'))return 'FP';
+  if(cleaned.includes('NETZPYTHON')||cleaned.includes('RETICULATUS'))return 'NP';
+  if(cleaned.includes('TIGERPYTHON')||cleaned.includes('BIVITTATUS'))return 'TP';
+  if(cleaned.includes('BLUTPYTHON')||cleaned.includes('BRONGERSMAI'))return 'BP';
+
   const words=cleaned.split(/\s+/).filter(Boolean);
 
   if(words.length>=2){
@@ -61,6 +84,19 @@ function groupCode(group){
   }
 
   return cleaned.replace(/[^A-Z0-9]/g,'').slice(0,2)||'TC';
+}
+
+function animalCode(a){
+  a=a||{};
+  const combined=[
+    a.animalGroup,
+    a.genus,
+    a.species,
+    a.commonName,
+    a.name
+  ].filter(Boolean).join(' ');
+
+  return groupCode(combined);
 }
 
 function isOffspring(a){
@@ -73,7 +109,7 @@ function isOffspring(a){
 }
 
 function prefixForAnimal(a){
-  const code=groupCode(a&&a.animalGroup);
+  const code=animalCode(a);
   return isOffspring(a)?code+'-NZ':code+'-';
 }
 
@@ -123,10 +159,15 @@ function nextAnimalId(data,animal){
   return prefix+String(max+1).padStart(3,'0');
 }
 
+function publicIdMatchesAnimal(a){
+  if(!a||!a.publicId)return false;
+  return String(a.publicId).toUpperCase().startsWith(prefixForAnimal(a).toUpperCase());
+}
+
 function ensureAnimalId(data,animal){
   animal=animal||{};
 
-  if(animal.publicId){
+  if(animal.publicId&&publicIdMatchesAnimal(animal)){
     animal.displayId=animal.displayId||animal.publicId;
     return animal.publicId;
   }
@@ -144,18 +185,18 @@ function repairAnimalIds(data){
   (data&&data.animals||[]).forEach(function(a){
     if(!a)return;
 
-    if(a.publicId){
+    if(a.publicId&&publicIdMatchesAnimal(a)){
       const key=String(a.publicId).toUpperCase();
 
       if(!used[key]){
         used[key]=true;
-        a.displayId=a.displayId||a.publicId;
+        a.displayId=a.publicId;
         return;
       }
-
-      a.publicId='';
-      a.displayId='';
     }
+
+    a.publicId='';
+    a.displayId='';
 
     const id=nextAnimalId(data,a);
     a.publicId=id;
@@ -178,7 +219,9 @@ function matchAnimalId(a,q){
 window.NGTIdManager={
   GROUP_CODES,
   groupCode,
+  animalCode,
   isOffspring,
+  prefixForAnimal,
   nextAnimalId,
   ensureAnimalId,
   repairAnimalIds,
