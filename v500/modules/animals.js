@@ -7,8 +7,15 @@ function jsArg(v){
  return String(v||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 }
 
+function isOffspringAnimal(a){
+ if(window.NGTIdManager&&NGTIdManager.isOffspring)return NGTIdManager.isOffspring(a);
+ return String((a&&a.status)||'').toLowerCase()==='nachzucht' ||
+  String((a&&a.collection)||'').toLowerCase()==='offspring' ||
+  String((a&&a.collection)||'').toLowerCase()==='nachzuchten';
+}
+
 function statusOptions(cur){
- return ['Bestand','Nachzucht','Verkauft','Abgegeben','Verstorben','Archiv']
+ return ['Bestand','Verkauft','Abgegeben','Verstorben','Archiv']
   .map(s=>`<option ${cur===s?'selected':''}>${s}</option>`)
   .join('');
 }
@@ -38,7 +45,10 @@ function hknInfo(){
 
 function allActive(){
  const all=NGTStore.allAnimals?NGTStore.allAnimals():[];
- return all.filter(x=>!['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status));
+ return all.filter(x=>
+  !['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status) &&
+  !isOffspringAnimal(x.a)
+ );
 }
 
 function countBy(rows,keyFn){
@@ -95,7 +105,8 @@ function animalIconGrid(rows){
    const tax=[a.genus,a.species].filter(Boolean).join(' ');
    return `<button class="tc2TaxAnimal" onclick="NGT500.route('profile',{t:'${jsArg(x.t)}',i:${x.i}})">
     <div>${img}</div>
-    <b>${esc(a.name||'Unbenannt')}</b>
+    <b>${esc(a.publicId||a.displayId||'')}</b>
+    <strong>${esc(a.name||'Unbenannt')}</strong>
     <small>${esc(tax||a.animalGroup||'')}</small>
    </button>`;
   }).join('')}
@@ -190,9 +201,9 @@ function editor(t,i,fromHkn){
   <div class="tc2AnimalEditorBlock">
    <h4>Taxonomie</h4>
    <div class="tc2AnimalFields">
-    <label><span>Tiergruppe</span><input id="edAnimalGroup" placeholder="z. B. Vogelspinnen" value="${esc(a.animalGroup||'')}"></label>
-    <label><span>Gattung</span><input id="edGenus" placeholder="z. B. Brachypelma" value="${esc(a.genus||'')}"></label>
-    <label><span>Art</span><input id="edSpecies" placeholder="z. B. hamorii" value="${esc(a.species||'')}"></label>
+    <label><span>Tiergruppe</span><input id="edAnimalGroup" placeholder="z. B. Pythons" value="${esc(a.animalGroup||'')}"></label>
+    <label><span>Gattung</span><input id="edGenus" placeholder="z. B. Python" value="${esc(a.genus||'')}"></label>
+    <label><span>Art</span><input id="edSpecies" placeholder="z. B. regius" value="${esc(a.species||'')}"></label>
    </div>
   </div>
 
@@ -282,7 +293,7 @@ function save(t,i){
   animalGroup:edAnimalGroup.value.trim()||old.animalGroup||'Unsortiert',
   genus:edGenus.value.trim()||'Ohne Gattung',
   species:edSpecies.value.trim(),
-  name:edName.value.trim()||'Unbenannt',
+  name:edName.value.trim(),
   morph:edMorph.value.trim(),
   weight:edWeight.value,
   origin:edOrigin.value.trim(),
@@ -301,6 +312,7 @@ function save(t,i){
   buyPrice:edBuy.value,
   sex:edSex.value,
   status:edStatus.value,
+  collection:'stock',
   defaultFeeder:feeder,
   defaultFeederState:state,
   defaultFeederType:type,

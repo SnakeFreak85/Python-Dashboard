@@ -85,8 +85,20 @@ function manualAnimal(){
   },120);
 }
 
+function manualOffspring(){
+  NGT500.route('offspring',{});
+  setTimeout(function(){
+    if(window.NGTOffspring&&NGTOffspring.openEditor)NGTOffspring.openEditor('');
+  },120);
+}
+
 function toggleBestand(){
   const el=document.getElementById('bestandPanel');
+  if(el)el.classList.toggle('hidden');
+}
+
+function toggleOffspring(){
+  const el=document.getElementById('offspringPanel');
   if(el)el.classList.toggle('hidden');
 }
 
@@ -94,19 +106,44 @@ function openSmartDashboard(){
   NGT500.route('smartDashboard');
 }
 
+function isInactiveStatus(status){
+  return ['Archiv','Verkauft','Abgegeben','Verstorben'].includes(status);
+}
+
+function isOffspringAnimal(a){
+  if(window.NGTIdManager&&NGTIdManager.isOffspring)return NGTIdManager.isOffspring(a);
+  return String((a&&a.status)||'').toLowerCase()==='nachzucht' ||
+    String((a&&a.collection)||'').toLowerCase()==='offspring' ||
+    String((a&&a.collection)||'').toLowerCase()==='nachzuchten';
+}
+
 function allAnimals(){
   try{
     return NGTStore.allAnimals().filter(function(x){
-      return !['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status);
+      return !isInactiveStatus(x.a.status) && !isOffspringAnimal(x.a);
     });
   }catch(e){
     return [];
   }
 }
 
-function groupRows(){
+function allOffspring(){
+  try{
+    if(NGTStore.allOffspring)return NGTStore.allOffspring().filter(function(x){
+      return !isInactiveStatus(x.a.status);
+    });
+
+    return NGTStore.allAnimals().filter(function(x){
+      return !isInactiveStatus(x.a.status) && isOffspringAnimal(x.a);
+    });
+  }catch(e){
+    return [];
+  }
+}
+
+function groupRows(list){
   const rows=[];
-  const animals=allAnimals();
+  const animals=list||[];
   const map={};
 
   animals.forEach(function(x){
@@ -139,7 +176,7 @@ function jsArg(v){
 }
 
 function renderBestandButtons(){
-  const rows=groupRows();
+  const rows=groupRows(allAnimals());
 
   if(!rows.length){
     return `<div class="tc2Empty">
@@ -157,10 +194,31 @@ function renderBestandButtons(){
   }).join('');
 }
 
+function renderOffspringButtons(){
+  const rows=groupRows(allOffspring());
+
+  if(!rows.length){
+    return `<div class="tc2Empty">
+      <b>Noch keine Nachzuchten.</b>
+      <small>Lege Nachzuchten an, sobald Tiere geschlüpft oder geboren sind.</small>
+    </div>`;
+  }
+
+  return rows.map(function(r){
+    return `<button onclick="NGT500.route('offspring',{group:'${jsArg(r.group)}'})">
+      <span>🥚</span>
+      <b>${esc(r.label)}</b>
+      <small>${r.count}</small>
+    </button>`;
+  }).join('');
+}
+
 function render(){
   tc2(true);
 
   const name=userName();
+  const stockCount=allAnimals().length;
+  const offspringCount=allOffspring().length;
 
   return `<section class="tc2Screen tc2Start">
 
@@ -197,13 +255,13 @@ function render(){
       ${quick('▱','KI Dokumentenimport','Dokumente importieren','NGTDashboard.openHknImport()')}
       ${quick('ϟ','KI Schnelleingabe','Einträge per Text',"NGT500.route('assistant')")}
       ${quick('＋','Tier manuell anlegen','Neues Tier erfassen','NGTDashboard.manualAnimal()')}
-      ${quick('⌂','Futterbestand hinzufügen','Bestände verwalten',"NGT500.route('food')")}
+      ${quick('🥚','Nachzucht anlegen','Neue Nachzucht erfassen','NGTDashboard.manualOffspring()')}
     </div>
 
     <section class="tc2Card tc2Bestand">
       <button class="tc2BestandHead" onclick="NGTDashboard.toggleBestand()">
         <span class="tc2GreenIcon">●●●</span>
-        <span><b>Bestand</b><small>Dynamische Tiergruppen aus deinem Bestand</small></span>
+        <span><b>Bestand</b><small>${stockCount} ${stockCount===1?'Tier':'Tiere'} · Dynamische Tiergruppen</small></span>
         <em>⌄</em>
       </button>
       <div id="bestandPanel" class="tc2Species">
@@ -211,9 +269,26 @@ function render(){
       </div>
     </section>
 
+    <section class="tc2Card tc2Bestand tc2OffspringCard">
+      <button class="tc2BestandHead" onclick="NGTDashboard.toggleOffspring()">
+        <span class="tc2GreenIcon">🥚</span>
+        <span><b>Nachzuchten</b><small>${offspringCount} ${offspringCount===1?'Tier':'Tiere'} · Eigener Nummernkreis</small></span>
+        <em>⌄</em>
+      </button>
+      <div id="offspringPanel" class="tc2Species">
+        ${renderOffspringButtons()}
+      </div>
+    </section>
+
     <button class="tc2Card tc2SmartLink" onclick="NGTDashboard.openSmartDashboard()">
       <span class="tc2GreenIcon">▥</span>
       <span><b>Smart Dashboard</b><small>Eigene Analyse-Seite mit deinen echten Daten</small></span>
+      <em>›</em>
+    </button>
+
+    <button class="tc2Card tc2SmartLink" onclick="NGT500.route('food')">
+      <span class="tc2GreenIcon">⌂</span>
+      <span><b>Futterbestand</b><small>Bestände verwalten und Futter erfassen</small></span>
       <em>›</em>
     </button>
 
@@ -246,7 +321,9 @@ window.NGTDashboard={
   firestoreLoad,
   openHknImport,
   manualAnimal,
+  manualOffspring,
   toggleBestand,
+  toggleOffspring,
   openSmartDashboard
 };
 
