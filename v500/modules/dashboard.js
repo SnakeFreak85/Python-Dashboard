@@ -79,9 +79,9 @@ function openHknImport(){
 }
 
 function manualAnimal(){
-  NGT500.route('animals',{t:'koenig'});
+  NGT500.route('animals',{});
   setTimeout(function(){
-    if(window.NGTAnimals&&NGTAnimals.openEditor)NGTAnimals.openEditor('koenig');
+    if(window.NGTAnimals&&NGTAnimals.openEditor)NGTAnimals.openEditor('');
   },120);
 }
 
@@ -107,16 +107,20 @@ function allAnimals(){
 function groupRows(){
   const rows=[];
   const animals=allAnimals();
+  const map={};
 
-  (NGTStore.TYPES||[]).forEach(function(t){
-    const count=animals.filter(function(x){return x.t===t}).length;
-    if(count>0){
-      rows.push({
-        t:t,
-        count:count,
-        label:(NGTStore.LABELS&&NGTStore.LABELS[t])?NGTStore.LABELS[t]:t
-      });
-    }
+  animals.forEach(function(x){
+    const group=x.a.animalGroup||'Unsortiert';
+    if(!map[group])map[group]=0;
+    map[group]++;
+  });
+
+  Object.keys(map).sort().forEach(function(group){
+    rows.push({
+      group:group,
+      count:map[group],
+      label:group
+    });
   });
 
   return rows;
@@ -130,6 +134,10 @@ function quick(icon,title,sub,onclick){
   </button>`;
 }
 
+function jsArg(v){
+  return String(v||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
 function renderBestandButtons(){
   const rows=groupRows();
 
@@ -141,9 +149,9 @@ function renderBestandButtons(){
   }
 
   return rows.map(function(r){
-    return `<button onclick="NGT500.route('animals',{t:'${r.t}'})">
-      <span>${r.label.split(' ')[0]}</span>
-      <b>${esc(r.label.replace(/^.\s*/,''))}</b>
+    return `<button onclick="NGT500.route('animals',{group:'${jsArg(r.group)}'})">
+      <span>●●●</span>
+      <b>${esc(r.label)}</b>
       <small>${r.count}</small>
     </button>`;
   }).join('');
@@ -170,11 +178,11 @@ function render(){
       <div class="tc2Avatar">TC</div>
     </header>
 
-<section class="tc2CloudBtns">
-  <button onclick="NGTDashboard.googleSignIn()">☁ <span>Anmelden</span></button>
-  <button onclick="NGTDashboard.firestoreSave()">↑ <span>Speichern</span></button>
-  <button onclick="NGTDashboard.firestoreLoad()">↓ <span>Laden</span></button>
-</section>
+    <section class="tc2CloudBtns">
+      <button onclick="NGTDashboard.googleSignIn()">☁ <span>Anmelden</span></button>
+      <button onclick="NGTDashboard.firestoreSave()">↑ <span>Speichern</span></button>
+      <button onclick="NGTDashboard.firestoreLoad()">↓ <span>Laden</span></button>
+    </section>
 
     <section class="tc2Welcome">
       <div class="tc2Ghost tc2GhostSnake">🐍</div>
@@ -195,7 +203,7 @@ function render(){
     <section class="tc2Card tc2Bestand">
       <button class="tc2BestandHead" onclick="NGTDashboard.toggleBestand()">
         <span class="tc2GreenIcon">●●●</span>
-        <span><b>Bestand</b><small>Nur echte Tiergruppen aus deinem Bestand</small></span>
+        <span><b>Bestand</b><small>Dynamische Tiergruppen aus deinem Bestand</small></span>
         <em>⌄</em>
       </button>
       <div id="bestandPanel" class="tc2Species">
