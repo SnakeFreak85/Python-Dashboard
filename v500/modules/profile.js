@@ -12,6 +12,10 @@ function age(birth){const t=Date.parse(birth||'');if(!t)return '-';const y=Math.
 function s(v,n){return String(v==null?'':v).replace(/[\n\r|]/g,' ').slice(0,n||80)}
 function opt(list,cur){return (list||[]).map(v=>`<option value="${esc(v)}" ${String(cur||'')===String(v)?'selected':''}>${esc(v)}</option>`).join('')}
 
+function jsArg(v){
+ return String(v||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
 function sexCode(v){
  v=String(v||'').toLowerCase();
  if(v.includes('weib'))return '0.1';
@@ -41,7 +45,7 @@ function healthStatus(a){
 }
 
 function smallHistory(a){return {weights:(a.weights||[]).slice(-5).map(x=>({d:s(x.date,10),g:Number(x.weight||0)})),feeds:(a.feeds||[]).slice(-5).map(x=>({d:s(x.date,10),p:s(x.prey,24),g:Number(x.amount||0),ok:x.accepted!==false,state:s(x.state||'',10),size:s(x.size||'',12)})),sheds:(a.sheds||[]).slice(-5).map(x=>({d:s(x.date,10),ok:x.complete!==false}))}}
-function passportObject(a,withHistory){return {app:'TerraControl',type:'animal-passport',v:3,animal:{id:s(a.publicId||a.displayId||a.uuid||a.uid,80),uuid:s(a.uuid||a.uid,80),name:s(a.name,60),animalGroup:s(a.animalGroup,60),genus:s(a.genus,60),species:s(a.species,60),sex:s(a.sex,20),sexCode:sexCode(a.sex),birth:s(a.birth,10),origin:s(a.origin||a.originType,40),father:s(a.father||a.vater||a.sire,60),mother:s(a.mother||a.mutter||a.dam,60),food:s(a.defaultFeeder,60),feedDays:Number(a.feedIntervalDays||a.feedingInterval||14),weightDays:Number(a.weightIntervalDays||30)},history:withHistory?smallHistory(a):undefined}}
+function passportObject(a,withHistory){return {app:'TerraControl',type:'animal-passport',v:4,animal:{id:s(a.publicId||a.displayId||a.uuid||a.uid,80),uuid:s(a.uuid||a.uid,80),name:s(a.name,60),animalGroup:s(a.animalGroup,60),genus:s(a.genus,60),species:s(a.species,60),sex:s(a.sex,20),sexCode:sexCode(a.sex),birth:s(a.birth,10),origin:s(a.origin||a.originType,40),father:s(a.father||a.vater||a.sire,60),mother:s(a.mother||a.mutter||a.dam,60),food:s(a.defaultFeeder,60),feedDays:Number(a.feedIntervalDays||a.feedingInterval||14),weightDays:Number(a.weightIntervalDays||30)},history:withHistory?smallHistory(a):undefined}}
 function passportPayload(a){try{let full=JSON.stringify(passportObject(a,true));if(full.length<1800)return full;let lite=JSON.stringify(passportObject(a,false));if(lite.length<1200)return lite;return ['TC2',s(a.publicId||a.uuid||a.uid,80),s(a.name,50),s(a.genus,50),s(a.species,50),s(a.sex,20),s(a.birth,10)].join('|')}catch(e){return ['TC2',s(a.publicId||a.uuid||a.uid,80),s(a.name,50)].join('|')}}
 
 function render(args){
@@ -58,16 +62,17 @@ function render(args){
  const id=a.publicId||a.displayId||a.uuid||'-';
  const sci=scientificName(a);
 
- return `<div class="card tc2PageCard tc2ProfilePage tc2ProfileV3">
+ return `<div class="card tc2PageCard tc2ProfilePage tc2ProfileV4">
   <div class="tc2ProfileTopBar">
-   <button class="tc2ProfileTopBack" onclick="NGT500.route('animals',{group:'${esc(a.animalGroup)}',genus:'${esc(a.genus||'Ohne Gattung')}'})">‹ Bestand</button>
+   <button class="tc2ProfileTopBack" onclick="NGT500.route('animals',{group:'${jsArg(a.animalGroup)}',genus:'${jsArg(a.genus||'Ohne Gattung')}'})">‹ Bestand</button>
    <div class="tc2ProfileTopStatus ${hs.cls}">${hs.icon} ${esc(hs.txt)}</div>
   </div>
 
   <section class="tc2ProfileIdentity">
-   <b>${esc(id)}</b>
+   <b class="tc2ProfilePublicId">${esc(id)}</b>
    ${a.name?`<h2>${esc(a.name)}</h2>`:''}
-   <h3>${esc(sexCode(a.sex)+' '+sci)}</h3>
+   <h3>${esc(sexCode(a.sex))}</h3>
+   <h3 class="tc2ProfileScientific">${esc(sci)}</h3>
    ${a.morph?`<p>${esc(a.morph)}</p>`:''}
    <small>${esc(a.animalGroup||'Unsortiert')}</small>
   </section>
@@ -77,14 +82,14 @@ function render(args){
   </div>
 
   <section class="tc2ProfileActionGrid">
-   ${action('✏','Bearbeiten',`NGT500.route('animals',{edit:${ctx.i}})`)}
-   ${action('🍽','Fütterung',`NGTProfile.setTab('feeds')`)}
+   ${action('✏️','Bearbeiten',`NGT500.route('animals',{edit:${ctx.i}})`)}
+   ${action('🍽️','Fütterung',`NGTProfile.setTab('feeds')`)}
+   ${action('⚖️','Gewicht',`NGTProfile.setTab('weights')`)}
    ${action('🦴','Häutung',`NGTProfile.setTab('sheds')`)}
-   ${action('⚖','Gewicht',`NGTProfile.setTab('weights')`)}
    ${action('📷','Fotos',`NGTProfile.setTab('photos')`)}
-   ${action('🩺','Gesundheit',`NGTProfile.setTab('health')`)}
    ${action('📄','Dokumente',`NGTProfile.setTab('docs')`)}
    ${action('▦','Tierpass',`NGTProfile.setTab('qr')`)}
+   ${action('🩺','Gesundheit',`NGTProfile.setTab('health')`)}
   </section>
 
   <div class="tc2ProfileStats">
@@ -99,9 +104,10 @@ function render(args){
 }
 
 function action(icon,label,onclick){
- return `<button onclick="${onclick}">
-  <span>${icon}</span>
-  <b>${esc(label)}</b>
+ return `<button class="tc2ProfileAction" onclick="${onclick}">
+  <div class="tc2ProfileActionIcon">${icon}</div>
+  <div class="tc2ProfileActionText">${esc(label)}</div>
+  <div class="tc2ProfileActionArrow">›</div>
  </button>`;
 }
 

@@ -2870,3 +2870,250 @@ body:not(.tc2RefMode) .wrap {
   border-radius: 17px !important;
   font-weight: 900 !important;
 }
+/* TC2 Profil V4 */
+
+.tc2ProfileV4 {
+  display: grid;
+  gap: 16px;
+}
+
+.tc2ProfileV4 .tc2ProfileTopBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.tc2ProfileV4 .tc2ProfileTopBack {
+  width: auto !important;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+  background: rgba(7,18,29,.72) !important;
+  border: 1px solid rgba(125,170,210,.22) !important;
+  color: #dce8f2 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+
+.tc2ProfileV4 .tc2ProfileTopStatus {
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(7,18,29,.72);
+  border: 1px solid rgba(125,170,210,.22);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity {
+  text-align: center;
+  padding: 10px 4px 4px;
+}
+
+.tc2ProfileV4 .tc2ProfilePublicId {
+  display: inline-grid;
+  place-items: center;
+  min-height: 34px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(139,220,63,.13);
+  border: 1px solid rgba(139,220,63,.35);
+  color: #9cf05b;
+  font-size: 15px;
+  font-weight: 1000;
+  letter-spacing: .6px;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h2 {
+  margin: 14px 0 6px !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+  font-weight: 1000 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h3 {
+  margin: 5px 0 0 !important;
+  font-size: 21px !important;
+  line-height: 1.12 !important;
+  font-weight: 900 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileScientific {
+  font-style: italic;
+  color: #f4f7fb !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity p {
+  margin: 10px 0 0;
+  color: #9cf05b;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity small {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #aeb9c4 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero {
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(7,18,29,.72);
+  border: 1px solid rgba(125,170,210,.22);
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+}
+
+.tc2ProfileV4 .tc2ProfileHero img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.tc2ProfileV4 .tc2ProfileHeroEmpty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  font-size: 54px;
+  opacity: .55;
+}
+
+.tc2ProfileV4 .tc2ProfileActionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 2px 0;
+}
+
+.tc2ProfileV4 .tc2ProfileAction {
+  min-height: 74px !important;
+  margin: 0 !important;
+  padding: 11px 10px !important;
+  display: grid !important;
+  grid-template-columns: 30px minmax(0, 1fr) 10px;
+  align-items: center;
+  gap: 8px;
+  text-align: left !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg,rgba(21,43,62,.98),rgba(9,23,35,.98)) !important;
+  border: 1px solid rgba(125,170,210,.24) !important;
+  box-shadow: 0 14px 28px rgba(0,0,0,.24) !important;
+  color: #f4f7fb !important;
+}
+
+.tc2ProfileV4 .tc2ProfileAction:active {
+  transform: scale(.985);
+}
+
+.tc2ProfileV4 .tc2ProfileActionIcon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+}
+
+.tc2ProfileV4 .tc2ProfileActionText {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.1;
+  font-weight: 1000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc2ProfileV4 .tc2ProfileActionArrow {
+  color: #9cf05b;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.tc2ProfileV4 .tc2ProfileStats,
+.tc2ProfileV4 .tc2ProfileOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tc2ProfileV4 .tc2ProfileStats div,
+.tc2ProfileV4 .tc2ProfileOverviewGrid div {
+  min-height: 76px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(7,18,29,.72);
+  border: 1px solid rgba(125,170,210,.22);
+  text-align: center;
+}
+
+.tc2ProfileV4 .tc2ProfileStats small,
+.tc2ProfileV4 .tc2ProfileOverviewGrid small {
+  font-size: 11px;
+  font-weight: 800;
+  color: #aeb9c4 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileStats b,
+.tc2ProfileV4 .tc2ProfileOverviewGrid b {
+  font-size: 19px;
+  line-height: 1.05;
+  font-weight: 1000;
+  color: #f4f7fb;
+}
+
+.tc2ProfileV4 .tc2ProfileBody {
+  display: grid;
+  gap: 12px;
+}
+
+.tc2ProfileV4 .tc2SubCard {
+  padding: 16px !important;
+  border-radius: 22px !important;
+}
+
+.tc2ProfileV4 .tc2SubCard h3 {
+  margin: 0 0 12px !important;
+  font-size: 21px !important;
+}
+
+.tc2ProfileV4 .tc2InfoRows {
+  display: grid;
+  gap: 8px;
+}
+
+.tc2ProfileV4 .tc2InfoRows div {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.tc2ProfileV4 .tc2InfoRows div:last-child {
+  border-bottom: 0;
+}
+
+.tc2ProfileV4 .tc2InfoRows b {
+  color: #dce8f2;
+  font-size: 13px;
+}
+
+.tc2ProfileV4 .tc2InfoRows span {
+  color: #aeb9c4;
+  font-size: 13px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
