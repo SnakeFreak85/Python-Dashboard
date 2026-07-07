@@ -41,7 +41,7 @@ function render(args){
  const list=rows.map((a,i)=>NGTUI.animalCard({t,i,a})).join('') ||
   `<div class="subcard tc2EmptyState">
     <h3>Noch keine Tiere</h3>
-    <p class="muted">Lege dein erstes Tier an. Danach kannst du Fütterungen, Häutungen, Gewichte, Fotos und den digitalen Tierpass pflegen.</p>
+    <p class="muted">Lege dein erstes Tier über die Startseite an. Danach kannst du Fütterungen, Häutungen, Gewichte, Fotos und den digitalen Tierpass pflegen.</p>
    </div>`;
 
  return `<div class="card tc2PageCard tc2AnimalsPage">
@@ -71,7 +71,16 @@ function editor(t,i,fromHkn){
   <div class="tc2AnimalEditorHead">
    <div>
     <h3>${i!==undefined?'Tier bearbeiten':(fromHkn?'Tier aus HKN anlegen':'Tier anlegen')}</h3>
-    <p>Stammdaten, Herkunft und Standardfutter.</p>
+    <p>Tiergruppe, Gattung, Art, Stammdaten und Standardfutter.</p>
+   </div>
+  </div>
+
+  <div class="tc2AnimalEditorBlock">
+   <h4>Taxonomie</h4>
+   <div class="tc2AnimalFields">
+    <label><span>Tiergruppe</span><input id="edAnimalGroup" placeholder="z. B. Vogelspinnen" value="${NGT500.esc(a.animalGroup||'')}"></label>
+    <label><span>Gattung</span><input id="edGenus" placeholder="z. B. Brachypelma" value="${NGT500.esc(a.genus||'')}"></label>
+    <label><span>Art</span><input id="edSpecies" placeholder="z. B. hamorii" value="${NGT500.esc(a.species||'')}"></label>
    </div>
   </div>
 
@@ -158,6 +167,9 @@ function save(t,i){
 
  const a={
   ...old,
+  animalGroup:edAnimalGroup.value.trim()||old.animalGroup||'Unsortiert',
+  genus:edGenus.value.trim(),
+  species:edSpecies.value.trim(),
   name:edName.value.trim()||'Unbenannt',
   morph:edMorph.value.trim(),
   weight:edWeight.value,
