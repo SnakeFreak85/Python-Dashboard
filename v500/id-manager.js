@@ -4,13 +4,14 @@
 const GROUP_CODES={
   'Königspython':'KP',
   'Königspythons':'KP',
+  'Koenigspython':'KP',
+  'Koenigspythons':'KP',
   'Python regius':'KP',
   'Ball Python':'KP',
 
   'Felsenpython':'FP',
   'Felsenpythons':'FP',
   'Python sebae':'FP',
-  'Sebae':'FP',
 
   'Netzpython':'NP',
   'Netzpythons':'NP',
@@ -19,6 +20,7 @@ const GROUP_CODES={
   'Tigerpython':'TP',
   'Tigerpythons':'TP',
   'Python bivittatus':'TP',
+  'Python molurus':'TP',
 
   'Blutpython':'BP',
   'Blutpythons':'BP',
@@ -34,6 +36,8 @@ const GROUP_CODES={
 
   'Boa':'BO',
   'Boas':'BO',
+  'Boa constrictor':'BO',
+  'Boa imperator':'BI',
 
   'Springspinne':'SS',
   'Springspinnen':'SS',
@@ -63,19 +67,28 @@ function clean(v){
     .trim();
 }
 
-function groupCode(group){
-  const raw=String(group||'').trim();
+function groupCode(value){
+  const raw=String(value||'').trim();
 
   if(GROUP_CODES[raw])return GROUP_CODES[raw];
 
   const cleaned=clean(raw).toUpperCase();
   if(!cleaned)return 'TC';
 
-  if(cleaned.includes('KOENIGSPYTHON')||cleaned.includes('PYTHON REGIUS')||cleaned.includes('BALL PYTHON'))return 'KP';
+  if(cleaned.includes('KOENIGSPYTHON')||cleaned.includes('KONIGSPYTHON')||cleaned.includes('PYTHON REGIUS')||cleaned.includes('BALL PYTHON'))return 'KP';
   if(cleaned.includes('FELSENPYTHON')||cleaned.includes('PYTHON SEBAE'))return 'FP';
   if(cleaned.includes('NETZPYTHON')||cleaned.includes('RETICULATUS'))return 'NP';
-  if(cleaned.includes('TIGERPYTHON')||cleaned.includes('BIVITTATUS'))return 'TP';
+  if(cleaned.includes('TIGERPYTHON')||cleaned.includes('BIVITTATUS')||cleaned.includes('MOLURUS'))return 'TP';
   if(cleaned.includes('BLUTPYTHON')||cleaned.includes('BRONGERSMAI'))return 'BP';
+
+  if(cleaned.includes('VOGELSPINNE')||cleaned.includes('TARANTEL'))return 'VS';
+  if(cleaned.includes('LEOPARDGECKO'))return 'LG';
+  if(cleaned.includes('SPRINGSPINNE'))return 'SS';
+  if(cleaned.includes('SKORPION'))return 'SK';
+  if(cleaned.includes('MANTIDE')||cleaned.includes('GOTTESANBETER'))return 'MA';
+
+  if(cleaned.includes('BOA IMPERATOR'))return 'BI';
+  if(cleaned.includes('BOA'))return 'BO';
 
   const words=cleaned.split(/\s+/).filter(Boolean);
 
@@ -88,12 +101,12 @@ function groupCode(group){
 
 function animalCode(a){
   a=a||{};
+
   const combined=[
     a.animalGroup,
     a.genus,
     a.species,
-    a.commonName,
-    a.name
+    a.commonName
   ].filter(Boolean).join(' ');
 
   return groupCode(combined);
@@ -168,7 +181,7 @@ function ensureAnimalId(data,animal){
   animal=animal||{};
 
   if(animal.publicId&&publicIdMatchesAnimal(animal)){
-    animal.displayId=animal.displayId||animal.publicId;
+    animal.displayId=animal.publicId;
     return animal.publicId;
   }
 
