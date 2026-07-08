@@ -8,7 +8,7 @@ function jsArg(v){
 }
 
 function statusOptions(cur){
- return ['Nachzucht','Aufzucht','Reserviert','Verkauft','Verstorben','Archiv']
+ return ['Nachzucht','Reserviert','Verkauft','Verstorben','Archiv']
   .map(s=>`<option ${cur===s?'selected':''}>${s}</option>`)
   .join('');
 }
@@ -26,7 +26,6 @@ function isInactiveStatus(status){
 function isOffspringAnimal(a){
  if(window.NGTIdManager&&NGTIdManager.isOffspring)return NGTIdManager.isOffspring(a);
  return String((a&&a.status)||'').toLowerCase()==='nachzucht' ||
-  String((a&&a.status)||'').toLowerCase()==='aufzucht' ||
   String((a&&a.collection)||'').toLowerCase()==='offspring' ||
   String((a&&a.collection)||'').toLowerCase()==='nachzuchten';
 }
@@ -113,7 +112,7 @@ function render(args){
    <div class="tc2PageHead">
     <div>
      <h2>Nachzucht bearbeiten</h2>
-     <p class="muted">Tiergruppe, Gattung, Art und Aufzuchtdaten.</p>
+     <p class="muted">Tiergruppe, Gattung, Art und Nachzuchtdaten.</p>
     </div>
    </div>
    ${editor(t,Number(edit))}
