@@ -139,7 +139,7 @@ function fallbackEnsureAnimalId(d,a){
 
   const group=String(a.animalGroup||'TC').trim();
   const code=group.replace(/[^a-zA-Z]/g,'').slice(0,2).toUpperCase()||'TC';
-  const nz=String(a.status||'').toLowerCase()==='nachzucht';
+  const nz=String(a.status||'').toLowerCase()==='nachzucht'||String(a.collection||'').toLowerCase()==='offspring';
   const prefix=nz?code+'-NZ':code+'-';
   let max=0;
 
@@ -175,6 +175,36 @@ function repairPublicIds(d){
   });
 }
 
+function cleanPhotoData(a){
+  if(!a||!Array.isArray(a.photos))return;
+
+  a.photos=a.photos.map(function(p){
+    if(!p)return p;
+
+    const x={...p};
+
+    if(x.storagePath||x.url||x.thumbPath||x.thumbUrl){
+      delete x.data;
+    }
+
+    return x;
+  });
+}
+
+function cleanAllPhotoData(d){
+  if(!d)return d;
+
+  if(Array.isArray(d.animals)){
+    d.animals.forEach(cleanPhotoData);
+  }
+
+  LEGACY_TYPES.forEach(function(t){
+    if(Array.isArray(d[t]))d[t].forEach(cleanPhotoData);
+  });
+
+  return d;
+}
+
 function normalizeAnimal(a,t,i){
   a=a||{};
 
@@ -198,6 +228,8 @@ function normalizeAnimal(a,t,i){
   a.sheds=Array.isArray(a.sheds)?a.sheds:[];
   a.weights=Array.isArray(a.weights)?a.weights:[];
   a.photos=Array.isArray(a.photos)?a.photos:[];
+
+  cleanPhotoData(a);
 
   a.feeds.sort(byDate);
   a.sheds.sort(byDate);
@@ -327,6 +359,7 @@ function normalize(d){
   d.foodInventory=d.foodInventory.map(normalizeFoodItem);
 
   repairPublicIds(d);
+  cleanAllPhotoData(d);
 
   rebuildLegacyArrays(d);
   rebuildGroups(d);
@@ -354,6 +387,7 @@ let db=load();
 
 function save(){
   normalize(db);
+  cleanAllPhotoData(db);
 
   const txt=JSON.stringify(db);
   localStorage.setItem(KEY,txt);
@@ -381,6 +415,7 @@ function clearLocal(){
 }
 
 function data(){
+  cleanAllPhotoData(db);
   return db;
 }
 
@@ -390,6 +425,20 @@ function allAnimals(){
     i,
     a
   }));
+}
+
+function allOffspring(){
+  return allAnimals().filter(function(x){
+    const a=x.a||{};
+    const status=String(a.status||'').toLowerCase();
+    const collection=String(a.collection||'').toLowerCase();
+    const id=String(a.publicId||a.displayId||'').toUpperCase();
+
+    return collection==='offspring' ||
+      collection==='nachzuchten' ||
+      status==='nachzucht' ||
+      id.includes('-NZ');
+  });
 }
 
 function animalsByGroup(){
@@ -516,11 +565,13 @@ function feederOptions(t){
 }
 
 function exportJson(){
+  cleanAllPhotoData(db);
   return JSON.stringify(db,null,2);
 }
 
 function importJson(txt){
   db=normalize(JSON.parse(txt));
+  cleanAllPhotoData(db);
   save();
 }
 
@@ -538,6 +589,7 @@ window.NGTStore={
   clearLocal,
 
   allAnimals,
+  allOffspring,
   animalsByGroup,
   findAnimal,
   animal,
