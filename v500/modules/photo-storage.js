@@ -1,4 +1,3 @@
-// v500/photo-storage.js
 (function(){
 'use strict';
 
@@ -15,6 +14,7 @@ let app=null;
 let auth=null;
 let storage=null;
 let mods=null;
+let migrating=false;
 
 async function loadSdk(){
   if(mods)return mods;
@@ -59,7 +59,7 @@ function canvasBlob(canvas,quality){
   });
 }
 
-function loadImage(file){
+function loadImageFromFile(file){
   return new Promise(function(resolve,reject){
     const reader=new FileReader();
     const img=new Image();
@@ -76,8 +76,16 @@ function loadImage(file){
   });
 }
 
-async function resize(file,max,quality){
-  const img=await loadImage(file);
+function loadImageFromDataUrl(dataUrl){
+  return new Promise(function(resolve,reject){
+    const img=new Image();
+    img.onerror=reject;
+    img.onload=function(){resolve(img)};
+    img.src=dataUrl;
+  });
+}
+
+async function resizeImage(img,max,quality){
   let w=img.width;
   let h=img.height;
 
@@ -99,6 +107,16 @@ async function resize(file,max,quality){
   return canvasBlob(canvas,quality);
 }
 
+async function resize(file,max,quality){
+  const img=await loadImageFromFile(file);
+  return resizeImage(img,max,quality);
+}
+
+async function resizeDataUrl(dataUrl,max,quality){
+  const img=await loadImageFromDataUrl(dataUrl);
+  return resizeImage(img,max,quality);
+}
+
 function basePath(animal,id){
   const u=user();
   const animalKey=safe(
@@ -112,7 +130,7 @@ function basePath(animal,id){
   return 'users/'+u.uid+'/animals/'+animalKey+'/photos/'+safe(id);
 }
 
-async function upload(file,animal,meta){
+async function uploadBlobs(animal,id,fullBlob,thumbBlob,meta){
   await init();
 
   const u=user();
@@ -120,12 +138,7 @@ async function upload(file,animal,meta){
     throw new Error('Firebase-Anmeldung erforderlich, um Fotos dauerhaft zu speichern.');
   }
 
-  const id=(meta&&meta.id)||photoId();
   const root=basePath(animal||{},id);
-
-  const fullBlob=await resize(file,1400,0.82);
-  const thumbBlob=await resize(file,360,0.72);
-
   const fullPath=root+'/full.jpg';
   const thumbPath=root+'/thumb.jpg';
 
@@ -149,6 +162,40 @@ async function upload(file,animal,meta){
     url:url,
     thumbUrl:thumbUrl
   };
+}
+
+async function upload(file,animal,meta){
+  await init();
+
+  const u=user();
+  if(!u){
+    throw new Error('Firebase-Anmeldung erforderlich, um Fotos dauerhaft zu speichern.');
+  }
+
+  const id=(meta&&meta.id)||photoId();
+  const fullBlob=await resize(file,1400,0.82);
+  const thumbBlob=await resize(file,360,0.72);
+
+  return uploadBlobs(animal,id,fullBlob,thumbBlob,meta);
+}
+
+async function uploadDataUrl(dataUrl,animal,meta){
+  await init();
+
+  const u=user();
+  if(!u){
+    throw new Error('Firebase-Anmeldung erforderlich, um Fotos dauerhaft zu speichern.');
+  }
+
+  if(!String(dataUrl||'').startsWith('data:image')){
+    throw new Error('Ungültiges Legacy-Foto.');
+  }
+
+  const id=(meta&&meta.id)||photoId();
+  const fullBlob=await resizeDataUrl(dataUrl,1400,0.82);
+  const thumbBlob=await resizeDataUrl(dataUrl,360,0.72);
+
+  return uploadBlobs(animal,id,fullBlob,thumbBlob,meta);
 }
 
 async function remove(photo){
@@ -176,11 +223,96 @@ function src(photo,preferThumb){
   return photo.url||photo.thumbUrl||photo.thumbnailUrl||photo.data||'';
 }
 
+function hasLegacyPhotos(animal){
+  return !!(animal&&Array.isArray(animal.photos)&&animal.photos.some(function(p){
+    return p&&p.data&&String(p.data).startsWith('data:image')&&!p.storagePath&&!p.url;
+  }));
+}
+
+async function migrateAnimal(animal,onProgress){
+  await init();
+
+  const u=user();
+  if(!u){
+    throw new Error('Firebase-Anmeldung erforderlich, um alte Fotos zu migrieren.');
+  }
+
+  if(!animal||!Array.isArray(animal.photos))return {changed:false,count:0};
+
+  let changed=false;
+  let count=0;
+
+  for(let i=0;i<animal.photos.length;i++){
+    const old=animal.photos[i];
+
+    if(!old||!old.data||!String(old.data).startsWith('data:image')||old.storagePath||old.url){
+      continue;
+    }
+
+    const migrated=await uploadDataUrl(old.data,animal,{
+      id:old.id||photoId(),
+      date:old.date||NGT500.today(),
+      type:old.type||'Sonstige',
+      note:old.note||'',
+      cover:!!old.cover
+    });
+
+    animal.photos[i]=migrated;
+    changed=true;
+    count++;
+
+    if(onProgress){
+      try{onProgress({animal:animal,index:i,count:count})}catch(e){}
+    }
+  }
+
+  return {changed:changed,count:count};
+}
+
+async function migrateAll(onProgress){
+  if(migrating)return {changed:false,count:0,running:true};
+  migrating=true;
+
+  try{
+    if(!window.NGTStore||!NGTStore.allAnimals)return {changed:false,count:0};
+
+    const rows=NGTStore.allAnimals();
+    let changed=false;
+    let count=0;
+
+    for(const row of rows){
+      const a=row.a;
+      if(!hasLegacyPhotos(a))continue;
+
+      const res=await migrateAnimal(a,function(info){
+        if(onProgress){
+          try{onProgress(Object.assign({row:row},info))}catch(e){}
+        }
+      });
+
+      if(res.changed){
+        changed=true;
+        count+=res.count;
+        NGTStore.save();
+      }
+    }
+
+    return {changed:changed,count:count};
+
+  }finally{
+    migrating=false;
+  }
+}
+
 window.NGTPhotoStorage={
   init,
   upload,
+  uploadDataUrl,
   remove,
-  src
+  src,
+  hasLegacyPhotos,
+  migrateAnimal,
+  migrateAll
 };
 
 })();
