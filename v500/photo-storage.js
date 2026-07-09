@@ -40,6 +40,35 @@ function user(){
   return auth&&auth.currentUser?auth.currentUser:null;
 }
 
+async function requireUser(){
+  await init();
+
+  const now=user();
+  if(now)return now;
+
+  return new Promise(function(resolve,reject){
+    let done=false;
+
+    const timer=setTimeout(function(){
+      if(done)return;
+      done=true;
+      try{unsub()}catch(e){}
+      reject(new Error('Firebase-Anmeldung erforderlich. Bitte auf der Startseite anmelden und danach erneut versuchen.'));
+    },8000);
+
+    const unsub=mods.authMod.onAuthStateChanged(auth,function(u){
+      if(done)return;
+
+      if(u){
+        done=true;
+        clearTimeout(timer);
+        try{unsub()}catch(e){}
+        resolve(u);
+      }
+    });
+  });
+}
+
 function safe(v){
   return String(v||'x')
     .replace(/[^a-zA-Z0-9_-]/g,'_')
@@ -52,9 +81,10 @@ function photoId(){
 }
 
 function canvasBlob(canvas,quality){
-  return new Promise(function(resolve){
+  return new Promise(function(resolve,reject){
     canvas.toBlob(function(blob){
-      resolve(blob);
+      if(blob)resolve(blob);
+      else reject(new Error('Foto konnte nicht verarbeitet werden.'));
     },'image/jpeg',quality);
   });
 }
@@ -117,8 +147,7 @@ async function resizeDataUrl(dataUrl,max,quality){
   return resizeImage(img,max,quality);
 }
 
-function basePath(animal,id){
-  const u=user();
+function basePath(animal,id,u){
   const animalKey=safe(
     animal.uuid||
     animal.uid||
@@ -131,14 +160,9 @@ function basePath(animal,id){
 }
 
 async function uploadBlobs(animal,id,fullBlob,thumbBlob,meta){
-  await init();
+  const u=await requireUser();
 
-  const u=user();
-  if(!u){
-    throw new Error('Firebase-Anmeldung erforderlich, um Fotos dauerhaft zu speichern.');
-  }
-
-  const root=basePath(animal||{},id);
+  const root=basePath(animal||{},id,u);
   const fullPath=root+'/full.jpg';
   const thumbPath=root+'/thumb.jpg';
 
@@ -165,12 +189,7 @@ async function uploadBlobs(animal,id,fullBlob,thumbBlob,meta){
 }
 
 async function upload(file,animal,meta){
-  await init();
-
-  const u=user();
-  if(!u){
-    throw new Error('Firebase-Anmeldung erforderlich, um Fotos dauerhaft zu speichern.');
-  }
+  await requireUser();
 
   const id=(meta&&meta.id)||photoId();
   const fullBlob=await resize(file,1400,0.82);
@@ -180,12 +199,7 @@ async function upload(file,animal,meta){
 }
 
 async function uploadDataUrl(dataUrl,animal,meta){
-  await init();
-
-  const u=user();
-  if(!u){
-    throw new Error('Firebase-Anmeldung erforderlich, um Fotos dauerhaft zu speichern.');
-  }
+  await requireUser();
 
   if(!String(dataUrl||'').startsWith('data:image')){
     throw new Error('Ungültiges Legacy-Foto.');
@@ -199,9 +213,7 @@ async function uploadDataUrl(dataUrl,animal,meta){
 }
 
 async function remove(photo){
-  await init();
-
-  const u=user();
+  const u=await requireUser();
   if(!u||!photo)return false;
 
   const paths=[photo.storagePath,photo.thumbPath].filter(Boolean);
@@ -230,12 +242,7 @@ function hasLegacyPhotos(animal){
 }
 
 async function migrateAnimal(animal,onProgress){
-  await init();
-
-  const u=user();
-  if(!u){
-    throw new Error('Firebase-Anmeldung erforderlich, um alte Fotos zu migrieren.');
-  }
+  await requireUser();
 
   if(!animal||!Array.isArray(animal.photos))return {changed:false,count:0};
 
