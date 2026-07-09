@@ -141,6 +141,65 @@ function allOffspring(){
   }
 }
 
+function legacyPhotoCount(){
+  try{
+    if(!window.NGTPhotoStorage||!NGTPhotoStorage.hasLegacyPhotos)return 0;
+
+    return NGTStore.allAnimals().reduce(function(n,x){
+      const a=x.a||{};
+      if(!NGTPhotoStorage.hasLegacyPhotos(a))return n;
+
+      return n+(a.photos||[]).filter(function(p){
+        return p&&p.data&&String(p.data).startsWith('data:image')&&!p.storagePath&&!p.url;
+      }).length;
+    },0);
+  }catch(e){
+    return 0;
+  }
+}
+
+async function migrateAllPhotos(){
+  if(!window.NGTPhotoStorage||!NGTPhotoStorage.migrateAll){
+    alert('Foto-Migration ist noch nicht geladen.');
+    return;
+  }
+
+  const count=legacyPhotoCount();
+
+  if(!count){
+    alert('Keine alten Base64-Fotos zum Migrieren gefunden.');
+    return;
+  }
+
+  if(!confirm(count+' alte Foto(s) in den dauerhaften Foto-Speicher migrieren? Bitte währenddessen nicht schließen.')){
+    return;
+  }
+
+  const el=document.getElementById('photoMigrationStatusGlobal');
+  if(el)el.textContent='Migration läuft... 0 / '+count;
+
+  try{
+    const res=await NGTPhotoStorage.migrateAll(function(info){
+      const now=info&&info.count?info.count:0;
+      const box=document.getElementById('photoMigrationStatusGlobal');
+      if(box)box.textContent='Migration läuft... '+now+' / '+count;
+    });
+
+    NGTStore.save();
+
+    if(window.NGTFirebaseSync&&NGTFirebaseSync.saveCloud){
+      await NGTFirebaseSync.saveCloud();
+    }
+
+    alert((res.count||0)+' Foto(s) migriert.');
+    NGT500.route('dashboard');
+
+  }catch(e){
+    console.error(e);
+    alert(e&&e.message?e.message:'Foto-Migration fehlgeschlagen.');
+  }
+}
+
 function groupRows(list){
   const rows=[];
   const animals=list||[];
@@ -213,6 +272,22 @@ function renderOffspringButtons(){
   }).join('');
 }
 
+function renderPhotoMigrationCard(){
+  const count=legacyPhotoCount();
+
+  if(!count)return '';
+
+  return `<section class="tc2Card tc2SmartLink">
+    <span class="tc2GreenIcon">📷</span>
+    <span>
+      <b>Alte Fotos migrieren</b>
+      <small>${count} eingebettete Foto(s) in Firebase Storage verschieben</small>
+      <small id="photoMigrationStatusGlobal"></small>
+    </span>
+    <button onclick="NGTDashboard.migrateAllPhotos()">Starten</button>
+  </section>`;
+}
+
 function render(){
   tc2(true);
 
@@ -249,6 +324,8 @@ function render(){
       <h2>Hallo${name?' '+esc(name):''} 👋</h2>
       <p>Schön, dass du wieder da bist!</p>
     </section>
+
+    ${renderPhotoMigrationCard()}
 
     <h2 class="tc2SectionTitle">Schnellaktionen</h2>
     <div class="tc2QuickGrid">
@@ -324,7 +401,8 @@ window.NGTDashboard={
   manualOffspring,
   toggleBestand,
   toggleOffspring,
-  openSmartDashboard
+  openSmartDashboard,
+  migrateAllPhotos
 };
 
 NGT500.register('dashboard',{render,afterRender});
