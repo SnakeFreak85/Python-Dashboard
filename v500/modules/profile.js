@@ -34,6 +34,13 @@ function photoSrc(photo,thumb){
  return photo.url||photo.thumbUrl||photo.thumbnailUrl||photo.data||'';
 }
 
+function hasLegacyPhotos(a){
+ if(window.NGTPhotoStorage&&NGTPhotoStorage.hasLegacyPhotos)return NGTPhotoStorage.hasLegacyPhotos(a);
+ return !!(a&&Array.isArray(a.photos)&&a.photos.some(function(p){
+  return p&&p.data&&String(p.data).startsWith('data:image')&&!p.storagePath&&!p.url;
+ }));
+}
+
 function healthStatus(a){
  let score=0;
  const lf=latest(a.feeds),lw=latest(a.weights),lh=latest(a.health);
@@ -177,7 +184,15 @@ function shedList(a){return `<div class="subcard tc2SubCard"><h3>Häutungen</h3>
 function weightList(a){return `<div class="subcard tc2SubCard"><h3>Gewichte</h3>${(a.weights||[]).map((w,i)=>({w,i})).reverse().map(x=>row(x.w.date,x.w.weight+'g',`NGTProfile.deleteEntry('weights',${x.i})`)).join('')||'<p class="muted">Keine Gewichte.</p>'}</div>`}
 
 function photos(a){
- return `<div class="subcard tc2SubCard"><h3>Foto hinzufügen</h3><input type="file" accept="image/*" onchange="NGTProfile.addPhoto(this.files[0])"><select id="photoType"><option>Portrait</option><option>Terrarium</option><option>Häutung</option><option>Fütterung</option><option>Nachwuchs</option><option>Gesundheit</option><option>Sonstige</option></select><input id="photoNote" placeholder="Notiz zum Foto"><p class="muted">Fotos werden dauerhaft außerhalb der Tierdaten gespeichert. Das erste Foto wird automatisch Titelbild.</p></div>`+
+ const legacy=hasLegacyPhotos(a);
+
+ return `${legacy?`<div class="subcard tc2SubCard warn">
+  <h3>Alte Fotos migrieren</h3>
+  <p class="muted">Dieses Tier enthält noch eingebettete Base64-Fotos. Migriere sie in den dauerhaften Foto-Speicher, damit localStorage und Firestore entlastet werden.</p>
+  <button onclick="NGTProfile.migratePhotos()">Fotos jetzt migrieren</button>
+  <div id="photoMigrationStatus" class="muted"></div>
+ </div>`:''}
+ <div class="subcard tc2SubCard"><h3>Foto hinzufügen</h3><input type="file" accept="image/*" onchange="NGTProfile.addPhoto(this.files[0])"><select id="photoType"><option>Portrait</option><option>Terrarium</option><option>Häutung</option><option>Fütterung</option><option>Nachwuchs</option><option>Gesundheit</option><option>Sonstige</option></select><input id="photoNote" placeholder="Notiz zum Foto"><p class="muted">Fotos werden dauerhaft außerhalb der Tierdaten gespeichert. Das erste Foto wird automatisch Titelbild.</p></div>`+
  (a.photos||[]).map((p,i)=>{
   const img=photoSrc(p,true);
   return `<div class="subcard tc2SubCard">${img?`<img class="photo" src="${img}">`:'<div class="tc2ProfileHeroEmpty">📷</div>'}<b>${esc(p.date||'')}</b> · ${esc(p.type||'Sonstige')} ${p.cover?'· Titelbild':''}<br>${esc(p.note||'')}<div class="btnRow"><button onclick="NGTProfile.setCover(${i})">Als Titelbild</button><button class="danger" onclick="NGTProfile.deletePhoto(${i})">Foto löschen</button></div></div>`;
@@ -230,6 +245,42 @@ async function addPhoto(file){
  }
 }
 
+async function migratePhotos(){
+ if(!window.NGTPhotoStorage||!NGTPhotoStorage.migrateAnimal){
+  alert('Foto-Migration ist noch nicht geladen.');
+  return;
+ }
+
+ const a=current();
+ ensure(a);
+
+ if(!hasLegacyPhotos(a)){
+  alert('Keine alten Fotos zum Migrieren gefunden.');
+  return;
+ }
+
+ const status=document.getElementById('photoMigrationStatus');
+ if(status)status.textContent='Migration läuft...';
+
+ try{
+  const res=await NGTPhotoStorage.migrateAnimal(a,function(info){
+   const el=document.getElementById('photoMigrationStatus');
+   if(el)el.textContent='Migriert: '+info.count;
+  });
+
+  if(res.changed){
+   NGTStore.save();
+  }
+
+  alert((res.count||0)+' Foto(s) migriert.');
+  setTab('photos');
+
+ }catch(e){
+  console.error(e);
+  alert(e&&e.message?e.message:'Fotos konnten nicht migriert werden.');
+ }
+}
+
 function setCover(i){const a=current();(a.photos||[]).forEach((p,n)=>p.cover=n===i);NGTStore.save();setTab('photos')}
 
 async function deletePhoto(i){
@@ -250,7 +301,7 @@ async function deletePhoto(i){
 
 function afterRender(){const a=current();if(tab==='feeds')setFeedState(document.getElementById('feedState')?.value||'Frost');if(tab==='qr'&&a&&window.QRCode){const box=document.getElementById('profileQr');box.innerHTML='';const payload=passportPayload(a);try{new QRCode(box,{text:payload,width:220,height:220,correctLevel:QRCode.CorrectLevel.L})}catch(e){box.innerHTML='';new QRCode(box,{text:['TC2',s(a.publicId||a.uuid||a.uid,80),s(a.name,50)].join('|'),width:220,height:220,correctLevel:QRCode.CorrectLevel.L})}}}
 
-window.NGTProfile={setTab,addPhoto,setCover,deletePhoto,addFeed,addShed,addWeight,addHealth,deleteEntry,setFeedState,refreshFeedSizes};
+window.NGTProfile={setTab,addPhoto,migratePhotos,setCover,deletePhoto,addFeed,addShed,addWeight,addHealth,deleteEntry,setFeedState,refreshFeedSizes};
 NGT500.register('profile',{render,afterRender});
 
 })();
