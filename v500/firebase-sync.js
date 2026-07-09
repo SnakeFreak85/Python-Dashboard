@@ -69,6 +69,36 @@ function emptyStoreObject(){
  };
 }
 
+function stripLegacyPhotoData(value){
+ const clone=JSON.parse(JSON.stringify(value||{}));
+
+ function cleanAnimal(a){
+  if(!a||!Array.isArray(a.photos))return;
+
+  a.photos=a.photos.map(function(p){
+   if(!p)return p;
+
+   const x=Object.assign({},p);
+
+   if(x.storagePath||x.url||x.thumbPath||x.thumbUrl){
+    delete x.data;
+   }
+
+   return x;
+  });
+ }
+
+ if(Array.isArray(clone.animals)){
+  clone.animals.forEach(cleanAnimal);
+ }
+
+ ['koenig','boas','geckos','spinnen'].forEach(function(k){
+  if(Array.isArray(clone[k]))clone[k].forEach(cleanAnimal);
+ });
+
+ return clone;
+}
+
 async function loadSdk(){
  if(mods)return mods;
  const appMod=await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js");
@@ -111,9 +141,10 @@ function hasCloudData(cloud){
  const animalTotal=["koenig","boas","geckos","spinnen"].reduce(function(n,k){
   return n+((Array.isArray(d[k])?d[k]:[]).length);
  },0);
+ const dynamicTotal=Array.isArray(d.animals)?d.animals.length:0;
  const foodTotal=Array.isArray(d.foodInventory)?d.foodInventory.length:0;
  const hasSettings=d.settings&&Object.keys(d.settings||{}).length>0;
- return animalTotal>0||foodTotal>0||hasSettings;
+ return animalTotal>0||dynamicTotal>0||foodTotal>0||hasSettings;
 }
 
 async function loadCloud(){
@@ -163,7 +194,7 @@ async function saveCloud(){
 
  try{
   await mods.fsMod.setDoc(docRef(),{
-   data:NGTStore.data(),
+   data:stripLegacyPhotoData(NGTStore.data()),
    updatedAt:mods.fsMod.serverTimestamp(),
    updatedAtMs:Date.now(),
    version:"1.0.4-rc9"
