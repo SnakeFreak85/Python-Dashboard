@@ -10,316 +10,642 @@ const CONFIG={
   appId:"1:641374151767:web:d4c9546e349aeb4d142f12"
 };
 
+const AUTH_TIMEOUT_MS=12000;
+const IMAGE_TIMEOUT_MS=20000;
+const UPLOAD_TIMEOUT_MS=60000;
+const DOWNLOAD_URL_TIMEOUT_MS=20000;
+
 let app=null;
 let auth=null;
 let storage=null;
 let mods=null;
 let migrating=false;
 
+function withTimeout(promise,ms,message){
+  let timer=null;
+
+  return Promise.race([
+    promise,
+    new Promise(function(_,reject){
+      timer=setTimeout(function(){
+        reject(new Error(message||'Zeitüberschreitung.'));
+      },ms);
+    })
+  ]).finally(function(){
+    if(timer)clearTimeout(timer);
+  });
+}
+
+function errorMessage(error){
+  const code=String(error&&error.code||'');
+  const message=String(error&&error.message||'');
+
+  if(code.includes('storage/unauthorized')){
+    return 'Firebase Storage verweigert den Zugriff. Bitte die Storage-Sicherheitsregeln prüfen.';
+  }
+
+  if(code.includes('storage/object-not-found')){
+    return 'Das Foto wurde in Firebase Storage nicht gefunden.';
+  }
+
+  if(code.includes('storage/quota-exceeded')){
+    return 'Das Speicherlimit von Firebase Storage wurde erreicht.';
+  }
+
+  if(code.includes('storage/unauthenticated')){
+    return 'Die Firebase-Anmeldung ist abgelaufen. Bitte erneut anmelden.';
+  }
+
+  if(code.includes('storage/retry-limit-exceeded')){
+    return 'Der Foto-Upload wurde nach mehreren Versuchen abgebrochen. Bitte Netzwerkverbindung prüfen.';
+  }
+
+  if(code.includes('storage/invalid-checksum')){
+    return 'Das Foto wurde beim Upload beschädigt. Bitte erneut versuchen.';
+  }
+
+  if(code.includes('storage/canceled')){
+    return 'Der Foto-Upload wurde abgebrochen.';
+  }
+
+  if(code.includes('auth/')){
+    return 'Firebase-Anmeldung fehlgeschlagen. Bitte erneut anmelden.';
+  }
+
+  if(message)return message;
+
+  return 'Unbekannter Fehler beim Foto-Speicher.';
+}
+
 async function loadSdk(){
   if(mods)return mods;
 
-  const appMod=await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js");
-  const authMod=await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js");
-  const storageMod=await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js");
+  try{
+    const loaded=await withTimeout(
+      Promise.all([
+        import("https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js")
+      ]),
+      20000,
+      'Firebase-Module konnten nicht geladen werden. Bitte Internetverbindung prüfen.'
+    );
 
-  mods={appMod,authMod,storageMod};
-  return mods;
+    mods={
+      appMod:loaded[0],
+      authMod:loaded[1],
+      storageMod:loaded[2]
+    };
+
+    return mods;
+
+  }catch(error){
+    mods=null;
+    throw new Error(errorMessage(error));
+  }
 }
 
 async function init(){
-  if(app)return;
+  if(app&&auth&&storage)return;
 
   const m=await loadSdk();
-  app=m.appMod.getApps().length?m.appMod.getApps()[0]:m.appMod.initializeApp(CONFIG);
+
+  app=m.appMod.getApps().length
+    ? m.appMod.getApps()[0]
+    : m.appMod.initializeApp(CONFIG);
+
   auth=m.authMod.getAuth(app);
   storage=m.storageMod.getStorage(app);
 }
 
-function user(){
+function currentUser(){
   return auth&&auth.currentUser?auth.currentUser:null;
 }
 
 async function requireUser(){
   await init();
 
-  const now=user();
-  if(now)return now;
+  const existing=currentUser();
+  if(existing)return existing;
 
-  return new Promise(function(resolve,reject){
-    let done=false;
+  return withTimeout(
+    new Promise(function(resolve,reject){
+      let finished=false;
+      let unsubscribe=function(){};
 
-    const timer=setTimeout(function(){
-      if(done)return;
-      done=true;
-      try{unsub()}catch(e){}
-      reject(new Error('Firebase-Anmeldung erforderlich. Bitte auf der Startseite anmelden und danach erneut versuchen.'));
-    },8000);
+      try{
+        unsubscribe=mods.authMod.onAuthStateChanged(
+          auth,
+          function(user){
+            if(finished)return;
 
-    const unsub=mods.authMod.onAuthStateChanged(auth,function(u){
-      if(done)return;
+            if(user){
+              finished=true;
+              unsubscribe();
+              resolve(user);
+            }
+          },
+          function(error){
+            if(finished)return;
 
-      if(u){
-        done=true;
-        clearTimeout(timer);
-        try{unsub()}catch(e){}
-        resolve(u);
+            finished=true;
+            unsubscribe();
+            reject(error);
+          }
+        );
+      }catch(error){
+        finished=true;
+        reject(error);
       }
-    });
-  });
+    }),
+    AUTH_TIMEOUT_MS,
+    'Firebase-Anmeldung wurde nicht erkannt. Bitte auf der Startseite erneut anmelden.'
+  );
 }
 
-function safe(v){
-  return String(v||'x')
+function safe(value){
+  return String(value||'x')
     .replace(/[^a-zA-Z0-9_-]/g,'_')
     .replace(/_+/g,'_')
     .slice(0,80)||'x';
 }
 
 function photoId(){
-  return 'photo_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+  return 'photo_'+Date.now()+'_'+Math.random().toString(36).slice(2,10);
 }
 
 function canvasBlob(canvas,quality){
   return new Promise(function(resolve,reject){
     canvas.toBlob(function(blob){
-      if(blob)resolve(blob);
-      else reject(new Error('Foto konnte nicht verarbeitet werden.'));
+      if(blob){
+        resolve(blob);
+      }else{
+        reject(new Error('Das Foto konnte nicht in JPEG umgewandelt werden.'));
+      }
     },'image/jpeg',quality);
   });
 }
 
-function loadImageFromFile(file){
-  return new Promise(function(resolve,reject){
-    const reader=new FileReader();
-    const img=new Image();
+function loadImageFromSource(source){
+  return withTimeout(
+    new Promise(function(resolve,reject){
+      const img=new Image();
 
-    reader.onerror=reject;
-    img.onerror=reject;
+      img.onload=function(){
+        resolve(img);
+      };
 
-    reader.onload=function(){
-      img.onload=function(){resolve(img)};
-      img.src=reader.result;
-    };
+      img.onerror=function(){
+        reject(new Error('Das ausgewählte Foto konnte nicht gelesen werden.'));
+      };
 
-    reader.readAsDataURL(file);
-  });
+      img.src=source;
+    }),
+    IMAGE_TIMEOUT_MS,
+    'Das Einlesen des Fotos hat zu lange gedauert.'
+  );
 }
 
-function loadImageFromDataUrl(dataUrl){
-  return new Promise(function(resolve,reject){
-    const img=new Image();
-    img.onerror=reject;
-    img.onload=function(){resolve(img)};
-    img.src=dataUrl;
-  });
+function fileToDataUrl(file){
+  return withTimeout(
+    new Promise(function(resolve,reject){
+      const reader=new FileReader();
+
+      reader.onload=function(){
+        resolve(reader.result);
+      };
+
+      reader.onerror=function(){
+        reject(new Error('Die Fotodatei konnte nicht gelesen werden.'));
+      };
+
+      reader.onabort=function(){
+        reject(new Error('Das Einlesen der Fotodatei wurde abgebrochen.'));
+      };
+
+      reader.readAsDataURL(file);
+    }),
+    IMAGE_TIMEOUT_MS,
+    'Das Einlesen der Fotodatei hat zu lange gedauert.'
+  );
 }
 
-async function resizeImage(img,max,quality){
-  let w=img.width;
-  let h=img.height;
+async function loadImageFromFile(file){
+  if(!file){
+    throw new Error('Keine Fotodatei ausgewählt.');
+  }
 
-  if(w>h&&w>max){
-    h=Math.round(h*max/w);
-    w=max;
-  }else if(h>=w&&h>max){
-    w=Math.round(w*max/h);
-    h=max;
+  if(file.type&& !String(file.type).startsWith('image/')){
+    throw new Error('Die ausgewählte Datei ist kein unterstütztes Bild.');
+  }
+
+  const source=await fileToDataUrl(file);
+  return loadImageFromSource(source);
+}
+
+async function loadImageFromDataUrl(dataUrl){
+  if(!String(dataUrl||'').startsWith('data:image')){
+    throw new Error('Ungültiges eingebettetes Foto.');
+  }
+
+  return loadImageFromSource(dataUrl);
+}
+
+async function resizeImage(img,maxSize,quality){
+  let width=Number(img.naturalWidth||img.width||0);
+  let height=Number(img.naturalHeight||img.height||0);
+
+  if(!width||!height){
+    throw new Error('Das Foto besitzt keine gültigen Bildabmessungen.');
+  }
+
+  if(width>height&&width>maxSize){
+    height=Math.round(height*maxSize/width);
+    width=maxSize;
+  }else if(height>=width&&height>maxSize){
+    width=Math.round(width*maxSize/height);
+    height=maxSize;
   }
 
   const canvas=document.createElement('canvas');
-  canvas.width=w;
-  canvas.height=h;
+  canvas.width=width;
+  canvas.height=height;
 
-  const ctx=canvas.getContext('2d');
-  ctx.drawImage(img,0,0,w,h);
+  const context=canvas.getContext('2d');
 
-  return canvasBlob(canvas,quality);
+  if(!context){
+    throw new Error('Die Bildverarbeitung wird von diesem Browser nicht unterstützt.');
+  }
+
+  context.drawImage(img,0,0,width,height);
+
+  return withTimeout(
+    canvasBlob(canvas,quality),
+    IMAGE_TIMEOUT_MS,
+    'Die Verarbeitung des Fotos hat zu lange gedauert.'
+  );
 }
 
-async function resize(file,max,quality){
-  const img=await loadImageFromFile(file);
-  return resizeImage(img,max,quality);
+async function createPhotoBlobsFromFile(file){
+  const image=await loadImageFromFile(file);
+
+  const fullBlob=await resizeImage(image,1400,0.82);
+  const thumbBlob=await resizeImage(image,360,0.72);
+
+  return {fullBlob,thumbBlob};
 }
 
-async function resizeDataUrl(dataUrl,max,quality){
-  const img=await loadImageFromDataUrl(dataUrl);
-  return resizeImage(img,max,quality);
+async function createPhotoBlobsFromDataUrl(dataUrl){
+  const image=await loadImageFromDataUrl(dataUrl);
+
+  const fullBlob=await resizeImage(image,1400,0.82);
+  const thumbBlob=await resizeImage(image,360,0.72);
+
+  return {fullBlob,thumbBlob};
 }
 
-function basePath(animal,id,u){
+function basePath(animal,id,user){
   const animalKey=safe(
-    animal.uuid||
-    animal.uid||
-    animal.publicId||
-    animal.displayId||
-    'animal'
+    animal&&(
+      animal.uuid||
+      animal.uid||
+      animal.publicId||
+      animal.displayId
+    )||'animal'
   );
 
-  return 'users/'+u.uid+'/animals/'+animalKey+'/photos/'+safe(id);
+  return [
+    'users',
+    safe(user.uid),
+    'animals',
+    animalKey,
+    'photos',
+    safe(id)
+  ].join('/');
+}
+
+async function uploadBlob(reference,blob){
+  return withTimeout(
+    mods.storageMod.uploadBytes(reference,blob,{
+      contentType:'image/jpeg',
+      cacheControl:'public,max-age=31536000'
+    }),
+    UPLOAD_TIMEOUT_MS,
+    'Der Upload zu Firebase Storage hat zu lange gedauert. Bitte Storage-Konfiguration und Netzwerk prüfen.'
+  );
+}
+
+async function downloadUrl(reference){
+  return withTimeout(
+    mods.storageMod.getDownloadURL(reference),
+    DOWNLOAD_URL_TIMEOUT_MS,
+    'Die Foto-URL konnte nicht von Firebase Storage geladen werden.'
+  );
+}
+
+async function deleteUploadedPath(path){
+  if(!path)return;
+
+  try{
+    await withTimeout(
+      mods.storageMod.deleteObject(mods.storageMod.ref(storage,path)),
+      20000,
+      'Temporäre Fotodatei konnte nicht entfernt werden.'
+    );
+  }catch(error){
+    console.warn('Temporäre Fotodatei konnte nicht entfernt werden:',path,error);
+  }
 }
 
 async function uploadBlobs(animal,id,fullBlob,thumbBlob,meta){
-  const u=await requireUser();
+  const user=await requireUser();
+  const root=basePath(animal||{},id,user);
 
-  const root=basePath(animal||{},id,u);
   const fullPath=root+'/full.jpg';
   const thumbPath=root+'/thumb.jpg';
 
   const fullRef=mods.storageMod.ref(storage,fullPath);
   const thumbRef=mods.storageMod.ref(storage,thumbPath);
 
-  await mods.storageMod.uploadBytes(fullRef,fullBlob,{contentType:'image/jpeg'});
-  await mods.storageMod.uploadBytes(thumbRef,thumbBlob,{contentType:'image/jpeg'});
+  let fullUploaded=false;
+  let thumbUploaded=false;
 
-  const url=await mods.storageMod.getDownloadURL(fullRef);
-  const thumbUrl=await mods.storageMod.getDownloadURL(thumbRef);
+  try{
+    await uploadBlob(fullRef,fullBlob);
+    fullUploaded=true;
 
-  return {
-    id:id,
-    date:(meta&&meta.date)||NGT500.today(),
-    type:(meta&&meta.type)||'Sonstige',
-    note:(meta&&meta.note)||'',
-    cover:!!(meta&&meta.cover),
-    storagePath:fullPath,
-    thumbPath:thumbPath,
-    url:url,
-    thumbUrl:thumbUrl
-  };
+    await uploadBlob(thumbRef,thumbBlob);
+    thumbUploaded=true;
+
+    const urls=await Promise.all([
+      downloadUrl(fullRef),
+      downloadUrl(thumbRef)
+    ]);
+
+    return {
+      id:id,
+      date:meta&&meta.date||NGT500.today(),
+      type:meta&&meta.type||'Sonstige',
+      note:meta&&meta.note||'',
+      cover:!!(meta&&meta.cover),
+      storagePath:fullPath,
+      thumbPath:thumbPath,
+      url:urls[0],
+      thumbUrl:urls[1]
+    };
+
+  }catch(error){
+    if(fullUploaded)await deleteUploadedPath(fullPath);
+    if(thumbUploaded)await deleteUploadedPath(thumbPath);
+
+    throw new Error(errorMessage(error));
+  }
 }
 
 async function upload(file,animal,meta){
-  await requireUser();
+  try{
+    await requireUser();
 
-  const id=(meta&&meta.id)||photoId();
-  const fullBlob=await resize(file,1400,0.82);
-  const thumbBlob=await resize(file,360,0.72);
+    const id=meta&&meta.id||photoId();
+    const blobs=await createPhotoBlobsFromFile(file);
 
-  return uploadBlobs(animal,id,fullBlob,thumbBlob,meta);
+    return await uploadBlobs(
+      animal,
+      id,
+      blobs.fullBlob,
+      blobs.thumbBlob,
+      meta
+    );
+
+  }catch(error){
+    throw new Error(errorMessage(error));
+  }
 }
 
 async function uploadDataUrl(dataUrl,animal,meta){
-  await requireUser();
+  try{
+    await requireUser();
 
-  if(!String(dataUrl||'').startsWith('data:image')){
-    throw new Error('Ungültiges Legacy-Foto.');
+    const id=meta&&meta.id||photoId();
+    const blobs=await createPhotoBlobsFromDataUrl(dataUrl);
+
+    return await uploadBlobs(
+      animal,
+      id,
+      blobs.fullBlob,
+      blobs.thumbBlob,
+      meta
+    );
+
+  }catch(error){
+    throw new Error(errorMessage(error));
   }
-
-  const id=(meta&&meta.id)||photoId();
-  const fullBlob=await resizeDataUrl(dataUrl,1400,0.82);
-  const thumbBlob=await resizeDataUrl(dataUrl,360,0.72);
-
-  return uploadBlobs(animal,id,fullBlob,thumbBlob,meta);
 }
 
 async function remove(photo){
-  const u=await requireUser();
-  if(!u||!photo)return false;
+  if(!photo)return false;
 
-  const paths=[photo.storagePath,photo.thumbPath].filter(Boolean);
+  try{
+    await requireUser();
 
-  for(const path of paths){
-    try{
-      await mods.storageMod.deleteObject(mods.storageMod.ref(storage,path));
-    }catch(e){
-      console.warn('Foto konnte nicht aus Storage gelöscht werden:',path,e);
+    const paths=[
+      photo.storagePath,
+      photo.thumbPath
+    ].filter(Boolean);
+
+    for(const path of paths){
+      try{
+        await withTimeout(
+          mods.storageMod.deleteObject(
+            mods.storageMod.ref(storage,path)
+          ),
+          20000,
+          'Das Löschen des Fotos hat zu lange gedauert.'
+        );
+      }catch(error){
+        const code=String(error&&error.code||'');
+
+        if(!code.includes('storage/object-not-found')){
+          throw error;
+        }
+      }
     }
-  }
 
-  return true;
+    return true;
+
+  }catch(error){
+    throw new Error(errorMessage(error));
+  }
 }
 
 function src(photo,preferThumb){
   if(!photo)return '';
-  if(preferThumb&&(photo.thumbUrl||photo.thumbnailUrl))return photo.thumbUrl||photo.thumbnailUrl;
-  return photo.url||photo.thumbUrl||photo.thumbnailUrl||photo.data||'';
+
+  if(preferThumb&&(photo.thumbUrl||photo.thumbnailUrl)){
+    return photo.thumbUrl||photo.thumbnailUrl;
+  }
+
+  return photo.url||
+    photo.thumbUrl||
+    photo.thumbnailUrl||
+    photo.data||
+    '';
+}
+
+function isLegacyPhoto(photo){
+  return !!(
+    photo&&
+    photo.data&&
+    String(photo.data).startsWith('data:image')&&
+    !photo.storagePath&&
+    !photo.url
+  );
 }
 
 function hasLegacyPhotos(animal){
-  return !!(animal&&Array.isArray(animal.photos)&&animal.photos.some(function(p){
-    return p&&p.data&&String(p.data).startsWith('data:image')&&!p.storagePath&&!p.url;
-  }));
+  return !!(
+    animal&&
+    Array.isArray(animal.photos)&&
+    animal.photos.some(isLegacyPhoto)
+  );
+}
+
+function countLegacyPhotos(animal){
+  if(!animal||!Array.isArray(animal.photos))return 0;
+  return animal.photos.filter(isLegacyPhoto).length;
 }
 
 async function migrateAnimal(animal,onProgress){
   await requireUser();
 
-  if(!animal||!Array.isArray(animal.photos))return {changed:false,count:0};
+  if(!animal||!Array.isArray(animal.photos)){
+    return {changed:false,count:0,total:0};
+  }
+
+  const total=countLegacyPhotos(animal);
+
+  if(!total){
+    return {changed:false,count:0,total:0};
+  }
 
   let changed=false;
   let count=0;
 
-  for(let i=0;i<animal.photos.length;i++){
-    const old=animal.photos[i];
+  for(let index=0;index<animal.photos.length;index++){
+    const oldPhoto=animal.photos[index];
 
-    if(!old||!old.data||!String(old.data).startsWith('data:image')||old.storagePath||old.url){
-      continue;
-    }
+    if(!isLegacyPhoto(oldPhoto))continue;
 
-    const migrated=await uploadDataUrl(old.data,animal,{
-      id:old.id||photoId(),
-      date:old.date||NGT500.today(),
-      type:old.type||'Sonstige',
-      note:old.note||'',
-      cover:!!old.cover
+    const migrated=await uploadDataUrl(oldPhoto.data,animal,{
+      id:oldPhoto.id||photoId(),
+      date:oldPhoto.date||NGT500.today(),
+      type:oldPhoto.type||'Sonstige',
+      note:oldPhoto.note||'',
+      cover:!!oldPhoto.cover
     });
 
-    animal.photos[i]=migrated;
+    animal.photos[index]=migrated;
     changed=true;
     count++;
 
     if(onProgress){
-      try{onProgress({animal:animal,index:i,count:count})}catch(e){}
+      onProgress({
+        animal:animal,
+        index:index,
+        count:count,
+        total:total
+      });
     }
   }
 
-  return {changed:changed,count:count};
+  return {
+    changed:changed,
+    count:count,
+    total:total
+  };
 }
 
 async function migrateAll(onProgress){
-  if(migrating)return {changed:false,count:0,running:true};
+  if(migrating){
+    throw new Error('Eine Foto-Migration läuft bereits. Bitte warten, bis sie beendet ist.');
+  }
+
   migrating=true;
 
   try{
-    if(!window.NGTStore||!NGTStore.allAnimals)return {changed:false,count:0};
+    await requireUser();
+
+    if(!window.NGTStore||!NGTStore.allAnimals){
+      throw new Error('Tierbestand konnte für die Foto-Migration nicht geladen werden.');
+    }
 
     const rows=NGTStore.allAnimals();
+    const total=rows.reduce(function(sum,row){
+      return sum+countLegacyPhotos(row.a);
+    },0);
+
+    if(!total){
+      return {changed:false,count:0,total:0};
+    }
+
     let changed=false;
     let count=0;
 
     for(const row of rows){
-      const a=row.a;
-      if(!hasLegacyPhotos(a))continue;
+      const animal=row.a;
 
-      const res=await migrateAnimal(a,function(info){
+      if(!hasLegacyPhotos(animal))continue;
+
+      const result=await migrateAnimal(animal,function(info){
+        const globalCount=count+info.count;
+
         if(onProgress){
-          try{onProgress(Object.assign({row:row},info))}catch(e){}
+          onProgress({
+            row:row,
+            animal:animal,
+            index:info.index,
+            count:globalCount,
+            total:total
+          });
         }
       });
 
-      if(res.changed){
+      if(result.changed){
         changed=true;
-        count+=res.count;
+        count+=result.count;
         NGTStore.save();
       }
     }
 
-    return {changed:changed,count:count};
+    return {
+      changed:changed,
+      count:count,
+      total:total
+    };
+
+  }catch(error){
+    throw new Error(errorMessage(error));
 
   }finally{
     migrating=false;
   }
 }
 
+function isMigrating(){
+  return migrating;
+}
+
 window.NGTPhotoStorage={
-  init,
-  upload,
-  uploadDataUrl,
-  remove,
-  src,
-  hasLegacyPhotos,
-  migrateAnimal,
-  migrateAll
+  init:init,
+  upload:upload,
+  uploadDataUrl:uploadDataUrl,
+  remove:remove,
+  src:src,
+  hasLegacyPhotos:hasLegacyPhotos,
+  countLegacyPhotos:countLegacyPhotos,
+  migrateAnimal:migrateAnimal,
+  migrateAll:migrateAll,
+  isMigrating:isMigrating
 };
 
 })();
