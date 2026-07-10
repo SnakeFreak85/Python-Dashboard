@@ -3637,3 +3637,369 @@ body:not(.tc2RefMode) .wrap {
   font-size:25px;
  }
 }
+/* Release Test */
+.tc2ReleasePage{
+ display:flex;
+ flex-direction:column;
+ gap:18px;
+}
+
+.tc2ReleaseHero{
+ display:flex;
+ align-items:center;
+ gap:16px;
+ padding:22px;
+ border-radius:26px;
+ background:
+  linear-gradient(
+   135deg,
+   rgba(34,56,78,.98),
+   rgba(16,31,45,.98)
+  );
+ border:1px solid rgba(107,160,255,.3);
+ box-shadow:0 18px 42px rgba(0,0,0,.22);
+}
+
+.tc2ReleaseHeroIcon{
+ display:grid;
+ place-items:center;
+ width:58px;
+ height:58px;
+ flex:0 0 58px;
+ border-radius:19px;
+ background:rgba(255,255,255,.07);
+ border:1px solid rgba(255,255,255,.09);
+ font-size:29px;
+}
+
+.tc2ReleaseHero h2{
+ margin:0 0 7px;
+ font-size:29px;
+}
+
+.tc2ReleaseHero p{
+ margin:0;
+ color:#aeb9c4;
+ line-height:1.45;
+}
+
+.tc2ReleaseSummary{
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:11px;
+}
+
+.tc2ReleaseSummary article{
+ display:flex;
+ flex-direction:column;
+ gap:7px;
+ padding:16px 10px;
+ text-align:center;
+ border-radius:19px;
+ background:linear-gradient(180deg,#172a3c,#10202f);
+ border:1px solid rgba(92,132,168,.34);
+ box-shadow:0 12px 28px rgba(0,0,0,.16);
+}
+
+.tc2ReleaseSummary small{
+ color:#aeb9c4;
+ font-size:12px;
+}
+
+.tc2ReleaseSummary b{
+ font-size:24px;
+}
+
+.tc2ReleaseProgress{
+ padding:17px;
+ border-radius:21px;
+ background:linear-gradient(180deg,#172a3c,#10202f);
+ border:1px solid rgba(92,132,168,.34);
+}
+
+.tc2ReleaseProgress>div:first-child{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ margin-bottom:10px;
+}
+
+.tc2ReleaseProgress span{
+ color:#8bdc3f;
+ font-weight:900;
+}
+
+.tc2ReleaseProgressTrack,
+.tc2ReleaseMiniProgress{
+ overflow:hidden;
+ border-radius:999px;
+ background:#07131e;
+ border:1px solid rgba(92,132,168,.24);
+}
+
+.tc2ReleaseProgressTrack{
+ height:13px;
+}
+
+.tc2ReleaseMiniProgress{
+ height:8px;
+ margin:0 0 15px;
+}
+
+.tc2ReleaseProgressTrack i,
+.tc2ReleaseMiniProgress i{
+ display:block;
+ height:100%;
+ border-radius:inherit;
+ background:linear-gradient(90deg,#69d2c4,#8bdc3f);
+ transition:width .25s ease;
+}
+
+.tc2ReleaseStatus{
+ display:flex;
+ align-items:center;
+ gap:14px;
+ padding:17px;
+ border-radius:21px;
+ background:rgba(19,36,52,.92);
+ border:1px solid rgba(92,132,168,.34);
+}
+
+.tc2ReleaseStatus>span{
+ font-size:25px;
+}
+
+.tc2ReleaseStatus b{
+ display:block;
+ margin-bottom:4px;
+}
+
+.tc2ReleaseStatus p{
+ margin:0;
+ color:#aeb9c4;
+ line-height:1.4;
+}
+
+.tc2ReleaseStatus.ok{
+ border-color:rgba(105,210,196,.44);
+ background:
+  linear-gradient(
+   135deg,
+   rgba(31,80,67,.45),
+   rgba(19,36,52,.94)
+  );
+}
+
+.tc2ReleaseStatus.warn{
+ border-color:rgba(242,195,107,.42);
+}
+
+.tc2ReleaseActions{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:11px;
+}
+
+.tc2ReleaseActions button{
+ margin:0!important;
+ min-height:52px;
+}
+
+.tc2ReleaseGroups{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:15px;
+}
+
+.tc2ReleaseGroup{
+ padding:18px;
+ border-radius:23px;
+ background:linear-gradient(180deg,#172a3c,#10202f);
+ border:1px solid rgba(92,132,168,.36);
+ box-shadow:0 14px 32px rgba(0,0,0,.17);
+}
+
+.tc2ReleaseGroup.complete{
+ border-color:rgba(105,210,196,.43);
+}
+
+.tc2ReleaseGroupHead{
+ display:grid;
+ grid-template-columns:46px minmax(0,1fr) auto;
+ align-items:center;
+ gap:11px;
+ margin-bottom:14px;
+}
+
+.tc2ReleaseGroupIcon{
+ display:grid;
+ place-items:center;
+ width:46px;
+ height:46px;
+ border-radius:15px;
+ background:rgba(255,255,255,.055);
+ font-size:23px;
+}
+
+.tc2ReleaseGroupHead h3{
+ margin:0 0 4px;
+ font-size:18px;
+}
+
+.tc2ReleaseGroupHead p{
+ margin:0;
+ color:#aeb9c4;
+ font-size:12px;
+}
+
+.tc2ReleaseGroupHead>b{
+ color:#8bdc3f;
+ font-size:14px;
+}
+
+.tc2ReleaseTests{
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+}
+
+.tc2ReleaseTestRow{
+ position:relative;
+ display:grid;
+ grid-template-columns:30px minmax(0,1fr);
+ align-items:center;
+ gap:10px;
+ min-height:48px;
+ padding:9px 11px;
+ border-radius:15px;
+ cursor:pointer;
+ background:rgba(255,255,255,.027);
+ border:1px solid rgba(92,132,168,.22);
+ transition:
+  border-color .2s ease,
+  background .2s ease;
+}
+
+.tc2ReleaseTestRow:hover{
+ border-color:rgba(139,220,63,.34);
+}
+
+.tc2ReleaseTestRow.done{
+ background:rgba(105,210,196,.055);
+ border-color:rgba(105,210,196,.28);
+}
+
+.tc2ReleaseTestRow input{
+ position:absolute!important;
+ opacity:0!important;
+ pointer-events:none;
+ width:1px!important;
+ height:1px!important;
+}
+
+.tc2ReleaseCheckbox{
+ display:grid;
+ place-items:center;
+ width:28px;
+ height:28px;
+ border-radius:9px;
+ border:1px solid rgba(125,170,210,.42);
+ background:#071521;
+ color:#071521;
+ font-weight:900;
+}
+
+.tc2ReleaseTestRow.done .tc2ReleaseCheckbox{
+ color:#071521;
+ background:#8bdc3f;
+ border-color:#8bdc3f;
+}
+
+.tc2ReleaseTestText{
+ line-height:1.35;
+ font-weight:700;
+}
+
+.tc2ReleaseTestRow.done .tc2ReleaseTestText{
+ color:#c4ced7;
+ text-decoration:line-through;
+ text-decoration-color:rgba(196,206,215,.38);
+}
+
+.tc2ReleaseGroupAction{
+ width:100%;
+ min-height:44px;
+ margin:14px 0 0!important;
+ padding:9px 12px!important;
+ font-size:13px!important;
+}
+
+.tc2ReleaseFooter{
+ padding:19px;
+ border-radius:23px;
+ background:linear-gradient(180deg,#172a3c,#10202f);
+ border:1px solid rgba(92,132,168,.34);
+}
+
+.tc2ReleaseFooter h3{
+ margin:0 0 7px;
+}
+
+.tc2ReleaseFooter p{
+ margin:0 0 15px;
+ color:#aeb9c4;
+ line-height:1.5;
+}
+
+.tc2ReleaseFooter button{
+ margin:0!important;
+}
+
+@media(max-width:760px){
+ .tc2ReleaseGroups{
+  grid-template-columns:1fr;
+ }
+}
+
+@media(max-width:560px){
+ .tc2ReleaseHero{
+  align-items:flex-start;
+  padding:17px;
+  border-radius:21px;
+ }
+
+ .tc2ReleaseHeroIcon{
+  width:48px;
+  height:48px;
+  flex-basis:48px;
+  border-radius:16px;
+  font-size:24px;
+ }
+
+ .tc2ReleaseHero h2{
+  font-size:25px;
+ }
+
+ .tc2ReleaseSummary{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+ }
+
+ .tc2ReleaseActions{
+  grid-template-columns:1fr;
+ }
+
+ .tc2ReleaseGroup{
+  padding:15px;
+  border-radius:20px;
+ }
+
+ .tc2ReleaseGroupHead{
+  grid-template-columns:42px minmax(0,1fr) auto;
+ }
+
+ .tc2ReleaseGroupIcon{
+  width:42px;
+  height:42px;
+ }
+}
