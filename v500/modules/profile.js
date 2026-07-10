@@ -8,6 +8,7 @@ let viewerKeyHandler=null;
 
 function esc(v){return NGT500.esc(v||'')}
 function current(){return NGTStore.animal(ctx.t,ctx.i)}
+
 function ensure(a){
  a.health=Array.isArray(a.health)?a.health:[];
  a.photos=Array.isArray(a.photos)?a.photos:[];
@@ -15,25 +16,65 @@ function ensure(a){
  a.sheds=Array.isArray(a.sheds)?a.sheds:[];
  a.weights=Array.isArray(a.weights)?a.weights:[];
 }
-function latest(list){return (list||[]).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null}
-function daysSince(d){const t=Date.parse(d||'');return t?Math.floor((Date.now()-t)/86400000):9999}
-function age(birth){const t=Date.parse(birth||'');if(!t)return '-';const y=Math.floor((Date.now()-t)/31557600000);return y>0?y+' Jahre':'< 1 Jahr'}
-function s(v,n){return String(v==null?'':v).replace(/[\n\r|]/g,' ').slice(0,n||80)}
-function opt(list,cur){return (list||[]).map(v=>`<option value="${esc(v)}" ${String(cur||'')===String(v)?'selected':''}>${esc(v)}</option>`).join('')}
+
+function latest(list){
+ return (list||[])
+  .slice()
+  .sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null;
+}
+
+function daysSince(d){
+ const t=Date.parse(d||'');
+ return t?Math.floor((Date.now()-t)/86400000):9999;
+}
+
+function age(birth){
+ const t=Date.parse(birth||'');
+
+ if(!t)return '-';
+
+ const y=Math.floor((Date.now()-t)/31557600000);
+
+ return y>0?y+' Jahre':'< 1 Jahr';
+}
+
+function s(v,n){
+ return String(v==null?'':v)
+  .replace(/[\n\r|]/g,' ')
+  .slice(0,n||80);
+}
+
+function opt(list,cur){
+ return (list||[])
+  .map(v=>`<option value="${esc(v)}" ${String(cur||'')===String(v)?'selected':''}>${esc(v)}</option>`)
+  .join('');
+}
 
 function jsArg(v){
- return String(v||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+ return String(v||'')
+  .replace(/\\/g,'\\\\')
+  .replace(/'/g,"\\'");
+}
+
+function text(v){
+ return String(v==null?'':v).trim();
 }
 
 function sexCode(v){
  v=String(v||'').toLowerCase();
+
  if(v.includes('weib'))return '0.1';
  if(v.includes('männ')||v.includes('maenn'))return '1.0';
+
  return '0.0';
 }
 
 function scientificName(a){
- return [a.genus,a.species].filter(Boolean).join(' ')||a.animalGroup||'-';
+ return [a.genus,a.species]
+  .filter(Boolean)
+  .join(' ')||
+  a.animalGroup||
+  '-';
 }
 
 function photoSrc(photo,thumb){
@@ -89,8 +130,168 @@ function hasLegacyPhotos(a){
  );
 }
 
+function foodInventory(){
+ const data=NGTStore.data();
+
+ if(!Array.isArray(data.foodInventory)){
+  data.foodInventory=[];
+ }
+
+ return data.foodInventory;
+}
+
+function normalizeFoodItem(item){
+ item=item||{};
+
+ const parsed=window.NGTStore&&NGTStore.parseFeeder
+  ?NGTStore.parseFeeder(item.label||item.name||'')
+  :{};
+
+ item.id=item.id||
+  item.key||
+  'food_'+Math.random().toString(36).slice(2,10);
+
+ item.category=text(
+  item.category||
+  item.group||
+  item.foodCategory||
+  'Futtertiere'
+ );
+
+ item.condition=text(
+  item.condition||
+  item.state||
+  parsed.state||
+  ''
+ );
+
+ item.itemName=text(
+  item.itemName||
+  item.prey||
+  item.type||
+  parsed.prey||
+  item.label||
+  item.name||
+  'Unbenannt'
+ );
+
+ item.variant=text(
+  item.variant||
+  item.size||
+  parsed.size||
+  ''
+ );
+
+ item.unit=text(item.unit||'Stück');
+ item.qty=Number(item.qty||0);
+ item.minimum=Number(
+  item.minimum!==undefined
+   ?item.minimum
+   :(item.minQty||0)
+ );
+
+ item.label=text(item.label)||
+  [
+   item.condition,
+   item.itemName,
+   item.variant
+  ].filter(Boolean).join(' ');
+
+ item.name=item.label;
+
+ return item;
+}
+
+function normalizedFoodInventory(){
+ return foodInventory()
+  .map(normalizeFoodItem)
+  .sort(function(a,b){
+   const categoryCompare=String(a.category||'')
+    .localeCompare(String(b.category||''),'de');
+
+   if(categoryCompare!==0)return categoryCompare;
+
+   return foodLabel(a).localeCompare(foodLabel(b),'de');
+  });
+}
+
+function foodLabel(item){
+ if(!item)return '';
+
+ return [
+  item.condition,
+  item.itemName,
+  item.variant
+ ].filter(Boolean).join(' ')||
+ item.label||
+ item.name||
+ 'Unbenannt';
+}
+
+function foodMeta(item){
+ if(!item)return '';
+
+ return [
+  item.category,
+  Number(item.qty||0)+' '+(item.unit||'Stück')
+ ].filter(Boolean).join(' · ');
+}
+
+function foodById(id){
+ return normalizedFoodInventory().find(function(item){
+  return String(item.id)===String(id);
+ })||null;
+}
+
+function defaultFoodId(a){
+ const stored=text(
+  a.defaultFeederId||
+  a.foodInventoryId||
+  ''
+ );
+
+ if(stored&&foodById(stored)){
+  return stored;
+ }
+
+ const legacy=text(
+  a.defaultFeeder||
+  a.futterStandard||
+  a.standardFeed||
+  ''
+ );
+
+ if(!legacy)return '';
+
+ const match=normalizedFoodInventory().find(function(item){
+  return foodLabel(item)===legacy||
+   text(item.label)===legacy||
+   text(item.name)===legacy;
+ });
+
+ return match?match.id:'';
+}
+
+function foodOptions(a){
+ const items=normalizedFoodInventory();
+ const selectedId=defaultFoodId(a);
+
+ if(!items.length){
+  return '<option value="">Kein Futterbestand vorhanden</option>';
+ }
+
+ return items.map(function(item){
+  const selected=String(item.id)===String(selectedId);
+
+  return `<option value="${esc(item.id)}" ${selected?'selected':''}>
+   ${esc(foodLabel(item))} · ${esc(foodMeta(item))}
+  </option>`;
+ }).join('');
+}
+
 function healthStatus(a){
  let score=0;
+
  const lf=latest(a.feeds);
  const lw=latest(a.weights);
  const lh=latest(a.health);
@@ -100,7 +301,10 @@ function healthStatus(a){
   .sort((p,q)=>String(q.date||'').localeCompare(String(p.date||'')))
   .slice(0,3);
 
- if(recent.length>=2&&recent.slice(0,2).every(f=>f.accepted===false)){
+ if(
+  recent.length>=2&&
+  recent.slice(0,2).every(f=>f.accepted===false)
+ ){
   score+=2;
  }
 
@@ -118,7 +322,17 @@ function healthStatus(a){
   }
  }
 
- if(lf&&daysSince(lf.date)>=(Number(a.feedIntervalDays||a.feedingInterval||14)+7)){
+ if(
+  lf&&
+  daysSince(lf.date)>=
+  (
+   Number(
+    a.feedIntervalDays||
+    a.feedingInterval||
+    14
+   )+7
+  )
+ ){
   score+=1;
  }
 
@@ -126,14 +340,34 @@ function healthStatus(a){
   score+=1;
  }
 
- if(lh&&String(lh.status||'').toLowerCase()!=='abgeschlossen'){
+ if(
+  lh&&
+  String(lh.status||'').toLowerCase()!=='abgeschlossen'
+ ){
   score+=1;
  }
 
- if(score>=3)return {txt:'Handlungsbedarf',icon:'🔴',cls:'danger'};
- if(score>=1)return {txt:'Beobachten',icon:'🟡',cls:'warn'};
+ if(score>=3){
+  return {
+   txt:'Handlungsbedarf',
+   icon:'🔴',
+   cls:'danger'
+  };
+ }
 
- return {txt:'Alles in Ordnung',icon:'🟢',cls:'ok'};
+ if(score>=1){
+  return {
+   txt:'Beobachten',
+   icon:'🟡',
+   cls:'warn'
+  };
+ }
+
+ return {
+  txt:'Alles in Ordnung',
+  icon:'🟢',
+  cls:'ok'
+ };
 }
 
 function smallHistory(a){
@@ -142,6 +376,7 @@ function smallHistory(a){
    d:s(x.date,10),
    g:Number(x.weight||0)
   })),
+
   feeds:(a.feeds||[]).slice(-5).map(x=>({
    d:s(x.date,10),
    p:s(x.prey,24),
@@ -150,6 +385,7 @@ function smallHistory(a){
    state:s(x.state||'',10),
    size:s(x.size||'',12)
   })),
+
   sheds:(a.sheds||[]).slice(-5).map(x=>({
    d:s(x.date,10),
    ok:x.complete!==false
@@ -162,6 +398,7 @@ function passportObject(a,withHistory){
   app:'TerraControl',
   type:'animal-passport',
   v:4,
+
   animal:{
    id:s(a.publicId||a.displayId||a.uuid||a.uid,80),
    uuid:s(a.uuid||a.uid,80),
@@ -179,16 +416,25 @@ function passportObject(a,withHistory){
    feedDays:Number(a.feedIntervalDays||a.feedingInterval||14),
    weightDays:Number(a.weightIntervalDays||30)
   },
-  history:withHistory?smallHistory(a):undefined
+
+  history:withHistory
+   ?smallHistory(a)
+   :undefined
  };
 }
 
 function passportPayload(a){
  try{
-  const full=JSON.stringify(passportObject(a,true));
+  const full=JSON.stringify(
+   passportObject(a,true)
+  );
+
   if(full.length<1800)return full;
 
-  const lite=JSON.stringify(passportObject(a,false));
+  const lite=JSON.stringify(
+   passportObject(a,false)
+  );
+
   if(lite.length<1200)return lite;
 
   return [
@@ -233,23 +479,39 @@ function render(args){
 
  return `<div class="card tc2PageCard tc2ProfilePage tc2ProfileV4">
   <div class="tc2ProfileTopBar">
-   <button class="tc2ProfileTopBack" onclick="NGT500.route('animals',{group:'${jsArg(a.animalGroup)}',genus:'${jsArg(a.genus||'Ohne Gattung')}'})">‹ Bestand</button>
-   <div class="tc2ProfileTopStatus ${hs.cls}">${hs.icon} ${esc(hs.txt)}</div>
+   <button
+    class="tc2ProfileTopBack"
+    onclick="NGT500.route('animals',{group:'${jsArg(a.animalGroup)}',genus:'${jsArg(a.genus||'Ohne Gattung')}'})"
+   >
+    ‹ Bestand
+   </button>
+
+   <div class="tc2ProfileTopStatus ${hs.cls}">
+    ${hs.icon} ${esc(hs.txt)}
+   </div>
   </div>
 
   <section class="tc2ProfileIdentity">
    <b class="tc2ProfilePublicId">${esc(id)}</b>
+
    ${a.name?`<h2>${esc(a.name)}</h2>`:''}
+
    <h3>${esc(sexCode(a.sex))}</h3>
    <h3 class="tc2ProfileScientific">${esc(sci)}</h3>
+
    ${a.morph?`<p>${esc(a.morph)}</p>`:''}
+
    <small>${esc(a.animalGroup||'Unsortiert')}</small>
   </section>
 
-  <div class="tc2ProfileHero" ${img?'onclick="NGTProfile.openCoverPhoto()"':''}>
-   ${img
-    ?`<img src="${esc(img)}" alt="Tierfoto">`
-    :`<div class="tc2ProfileHeroEmpty">📷</div>`
+  <div
+   class="tc2ProfileHero"
+   ${img?'onclick="NGTProfile.openCoverPhoto()"':''}
+  >
+   ${
+    img
+     ?`<img src="${esc(img)}" alt="Tierfoto">`
+     :'<div class="tc2ProfileHeroEmpty">📷</div>'
    }
   </div>
 
@@ -265,13 +527,38 @@ function render(args){
   </section>
 
   <div class="tc2ProfileStats">
-   <div><small>Gewicht</small><b>${lw?esc(lw.weight)+' g':(a.weight?esc(a.weight)+' g':'-')}</b></div>
-   <div><small>Alter</small><b>${esc(age(a.birth))}</b></div>
-   <div><small>Status</small><b>${esc(a.status||'-')}</b></div>
-   <div><small>Intervall</small><b>${esc(a.feedIntervalDays||a.feedingInterval||'-')} Tage</b></div>
+   <div>
+    <small>Gewicht</small>
+    <b>
+     ${
+      lw
+       ?esc(lw.weight)+' g'
+       :(a.weight?esc(a.weight)+' g':'-')
+     }
+    </b>
+   </div>
+
+   <div>
+    <small>Alter</small>
+    <b>${esc(age(a.birth))}</b>
+   </div>
+
+   <div>
+    <small>Status</small>
+    <b>${esc(a.status||'-')}</b>
+   </div>
+
+   <div>
+    <small>Intervall</small>
+    <b>
+     ${esc(a.feedIntervalDays||a.feedingInterval||'-')} Tage
+    </b>
+   </div>
   </div>
 
-  <div class="tc2ProfileBody">${body(a)}</div>
+  <div class="tc2ProfileBody">
+   ${body(a)}
+  </div>
  </div>`;
 }
 
@@ -285,7 +572,14 @@ function action(icon,label,onclick){
 
 function body(a){
  if(tab==='overview')return overview(a);
- if(tab==='life')return `<div class="subcard tc2SubCard"><h3>Chronik</h3>${NGTUI.list(NGTUI.timeline(a))}</div>`;
+
+ if(tab==='life'){
+  return `<div class="subcard tc2SubCard">
+   <h3>Chronik</h3>
+   ${NGTUI.list(NGTUI.timeline(a))}
+  </div>`;
+ }
+
  if(tab==='docs')return docs(a);
  if(tab==='feeds')return feedForm(a)+feedList(a);
  if(tab==='sheds')return shedForm()+shedList(a);
@@ -300,8 +594,16 @@ function body(a){
 
   return `<div class="subcard tc2SubCard">
    <h3>Digitaler Tierpass</h3>
-   <div class="qrBox"><div id="profileQr"></div></div>
-   <p class="muted">QR-Code enthält TerraControl-ID, Tierdaten und optional gekürzte Historie.</p>
+
+   <div class="qrBox">
+    <div id="profileQr"></div>
+   </div>
+
+   <p class="muted">
+    QR-Code enthält TerraControl-ID, Tierdaten und optional
+    gekürzte Historie.
+   </p>
+
    <textarea readonly>${esc(payload)}</textarea>
   </div>`;
  }
@@ -315,22 +617,84 @@ function overview(a){
  const lh=latest(a.health);
 
  return `<div class="tc2ProfileOverviewGrid">
-  <div><small>Fotos</small><b>${usablePhotos(a).length}</b></div>
-  <div><small>Fütterungen</small><b>${(a.feeds||[]).length}</b></div>
-  <div><small>Gewichte</small><b>${(a.weights||[]).length}</b></div>
-  <div><small>Gesundheit</small><b>${(a.health||[]).length}</b></div>
+  <div>
+   <small>Fotos</small>
+   <b>${usablePhotos(a).length}</b>
+  </div>
+
+  <div>
+   <small>Fütterungen</small>
+   <b>${(a.feeds||[]).length}</b>
+  </div>
+
+  <div>
+   <small>Gewichte</small>
+   <b>${(a.weights||[]).length}</b>
+  </div>
+
+  <div>
+   <small>Gesundheit</small>
+   <b>${(a.health||[]).length}</b>
+  </div>
  </div>
 
  <div class="subcard tc2SubCard">
   <h3>Zusammenfassung</h3>
 
   <div class="tc2InfoRows">
-   <div><b>TerraControl-ID</b><span>${esc(a.publicId||a.displayId||'-')}</span></div>
-   <div><b>Wissenschaftlich</b><span>${esc(sexCode(a.sex)+' '+scientificName(a))}</span></div>
-   <div><b>Letzte Fütterung</b><span>${lf?esc(lf.date)+' '+(lf.accepted===false?'verweigert':'gefressen'):'-'}</span></div>
-   <div><b>Gewicht</b><span>${lw?esc(lw.weight)+' g am '+esc(lw.date):'-'}</span></div>
-   <div><b>Gesundheit</b><span>${lh?esc(lh.date)+' '+esc(lh.title||lh.type):'-'}</span></div>
-   <div><b>Notizen</b><span>${esc(a.note||'-')}</span></div>
+   <div>
+    <b>TerraControl-ID</b>
+    <span>${esc(a.publicId||a.displayId||'-')}</span>
+   </div>
+
+   <div>
+    <b>Wissenschaftlich</b>
+    <span>
+     ${esc(sexCode(a.sex)+' '+scientificName(a))}
+    </span>
+   </div>
+
+   <div>
+    <b>Letzte Fütterung</b>
+    <span>
+     ${
+      lf
+       ?esc(lf.date)+' '+(
+        lf.accepted===false
+         ?'verweigert'
+         :'gefressen'
+       )
+       :'-'
+     }
+    </span>
+   </div>
+
+   <div>
+    <b>Gewicht</b>
+    <span>
+     ${
+      lw
+       ?esc(lw.weight)+' g am '+esc(lw.date)
+       :'-'
+     }
+    </span>
+   </div>
+
+   <div>
+    <b>Gesundheit</b>
+    <span>
+     ${
+      lh
+       ?esc(lh.date)+' '+esc(lh.title||lh.type)
+       :'-'
+     }
+    </span>
+   </div>
+
+   <div>
+    <b>Notizen</b>
+    <span>${esc(a.note||'-')}</span>
+   </div>
   </div>
  </div>
 
@@ -341,71 +705,122 @@ function overview(a){
 }
 
 function docs(a){
- const uid=encodeURIComponent(a.uuid||a.uid||'');
+ const uid=encodeURIComponent(
+  a.uuid||
+  a.uid||
+  ''
+ );
 
  return `<div class="subcard tc2SubCard">
   <h3>Dokumentencenter</h3>
 
   <div class="btnRow">
-   <button onclick="location.href='./abgabe.html?id=${uid}'">Abgabenachweis / PDF</button>
-   <button onclick="NGTProfile.setTab('qr')">Digitaler Tierpass QR</button>
+   <button onclick="location.href='./abgabe.html?id=${uid}'">
+    Abgabenachweis / PDF
+   </button>
+
+   <button onclick="NGTProfile.setTab('qr')">
+    Digitaler Tierpass QR
+   </button>
   </div>
 
-  <p class="muted">Später kommen hier Herkunftsnachweise, CITES/Artenschutz-Dokumente und Verkaufsunterlagen hinzu.</p>
+  <p class="muted">
+   Später kommen hier Herkunftsnachweise,
+   CITES/Artenschutz-Dokumente und Verkaufsunterlagen hinzu.
+  </p>
  </div>`;
 }
 
 function feedForm(a){
- const p=NGTStore.parseFeeder(a.defaultFeeder||'');
- const state=a.defaultFeederState||p.state||'Frost';
- const type=a.defaultFeederType||p.prey||'Ratte';
- const size=a.defaultFeederSize||p.size||((NGTStore.FEEDER_SIZES[type]||[])[0]||'');
+ const items=normalizedFoodInventory();
+ const selectedId=defaultFoodId(a);
+
+ if(!items.length){
+  return `<div class="subcard tc2SubCard warn">
+   <h3>Fütterung eintragen</h3>
+
+   <p class="muted">
+    Es ist noch kein dynamischer Futterbestand vorhanden.
+    Lege zuerst unter „Futterbestand“ eine Position an.
+   </p>
+
+   <button onclick="NGT500.route('food')">
+    Futterbestand öffnen
+   </button>
+  </div>`;
+ }
 
  return `<div class="subcard tc2SubCard">
   <h3>Fütterung eintragen</h3>
 
-  <input id="feedDate" type="date" value="${NGT500.today()}">
+  <input
+   id="feedDate"
+   type="date"
+   value="${NGT500.today()}"
+  >
 
-  <div class="btnRow">
-   <button type="button" id="feedBtnFrost" onclick="NGTProfile.setFeedState('Frost')">Frost</button>
-   <button type="button" id="feedBtnLebend" onclick="NGTProfile.setFeedState('Lebend')">Lebend</button>
-  </div>
+  <label>
+   <span>Futterposition</span>
 
-  <input id="feedState" type="hidden" value="${esc(state)}">
-
-  <select id="feedType" onchange="NGTProfile.refreshFeedSizes()">
-   ${opt(NGTStore.FEEDER_TYPES,type)}
-  </select>
-
-  <select id="feedSize">
-   ${opt(NGTStore.FEEDER_SIZES[type]||[],size)}
-  </select>
+   <select
+    id="feedInventoryId"
+    onchange="NGTProfile.updateFeedStockStatus()"
+   >
+    ${foodOptions(a)}
+   </select>
+  </label>
 
   <select id="feedStatus">
    <option value="ok">Gefressen</option>
    <option value="no">Verweigert</option>
   </select>
 
-  <p class="muted">Standard: ${esc(a.defaultFeeder||'kein Standardfutter')}</p>
+  <div
+   id="feedStockStatus"
+   class="subcard"
+  ></div>
 
-  <button onclick="NGTProfile.addFeed()">Fütterung speichern</button>
+  <button onclick="NGTProfile.addFeed()">
+   Fütterung speichern
+  </button>
  </div>`;
 }
 
 function shedForm(){
  return `<div class="subcard tc2SubCard">
   <h3>Häutung eintragen</h3>
-  <input id="shedDate" type="date" value="${NGT500.today()}">
-  <button onclick="NGTProfile.addShed()">Häutung speichern</button>
+
+  <input
+   id="shedDate"
+   type="date"
+   value="${NGT500.today()}"
+  >
+
+  <button onclick="NGTProfile.addShed()">
+   Häutung speichern
+  </button>
  </div>`;
 }
 
 function weightForm(){
  return `<div class="subcard tc2SubCard">
   <h3>Gewicht eintragen</h3>
-  <input id="weightDate" type="date" value="${NGT500.today()}">
-  <input id="weightValue" type="number" placeholder="Gewicht in g">
-  <button onclick="NGTProfile.addWeight()">Gewicht speichern</button>
+
+  <input
+   id="weightDate"
+   type="date"
+   value="${NGT500.today()}"
+  >
+
+  <input
+   id="weightValue"
+   type="number"
+   placeholder="Gewicht in g"
+  >
+
+  <button onclick="NGTProfile.addWeight()">
+   Gewicht speichern
+  </button>
  </div>`;
 }
 
@@ -416,7 +831,9 @@ function row(d,txt,del){
    <small>${esc(txt||'')}</small>
   </div>
 
-  <button class="danger" onclick="${del}">Löschen</button>
+  <button class="danger" onclick="${del}">
+   Löschen
+  </button>
  </div>`;
 }
 
@@ -424,15 +841,29 @@ function feedList(a){
  return `<div class="subcard tc2SubCard">
   <h3>Fütterungen</h3>
 
-  ${(a.feeds||[])
-   .map((f,i)=>({f,i}))
-   .reverse()
-   .map(x=>row(
-    x.f.date,
-    `${x.f.accepted===false?'Verweigert':'Gefressen'} ${x.f.state?x.f.state+' ':''}${x.f.prey||''} ${x.f.size||((x.f.amount||'')?x.f.amount+' g':'')}`,
-    `NGTProfile.deleteEntry('feeds',${x.i})`
-   ))
-   .join('')||'<p class="muted">Keine Fütterungen.</p>'}
+  ${
+   (a.feeds||[])
+    .map((f,i)=>({f,i}))
+    .reverse()
+    .map(x=>row(
+     x.f.date,
+     `${
+      x.f.accepted===false
+       ?'Verweigert'
+       :'Gefressen'
+     } ${
+      x.f.label||
+      [
+       x.f.state,
+       x.f.prey,
+       x.f.size
+      ].filter(Boolean).join(' ')
+     }`,
+     `NGTProfile.deleteEntry('feeds',${x.i})`
+    ))
+    .join('')||
+   '<p class="muted">Keine Fütterungen.</p>'
+  }
  </div>`;
 }
 
@@ -440,15 +871,18 @@ function shedList(a){
  return `<div class="subcard tc2SubCard">
   <h3>Häutungen</h3>
 
-  ${(a.sheds||[])
-   .map((entry,i)=>({entry,i}))
-   .reverse()
-   .map(x=>row(
-    x.entry.date,
-    'Häutung',
-    `NGTProfile.deleteEntry('sheds',${x.i})`
-   ))
-   .join('')||'<p class="muted">Keine Häutungen.</p>'}
+  ${
+   (a.sheds||[])
+    .map((entry,i)=>({entry,i}))
+    .reverse()
+    .map(x=>row(
+     x.entry.date,
+     'Häutung',
+     `NGTProfile.deleteEntry('sheds',${x.i})`
+    ))
+    .join('')||
+   '<p class="muted">Keine Häutungen.</p>'
+  }
  </div>`;
 }
 
@@ -456,15 +890,18 @@ function weightList(a){
  return `<div class="subcard tc2SubCard">
   <h3>Gewichte</h3>
 
-  ${(a.weights||[])
-   .map((entry,i)=>({entry,i}))
-   .reverse()
-   .map(x=>row(
-    x.entry.date,
-    x.entry.weight+'g',
-    `NGTProfile.deleteEntry('weights',${x.i})`
-   ))
-   .join('')||'<p class="muted">Keine Gewichte.</p>'}
+  ${
+   (a.weights||[])
+    .map((entry,i)=>({entry,i}))
+    .reverse()
+    .map(x=>row(
+     x.entry.date,
+     x.entry.weight+'g',
+     `NGTProfile.deleteEntry('weights',${x.i})`
+    ))
+    .join('')||
+   '<p class="muted">Keine Gewichte.</p>'
+  }
  </div>`;
 }
 
@@ -473,9 +910,20 @@ function photos(a){
 
  return `${legacy?`<div class="subcard tc2SubCard warn">
   <h3>Alte Fotos migrieren</h3>
-  <p class="muted">Dieses Tier enthält noch eingebettete Base64-Fotos. Migriere sie in den dauerhaften Foto-Speicher.</p>
-  <button onclick="NGTProfile.migratePhotos()">Fotos jetzt migrieren</button>
-  <div id="photoMigrationStatus" class="muted"></div>
+
+  <p class="muted">
+   Dieses Tier enthält noch eingebettete Base64-Fotos.
+   Migriere sie in den dauerhaften Foto-Speicher.
+  </p>
+
+  <button onclick="NGTProfile.migratePhotos()">
+   Fotos jetzt migrieren
+  </button>
+
+  <div
+   id="photoMigrationStatus"
+   class="muted"
+  ></div>
  </div>`:''}
 
  <div class="subcard tc2SubCard">
@@ -498,9 +946,15 @@ function photos(a){
    <option>Sonstige</option>
   </select>
 
-  <input id="photoNote" placeholder="Notiz zum Foto">
+  <input
+   id="photoNote"
+   placeholder="Notiz zum Foto"
+  >
 
-  <p id="photoUploadStatus" class="muted">
+  <p
+   id="photoUploadStatus"
+   class="muted"
+  >
    Fotos werden dauerhaft in Firebase Storage gespeichert.
   </p>
  </div>`+
@@ -509,15 +963,16 @@ function photos(a){
   const img=photoSrc(photo,true);
 
   return `<div class="subcard tc2SubCard">
-   ${img
-    ?`<img
-      class="photo"
-      src="${esc(img)}"
-      alt="Tierfoto"
-      loading="lazy"
-      onclick="NGTProfile.openPhoto(${index})"
-     >`
-    :`<div class="tc2ProfileHeroEmpty">📷</div>`
+   ${
+    img
+     ?`<img
+       class="photo"
+       src="${esc(img)}"
+       alt="Tierfoto"
+       loading="lazy"
+       onclick="NGTProfile.openPhoto(${index})"
+      >`
+     :'<div class="tc2ProfileHeroEmpty">📷</div>'
    }
 
    <b>${esc(photo.date||'')}</b>
@@ -529,9 +984,24 @@ function photos(a){
    ${esc(photo.note||'')}
 
    <div class="btnRow">
-    ${img?`<button onclick="NGTProfile.openPhoto(${index})">Vollbild</button>`:''}
-    <button onclick="NGTProfile.setCover(${index})">Als Titelbild</button>
-    <button class="danger" onclick="NGTProfile.deletePhoto(${index})">Foto löschen</button>
+    ${
+     img
+      ?`<button onclick="NGTProfile.openPhoto(${index})">
+        Vollbild
+       </button>`
+      :''
+    }
+
+    <button onclick="NGTProfile.setCover(${index})">
+     Als Titelbild
+    </button>
+
+    <button
+     class="danger"
+     onclick="NGTProfile.deletePhoto(${index})"
+    >
+     Foto löschen
+    </button>
    </div>
   </div>`;
  }).join('');
@@ -544,19 +1014,39 @@ function health(a){
     .map((entry,i)=>({entry,i}))
     .reverse()
     .map(x=>`<div class="subcard tc2SubCard">
-     <b>${esc(x.entry.date||'-')} · ${esc(x.entry.type||'Gesundheit')}</b>
+     <b>
+      ${esc(x.entry.date||'-')}
+      ·
+      ${esc(x.entry.type||'Gesundheit')}
+     </b>
+
      <br>
+
      ${esc(x.entry.title||'')}
+
      <br>
-     ${esc(x.entry.medication||'')} ${esc(x.entry.dose||'')} ${esc(x.entry.duration||'')}
+
+     ${esc(x.entry.medication||'')}
+     ${esc(x.entry.dose||'')}
+     ${esc(x.entry.duration||'')}
+
      <br>
+
      Status: ${esc(x.entry.status||'-')}
+
      <br>
+
      ${esc(x.entry.note||'')}
-     <button class="danger" onclick="NGTProfile.deleteEntry('health',${x.i})">Eintrag löschen</button>
+
+     <button
+      class="danger"
+      onclick="NGTProfile.deleteEntry('health',${x.i})"
+     >
+      Eintrag löschen
+     </button>
     </div>`)
-    .join('')
-   ||'<p class="muted">Keine Gesundheitsdaten.</p>'
+    .join('')||
+   '<p class="muted">Keine Gesundheitsdaten.</p>'
   );
 }
 
@@ -564,7 +1054,11 @@ function healthForm(){
  return `<div class="subcard tc2SubCard">
   <h3>Gesundheits-Eintrag</h3>
 
-  <input id="healthDate" type="date" value="${NGT500.today()}">
+  <input
+   id="healthDate"
+   type="date"
+   value="${NGT500.today()}"
+  >
 
   <select id="healthType">
    <option>Tierarzt</option>
@@ -580,10 +1074,25 @@ function healthForm(){
    <option>Notiz</option>
   </select>
 
-  <input id="healthTitle" placeholder="Titel / Diagnose">
-  <input id="healthMedication" placeholder="Medikament">
-  <input id="healthDose" placeholder="Dosierung">
-  <input id="healthDuration" placeholder="Dauer">
+  <input
+   id="healthTitle"
+   placeholder="Titel / Diagnose"
+  >
+
+  <input
+   id="healthMedication"
+   placeholder="Medikament"
+  >
+
+  <input
+   id="healthDose"
+   placeholder="Dosierung"
+  >
+
+  <input
+   id="healthDuration"
+   placeholder="Dauer"
+  >
 
   <select id="healthStatus">
    <option>offen</option>
@@ -591,20 +1100,43 @@ function healthForm(){
    <option>abgeschlossen</option>
   </select>
 
-  <textarea id="healthNote" placeholder="Notizen"></textarea>
+  <textarea
+   id="healthNote"
+   placeholder="Notizen"
+  ></textarea>
 
-  <button onclick="NGTProfile.addHealth()">Gesundheit speichern</button>
+  <button onclick="NGTProfile.addHealth()">
+   Gesundheit speichern
+  </button>
  </div>`;
 }
 
 function barChart(rows){
- if(!rows.length)return '<p class="muted">Keine Daten.</p>';
+ if(!rows.length){
+  return '<p class="muted">Keine Daten.</p>';
+ }
 
- const max=Math.max(...rows.map(r=>Number(r.value||0)),1);
+ const max=Math.max(
+  ...rows.map(r=>Number(r.value||0)),
+  1
+ );
 
  return rows.map(r=>`<div class="tc2Bar">
   <small>${esc(r.label||'-')}</small>
-  <span><i style="width:${Math.max(4,Math.round((Number(r.value||0)/max)*100))}%"></i></span>
+
+  <span>
+   <i
+    style="width:${
+     Math.max(
+      4,
+      Math.round(
+       (Number(r.value||0)/max)*100
+      )
+     )
+    }%"
+   ></i>
+  </span>
+
   <b>${esc(r.value)}</b>
  </div>`).join('');
 }
@@ -612,6 +1144,7 @@ function barChart(rows){
 function charts(a){
  return `<div class="subcard tc2SubCard">
   <h3>Gewicht</h3>
+
   ${barChart((a.weights||[]).map(w=>({
    label:w.date,
    value:Number(w.weight||0)
@@ -620,6 +1153,7 @@ function charts(a){
 
  <div class="subcard tc2SubCard">
   <h3>Fütterungen</h3>
+
   ${barChart((a.feeds||[]).map(f=>({
    label:f.date,
    value:f.accepted===false?0:1
@@ -628,25 +1162,49 @@ function charts(a){
 }
 
 function analysis(a){
- const refused=(a.feeds||[]).filter(f=>f.accepted===false).length;
- const accepted=(a.feeds||[]).filter(f=>f.accepted!==false).length;
+ const refused=(a.feeds||[])
+  .filter(f=>f.accepted===false)
+  .length;
+
+ const accepted=(a.feeds||[])
+  .filter(f=>f.accepted!==false)
+  .length;
+
  const first=(a.weights||[])[0];
  const last=(a.weights||[]).slice(-1)[0];
 
  let diff='-';
 
  if(first&&last&&first!==last){
-  diff=(Number(last.weight)-Number(first.weight))+'g';
+  diff=(
+   Number(last.weight)-
+   Number(first.weight)
+  )+'g';
  }
 
  return `<div class="subcard tc2SubCard">
   <h3>Analyse</h3>
 
   <div class="tc2InfoRows">
-   <div><b>Gefressen</b><span>${accepted}</span></div>
-   <div><b>Verweigert</b><span>${refused}</span></div>
-   <div><b>Gewichtsveränderung</b><span>${esc(diff)}</span></div>
-   <div><b>Status</b><span>${esc(healthStatus(a).txt)}</span></div>
+   <div>
+    <b>Gefressen</b>
+    <span>${accepted}</span>
+   </div>
+
+   <div>
+    <b>Verweigert</b>
+    <span>${refused}</span>
+   </div>
+
+   <div>
+    <b>Gewichtsveränderung</b>
+    <span>${esc(diff)}</span>
+   </div>
+
+   <div>
+    <b>Status</b>
+    <span>${esc(healthStatus(a).txt)}</span>
+   </div>
   </div>
  </div>`;
 }
@@ -663,55 +1221,116 @@ function setTab(x){
  });
 }
 
-function setFeedState(state){
- const el=document.getElementById('feedState');
+function updateFeedStockStatus(){
+ const select=document.getElementById('feedInventoryId');
+ const box=document.getElementById('feedStockStatus');
 
- if(el)el.value=state;
+ if(!select||!box)return;
 
- ['Frost','Lebend'].forEach(function(value){
-  const button=document.getElementById('feedBtn'+value);
+ const item=foodById(select.value);
 
-  if(button){
-   button.classList.toggle('primary',value===state);
+ if(!item){
+  box.className='subcard danger';
+  box.innerHTML='<b>Keine Futterposition ausgewählt.</b>';
+  return;
+ }
+
+ const qty=Number(item.qty||0);
+ const minimum=Number(item.minimum||0);
+ const unit=item.unit||'Stück';
+
+ let cls='ok';
+ let title='Bestand ausreichend';
+
+ if(qty<=0){
+  cls='danger';
+  title='Bestand leer';
+ }else if(minimum>0&&qty<=minimum){
+  cls='warn';
+  title='Mindestbestand erreicht';
+ }
+
+ box.className='subcard '+cls;
+
+ box.innerHTML=`
+  <b>${esc(title)}</b>
+  <br>
+  ${esc(foodLabel(item))}
+  · ${qty} ${esc(unit)} vorhanden
+  ${
+   minimum>0
+    ?'· Mindestbestand '+minimum+' '+esc(unit)
+    :''
   }
- });
-}
-
-function refreshFeedSizes(){
- const type=document.getElementById('feedType').value;
- const size=document.getElementById('feedSize');
-
- size.innerHTML=(NGTStore.FEEDER_SIZES[type]||[])
-  .map(v=>`<option value="${esc(v)}">${esc(v)}</option>`)
-  .join('');
+ `;
 }
 
 function addFeed(){
  const a=current();
- const state=document.getElementById('feedState')?.value||a.defaultFeederState||'Frost';
- const type=document.getElementById('feedType')?.value||a.defaultFeederType||'Ratte';
- const size=document.getElementById('feedSize')?.value||a.defaultFeederSize||'';
- const label=NGTStore.feederLabel(state,type,size);
- const p=NGTStore.parseFeeder(label);
+ const select=document.getElementById('feedInventoryId');
+
+ if(!select||!select.value){
+  alert('Bitte eine Futterposition auswählen.');
+  return;
+ }
+
+ const item=foodById(select.value);
+
+ if(!item){
+  alert('Die ausgewählte Futterposition wurde nicht gefunden.');
+  return;
+ }
+
+ const accepted=
+  document.getElementById('feedStatus').value!=='no';
+
+ const qty=Number(item.qty||0);
+
+ if(accepted&&qty<=0){
+  alert(
+   'Dieser Futterbestand ist leer. Die Fütterung kann nicht als gefressen gespeichert werden.'
+  );
+  return;
+ }
+
+ if(
+  accepted&&
+  qty===1&&
+  !confirm(
+   'Dies ist das letzte verfügbare Futtertier dieser Position. Fütterung trotzdem speichern?'
+  )
+ ){
+  return;
+ }
 
  a.feeds=a.feeds||[];
 
  a.feeds.push({
-  date:document.getElementById('feedDate').value||NGT500.today(),
-  state:p.state,
-  prey:p.prey,
-  size:p.size,
-  amount:p.amount,
-  label:p.label,
-  accepted:document.getElementById('feedStatus').value!=='no'
+  id:NGT500.uid(),
+  date:
+   document.getElementById('feedDate').value||
+   NGT500.today(),
+  foodInventoryId:item.id,
+  category:item.category,
+  state:item.condition,
+  condition:item.condition,
+  prey:item.itemName,
+  size:item.variant,
+  variant:item.variant,
+  unit:item.unit,
+  amount:1,
+  label:foodLabel(item),
+  accepted:accepted
  });
 
- if(p.label){
-  NGTStore.reduceFood(p.label,1);
- }else{
-  NGTStore.save();
+ if(accepted){
+  item.qty=Math.max(
+   0,
+   Number(item.qty||0)-1
+  );
  }
 
+ NGTStore.save();
  setTab('feeds');
 }
 
@@ -721,7 +1340,9 @@ function addShed(){
  a.sheds=a.sheds||[];
 
  a.sheds.push({
-  date:document.getElementById('shedDate').value||NGT500.today(),
+  date:
+   document.getElementById('shedDate').value||
+   NGT500.today(),
   complete:true
  });
 
@@ -731,7 +1352,11 @@ function addShed(){
 
 function addWeight(){
  const a=current();
- const weight=Number(document.getElementById('weightValue').value||0);
+
+ const weight=Number(
+  document.getElementById('weightValue').value||
+  0
+ );
 
  if(!weight){
   alert('Gewicht fehlt');
@@ -741,7 +1366,9 @@ function addWeight(){
  a.weights=a.weights||[];
 
  a.weights.push({
-  date:document.getElementById('weightDate').value||NGT500.today(),
+  date:
+   document.getElementById('weightDate').value||
+   NGT500.today(),
   weight:weight
  });
 
@@ -758,14 +1385,23 @@ function addHealth(){
 
  a.health.push({
   id:NGT500.uid(),
-  date:document.getElementById('healthDate').value||NGT500.today(),
-  type:document.getElementById('healthType').value,
-  title:document.getElementById('healthTitle').value,
-  medication:document.getElementById('healthMedication').value,
-  dose:document.getElementById('healthDose').value,
-  duration:document.getElementById('healthDuration').value,
-  status:document.getElementById('healthStatus').value,
-  note:document.getElementById('healthNote').value
+  date:
+   document.getElementById('healthDate').value||
+   NGT500.today(),
+  type:
+   document.getElementById('healthType').value,
+  title:
+   document.getElementById('healthTitle').value,
+  medication:
+   document.getElementById('healthMedication').value,
+  dose:
+   document.getElementById('healthDose').value,
+  duration:
+   document.getElementById('healthDuration').value,
+  status:
+   document.getElementById('healthStatus').value,
+  note:
+   document.getElementById('healthNote').value
  });
 
  NGTStore.save();
@@ -800,7 +1436,10 @@ function setPhotoUploadStatus(message,isError){
 async function addPhoto(file){
  if(!file)return;
 
- if(!window.NGTPhotoStorage||!NGTPhotoStorage.upload){
+ if(
+  !window.NGTPhotoStorage||
+  !NGTPhotoStorage.upload
+ ){
   alert('Foto-Speicher ist noch nicht geladen.');
   return;
  }
@@ -822,18 +1461,30 @@ async function addPhoto(file){
 
   const meta={
    date:NGT500.today(),
-   type:document.getElementById('photoType')?.value||'Sonstige',
-   note:document.getElementById('photoNote')?.value||'',
+   type:
+    document.getElementById('photoType')?.value||
+    'Sonstige',
+   note:
+    document.getElementById('photoNote')?.value||
+    '',
    cover:!profilePhoto(a)
   };
 
-  const saved=await NGTPhotoStorage.upload(file,a,meta);
+  const saved=await NGTPhotoStorage.upload(
+   file,
+   a,
+   meta
+  );
 
   a.photos.push(saved);
 
-  if(!a.photos.some(function(photo){
-   return photo&&photo.cover&&isUsablePhoto(photo);
-  })){
+  if(
+   !a.photos.some(function(photo){
+    return photo&&
+     photo.cover&&
+     isUsablePhoto(photo);
+   })
+  ){
    saved.cover=true;
   }
 
@@ -865,7 +1516,10 @@ async function addPhoto(file){
 }
 
 async function migratePhotos(){
- if(!window.NGTPhotoStorage||!NGTPhotoStorage.migrateAnimal){
+ if(
+  !window.NGTPhotoStorage||
+  !NGTPhotoStorage.migrateAnimal
+ ){
   alert('Foto-Migration ist noch nicht geladen.');
   return;
  }
@@ -878,20 +1532,31 @@ async function migratePhotos(){
   return;
  }
 
- const status=document.getElementById('photoMigrationStatus');
+ const status=document.getElementById(
+  'photoMigrationStatus'
+ );
 
  if(status){
   status.textContent='Migration läuft …';
  }
 
  try{
-  const res=await NGTPhotoStorage.migrateAnimal(a,function(info){
-   const el=document.getElementById('photoMigrationStatus');
+  const res=await NGTPhotoStorage.migrateAnimal(
+   a,
+   function(info){
+    const el=document.getElementById(
+     'photoMigrationStatus'
+    );
 
-   if(el){
-    el.textContent='Migriert: '+info.count+' / '+(info.total||info.count);
+    if(el){
+     el.textContent=
+      'Migriert: '+
+      info.count+
+      ' / '+
+      (info.total||info.count);
+    }
    }
-  });
+  );
 
   if(res.changed){
    const selected=profilePhoto(a);
@@ -899,7 +1564,9 @@ async function migratePhotos(){
    if(
     selected&&
     !a.photos.some(function(photo){
-     return photo&&photo.cover&&isUsablePhoto(photo);
+     return photo&&
+      photo.cover&&
+      isUsablePhoto(photo);
     })
    ){
     selected.cover=true;
@@ -927,7 +1594,9 @@ function setCover(i){
  const selected=(a.photos||[])[i];
 
  if(!selected||!isUsablePhoto(selected)){
-  alert('Dieses Foto kann nicht als Titelbild verwendet werden.');
+  alert(
+   'Dieses Foto kann nicht als Titelbild verwendet werden.'
+  );
   return;
  }
 
@@ -961,7 +1630,9 @@ async function deletePhoto(i){
   if(
    a.photos.length&&
    !a.photos.some(function(entry){
-    return entry&&entry.cover&&isUsablePhoto(entry);
+    return entry&&
+     entry.cover&&
+     isUsablePhoto(entry);
    })
   ){
    const next=profilePhoto(a);
@@ -1017,7 +1688,9 @@ function openPhoto(index){
 function usablePhotoIndexes(a){
  return (a.photos||[])
   .map(function(photo,index){
-   return isUsablePhoto(photo)?index:-1;
+   return isUsablePhoto(photo)
+    ?index
+    :-1;
   })
   .filter(function(index){
    return index>=0;
@@ -1037,7 +1710,10 @@ function renderPhotoViewer(){
   return;
  }
 
- const source=photoSrc(photo,false)||photoSrc(photo,true);
+ const source=
+  photoSrc(photo,false)||
+  photoSrc(photo,true);
+
  const position=indexes.indexOf(viewerIndex);
  const multiple=indexes.length>1;
  const root=document.getElementById('modalRoot');
@@ -1076,7 +1752,9 @@ function renderPhotoViewer(){
     color:white;
     z-index:3;
    "
-  >×</button>
+  >
+   ×
+  </button>
 
   ${multiple?`<button
    onclick="NGTProfile.previousPhoto()"
@@ -1095,7 +1773,9 @@ function renderPhotoViewer(){
     color:white;
     z-index:3;
    "
-  >‹</button>`:''}
+  >
+   ‹
+  </button>`:''}
 
   <img
    src="${esc(source)}"
@@ -1127,25 +1807,47 @@ function renderPhotoViewer(){
     color:white;
     z-index:3;
    "
-  >›</button>`:''}
+  >
+   ›
+  </button>`:''}
 
-  <div style="margin-top:14px;max-width:680px;text-align:center;color:white;">
+  <div
+   style="
+    margin-top:14px;
+    max-width:680px;
+    text-align:center;
+    color:white;
+   "
+  >
    <b>${esc(photo.type||'Foto')}</b>
    ${photo.cover?' · Titelbild':''}
 
    <div style="opacity:.72;margin-top:4px;">
     ${esc(photo.date||'')}
-    ${multiple?' · '+(position+1)+' / '+indexes.length:''}
+    ${
+     multiple
+      ?' · '+(position+1)+' / '+indexes.length
+      :''
+    }
    </div>
 
-   ${photo.note?`<div style="margin-top:8px;">${esc(photo.note)}</div>`:''}
+   ${
+    photo.note
+     ?`<div style="margin-top:8px;">
+       ${esc(photo.note)}
+      </div>`
+     :''
+   }
   </div>
  </div>`;
 
  document.body.style.overflow='hidden';
 
  if(viewerKeyHandler){
-  document.removeEventListener('keydown',viewerKeyHandler);
+  document.removeEventListener(
+   'keydown',
+   viewerKeyHandler
+  );
  }
 
  viewerKeyHandler=function(event){
@@ -1162,7 +1864,10 @@ function renderPhotoViewer(){
   }
  };
 
- document.addEventListener('keydown',viewerKeyHandler);
+ document.addEventListener(
+  'keydown',
+  viewerKeyHandler
+ );
 }
 
 function adjacentPhoto(direction){
@@ -1187,6 +1892,7 @@ function adjacentPhoto(direction){
  )%indexes.length;
 
  viewerIndex=indexes[position];
+
  renderPhotoViewer();
 }
 
@@ -1209,7 +1915,11 @@ function closePhotoViewer(){
  viewerIndex=-1;
 
  if(viewerKeyHandler){
-  document.removeEventListener('keydown',viewerKeyHandler);
+  document.removeEventListener(
+   'keydown',
+   viewerKeyHandler
+  );
+
   viewerKeyHandler=null;
  }
 }
@@ -1218,9 +1928,7 @@ function afterRender(){
  const a=current();
 
  if(tab==='feeds'){
-  setFeedState(
-   document.getElementById('feedState')?.value||'Frost'
-  );
+  updateFeedStockStatus();
  }
 
  if(tab==='qr'&&a&&window.QRCode){
@@ -1271,8 +1979,7 @@ window.NGTProfile={
  addWeight,
  addHealth,
  deleteEntry,
- setFeedState,
- refreshFeedSizes
+ updateFeedStockStatus
 };
 
 NGT500.register('profile',{
