@@ -9548,3 +9548,394 @@ body:not(.tc2RefMode) .wrap {
   grid-template-columns:1fr;
  }
 }
+/* =========================================================
+   TC2 ACCOUNT / CLOUD
+   ========================================================= */
+
+.tc2Account{
+ display:flex;
+ flex-direction:column;
+ gap:16px;
+ width:100%;
+ max-width:100%;
+}
+
+.tc2Account *,
+.tc2Account *::before,
+.tc2Account *::after{
+ box-sizing:border-box;
+}
+
+/* Hero */
+
+.tc2AccountHero{
+ position:relative;
+ overflow:hidden;
+ padding:21px;
+ border-radius:25px;
+ background:
+  radial-gradient(
+   circle at 100% 0,
+   rgba(105,210,196,.15),
+   transparent 43%
+  ),
+  linear-gradient(
+   145deg,
+   rgba(28,61,69,.98),
+   rgba(13,29,42,.99)
+  );
+ border:1px solid rgba(105,210,196,.32);
+ box-shadow:0 17px 38px rgba(0,0,0,.22);
+}
+
+.tc2AccountHero::after{
+ content:"";
+ position:absolute;
+ right:-42px;
+ bottom:-66px;
+ width:160px;
+ height:160px;
+ border-radius:50%;
+ background:rgba(105,210,196,.055);
+ pointer-events:none;
+}
+
+.tc2AccountHero>div{
+ position:relative;
+ z-index:1;
+}
+
+.tc2AccountHero h2{
+ margin:0 0 7px!important;
+ font-size:28px!important;
+ line-height:1.1;
+}
+
+.tc2AccountHero p{
+ margin:0;
+ color:#bdc8d2;
+ line-height:1.48;
+}
+
+/* Profilkarte */
+
+.tc2AccountProfile{
+ display:grid;
+ grid-template-columns:68px minmax(0,1fr);
+ align-items:center;
+ gap:15px;
+ padding:18px;
+ border-radius:23px;
+ background:
+  radial-gradient(
+   circle at 100% 0,
+   rgba(139,220,63,.09),
+   transparent 43%
+  ),
+  linear-gradient(
+   180deg,
+   rgba(24,45,62,.98),
+   rgba(14,30,43,.99)
+  );
+ border:1px solid rgba(105,210,196,.29);
+ box-shadow:0 14px 31px rgba(0,0,0,.18);
+}
+
+.tc2AccountProfile>img,
+.tc2AccountAvatar{
+ display:grid;
+ place-items:center;
+ width:68px;
+ height:68px;
+ border-radius:21px;
+ border:1px solid rgba(255,255,255,.1);
+ box-shadow:0 11px 25px rgba(0,0,0,.22);
+}
+
+.tc2AccountProfile>img{
+ object-fit:cover;
+ background:#071521;
+}
+
+.tc2AccountAvatar{
+ color:#071521;
+ background:
+  linear-gradient(
+   135deg,
+   #69d2c4,
+   #8bdc3f
+  );
+ font-size:21px;
+ font-weight:950;
+}
+
+.tc2AccountProfile>div:last-child{
+ display:flex;
+ flex-direction:column;
+ gap:5px;
+ min-width:0;
+}
+
+.tc2AccountProfile b{
+ color:#9ef08f;
+ font-size:11px;
+ text-transform:uppercase;
+ letter-spacing:.45px;
+}
+
+.tc2AccountProfile strong{
+ overflow:hidden;
+ color:#f4f7fb;
+ font-size:19px;
+ line-height:1.25;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.tc2AccountProfile span{
+ color:#aeb9c4;
+ font-size:12px;
+ line-height:1.4;
+ overflow-wrap:anywhere;
+}
+
+/* Karten */
+
+.tc2AccountCard{
+ padding:18px;
+ border-radius:23px;
+ background:
+  linear-gradient(
+   180deg,
+   rgba(24,45,62,.98),
+   rgba(14,30,43,.99)
+  );
+ border:1px solid rgba(125,170,210,.24);
+ box-shadow:0 14px 31px rgba(0,0,0,.18);
+}
+
+.tc2AccountHead{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ margin-bottom:14px;
+ padding-bottom:11px;
+ border-bottom:1px solid rgba(255,255,255,.065);
+}
+
+.tc2AccountHead h3{
+ margin:0!important;
+ font-size:19px!important;
+}
+
+.tc2AccountCard>p{
+ margin:0 0 14px;
+ color:#aeb9c4;
+ font-size:12px;
+ line-height:1.55;
+}
+
+/* Informationszeilen */
+
+.tc2AccountRows{
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+ margin-bottom:14px;
+ border-radius:17px;
+ background:rgba(5,17,27,.28);
+ border:1px solid rgba(125,170,210,.18);
+}
+
+.tc2AccountRows>div{
+ display:grid;
+ grid-template-columns:minmax(110px,.8fr) minmax(0,1.2fr);
+ align-items:center;
+ gap:12px;
+ min-height:52px;
+ padding:11px 13px;
+ border-bottom:1px solid rgba(255,255,255,.055);
+}
+
+.tc2AccountRows>div:last-child{
+ border-bottom:0;
+}
+
+.tc2AccountRows span{
+ color:#aeb9c4;
+ font-size:12px;
+ line-height:1.35;
+}
+
+.tc2AccountRows b{
+ min-width:0;
+ color:#f4f7fb;
+ font-size:12px;
+ line-height:1.4;
+ text-align:right;
+ overflow-wrap:anywhere;
+}
+
+/* Cloudkarte */
+
+.tc2AccountCard:first-of-type{
+ border-color:rgba(105,210,196,.3);
+}
+
+.tc2AccountCard:first-of-type .tc2AccountRows>div:first-child b{
+ color:#cffff2;
+}
+
+/* Aktionen */
+
+.tc2AccountActions{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px;
+}
+
+.tc2AccountActions button{
+ min-width:0;
+ min-height:47px;
+ margin:0!important;
+ padding:9px 11px!important;
+ border-radius:15px!important;
+ color:#dce7ef!important;
+ background:rgba(20,42,58,.97)!important;
+ border:1px solid rgba(125,170,210,.28)!important;
+ box-shadow:none!important;
+ font-size:12px!important;
+ font-weight:850!important;
+}
+
+.tc2AccountActions button:first-child{
+ color:#071521!important;
+ background:
+  linear-gradient(
+   135deg,
+   #69d2c4,
+   #8bdc3f
+  )!important;
+ border:0!important;
+ font-weight:900!important;
+}
+
+.tc2AccountActions button:hover{
+ transform:translateY(-1px);
+ filter:brightness(1.04);
+}
+
+/* Versteckter Datei-Input */
+
+#accountRestoreFile{
+ display:none!important;
+}
+
+/* Gefahrbereich */
+
+.tc2AccountCard:last-child{
+ border-color:rgba(224,108,117,.32);
+ background:
+  linear-gradient(
+   145deg,
+   rgba(78,34,42,.2),
+   rgba(14,30,43,.99)
+  );
+}
+
+.tc2AccountDanger{
+ width:100%;
+ min-height:48px;
+ margin:0!important;
+ border-radius:15px!important;
+ color:#ffd1d5!important;
+ background:rgba(91,35,44,.42)!important;
+ border:1px solid rgba(224,108,117,.43)!important;
+ box-shadow:none!important;
+ font-weight:850!important;
+}
+
+.tc2AccountDanger:hover{
+ background:rgba(112,42,52,.5)!important;
+ border-color:rgba(224,108,117,.62)!important;
+ transform:translateY(-1px);
+}
+
+/* Statusfarben für mögliche Firebase-Texte */
+
+.tc2AccountRows b.ok{
+ color:#cffff2;
+}
+
+.tc2AccountRows b.warn{
+ color:#ffe2a6;
+}
+
+.tc2AccountRows b.danger{
+ color:#ffd1d5;
+}
+
+/* Responsive */
+
+@media(max-width:560px){
+ .tc2AccountHero{
+  padding:17px;
+  border-radius:21px;
+ }
+
+ .tc2AccountHero h2{
+  font-size:25px!important;
+ }
+
+ .tc2AccountProfile,
+ .tc2AccountCard{
+  padding:15px;
+  border-radius:20px;
+ }
+
+ .tc2AccountProfile{
+  grid-template-columns:58px minmax(0,1fr);
+  gap:12px;
+ }
+
+ .tc2AccountProfile>img,
+ .tc2AccountAvatar{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+ }
+
+ .tc2AccountProfile strong{
+  font-size:17px;
+ }
+
+ .tc2AccountRows>div{
+  grid-template-columns:1fr;
+  gap:5px;
+ }
+
+ .tc2AccountRows b{
+  text-align:left;
+ }
+
+ .tc2AccountActions{
+  grid-template-columns:1fr;
+ }
+}
+
+@media(max-width:370px){
+ .tc2AccountProfile{
+  grid-template-columns:1fr;
+  text-align:center;
+ }
+
+ .tc2AccountProfile>img,
+ .tc2AccountAvatar{
+  margin:auto;
+ }
+
+ .tc2AccountProfile strong{
+  white-space:normal;
+ }
+}
