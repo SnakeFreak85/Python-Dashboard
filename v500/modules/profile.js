@@ -1,11 +1,20 @@
 (function(){
 'use strict';
 
-let tab='overview',ctx={t:'',i:0};
+let tab='overview';
+let ctx={t:'',i:0};
+let viewerIndex=-1;
+let viewerKeyHandler=null;
 
 function esc(v){return NGT500.esc(v||'')}
 function current(){return NGTStore.animal(ctx.t,ctx.i)}
-function ensure(a){a.health=Array.isArray(a.health)?a.health:[];a.photos=Array.isArray(a.photos)?a.photos:[];a.feeds=Array.isArray(a.feeds)?a.feeds:[];a.sheds=Array.isArray(a.sheds)?a.sheds:[];a.weights=Array.isArray(a.weights)?a.weights:[]}
+function ensure(a){
+ a.health=Array.isArray(a.health)?a.health:[];
+ a.photos=Array.isArray(a.photos)?a.photos:[];
+ a.feeds=Array.isArray(a.feeds)?a.feeds:[];
+ a.sheds=Array.isArray(a.sheds)?a.sheds:[];
+ a.weights=Array.isArray(a.weights)?a.weights:[];
+}
 function latest(list){return (list||[]).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null}
 function daysSince(d){const t=Date.parse(d||'');return t?Math.floor((Date.now()-t)/86400000):9999}
 function age(birth){const t=Date.parse(birth||'');if(!t)return '-';const y=Math.floor((Date.now()-t)/31557600000);return y>0?y+' Jahre':'< 1 Jahr'}
@@ -46,13 +55,16 @@ function photoSrc(photo,thumb){
 }
 
 function isUsablePhoto(photo){
- if(!photo)return false;
  return !!photoSrc(photo,true);
 }
 
-function profilePhoto(a){
- const photos=(a&&Array.isArray(a.photos)?a.photos:[])
+function usablePhotos(a){
+ return (a&&Array.isArray(a.photos)?a.photos:[])
   .filter(isUsablePhoto);
+}
+
+function profilePhoto(a){
+ const photos=usablePhotos(a);
 
  return photos.find(function(photo){
   return photo.cover;
@@ -79,19 +91,44 @@ function hasLegacyPhotos(a){
 
 function healthStatus(a){
  let score=0;
- const lf=latest(a.feeds),lw=latest(a.weights),lh=latest(a.health);
- const recent=(a.feeds||[]).slice().sort((p,q)=>String(q.date||'').localeCompare(String(p.date||''))).slice(0,3);
+ const lf=latest(a.feeds);
+ const lw=latest(a.weights);
+ const lh=latest(a.health);
 
- if(recent.length>=2&&recent.slice(0,2).every(f=>f.accepted===false))score+=2;
+ const recent=(a.feeds||[])
+  .slice()
+  .sort((p,q)=>String(q.date||'').localeCompare(String(p.date||'')))
+  .slice(0,3);
 
- if(lw){
-  const w=(a.weights||[]).slice().sort((p,q)=>String(p.date||'').localeCompare(String(q.date||'')));
-  if(w.length>=2&&Number(w[w.length-1].weight)<Number(w[w.length-2].weight))score+=2;
+ if(recent.length>=2&&recent.slice(0,2).every(f=>f.accepted===false)){
+  score+=2;
  }
 
- if(lf&&daysSince(lf.date)>=(Number(a.feedIntervalDays||a.feedingInterval||14)+7))score+=1;
- if(lw&&daysSince(lw.date)>=45)score+=1;
- if(lh&&String(lh.status||'').toLowerCase()!=='abgeschlossen')score+=1;
+ if(lw){
+  const weights=(a.weights||[])
+   .slice()
+   .sort((p,q)=>String(p.date||'').localeCompare(String(q.date||'')));
+
+  if(
+   weights.length>=2&&
+   Number(weights[weights.length-1].weight)<
+   Number(weights[weights.length-2].weight)
+  ){
+   score+=2;
+  }
+ }
+
+ if(lf&&daysSince(lf.date)>=(Number(a.feedIntervalDays||a.feedingInterval||14)+7)){
+  score+=1;
+ }
+
+ if(lw&&daysSince(lw.date)>=45){
+  score+=1;
+ }
+
+ if(lh&&String(lh.status||'').toLowerCase()!=='abgeschlossen'){
+  score+=1;
+ }
 
  if(score>=3)return {txt:'Handlungsbedarf',icon:'🔴',cls:'danger'};
  if(score>=1)return {txt:'Beobachten',icon:'🟡',cls:'warn'};
@@ -148,10 +185,10 @@ function passportObject(a,withHistory){
 
 function passportPayload(a){
  try{
-  let full=JSON.stringify(passportObject(a,true));
+  const full=JSON.stringify(passportObject(a,true));
   if(full.length<1800)return full;
 
-  let lite=JSON.stringify(passportObject(a,false));
+  const lite=JSON.stringify(passportObject(a,false));
   if(lite.length<1200)return lite;
 
   return [
@@ -174,6 +211,8 @@ function passportPayload(a){
 }
 
 function render(args){
+ closePhotoViewer();
+
  ctx=args||ctx;
  tab=(args&&args.tab)?args.tab:'overview';
 
@@ -185,8 +224,8 @@ function render(args){
 
  ensure(a);
 
- const p=profilePhoto(a);
- const img=photoSrc(p,true);
+ const cover=profilePhoto(a);
+ const img=photoSrc(cover,true);
  const hs=healthStatus(a);
  const lw=latest(a.weights);
  const id=a.publicId||a.displayId||a.uuid||'-';
@@ -207,8 +246,11 @@ function render(args){
    <small>${esc(a.animalGroup||'Unsortiert')}</small>
   </section>
 
-  <div class="tc2ProfileHero">
-   ${img?`<img src="${esc(img)}" alt="Tierfoto">`:`<div class="tc2ProfileHeroEmpty">📷</div>`}
+  <div class="tc2ProfileHero" ${img?'onclick="NGTProfile.openCoverPhoto()"':''}>
+   ${img
+    ?`<img src="${esc(img)}" alt="Tierfoto">`
+    :`<div class="tc2ProfileHeroEmpty">📷</div>`
+   }
   </div>
 
   <section class="tc2ProfileActionGrid">
@@ -254,13 +296,13 @@ function body(a){
  if(tab==='analysis')return analysis(a);
 
  if(tab==='qr'){
-  const p=passportPayload(a);
+  const payload=passportPayload(a);
 
   return `<div class="subcard tc2SubCard">
    <h3>Digitaler Tierpass</h3>
    <div class="qrBox"><div id="profileQr"></div></div>
    <p class="muted">QR-Code enthält TerraControl-ID, Tierdaten und optional gekürzte Historie.</p>
-   <textarea readonly>${esc(p)}</textarea>
+   <textarea readonly>${esc(payload)}</textarea>
   </div>`;
  }
 
@@ -273,7 +315,7 @@ function overview(a){
  const lh=latest(a.health);
 
  return `<div class="tc2ProfileOverviewGrid">
-  <div><small>Fotos</small><b>${(a.photos||[]).filter(isUsablePhoto).length}</b></div>
+  <div><small>Fotos</small><b>${usablePhotos(a).length}</b></div>
   <div><small>Fütterungen</small><b>${(a.feeds||[]).length}</b></div>
   <div><small>Gewichte</small><b>${(a.weights||[]).length}</b></div>
   <div><small>Gesundheit</small><b>${(a.health||[]).length}</b></div>
@@ -399,10 +441,10 @@ function shedList(a){
   <h3>Häutungen</h3>
 
   ${(a.sheds||[])
-   .map((s,i)=>({s,i}))
+   .map((entry,i)=>({entry,i}))
    .reverse()
    .map(x=>row(
-    x.s.date,
+    x.entry.date,
     'Häutung',
     `NGTProfile.deleteEntry('sheds',${x.i})`
    ))
@@ -415,11 +457,11 @@ function weightList(a){
   <h3>Gewichte</h3>
 
   ${(a.weights||[])
-   .map((w,i)=>({w,i}))
+   .map((entry,i)=>({entry,i}))
    .reverse()
    .map(x=>row(
-    x.w.date,
-    x.w.weight+'g',
+    x.entry.date,
+    x.entry.weight+'g',
     `NGTProfile.deleteEntry('weights',${x.i})`
    ))
    .join('')||'<p class="muted">Keine Gewichte.</p>'}
@@ -431,7 +473,7 @@ function photos(a){
 
  return `${legacy?`<div class="subcard tc2SubCard warn">
   <h3>Alte Fotos migrieren</h3>
-  <p class="muted">Dieses Tier enthält noch eingebettete Base64-Fotos. Migriere sie in den dauerhaften Foto-Speicher, damit localStorage und Firestore entlastet werden.</p>
+  <p class="muted">Dieses Tier enthält noch eingebettete Base64-Fotos. Migriere sie in den dauerhaften Foto-Speicher.</p>
   <button onclick="NGTProfile.migratePhotos()">Fotos jetzt migrieren</button>
   <div id="photoMigrationStatus" class="muted"></div>
  </div>`:''}
@@ -439,7 +481,12 @@ function photos(a){
  <div class="subcard tc2SubCard">
   <h3>Foto hinzufügen</h3>
 
-  <input type="file" accept="image/*" onchange="NGTProfile.addPhoto(this.files[0])">
+  <input
+   id="photoFileInput"
+   type="file"
+   accept="image/*"
+   onchange="NGTProfile.addPhoto(this.files[0])"
+  >
 
   <select id="photoType">
    <option>Portrait</option>
@@ -453,22 +500,38 @@ function photos(a){
 
   <input id="photoNote" placeholder="Notiz zum Foto">
 
-  <p class="muted">Fotos werden dauerhaft außerhalb der Tierdaten gespeichert. Das erste Foto wird automatisch Titelbild.</p>
+  <p id="photoUploadStatus" class="muted">
+   Fotos werden dauerhaft in Firebase Storage gespeichert.
+  </p>
  </div>`+
 
- (a.photos||[]).map((p,i)=>{
-  const img=photoSrc(p,true);
+ (a.photos||[]).map(function(photo,index){
+  const img=photoSrc(photo,true);
 
   return `<div class="subcard tc2SubCard">
-   ${img?`<img class="photo" src="${esc(img)}" alt="Tierfoto">`:'<div class="tc2ProfileHeroEmpty">📷</div>'}
+   ${img
+    ?`<img
+      class="photo"
+      src="${esc(img)}"
+      alt="Tierfoto"
+      loading="lazy"
+      onclick="NGTProfile.openPhoto(${index})"
+     >`
+    :`<div class="tc2ProfileHeroEmpty">📷</div>`
+   }
 
-   <b>${esc(p.date||'')}</b> · ${esc(p.type||'Sonstige')} ${p.cover?'· Titelbild':''}
+   <b>${esc(photo.date||'')}</b>
+   · ${esc(photo.type||'Sonstige')}
+   ${photo.cover?'· Titelbild':''}
+
    <br>
-   ${esc(p.note||'')}
+
+   ${esc(photo.note||'')}
 
    <div class="btnRow">
-    <button onclick="NGTProfile.setCover(${i})">Als Titelbild</button>
-    <button class="danger" onclick="NGTProfile.deletePhoto(${i})">Foto löschen</button>
+    ${img?`<button onclick="NGTProfile.openPhoto(${index})">Vollbild</button>`:''}
+    <button onclick="NGTProfile.setCover(${index})">Als Titelbild</button>
+    <button class="danger" onclick="NGTProfile.deletePhoto(${index})">Foto löschen</button>
    </div>
   </div>`;
  }).join('');
@@ -478,18 +541,18 @@ function health(a){
  return healthForm()+
   (
    (a.health||[])
-    .map((h,i)=>({h,i}))
+    .map((entry,i)=>({entry,i}))
     .reverse()
     .map(x=>`<div class="subcard tc2SubCard">
-     <b>${esc(x.h.date||'-')} · ${esc(x.h.type||'Gesundheit')}</b>
+     <b>${esc(x.entry.date||'-')} · ${esc(x.entry.type||'Gesundheit')}</b>
      <br>
-     ${esc(x.h.title||'')}
+     ${esc(x.entry.title||'')}
      <br>
-     ${esc(x.h.medication||'')} ${esc(x.h.dose||'')} ${esc(x.h.duration||'')}
+     ${esc(x.entry.medication||'')} ${esc(x.entry.dose||'')} ${esc(x.entry.duration||'')}
      <br>
-     Status: ${esc(x.h.status||'-')}
+     Status: ${esc(x.entry.status||'-')}
      <br>
-     ${esc(x.h.note||'')}
+     ${esc(x.entry.note||'')}
      <button class="danger" onclick="NGTProfile.deleteEntry('health',${x.i})">Eintrag löschen</button>
     </div>`)
     .join('')
@@ -589,7 +652,10 @@ function analysis(a){
 }
 
 function setTab(x){
+ closePhotoViewer();
+
  tab=x;
+
  NGT500.route('profile',{
   t:ctx.t,
   i:ctx.i,
@@ -602,9 +668,12 @@ function setFeedState(state){
 
  if(el)el.value=state;
 
- ['Frost','Lebend'].forEach(function(s){
-  const b=document.getElementById('feedBtn'+s);
-  if(b)b.classList.toggle('primary',s===state);
+ ['Frost','Lebend'].forEach(function(value){
+  const button=document.getElementById('feedBtn'+value);
+
+  if(button){
+   button.classList.toggle('primary',value===state);
+  }
  });
 }
 
@@ -662,9 +731,9 @@ function addShed(){
 
 function addWeight(){
  const a=current();
- const g=Number(document.getElementById('weightValue').value||0);
+ const weight=Number(document.getElementById('weightValue').value||0);
 
- if(!g){
+ if(!weight){
   alert('Gewicht fehlt');
   return;
  }
@@ -673,10 +742,10 @@ function addWeight(){
 
  a.weights.push({
   date:document.getElementById('weightDate').value||NGT500.today(),
-  weight:g
+  weight:weight
  });
 
- a.weight=g;
+ a.weight=weight;
 
  NGTStore.save();
  setTab('weights');
@@ -719,13 +788,33 @@ function deleteEntry(kind,i){
  setTab(tab);
 }
 
+function setPhotoUploadStatus(message,isError){
+ const status=document.getElementById('photoUploadStatus');
+
+ if(!status)return;
+
+ status.textContent=message;
+ status.classList.toggle('danger',!!isError);
+}
+
 async function addPhoto(file){
  if(!file)return;
 
  if(!window.NGTPhotoStorage||!NGTPhotoStorage.upload){
-  alert('Foto-Speicher ist noch nicht geladen. Bitte photo-storage.js einbinden.');
+  alert('Foto-Speicher ist noch nicht geladen.');
   return;
  }
+
+ const input=document.getElementById('photoFileInput');
+
+ if(input){
+  input.disabled=true;
+ }
+
+ setPhotoUploadStatus(
+  'Foto wird verarbeitet und hochgeladen …',
+  false
+ );
 
  try{
   const a=current();
@@ -754,11 +843,24 @@ async function addPhoto(file){
  }catch(e){
   console.error(e);
 
+  setPhotoUploadStatus(
+   e&&e.message
+    ?e.message
+    :'Foto konnte nicht gespeichert werden.',
+   true
+  );
+
   alert(
    e&&e.message
     ?e.message
     :'Foto konnte nicht dauerhaft gespeichert werden.'
   );
+
+ }finally{
+  if(input){
+   input.disabled=false;
+   input.value='';
+  }
  }
 }
 
@@ -779,7 +881,7 @@ async function migratePhotos(){
  const status=document.getElementById('photoMigrationStatus');
 
  if(status){
-  status.textContent='Migration läuft...';
+  status.textContent='Migration läuft …';
  }
 
  try{
@@ -794,9 +896,12 @@ async function migratePhotos(){
   if(res.changed){
    const selected=profilePhoto(a);
 
-   if(selected&&!a.photos.some(function(photo){
-    return photo&&photo.cover&&isUsablePhoto(photo);
-   })){
+   if(
+    selected&&
+    !a.photos.some(function(photo){
+     return photo&&photo.cover&&isUsablePhoto(photo);
+    })
+   ){
     selected.cover=true;
    }
 
@@ -826,8 +931,10 @@ function setCover(i){
   return;
  }
 
- (a.photos||[]).forEach(function(p,n){
-  if(p)p.cover=n===i;
+ (a.photos||[]).forEach(function(photo,index){
+  if(photo){
+   photo.cover=index===i;
+  }
  });
 
  NGTStore.save();
@@ -838,18 +945,25 @@ async function deletePhoto(i){
  if(!confirm('Foto löschen?'))return;
 
  const a=current();
- const p=(a.photos||[])[i];
+ const photo=(a.photos||[])[i];
 
  try{
-  if(window.NGTPhotoStorage&&NGTPhotoStorage.remove&&p){
-   await NGTPhotoStorage.remove(p);
+  if(
+   window.NGTPhotoStorage&&
+   NGTPhotoStorage.remove&&
+   photo
+  ){
+   await NGTPhotoStorage.remove(photo);
   }
 
   a.photos.splice(i,1);
 
-  if(a.photos.length&&!a.photos.some(function(photo){
-   return photo&&photo.cover&&isUsablePhoto(photo);
-  })){
+  if(
+   a.photos.length&&
+   !a.photos.some(function(entry){
+    return entry&&entry.cover&&isUsablePhoto(entry);
+   })
+  ){
    const next=profilePhoto(a);
 
    if(next){
@@ -858,6 +972,7 @@ async function deletePhoto(i){
   }
 
   NGTStore.save();
+  closePhotoViewer();
   setTab('photos');
 
  }catch(e){
@@ -868,6 +983,234 @@ async function deletePhoto(i){
     ?e.message
     :'Foto konnte nicht gelöscht werden.'
   );
+ }
+}
+
+function openCoverPhoto(){
+ const a=current();
+ const photo=profilePhoto(a);
+
+ if(!photo)return;
+
+ const index=(a.photos||[]).indexOf(photo);
+
+ if(index>=0){
+  openPhoto(index);
+ }
+}
+
+function openPhoto(index){
+ const a=current();
+ ensure(a);
+
+ const photo=(a.photos||[])[index];
+
+ if(!photo||!isUsablePhoto(photo)){
+  alert('Dieses Foto kann nicht geöffnet werden.');
+  return;
+ }
+
+ viewerIndex=index;
+ renderPhotoViewer();
+}
+
+function usablePhotoIndexes(a){
+ return (a.photos||[])
+  .map(function(photo,index){
+   return isUsablePhoto(photo)?index:-1;
+  })
+  .filter(function(index){
+   return index>=0;
+  });
+}
+
+function renderPhotoViewer(){
+ const a=current();
+
+ if(!a)return;
+
+ const indexes=usablePhotoIndexes(a);
+ const photo=(a.photos||[])[viewerIndex];
+
+ if(!photo||!isUsablePhoto(photo)){
+  closePhotoViewer();
+  return;
+ }
+
+ const source=photoSrc(photo,false)||photoSrc(photo,true);
+ const position=indexes.indexOf(viewerIndex);
+ const multiple=indexes.length>1;
+ const root=document.getElementById('modalRoot');
+
+ if(!root)return;
+
+ root.innerHTML=`<div
+  id="tc2PhotoViewer"
+  style="
+   position:fixed;
+   inset:0;
+   z-index:99999;
+   background:rgba(0,0,0,.94);
+   display:flex;
+   flex-direction:column;
+   align-items:center;
+   justify-content:center;
+   padding:16px;
+   box-sizing:border-box;
+  "
+  onclick="if(event.target===this)NGTProfile.closePhotoViewer()"
+ >
+  <button
+   onclick="NGTProfile.closePhotoViewer()"
+   aria-label="Schließen"
+   style="
+    position:absolute;
+    top:max(16px,env(safe-area-inset-top));
+    right:16px;
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    border:0;
+    font-size:28px;
+    background:rgba(255,255,255,.14);
+    color:white;
+    z-index:3;
+   "
+  >×</button>
+
+  ${multiple?`<button
+   onclick="NGTProfile.previousPhoto()"
+   aria-label="Vorheriges Foto"
+   style="
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    width:48px;
+    height:64px;
+    border-radius:16px;
+    border:0;
+    font-size:32px;
+    background:rgba(255,255,255,.14);
+    color:white;
+    z-index:3;
+   "
+  >‹</button>`:''}
+
+  <img
+   src="${esc(source)}"
+   alt="Tierfoto"
+   style="
+    display:block;
+    max-width:100%;
+    max-height:78vh;
+    object-fit:contain;
+    border-radius:14px;
+    box-shadow:0 16px 48px rgba(0,0,0,.5);
+   "
+  >
+
+  ${multiple?`<button
+   onclick="NGTProfile.nextPhoto()"
+   aria-label="Nächstes Foto"
+   style="
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    width:48px;
+    height:64px;
+    border-radius:16px;
+    border:0;
+    font-size:32px;
+    background:rgba(255,255,255,.14);
+    color:white;
+    z-index:3;
+   "
+  >›</button>`:''}
+
+  <div style="margin-top:14px;max-width:680px;text-align:center;color:white;">
+   <b>${esc(photo.type||'Foto')}</b>
+   ${photo.cover?' · Titelbild':''}
+
+   <div style="opacity:.72;margin-top:4px;">
+    ${esc(photo.date||'')}
+    ${multiple?' · '+(position+1)+' / '+indexes.length:''}
+   </div>
+
+   ${photo.note?`<div style="margin-top:8px;">${esc(photo.note)}</div>`:''}
+  </div>
+ </div>`;
+
+ document.body.style.overflow='hidden';
+
+ if(viewerKeyHandler){
+  document.removeEventListener('keydown',viewerKeyHandler);
+ }
+
+ viewerKeyHandler=function(event){
+  if(event.key==='Escape'){
+   closePhotoViewer();
+  }
+
+  if(event.key==='ArrowLeft'){
+   previousPhoto();
+  }
+
+  if(event.key==='ArrowRight'){
+   nextPhoto();
+  }
+ };
+
+ document.addEventListener('keydown',viewerKeyHandler);
+}
+
+function adjacentPhoto(direction){
+ const a=current();
+
+ if(!a)return;
+
+ const indexes=usablePhotoIndexes(a);
+
+ if(!indexes.length)return;
+
+ let position=indexes.indexOf(viewerIndex);
+
+ if(position<0){
+  position=0;
+ }
+
+ position=(
+  position+
+  direction+
+  indexes.length
+ )%indexes.length;
+
+ viewerIndex=indexes[position];
+ renderPhotoViewer();
+}
+
+function previousPhoto(){
+ adjacentPhoto(-1);
+}
+
+function nextPhoto(){
+ adjacentPhoto(1);
+}
+
+function closePhotoViewer(){
+ const root=document.getElementById('modalRoot');
+
+ if(root){
+  root.innerHTML='';
+ }
+
+ document.body.style.overflow='';
+ viewerIndex=-1;
+
+ if(viewerKeyHandler){
+  document.removeEventListener('keydown',viewerKeyHandler);
+  viewerKeyHandler=null;
  }
 }
 
@@ -918,6 +1261,11 @@ window.NGTProfile={
  migratePhotos,
  setCover,
  deletePhoto,
+ openCoverPhoto,
+ openPhoto,
+ previousPhoto,
+ nextPhoto,
+ closePhotoViewer,
  addFeed,
  addShed,
  addWeight,
