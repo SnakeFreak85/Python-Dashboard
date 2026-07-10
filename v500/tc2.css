@@ -1,3 +1,3201 @@
+body.tc2RefMode .appHeader{display:none!important}
+body.tc2RefMode{background:#06111a!important;overflow-x:hidden!important}
+body.tc2RefMode .wrap{
+  width:100%!important;
+  max-width:414px!important;
+  margin:0 auto!important;
+  padding:14px 10px 88px!important;
+  overflow-x:hidden!important;
+  box-sizing:border-box!important
+}
+body.tc2RefMode .menuBtn{display:none!important}
+
+.tc2Screen,.tc2Screen *{box-sizing:border-box}
+.tc2Screen{width:100%;max-width:100%;overflow-x:hidden;font-family:Arial,sans-serif;color:#f4f7fb}
+
+.tc2AppTop{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) 70px 34px;
+  align-items:center;
+  gap:8px;
+  margin:2px 0 14px
+}
+.tc2Menu{
+  width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;
+  border-radius:12px!important;margin:0!important;padding:0!important;
+  font-size:23px!important;line-height:1!important;display:grid!important;place-items:center!important;
+  background:rgba(21,43,62,.95)!important;
+  border:1px solid rgba(125,170,210,.22)!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.22)!important
+}
+.tc2HeadTitle{min-width:0}
+.tc2HeadTitle h1{margin:0;font-size:22px;line-height:1;font-weight:900;white-space:nowrap}
+.tc2HeadTitle p{margin:5px 0 0;color:#b9c4cf;font-size:11px}
+
+.tc2Sync{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:1px 4px;
+  align-items:center;
+  font-size:9px;
+  color:#dfffe8;
+  min-width:0;
+  overflow:hidden
+}
+.tc2Sync b{line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc2Sync small{grid-column:2;color:#aab5bf;font-size:9px;white-space:nowrap}
+.tc2Avatar{width:34px;height:34px;border-radius:50%;background:#43a83e;display:grid;place-items:center;font-weight:900;font-size:12px}
+
+.tc2CloudBtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.tc2CloudBtns button{
+  height:42px;margin:0!important;border-radius:13px!important;font-size:12px!important;
+  color:#fff!important;white-space:nowrap!important;padding:8px 4px!important
+}
+.tc2CloudBtns span{margin-left:3px}
+
+.tc2Welcome{
+  position:relative;overflow:hidden;border-radius:18px;padding:20px 18px;min-height:84px;
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);margin-bottom:18px
+}
+.tc2Welcome h2{position:relative;z-index:2;margin:0 0 9px;font-size:23px}
+.tc2Welcome p{position:relative;z-index:2;margin:0;color:#b9c4cf;font-size:14px}
+.tc2Ghost{position:absolute;opacity:.15;filter:grayscale(1);pointer-events:none}
+.tc2GhostSnake{left:-20px;bottom:-25px;font-size:78px}
+.tc2GhostSpider{right:78px;top:-10px;font-size:56px;opacity:.1}
+.tc2GhostGecko{right:-8px;bottom:-18px;font-size:74px}
+
+.tc2SectionTitle{font-size:17px;margin:0 0 11px}
+.tc2QuickGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.tc2Quick{
+  display:grid!important;grid-template-columns:30px minmax(0,1fr) 10px;
+  align-items:center;gap:7px;min-height:68px!important;margin:0!important;padding:10px!important;
+  border-radius:15px!important;text-align:left;overflow:hidden
+}
+.tc2GreenIcon{color:#8bdc3f;font-size:24px;font-weight:900;line-height:1}
+.tc2Quick b{display:block;font-size:11px;line-height:1.12}
+.tc2Quick small{display:block;margin-top:4px;color:#aeb9c4;font-size:10px;line-height:1.1}
+.tc2Quick em,.tc2Chevron,.tc2SmartLink em{font-style:normal;color:#b7c1cc;font-size:22px;line-height:1}
+
+.tc2Card{
+  background:rgba(19,36,52,.92)!important;
+  border:1px solid rgba(125,170,210,.22)!important;
+  border-radius:18px!important;
+  box-shadow:0 18px 40px rgba(0,0,0,.22)!important
+}
+.tc2Bestand{padding:15px!important;margin-bottom:16px}
+.tc2BestandHead{
+  display:grid!important;grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;gap:10px;width:100%;margin:0!important;padding:0!important;
+  background:transparent!important;border:0!important;box-shadow:none!important;text-align:left
+}
+.tc2BestandHead b,.tc2SmartLink b{display:block;font-size:19px}
+.tc2BestandHead small,.tc2SmartLink small{display:block;color:#aeb9c4;font-size:12px;margin-top:4px}
+
+.tc2Species{display:flex;gap:8px;overflow-x:auto;margin-top:14px;padding-bottom:2px;scrollbar-width:none}
+.tc2Species::-webkit-scrollbar{display:none}
+.tc2Species button{
+  flex:0 0 76px;width:76px;height:74px;margin:0!important;border-radius:14px!important;
+  color:#8bdc3f!important;font-size:24px!important;padding:7px!important
+}
+.tc2Species b{display:block;color:#fff;font-size:9px;margin-top:6px;line-height:1.05}
+
+.tc2SmartLink{
+  display:grid!important;grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;gap:10px;width:100%;min-height:78px!important;margin:0!important;
+  padding:15px!important;text-align:left
+}
+
+.tc2Stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:12px}
+.tc2Stats div{
+  background:rgba(19,36,52,.92);border:1px solid rgba(125,170,210,.18);
+  border-radius:13px;padding:10px 4px;text-align:center;min-width:0
+}
+.tc2Stats span{display:block;color:#8bdc3f;font-size:20px}
+.tc2Stats b{display:block;font-size:22px;margin-top:7px}
+.tc2Stats small{display:block;font-size:10px;line-height:1.05}
+.tc2Stats em{display:block;color:#8bdc3f;font-size:8px;font-style:normal;margin-top:6px;line-height:1.1}
+.tc2Stats .warn{color:#ff9d1b}.tc2Stats .blue{color:#3494ff}
+
+.tc2Card h2{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  font-size:16px;margin:0 0 11px;line-height:1.15
+}
+.tc2Card h2 button{
+  float:none!important;background:transparent!important;border:0!important;color:#8bdc3f!important;
+  margin:0!important;padding:0!important;font-size:11px!important;white-space:nowrap
+}
+.tc2ChartCard,.tc2List,.tc2Smart .tc2Card{padding:12px!important;margin-bottom:12px}
+
+.tc2ChartRow{display:grid;grid-template-columns:98px minmax(0,1fr);align-items:center;gap:8px}
+.tc2Donut{
+  width:94px;height:94px;border-radius:50%;
+  background:conic-gradient(#39c538 0 28%,#247ad9 28% 48%,#7435c9 48% 78%,#f58a00 78% 100%);
+  display:grid;place-items:center;position:relative
+}
+.tc2Donut:after{content:"";position:absolute;width:52px;height:52px;border-radius:50%;background:#102131}
+.tc2Donut b,.tc2Donut small{position:relative;z-index:1}
+.tc2Donut b{font-size:18px}
+.tc2Donut small{margin-top:22px;color:#b8c1cb;font-size:10px}
+
+.tc2ChartRow ul{list-style:none;margin:0;padding:0;min-width:0}
+.tc2ChartRow li{
+  display:grid;grid-template-columns:13px minmax(0,1fr) 16px;
+  gap:6px;margin:8px 0;font-size:11px;align-items:center
+}
+.tc2ChartRow li b{text-align:right}
+.tc2ChartRow i{width:10px;height:10px;border-radius:50%;margin-top:1px}
+.g{background:#39c538}.b{background:#247ad9}.p{background:#7435c9}.o{background:#f58a00}
+
+.tc2ListRow{
+  display:grid;grid-template-columns:30px minmax(0,1fr) 58px 10px;
+  gap:7px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)
+}
+.tc2ListRow span{color:#8bdc3f;font-size:20px}
+.tc2ListRow b{display:block;font-size:12px;line-height:1.15}
+.tc2ListRow small{display:block;color:#aeb9c4;font-size:10px}
+.tc2ListRow em{font-style:normal;text-align:right;color:#dce5ee;font-size:11px;line-height:1.15}
+.tc2ListRow i{font-style:normal;color:#b7c1cc}
+.tc2More{text-align:center;color:#8bdc3f;margin:10px 0 0;font-size:12px}
+
+.tc2FoodGrid{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.tc2FoodGrid::-webkit-scrollbar{display:none}
+.tc2Food{
+  flex:0 0 96px;background:rgba(7,18,29,.55);border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;padding:9px;min-width:96px
+}
+.tc2Food b{display:block;font-size:12px}
+.tc2Food small{display:block;color:#b9c4cf;font-size:11px}
+.tc2Food div{height:6px;background:#2b3b47;border-radius:8px;margin:12px 0 7px}
+.tc2Food i{display:block;width:75%;height:100%;border-radius:8px;background:#8bdc3f}
+.tc2Food i.warn{width:35%;background:#ff9d1b}
+.tc2Food em{color:#8bdc3f;font-style:normal;font-size:11px}
+.tc2Food em.warn{color:#ff9d1b}
+
+.tc2BottomNav{
+  position:fixed;left:50%;right:auto;bottom:0;transform:translateX(-50%);
+  width:100%;max-width:414px;background:#0b1c2a;display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));padding:7px 7px 9px;z-index:80
+}
+.tc2BottomNav button{
+  margin:0!important;background:transparent!important;border:0!important;color:#aeb9c4!important;
+  font-size:18px!important;min-width:0;padding:6px 2px!important
+}
+.tc2BottomNav span{display:block;font-size:9px}
+.tc2BottomNav .on{color:#8bdc3f!important;background:rgba(139,220,63,.08)!important;border-radius:11px!important}
+
+.hidden{display:none!important}
+/* TC2 Basislayout für Unterseiten */
+body:not(.tc2RefMode) .appHeader {
+  min-height: 112px !important;
+  padding: 30px 22px 22px !important;
+  background: linear-gradient(180deg,#263f55,#142330) !important;
+}
+
+body:not(.tc2RefMode) .appHeader h1 {
+  font-size: 36px !important;
+  line-height: 1 !important;
+}
+
+body:not(.tc2RefMode) .appHeader .version {
+  font-size: 22px !important;
+}
+
+body:not(.tc2RefMode) .wrap {
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  padding: 22px 14px 90px !important;
+}
+
+body:not(.tc2RefMode) .card,
+body:not(.tc2RefMode) .subcard {
+  background: rgba(19,36,52,.92) !important;
+  border: 1px solid rgba(125,170,210,.22) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 18px 40px rgba(0,0,0,.22) !important;
+}
+
+body:not(.tc2RefMode) input,
+body:not(.tc2RefMode) select,
+body:not(.tc2RefMode) textarea {
+  background: #071521 !important;
+  border: 1px solid rgba(125,170,210,.32) !important;
+  border-radius: 18px !important;
+  color: #f4f7fb !important;
+}
+
+body:not(.tc2RefMode) button {
+  border-radius: 18px !important;
+}
+
+body:not(.tc2RefMode) h1,
+body:not(.tc2RefMode) h2,
+body:not(.tc2RefMode) h3 {
+  color: #f4f7fb !important;
+}
+
+body:not(.tc2RefMode) .muted,
+body:not(.tc2RefMode) small {
+  color: #aeb9c4 !important;
+}
+
+body:not(.tc2RefMode) .menuBtn {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 16px !important;
+}
+/* TC2 Drawer und Formularseiten gezielt angleichen */
+
+.drawer {
+  background: linear-gradient(180deg,#20384d,#0b1722) !important;
+  border-right: 1px solid rgba(125,170,210,.28) !important;
+  box-shadow: 18px 0 50px rgba(0,0,0,.45) !important;
+  padding: 96px 14px 24px !important;
+}
+
+.drawer button,
+.drawer a {
+  min-height: 58px !important;
+  margin: 0 0 10px !important;
+  padding: 14px 18px !important;
+  border-radius: 18px !important;
+  background: rgba(10,24,36,.72) !important;
+  border: 1px solid rgba(125,170,210,.24) !important;
+  color: #f4f7fb !important;
+  font-size: 19px !important;
+  font-weight: 900 !important;
+  text-align: left !important;
+}
+
+.drawer button:hover,
+.drawer a:hover {
+  border-color: rgba(139,220,63,.55) !important;
+}
+
+body:not(.tc2RefMode) form,
+body:not(.tc2RefMode) .form,
+body:not(.tc2RefMode) .editor,
+body:not(.tc2RefMode) .animalForm {
+  background: rgba(19,36,52,.92) !important;
+  border: 1px solid rgba(125,170,210,.22) !important;
+  border-radius: 24px !important;
+  padding: 18px !important;
+}
+
+body:not(.tc2RefMode) input,
+body:not(.tc2RefMode) select,
+body:not(.tc2RefMode) textarea {
+  min-height: 54px !important;
+  margin-bottom: 10px !important;
+  padding: 14px 16px !important;
+  font-size: 17px !important;
+  background: #071521 !important;
+  border: 1px solid rgba(125,170,210,.32) !important;
+  border-radius: 18px !important;
+  color: #f4f7fb !important;
+  outline: none !important;
+}
+
+body:not(.tc2RefMode) textarea {
+  min-height: 120px !important;
+}
+
+body:not(.tc2RefMode) input::placeholder,
+body:not(.tc2RefMode) textarea::placeholder {
+  color: rgba(244,247,251,.42) !important;
+}
+
+body:not(.tc2RefMode) label {
+  color: #dce6ef !important;
+  font-weight: 800 !important;
+}
+
+body:not(.tc2RefMode) .btnRow,
+body:not(.tc2RefMode) .buttonRow {
+  gap: 10px !important;
+}
+
+body:not(.tc2RefMode) button {
+  min-height: 50px;
+  border-radius: 18px !important;
+}
+
+body:not(.tc2RefMode) .card h2 {
+  font-size: 26px !important;
+  margin-bottom: 18px !important;
+}
+
+body:not(.tc2RefMode) .card {
+  padding: 18px !important;
+}
+/* TC2 Unterseiten-Komponenten */
+
+.tc2PageCard {
+  padding: 18px !important;
+  margin-bottom: 18px !important;
+}
+
+.tc2PageHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.tc2PageHead h2 {
+  margin: 0 !important;
+  font-size: 26px !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+}
+
+.tc2PageHead p {
+  margin: 6px 0 0 !important;
+  font-size: 14px !important;
+}
+
+.tc2PageHead button {
+  min-height: 46px !important;
+  padding: 10px 14px !important;
+  border-radius: 16px !important;
+  white-space: nowrap !important;
+  font-weight: 900 !important;
+}
+
+.tc2FormCard {
+  padding: 18px !important;
+  margin-bottom: 18px !important;
+}
+
+.tc2FormCard h3 {
+  margin: 0 0 14px !important;
+  font-size: 22px !important;
+  line-height: 1.1 !important;
+  font-weight: 900 !important;
+}
+
+.tc2FormCard p {
+  margin: 10px 0 !important;
+}
+
+.tc2FormGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.tc2FormGrid input,
+.tc2FormGrid select,
+.tc2FormGrid textarea,
+.tc2FormCard input,
+.tc2FormCard select,
+.tc2FormCard textarea {
+  width: 100% !important;
+  min-height: 54px !important;
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  border-radius: 18px !important;
+  background: #071521 !important;
+  border: 1px solid rgba(125, 170, 210, .32) !important;
+  color: #f4f7fb !important;
+  font-size: 16px !important;
+  outline: none !important;
+}
+
+.tc2FormCard textarea {
+  min-height: 120px !important;
+  resize: vertical;
+}
+
+.tc2FormGrid input::placeholder,
+.tc2FormCard textarea::placeholder {
+  color: rgba(244, 247, 251, .42) !important;
+}
+
+.tc2AnimalList {
+  display: grid;
+  gap: 12px;
+}
+
+.tc2AnimalList .subcard,
+.tc2AnimalList .animalCard,
+.tc2AnimalList .card {
+  margin: 0 !important;
+}
+
+.tc2EmptyState,
+.tc2Empty {
+  padding: 18px !important;
+  border-radius: 18px !important;
+  background: rgba(7, 18, 29, .45) !important;
+  border: 1px solid rgba(125, 170, 210, .18) !important;
+}
+
+.tc2EmptyState h3,
+.tc2Empty h3,
+.tc2Empty b {
+  display: block;
+  margin: 0 0 8px !important;
+  color: #f4f7fb !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+}
+
+.tc2EmptyState p,
+.tc2Empty small {
+  display: block;
+  margin: 0 !important;
+  color: #aeb9c4 !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+}
+
+.tc2AnimalsPage .photo {
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid rgba(125, 170, 210, .22);
+  background: rgba(0, 0, 0, .2);
+  margin: 12px 0;
+}
+
+@media (max-width: 390px) {
+  .tc2PageCard {
+    padding: 16px !important;
+  }
+
+  .tc2PageHead {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .tc2PageHead button {
+    width: 100%;
+  }
+
+  .tc2PageHead h2 {
+    font-size: 24px !important;
+  }
+}
+/* TC2 Tierkarten */
+
+.tc2AnimalCard {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 22px;
+  background: rgba(19, 36, 52, .92);
+  border: 1px solid rgba(125, 170, 210, .22);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .24);
+  margin: 0 0 16px;
+}
+
+.tc2AnimalImageWrap {
+  position: relative;
+  width: 100%;
+  background: #071521;
+}
+
+.tc2AnimalPhoto {
+  display: block;
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  background: #071521;
+}
+
+.tc2AnimalPhotoEmpty {
+  height: 210px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #aeb9c4;
+}
+
+.tc2AnimalPhotoEmpty span {
+  display: block;
+  font-size: 38px;
+  margin-bottom: 8px;
+}
+
+.tc2AnimalPhotoEmpty b {
+  display: block;
+  font-size: 15px;
+}
+
+.tc2AnimalBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: rgba(7, 18, 29, .78);
+  border: 1px solid rgba(255, 255, 255, .18);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 900;
+  color: #f4f7fb;
+}
+
+.tc2AnimalBody {
+  padding: 16px;
+}
+
+.tc2AnimalTitleRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.tc2AnimalTitleRow h2 {
+  margin: 0 !important;
+  font-size: 26px !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+}
+
+.tc2AnimalPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.tc2AnimalPills span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(139, 220, 63, .09);
+  border: 1px solid rgba(139, 220, 63, .22);
+  color: #dfffe8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tc2AnimalStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tc2AnimalStats div {
+  border-radius: 16px;
+  padding: 13px 12px;
+  background: rgba(7, 18, 29, .48);
+  border: 1px solid rgba(125, 170, 210, .18);
+}
+
+.tc2AnimalStats small {
+  display: block;
+  color: #aeb9c4 !important;
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+
+.tc2AnimalStats b {
+  display: block;
+  color: #f4f7fb;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tc2AnimalInfo {
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+  border-radius: 17px;
+  background: rgba(7, 18, 29, .38);
+  border: 1px solid rgba(125, 170, 210, .16);
+  margin-bottom: 14px;
+}
+
+.tc2AnimalInfo div {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.tc2AnimalInfo span {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.tc2AnimalInfo p {
+  margin: 0;
+}
+
+.tc2AnimalInfo b {
+  display: block;
+  color: #f4f7fb;
+  font-size: 13px;
+  line-height: 1.1;
+}
+
+.tc2AnimalInfo small {
+  display: block;
+  color: #aeb9c4 !important;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.tc2AnimalActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.tc2AnimalActions button {
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 9px 8px !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.tc2AnimalActions .danger {
+  grid-column: span 2;
+}
+
+@media (min-width: 700px) {
+  .tc2AnimalCard {
+    display: grid;
+    grid-template-columns: 42% 58%;
+  }
+
+  .tc2AnimalPhoto,
+  .tc2AnimalPhotoEmpty {
+    height: 100%;
+    min-height: 340px;
+  }
+}
+/* TC2 Profil / Tierpass */
+
+.tc2ProfilePage {
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+.tc2ProfileHero {
+  position: relative;
+  min-height: 260px;
+  background: #071521;
+  overflow: hidden;
+}
+
+.tc2ProfileHero img {
+  width: 100%;
+  height: 290px;
+  object-fit: cover;
+  display: block;
+}
+
+.tc2ProfileHeroEmpty {
+  height: 260px;
+  display: grid;
+  place-items: center;
+  font-size: 54px;
+  color: #aeb9c4;
+}
+
+.tc2ProfileHeroShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,rgba(0,0,0,.08),rgba(7,18,29,.78));
+  pointer-events: none;
+}
+
+.tc2BackBtn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(7,18,29,.72) !important;
+  backdrop-filter: blur(10px);
+}
+
+.tc2ProfileStatus {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: rgba(7,18,29,.75);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #f4f7fb;
+  font-weight: 900;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.tc2ProfileTitle {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+}
+
+.tc2ProfileTitle h2 {
+  margin: 0 !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileTitle p {
+  margin: 8px 0 0;
+  color: #d6e0ea;
+  font-size: 15px;
+}
+
+.tc2ProfileStats {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+  padding: 14px;
+}
+
+.tc2ProfileStats div,
+.tc2ProfileOverviewGrid div {
+  background: rgba(7,18,29,.45);
+  border: 1px solid rgba(125,170,210,.18);
+  border-radius: 16px;
+  padding: 12px 10px;
+}
+
+.tc2ProfileStats small,
+.tc2ProfileOverviewGrid small {
+  display: block;
+  color: #aeb9c4 !important;
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.tc2ProfileStats b,
+.tc2ProfileOverviewGrid b {
+  display: block;
+  color: #f4f7fb;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tc2ProfileSummary {
+  display: grid;
+  gap: 8px;
+  margin: 0 14px 14px;
+  padding: 13px;
+  background: rgba(7,18,29,.38);
+  border: 1px solid rgba(125,170,210,.16);
+  border-radius: 18px;
+}
+
+.tc2ProfileSummary div {
+  display: grid;
+  grid-template-columns: 28px minmax(0,1fr);
+  gap: 8px;
+}
+
+.tc2ProfileSummary p {
+  margin: 0;
+}
+
+.tc2ProfileSummary b {
+  display: block;
+  font-size: 13px;
+}
+
+.tc2ProfileSummary small {
+  display: block;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.tc2Tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 14px 14px;
+  scrollbar-width: none;
+}
+
+.tc2Tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tc2Tabs button {
+  flex: 0 0 auto;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+.tc2Tabs button.on {
+  color: #8bdc3f !important;
+  border-color: rgba(139,220,63,.55) !important;
+  background: rgba(139,220,63,.1) !important;
+}
+
+.tc2ProfileBody {
+  padding: 0 14px 16px;
+}
+
+.tc2SubCard {
+  margin-bottom: 12px !important;
+}
+
+.tc2ProfileOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tc2InfoRows {
+  display: grid;
+  gap: 9px;
+}
+
+.tc2InfoRows div {
+  display: grid;
+  grid-template-columns: 110px minmax(0,1fr);
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.tc2InfoRows b {
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2InfoRows span {
+  color: #f4f7fb;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.tc2ListRowFull {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.tc2ListRowFull b {
+  display: block;
+  font-size: 13px;
+}
+
+.tc2ListRowFull small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.tc2ListRowFull button {
+  min-height: 36px !important;
+  font-size: 11px !important;
+  padding: 7px 10px !important;
+}
+
+.tc2Bar {
+  display: grid;
+  grid-template-columns: 72px minmax(0,1fr) 44px;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.tc2Bar span {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  overflow: hidden;
+}
+
+.tc2Bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #8bdc3f;
+}
+
+.tc2Bar small,
+.tc2Bar b {
+  font-size: 11px;
+}
+
+@media (max-width:390px) {
+  .tc2ProfileTitle h2 {
+    font-size: 30px !important;
+  }
+
+  .tc2ProfileStats,
+  .tc2ProfileOverviewGrid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .tc2InfoRows div {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+}
+/* TC2 Futterverwaltung */
+
+.tc2FoodManageGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.tc2FoodManageCard {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(7,18,29,.45);
+  border: 1px solid rgba(125,170,210,.22);
+  box-shadow: 0 14px 30px rgba(0,0,0,.18);
+}
+
+.tc2FoodManageTop {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 42px;
+  gap: 10px;
+  align-items: center;
+}
+
+.tc2FoodManageTop h3 {
+  margin: 0 !important;
+  font-size: 20px !important;
+  line-height: 1.1 !important;
+}
+
+.tc2FoodManageTop p {
+  margin: 6px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2FoodManageTop span {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(139,220,63,.08);
+  border: 1px solid rgba(139,220,63,.2);
+  font-size: 22px;
+}
+
+.tc2FoodProgress {
+  height: 8px;
+  margin: 16px 0 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.12);
+  overflow: hidden;
+}
+
+.tc2FoodProgress i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #8bdc3f;
+}
+
+.tc2FoodManageCard.warn .tc2FoodProgress i {
+  background: #ff9d1b;
+}
+
+.tc2FoodManageCard.danger .tc2FoodProgress i {
+  background: #ff5b6b;
+}
+
+.tc2FoodManageStatus {
+  font-weight: 900;
+  color: #8bdc3f;
+  margin-bottom: 14px;
+}
+
+.tc2FoodManageStatus.warn {
+  color: #ff9d1b;
+}
+
+.tc2FoodManageStatus.danger {
+  color: #ff5b6b;
+}
+
+.tc2FoodManageActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.tc2FoodManageActions button {
+  min-height: 44px !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+/* TC2 Drawer Navigation */
+
+.drawer {
+  background: linear-gradient(180deg,#162c3e,#07131f) !important;
+  border-right: 1px solid rgba(125,170,210,.24) !important;
+  box-shadow: 18px 0 55px rgba(0,0,0,.5) !important;
+  padding: 18px 12px 24px !important;
+  overflow-y: auto;
+}
+
+.tc2DrawerHead {
+  display: grid;
+  grid-template-columns: 52px minmax(0,1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px 8px 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.tc2DrawerLogo {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(180deg,#8bdc3f,#43a83e);
+  color: #06111a;
+  display: grid;
+  place-items: center;
+  font-weight: 1000;
+  font-size: 18px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.28);
+}
+
+.tc2DrawerHead h2 {
+  margin: 0 !important;
+  color: #f4f7fb !important;
+  font-size: 21px !important;
+  line-height: 1 !important;
+}
+
+.tc2DrawerHead p {
+  margin: 6px 0 0;
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2DrawerGroup {
+  margin: 14px 0 18px;
+}
+
+.tc2DrawerGroupTitle {
+  padding: 0 8px 8px;
+  color: #7f8e9d;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 900;
+}
+
+.drawer .tc2DrawerItem {
+  width: 100% !important;
+  min-height: 50px !important;
+  margin: 0 0 8px !important;
+  padding: 10px 12px !important;
+  display: grid !important;
+  grid-template-columns: 34px minmax(0,1fr);
+  gap: 10px;
+  align-items: center;
+  text-align: left !important;
+  border-radius: 16px !important;
+  background: rgba(7,18,29,.48) !important;
+  border: 1px solid rgba(125,170,210,.16) !important;
+  color: #f4f7fb !important;
+  box-shadow: none !important;
+}
+
+.drawer .tc2DrawerItem span {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(139,220,63,.08);
+  border: 1px solid rgba(139,220,63,.18);
+  font-size: 17px;
+}
+
+.drawer .tc2DrawerItem b {
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.drawer .tc2DrawerItem:hover,
+.drawer .tc2DrawerItem:focus {
+  border-color: rgba(139,220,63,.52) !important;
+  background: rgba(139,220,63,.08) !important;
+}
+/* TC2 Schnelleingabe / Assistant */
+
+.tc2AssistantHero {
+  display: grid;
+  grid-template-columns: 54px minmax(0,1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 14px;
+  border-radius: 20px;
+  background: rgba(7,18,29,.45);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2AssistantIcon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(139,220,63,.09);
+  border: 1px solid rgba(139,220,63,.24);
+  font-size: 28px;
+}
+
+.tc2AssistantHero h3 {
+  margin: 0 !important;
+  font-size: 21px !important;
+  line-height: 1.1 !important;
+}
+
+.tc2AssistantHero p {
+  margin: 6px 0 0;
+  color: #aeb9c4;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.tc2AssistantChips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+
+.tc2AssistantChips::-webkit-scrollbar {
+  display: none;
+}
+
+.tc2AssistantChips button {
+  flex: 0 0 auto;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.tc2AssistantActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.tc2AssistantActions button {
+  margin: 0 !important;
+}
+
+.tc2AssistantOutput {
+  display: grid;
+  gap: 12px;
+}
+
+.tc2ExampleList {
+  display: grid;
+  gap: 8px;
+}
+
+.tc2ExampleList span {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(7,18,29,.45);
+  border: 1px solid rgba(125,170,210,.14);
+  color: #dce6ef;
+  font-size: 13px;
+}
+
+.tc2ModalBox {
+  max-width: 430px !important;
+  width: calc(100% - 24px) !important;
+  border-radius: 24px !important;
+  background: #102131 !important;
+  border: 1px solid rgba(125,170,210,.25) !important;
+}
+/* TC2 Chat / TerraControl KI */
+
+.tc2ChatHero {
+  display: grid;
+  grid-template-columns: 54px minmax(0,1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 14px;
+  border-radius: 20px;
+  background: rgba(7,18,29,.45);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2ChatBot {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: rgba(139,220,63,.09);
+  border: 1px solid rgba(139,220,63,.24);
+  font-size: 28px;
+}
+
+.tc2ChatHero h3 {
+  margin: 0 !important;
+  font-size: 21px !important;
+  line-height: 1.1 !important;
+}
+
+.tc2ChatHero p {
+  margin: 6px 0 0;
+  color: #aeb9c4;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.tc2ChatLog {
+  height: 420px;
+  overflow-y: auto;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 20px;
+  background: rgba(7,18,29,.36);
+  border: 1px solid rgba(125,170,210,.16);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tc2ChatMsg {
+  display: flex;
+}
+
+.tc2ChatMsg > div {
+  max-width: 82%;
+  padding: 11px 13px;
+  border-radius: 17px;
+  font-size: 13px;
+  line-height: 1.35;
+  border: 1px solid rgba(125,170,210,.14);
+  overflow-wrap: anywhere;
+}
+
+.tc2ChatMsg.aiMsg {
+  justify-content: flex-start;
+}
+
+.tc2ChatMsg.aiMsg > div {
+  background: rgba(19,36,52,.92);
+  color: #f4f7fb;
+  border-top-left-radius: 6px;
+}
+
+.tc2ChatMsg.userMsg {
+  justify-content: flex-end;
+}
+
+.tc2ChatMsg.userMsg > div {
+  background: rgba(139,220,63,.13);
+  border-color: rgba(139,220,63,.28);
+  color: #eaffdc;
+  border-top-right-radius: 6px;
+}
+
+.tc2ChatInput {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 94px;
+  gap: 9px;
+  align-items: stretch;
+}
+
+.tc2ChatInput textarea {
+  min-height: 54px !important;
+  max-height: 130px;
+  margin: 0 !important;
+  resize: vertical;
+}
+
+.tc2ChatInput button {
+  min-height: 54px !important;
+  margin: 0 !important;
+  border-radius: 18px !important;
+  font-weight: 900 !important;
+}
+
+@media (max-width:390px) {
+  .tc2ChatLog {
+    height: 360px;
+  }
+
+  .tc2ChatInput {
+    grid-template-columns: 1fr;
+  }
+
+  .tc2ChatMsg > div {
+    max-width: 90%;
+  }
+}
+/* TC2 Profil Header Fix */
+
+.tc2ProfileTopBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 14px 0;
+}
+
+.tc2ProfileTopBack {
+  justify-self: start;
+  min-height: 40px !important;
+  padding: 8px 13px !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+.tc2ProfileTopStatus {
+  justify-self: end;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(7, 18, 29, .62);
+  border: 1px solid rgba(125, 170, 210, .22);
+  color: #f4f7fb;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.tc2ProfileTopStatus.ok {
+  border-color: rgba(139, 220, 63, .35);
+}
+
+.tc2ProfileTopStatus.warn {
+  border-color: rgba(255, 157, 27, .38);
+}
+
+.tc2ProfileTopStatus.danger {
+  border-color: rgba(255, 91, 107, .45);
+}
+
+.tc2ProfilePage .tc2ProfileHero {
+  min-height: 0;
+  margin: 14px 14px 0;
+  border-radius: 20px;
+  border: 1px solid rgba(125, 170, 210, .18);
+}
+
+.tc2ProfilePage .tc2ProfileHero img {
+  height: 260px;
+  border-radius: 20px;
+}
+
+.tc2ProfileMainTitle {
+  padding: 16px 18px 4px;
+}
+
+.tc2ProfileMainTitle h2 {
+  margin: 0 !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileMainTitle p {
+  margin: 8px 0 0;
+  color: #d6e0ea;
+  font-size: 15px;
+}
+
+.tc2ProfileSubHead {
+  margin: 14px 14px 0;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(7, 18, 29, .45);
+  border: 1px solid rgba(125, 170, 210, .18);
+}
+
+.tc2ProfileSubHead small {
+  display: block;
+  color: #8bdc3f;
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.tc2ProfileSubHead h2 {
+  margin: 0 !important;
+  font-size: 28px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileSubHead p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+@media (max-width:390px) {
+  .tc2ProfileTopBar {
+    grid-template-columns: 1fr;
+  }
+
+  .tc2ProfileTopStatus {
+    justify-self: start;
+  }
+
+  .tc2ProfilePage .tc2ProfileHero img {
+    height: 230px;
+  }
+}
+/* TC2 Feinschliff: Modul-Unterseiten / Einstellungen */
+
+body:not(.tc2RefMode) .wrap {
+  padding-top: 14px !important;
+}
+
+body:not(.tc2RefMode) .menuBtn {
+  position: fixed !important;
+  top: 78px !important;
+  left: 22px !important;
+  z-index: 120 !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 18px !important;
+  background: rgba(7,18,29,.92) !important;
+  border: 1px solid rgba(125,170,210,.28) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.34) !important;
+}
+
+.tc2PageCard {
+  margin-top: 0 !important;
+  border-radius: 24px !important;
+}
+
+.tc2PageHead {
+  padding: 4px 2px 2px !important;
+}
+
+.tc2PageHead h2 {
+  font-size: 30px !important;
+  letter-spacing: -.5px !important;
+}
+
+.tc2PageHead p {
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+}
+
+.tc2FormCard {
+  border-radius: 24px !important;
+  padding: 20px !important;
+  background: rgba(15,31,46,.92) !important;
+}
+
+.tc2FormCard h3 {
+  font-size: 25px !important;
+  margin-bottom: 10px !important;
+}
+
+.tc2FormCard .muted {
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  margin-bottom: 18px !important;
+}
+
+.tc2FormGrid {
+  gap: 12px !important;
+}
+
+.tc2FormGrid input,
+.tc2FormGrid select,
+.tc2FormGrid textarea {
+  min-height: 58px !important;
+  border-radius: 20px !important;
+  background: rgba(3,15,24,.92) !important;
+  text-align: left !important;
+  font-size: 16px !important;
+}
+
+.tc2FormGrid input::placeholder,
+.tc2FormGrid textarea::placeholder {
+  text-align: center !important;
+  color: rgba(244,247,251,.42) !important;
+}
+
+.tc2PageCard > button,
+.tc2FormCard button {
+  width: 100%;
+  min-height: 54px !important;
+  margin-top: 10px !important;
+  border-radius: 18px !important;
+  font-weight: 900 !important;
+}
+
+@media (max-width:390px) {
+  body:not(.tc2RefMode) .menuBtn {
+    top: 74px !important;
+    left: 18px !important;
+  }
+
+  .tc2PageHead h2 {
+    font-size: 28px !important;
+  }
+
+  .tc2FormCard {
+    padding: 18px !important;
+  }
+}
+/* TC2 App-Rahmen für Modul-Unterseiten */
+
+body:not(.tc2RefMode) .appHeader {
+  min-height: 88px !important;
+  padding: 18px 18px 16px 92px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  background: linear-gradient(180deg,#1a3246,#0b1722) !important;
+  border-bottom: 1px solid rgba(125,170,210,.18) !important;
+}
+
+body:not(.tc2RefMode) .appHeader h1 {
+  font-size: 28px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  letter-spacing: -.4px !important;
+}
+
+body:not(.tc2RefMode) .appHeader .version {
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  margin-top: 4px !important;
+  opacity: .82 !important;
+}
+
+body:not(.tc2RefMode) .menuBtn {
+  position: fixed !important;
+  top: 20px !important;
+  left: 20px !important;
+  z-index: 140 !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 18px !important;
+  background: rgba(7,18,29,.94) !important;
+  border: 1px solid rgba(125,170,210,.3) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.36) !important;
+}
+
+body:not(.tc2RefMode) .wrap {
+  padding-top: 16px !important;
+}
+
+.tc2PageCard {
+  padding: 18px !important;
+  border-radius: 24px !important;
+}
+
+.tc2PageHead {
+  margin-bottom: 18px !important;
+}
+
+.tc2PageHead h2 {
+  font-size: 28px !important;
+}
+
+.tc2FormCard {
+  margin-bottom: 16px !important;
+}
+
+@media (max-width:390px) {
+  body:not(.tc2RefMode) .appHeader {
+    min-height: 82px !important;
+    padding-left: 88px !important;
+  }
+
+  body:not(.tc2RefMode) .appHeader h1 {
+    font-size: 26px !important;
+  }
+
+  body:not(.tc2RefMode) .menuBtn {
+    top: 16px !important;
+    left: 16px !important;
+  }
+}
+/* TC2 globaler App-Header */
+
+body:not(.tc2RefMode) .tc2GlobalHeader {
+  min-height: 88px !important;
+  padding: 16px 18px !important;
+  display: grid !important;
+  grid-template-columns: 56px minmax(0,1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  background: linear-gradient(180deg,#1b354b,#0b1722) !important;
+  border-bottom: 1px solid rgba(125,170,210,.18) !important;
+}
+
+body:not(.tc2RefMode) .tc2HeaderMenu {
+  position: static !important;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  border-radius: 18px !important;
+  margin: 0 !important;
+  background: rgba(7,18,29,.94) !important;
+  border: 1px solid rgba(125,170,210,.3) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.3) !important;
+}
+
+body:not(.tc2RefMode) .tc2GlobalTitle {
+  min-width: 0 !important;
+}
+
+body:not(.tc2RefMode) .tc2GlobalTitle h1 {
+  font-size: 30px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  letter-spacing: -.5px !important;
+}
+
+body:not(.tc2RefMode) .tc2GlobalTitle .version {
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  margin-top: 4px !important;
+  opacity: .82 !important;
+}
+
+body:not(.tc2RefMode) .wrap {
+  padding-top: 14px !important;
+}
+/* TC2 Settings Neustart */
+
+.tc2Settings {
+  display: grid;
+  gap: 14px;
+  padding: 0 2px 26px;
+}
+
+.tc2SettingsHero {
+  padding: 18px;
+  border-radius: 22px;
+  background: linear-gradient(135deg,rgba(30,57,78,.96),rgba(9,22,34,.96));
+  border: 1px solid rgba(125,170,210,.22);
+}
+
+.tc2SettingsHero h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: -.5px;
+}
+
+.tc2SettingsHero p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.tc2SettingsSection {
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(13,28,42,.88);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2SettingsSection h3 {
+  margin: 0 0 14px;
+  font-size: 21px;
+  line-height: 1.1;
+}
+
+.tc2SettingsField {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tc2SettingsField span {
+  color: #aeb9c4;
+  font-size: 12px;
+  font-weight: 800;
+  padding-left: 2px;
+}
+
+.tc2SettingsField input {
+  width: 100% !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  background: rgba(4,16,25,.94) !important;
+  border: 1px solid rgba(125,170,210,.28) !important;
+  color: #f4f7fb !important;
+  font-size: 16px !important;
+  text-align: left !important;
+}
+
+.tc2SettingsStatus,
+.tc2SettingsInfo,
+.tc2SettingsInlineInfo {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(4,16,25,.55);
+  border: 1px solid rgba(125,170,210,.14);
+}
+
+.tc2SettingsStatus span,
+.tc2SettingsInfo span {
+  display: block;
+  color: #aeb9c4;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.tc2SettingsStatus b,
+.tc2SettingsInfo b {
+  display: block;
+  margin-top: 4px;
+  color: #f4f7fb;
+  font-size: 16px;
+}
+
+.tc2SettingsActions {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.tc2SettingsActions button,
+.tc2SettingsSave {
+  width: 100%;
+  min-height: 48px !important;
+  margin: 0 !important;
+  border-radius: 16px !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+.tc2SettingsSave {
+  min-height: 54px !important;
+  margin-top: 4px !important;
+}
+
+.tc2SettingsInlineInfo {
+  margin-top: 12px;
+}
+
+.tc2SettingsInlineInfo h4 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.tc2SettingsInlineInfo p {
+  margin: 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+/* TC2 Dashboard 2.0 */
+
+.tc2DashboardV2 {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 86px;
+}
+
+.tc2DashTop {
+  display: grid;
+  grid-template-columns: 50px minmax(0,1fr) 38px;
+  align-items: center;
+  gap: 10px;
+}
+
+.tc2DashTop button {
+  width: 50px !important;
+  height: 50px !important;
+  margin: 0 !important;
+  border-radius: 17px !important;
+}
+
+.tc2DashTop h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.tc2DashTop p {
+  margin: 4px 0 0;
+  color: #aeb9c4;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc2DashTop > span {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #43a83e;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.tc2DashHero,
+.tc2DashCard,
+.tc2DashAi {
+  border-radius: 22px;
+  background: rgba(16,34,50,.92);
+  border: 1px solid rgba(125,170,210,.2);
+  box-shadow: 0 18px 40px rgba(0,0,0,.18);
+}
+
+.tc2DashHero {
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tc2DashHero h2 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.05;
+}
+
+.tc2DashHero p {
+  margin: 8px 0 16px;
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2DashHero div {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr;
+  gap: 5px 8px;
+  align-items: baseline;
+}
+
+.tc2DashHero b {
+  color: #8bdc3f;
+  font-size: 22px;
+}
+
+.tc2DashHero span {
+  color: #aeb9c4;
+  font-size: 11px;
+}
+
+.tc2DashCloud {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+}
+
+.tc2DashCloud button {
+  min-height: 42px !important;
+  margin: 0 !important;
+  border-radius: 15px !important;
+  font-size: 11px !important;
+  padding: 6px !important;
+}
+
+.tc2DashQuickGrid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+}
+
+.tc2DashQuick {
+  min-height: 84px !important;
+  margin: 0 !important;
+  padding: 12px !important;
+  border-radius: 20px !important;
+  text-align: left !important;
+  display: grid !important;
+  grid-template-columns: 32px minmax(0,1fr);
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+  align-items: center;
+}
+
+.tc2DashQuick span {
+  grid-row: 1 / 3;
+  color: #8bdc3f;
+  font-size: 25px;
+}
+
+.tc2DashQuick b {
+  font-size: 15px;
+  line-height: 1.1;
+}
+
+.tc2DashQuick small {
+  color: #aeb9c4;
+  font-size: 11px;
+}
+
+.tc2DashCard {
+  padding: 16px;
+}
+
+.tc2DashCardHead {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tc2DashCardHead h3 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.tc2DashCardHead button {
+  min-height: 36px !important;
+  margin: 0 !important;
+  padding: 6px 12px !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+}
+
+.tc2DashStatusGrid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tc2DashStatusGrid div,
+.tc2DashTotal,
+.tc2DashEmpty {
+  border-radius: 17px;
+  background: rgba(4,16,25,.55);
+  border: 1px solid rgba(125,170,210,.14);
+  padding: 12px;
+}
+
+.tc2DashStatusGrid b,
+.tc2DashTotal b {
+  display: block;
+  color: #f4f7fb;
+  font-size: 22px;
+}
+
+.tc2DashStatusGrid span,
+.tc2DashTotal span,
+.tc2DashEmpty span {
+  display: block;
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2DashTaskList {
+  display: grid;
+  gap: 8px;
+}
+
+.tc2DashTaskList div {
+  display: grid;
+  grid-template-columns: 28px minmax(0,1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(4,16,25,.45);
+}
+
+.tc2DashTaskList span {
+  font-size: 20px;
+}
+
+.tc2DashTaskList b {
+  font-size: 13px;
+}
+
+.tc2DashTaskList small {
+  display: block;
+  color: #aeb9c4;
+  font-size: 11px;
+}
+
+.tc2DashTaskList em {
+  font-style: normal;
+  color: #8bdc3f;
+  font-size: 11px;
+}
+
+.tc2DashGroupList {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tc2DashGroupList button {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  min-height: 46px !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 16px !important;
+  text-align: left !important;
+}
+
+.tc2DashGroupList span {
+  font-size: 14px;
+}
+
+.tc2DashGroupList b {
+  color: #8bdc3f;
+  font-size: 17px;
+}
+
+.tc2DashEmpty b {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.tc2DashAi {
+  display: grid !important;
+  grid-template-columns: 36px minmax(0,1fr) auto;
+  gap: 10px;
+  align-items: center;
+  text-align: left !important;
+  padding: 15px !important;
+  margin: 0 !important;
+}
+
+.tc2DashAi span {
+  font-size: 26px;
+}
+
+.tc2DashAi b {
+  display: block;
+  font-size: 17px;
+}
+
+.tc2DashAi small {
+  display: block;
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2DashAi em {
+  font-style: normal;
+  color: #aeb9c4;
+  font-size: 22px;
+}
+/* TC2 Smart Dashboard eigene Page */
+
+.tc2SmartPage {
+  display: grid;
+  gap: 14px;
+  padding: 0 2px 88px;
+}
+
+.tc2SmartHero {
+  padding: 18px;
+  border-radius: 24px;
+  background: linear-gradient(135deg,rgba(26,52,74,.98),rgba(8,20,31,.98));
+  border: 1px solid rgba(125,170,210,.22);
+}
+
+.tc2SmartHero button {
+  min-height: 34px !important;
+  margin: 0 0 14px !important;
+  padding: 6px 12px !important;
+  border-radius: 14px !important;
+  font-size: 13px !important;
+}
+
+.tc2SmartHero h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tc2SmartHero p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2SmartSummary {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 10px;
+}
+
+.tc2SmartSummary div {
+  padding: 14px 8px;
+  border-radius: 20px;
+  background: rgba(13,28,42,.9);
+  border: 1px solid rgba(125,170,210,.18);
+  text-align: center;
+}
+
+.tc2SmartSummary b {
+  display: block;
+  color: #8bdc3f;
+  font-size: 26px;
+}
+
+.tc2SmartSummary span {
+  display: block;
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2SmartPanel {
+  padding: 16px;
+  border-radius: 24px;
+  background: rgba(13,28,42,.9);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2SmartPanel h3 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2SmartItem {
+  display: grid;
+  grid-template-columns: 28px minmax(0,1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 11px 0;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.tc2SmartItem:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.tc2SmartItem span {
+  font-size: 19px;
+}
+
+.tc2SmartItem b {
+  display: block;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.tc2SmartItem small {
+  display: block;
+  margin-top: 3px;
+  color: #aeb9c4;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.tc2SmartEmpty {
+  padding: 13px;
+  border-radius: 18px;
+  background: rgba(4,16,25,.45);
+  border: 1px solid rgba(125,170,210,.12);
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2SmartRows {
+  display: grid;
+  gap: 8px;
+}
+
+.tc2SmartRows div,
+.tc2SmartRows button {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 16px !important;
+  background: rgba(4,16,25,.45) !important;
+  border: 1px solid rgba(125,170,210,.12) !important;
+  text-align: left !important;
+}
+
+.tc2SmartRows span {
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2SmartRows b {
+  color: #8bdc3f;
+  font-size: 17px;
+}
+/* TC2 Smart Dashboard Header */
+
+.tc2SmartTop {
+  display: grid;
+  grid-template-columns: 48px minmax(0,1fr) 38px;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0 2px;
+}
+
+.tc2SmartTop button {
+  width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  border-radius: 16px !important;
+  font-size: 24px !important;
+  padding: 0 !important;
+}
+
+.tc2SmartTop h2 {
+  margin: 0;
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: -.4px;
+}
+
+.tc2SmartTop p {
+  margin: 5px 0 0;
+  color: #aeb9c4;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc2SmartTop > span {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #43a83e;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+/* TC2 Smart Dashboard KPI Cards */
+
+.tc2SmartKpis {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 8px;
+}
+
+.tc2SmartKpis div {
+  min-width: 0;
+  padding: 11px 4px;
+  border-radius: 18px;
+  background: rgba(13,28,42,.92);
+  border: 1px solid rgba(125,170,210,.18);
+  text-align: center;
+  box-shadow: 0 12px 28px rgba(0,0,0,.14);
+}
+
+.tc2SmartKpis span {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.tc2SmartKpis b {
+  display: block;
+  margin-top: 7px;
+  color: #8bdc3f;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.tc2SmartKpis small {
+  display: block;
+  margin-top: 5px;
+  color: #aeb9c4;
+  font-size: 10px;
+  line-height: 1;
+}
+/* TC2 Smart Dashboard Concept */
+
+.tc2SD{display:grid;gap:14px;padding:0 0 92px}
+.tc2SDtop{display:grid;grid-template-columns:58px minmax(0,1fr) auto 48px;align-items:center;gap:12px}
+.tc2SDtop button{width:58px!important;height:58px!important;margin:0!important;border-radius:18px!important;font-size:28px!important}
+.tc2SDtop h2{margin:0;font-size:27px;line-height:1}
+.tc2SDtop p{margin:5px 0 0;color:#aeb9c4;font-size:14px}
+.tc2SDtop strong{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#43a83e;font-size:18px}
+.tc2SDsync{text-align:right;font-size:12px;color:#aeb9c4}
+.tc2SDsync b{display:block;color:#8bdc3f;font-size:12px}
+.tc2SDsync span{display:block;margin-top:3px}
+
+.tc2SDkpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tc2SDkpi{min-height:108px;border-radius:18px;background:rgba(15,32,48,.94);border:1px solid rgba(125,170,210,.22);display:grid;place-items:center;text-align:center;padding:10px 4px}
+.tc2SDkpi span{color:#8bdc3f;font-size:20px;line-height:1}
+.tc2SDkpi b{font-size:29px;line-height:1;color:#f4f7fb}
+.tc2SDkpi small{font-size:12px;color:#d8dee6}
+.tc2SDkpi em{font-style:normal;font-size:10px;color:#8bdc3f}
+.tc2SDkpi.orange em{color:#ff9500}.tc2SDkpi.blue em{color:#2f86e8}
+
+.tc2SDcard{border-radius:22px;background:rgba(15,32,48,.94);border:1px solid rgba(125,170,210,.2);padding:16px}
+.tc2SDcardHead{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;margin-bottom:14px}
+.tc2SDcardHead h3{margin:0;font-size:22px;line-height:1.05}
+.tc2SDcardHead button{margin:0!important;min-height:32px!important;padding:4px 0!important;background:transparent!important;border:0!important;color:#8bdc3f!important;font-size:13px!important}
+
+.tc2SDdonutRow{display:grid;grid-template-columns:126px minmax(0,1fr);gap:18px;align-items:center}
+.tc2SDdonut{width:126px;height:126px;border-radius:50%;display:grid;place-items:center}
+.tc2SDdonut div{width:70px;height:70px;border-radius:50%;background:#102132;display:grid;place-items:center;text-align:center}
+.tc2SDdonut b{font-size:27px}.tc2SDdonut span{font-size:11px;color:#aeb9c4}
+.tc2SDlegend{display:grid;gap:10px}
+.tc2SDlegend button{display:grid!important;grid-template-columns:16px minmax(0,1fr) auto;gap:10px;align-items:center;margin:0!important;padding:0!important;min-height:24px!important;background:transparent!important;border:0!important;text-align:left!important}
+.tc2SDlegend i{width:14px;height:14px;border-radius:50%}
+.tc2SDlegend .c0{background:#63d93f}.tc2SDlegend .c1{background:#2f86e8}.tc2SDlegend .c2{background:#8b3bd6}.tc2SDlegend .c3{background:#ff9500}
+.tc2SDlegend span{font-size:14px}.tc2SDlegend b{font-size:14px}
+
+.tc2SDtask,.tc2SDfood{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto 18px;gap:10px;align-items:center;margin:0!important;padding:12px 0!important;background:transparent!important;border:0!important;border-top:1px solid rgba(255,255,255,.07)!important;text-align:left!important}
+.tc2SDtask:first-of-type,.tc2SDfood:first-of-type{border-top:0!important}
+.tc2SDtask span{font-size:28px}.tc2SDtask b,.tc2SDfood b{font-size:15px}.tc2SDtask small,.tc2SDfood small{display:block;color:#aeb9c4;font-size:12px}
+.tc2SDtask em{font-style:normal;color:#d8dee6;font-size:13px}.tc2SDtask i,.tc2SDfood i{font-style:normal;color:#aeb9c4;font-size:22px}
+.tc2SDmore{text-align:center;color:#8bdc3f;font-weight:900;margin-top:8px}
+
+.tc2SDfoodImg{width:54px;height:40px;border-radius:12px;background:rgba(4,16,25,.55);display:grid;place-items:center;font-size:24px}
+.tc2SDfood em{font-style:normal;padding:6px 9px;border-radius:9px;background:rgba(67,168,62,.16);color:#8bdc3f;font-size:11px}
+.tc2SDfood em.warn{background:rgba(255,149,0,.16);color:#ff9500}
+
+.tc2SDactivity{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}
+.tc2SDactivity:first-of-type{border-top:0}
+.tc2SDactivity b{display:block;font-size:14px}.tc2SDactivity small{color:#aeb9c4;font-size:12px}
+
+.tc2SDempty{padding:14px;border-radius:16px;background:rgba(4,16,25,.42);color:#aeb9c4;font-size:14px}
+
+.tc2SDnav{position:fixed;left:12px;right:12px;bottom:12px;z-index:90;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px;border-radius:22px;background:rgba(8,22,32,.96);border:1px solid rgba(125,170,210,.18);box-shadow:0 20px 45px rgba(0,0,0,.4)}
+.tc2SDnav button{margin:0!important;min-height:56px!important;border-radius:16px!important;background:transparent!important;border:0!important;font-size:18px!important;color:#aeb9c4!important}
+.tc2SDnav button span{display:block;font-size:10px;margin-top:4px}
+.tc2SDnav button.on{background:rgba(99,217,63,.16)!important;color:#8bdc3f!important}
+
+@media(max-width:390px){
+  .tc2SDtop{grid-template-columns:54px minmax(0,1fr) 44px}
+  .tc2SDsync{display:none}
+  .tc2SDkpi{min-height:98px}
+  .tc2SDdonutRow{grid-template-columns:1fr}
+  .tc2SDdonut{margin:auto}
+}
+/* TC2 Konto */
+
+.tc2Account {
+  display: grid;
+  gap: 14px;
+  padding: 0 2px 28px;
+}
+
+.tc2AccountHero,
+.tc2AccountProfile,
+.tc2AccountCard {
+  border-radius: 24px;
+  background: rgba(13,28,42,.9);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2AccountHero {
+  padding: 18px;
+  background: linear-gradient(135deg,rgba(26,52,74,.98),rgba(8,20,31,.98));
+}
+
+.tc2AccountHero h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tc2AccountHero p,
+.tc2AccountCard p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2AccountProfile {
+  display: grid;
+  grid-template-columns: 64px minmax(0,1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+}
+
+.tc2AccountProfile img,
+.tc2AccountAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.tc2AccountAvatar {
+  display: grid;
+  place-items: center;
+  background: #43a83e;
+  color: #fff;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.tc2AccountProfile b {
+  display: block;
+  color: #8bdc3f;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.tc2AccountProfile strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.tc2AccountProfile span {
+  display: block;
+  margin-top: 5px;
+  color: #aeb9c4;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.tc2AccountCard {
+  padding: 16px;
+}
+
+.tc2AccountHead {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tc2AccountHead h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2AccountRows {
+  display: grid;
+  gap: 8px;
+}
+
+.tc2AccountRows div {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(4,16,25,.45);
+  border: 1px solid rgba(125,170,210,.12);
+}
+
+.tc2AccountRows span {
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2AccountRows b {
+  color: #8bdc3f;
+  font-size: 15px;
+  text-align: right;
+}
+
+.tc2AccountActions {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tc2AccountActions button,
+.tc2AccountDanger {
+  width: 100%;
+  min-height: 50px !important;
+  margin: 0 !important;
+  border-radius: 17px !important;
+  font-weight: 900 !important;
+}
+
+.tc2AccountDanger {
+  margin-top: 14px !important;
+  background: rgba(185,45,45,.18) !important;
+  border: 1px solid rgba(255,120,120,.28) !important;
+  color: #ffb3b3 !important;
+}
+/* TC2 QR / Tierpass */
+
+.tc2QR {
+  display: grid;
+  gap: 14px;
+  padding: 0 2px 28px;
+}
+
+.tc2QRHero,
+.tc2QRCard,
+.tc2QRResult,
+.tc2QREmpty {
+  border-radius: 24px;
+  background: rgba(13,28,42,.9);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2QRHero {
+  padding: 18px;
+  background: linear-gradient(135deg,rgba(26,52,74,.98),rgba(8,20,31,.98));
+}
+
+.tc2QRHero h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tc2QRHero p,
+.tc2QRCard p,
+.tc2QRResult p,
+.tc2QREmpty p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2QRCard,
+.tc2QRResult,
+.tc2QREmpty {
+  padding: 16px;
+}
+
+.tc2QRHead h3,
+.tc2QRResult h3,
+.tc2QREmpty h3 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2QRActions {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tc2QRActions button,
+.tc2QRPrimary {
+  width: 100%;
+  min-height: 50px !important;
+  margin: 0 !important;
+  border-radius: 17px !important;
+  font-weight: 900 !important;
+}
+
+.tc2QR textarea {
+  width: 100% !important;
+  min-height: 118px !important;
+  margin: 0 0 12px !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  background: rgba(4,16,25,.94) !important;
+  border: 1px solid rgba(125,170,210,.28) !important;
+  color: #f4f7fb !important;
+  font-size: 15px !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+}
+
+.tc2QRPassport {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(4,16,25,.45);
+  border: 1px solid rgba(125,170,210,.12);
+  margin-bottom: 14px;
+}
+
+.tc2QRPassport b {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2QRPassport > span {
+  color: #aeb9c4;
+  font-size: 14px;
+}
+
+.tc2QRPassport div {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 6px 10px;
+  margin-top: 6px;
+}
+
+.tc2QRPassport small {
+  color: #aeb9c4;
+  font-size: 12px;
+}
+
+.tc2QRPassport strong {
+  font-size: 13px;
+  text-align: right;
+}
+
+.tc2QRBox {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(4,16,25,.45);
+  border: 1px solid rgba(125,170,210,.12);
+}
+
+.tc2QRBox span {
+  color: #aeb9c4;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+/* TC2 Tier anlegen / bearbeiten */
+
+.tc2AnimalEditor {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 24px;
+  background: rgba(13,28,42,.92);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2AnimalEditorHead h3 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.tc2AnimalEditorHead p,
+.tc2AnimalEditorBlock p {
+  margin: 7px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2AnimalEditorBlock {
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(4,16,25,.42);
+  border: 1px solid rgba(125,170,210,.12);
+}
+
+.tc2AnimalEditorBlock h4 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.tc2AnimalFields {
+  display: grid;
+  gap: 10px;
+}
+
+.tc2AnimalFields label {
+  display: grid;
+  gap: 6px;
+}
+
+.tc2AnimalFields span {
+  color: #aeb9c4;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tc2AnimalFields input,
+.tc2AnimalFields select,
+.tc2AnimalEditor textarea {
+  width: 100% !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  background: rgba(3,15,24,.94) !important;
+  border: 1px solid rgba(125,170,210,.25) !important;
+  color: #f4f7fb !important;
+  font-size: 15px !important;
+  text-align: left !important;
+}
+
+.tc2AnimalEditor textarea {
+  min-height: 108px !important;
+  line-height: 1.35 !important;
+}
+
+.tc2AnimalEditorActions {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+}
+
+.tc2AnimalEditorActions button {
+  min-height: 52px !important;
+  margin: 0 !important;
+  border-radius: 17px !important;
+  font-weight: 900 !important;
+}
+/* TC2 Futter hinzufügen */
+
+.tc2FoodPage {
+  display: grid;
+  gap: 14px;
+  padding: 0 2px 28px;
+}
+
+.tc2FoodHero,
+.tc2FoodAdd,
+.tc2FoodEmpty {
+  border-radius: 24px;
+  background: rgba(13,28,42,.9);
+  border: 1px solid rgba(125,170,210,.18);
+}
+
+.tc2FoodHero {
+  padding: 18px;
+  background: linear-gradient(135deg,rgba(26,52,74,.98),rgba(8,20,31,.98));
+}
+
+.tc2FoodHero h2 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.tc2FoodHero p,
+.tc2FoodAddHead p,
+.tc2FoodEmpty p {
+  margin: 8px 0 0;
+  color: #aeb9c4;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.tc2FoodAdd,
+.tc2FoodEmpty {
+  padding: 16px;
+}
+
+.tc2FoodAddHead h3,
+.tc2FoodEmpty h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.tc2FoodFields {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.tc2FoodFields label {
+  display: grid;
+  gap: 6px;
+}
+
+.tc2FoodFields span {
+  color: #aeb9c4;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tc2FoodFields select,
+.tc2FoodFields input {
+  width: 100% !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  background: rgba(3,15,24,.94) !important;
+  border: 1px solid rgba(125,170,210,.25) !important;
+  color: #f4f7fb !important;
+  font-size: 15px !important;
+  text-align: left !important;
+}
+
+.tc2FoodSave {
+  width: 100%;
+  min-height: 52px !important;
+  margin: 14px 0 0 !important;
+  border-radius: 17px !important;
+  font-weight: 900 !important;
+}
+/* TC2 Profil V4 */
+
+.tc2ProfileV4 {
+  display: grid;
+  gap: 16px;
+}
+
+.tc2ProfileV4 .tc2ProfileTopBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.tc2ProfileV4 .tc2ProfileTopBack {
+  width: auto !important;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+  background: rgba(7,18,29,.72) !important;
+  border: 1px solid rgba(125,170,210,.22) !important;
+  color: #dce8f2 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+
+.tc2ProfileV4 .tc2ProfileTopStatus {
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(7,18,29,.72);
+  border: 1px solid rgba(125,170,210,.22);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity {
+  text-align: center;
+  padding: 10px 4px 4px;
+}
+
+.tc2ProfileV4 .tc2ProfilePublicId {
+  display: inline-grid;
+  place-items: center;
+  min-height: 34px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(139,220,63,.13);
+  border: 1px solid rgba(139,220,63,.35);
+  color: #9cf05b;
+  font-size: 15px;
+  font-weight: 1000;
+  letter-spacing: .6px;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h2 {
+  margin: 14px 0 6px !important;
+  font-size: 34px !important;
+  line-height: 1 !important;
+  font-weight: 1000 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h3 {
+  margin: 5px 0 0 !important;
+  font-size: 21px !important;
+  line-height: 1.12 !important;
+  font-weight: 900 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileScientific {
+  font-style: italic;
+  color: #f4f7fb !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity p {
+  margin: 10px 0 0;
+  color: #9cf05b;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity small {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #aeb9c4 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero {
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(7,18,29,.72);
+  border: 1px solid rgba(125,170,210,.22);
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+}
+
+.tc2ProfileV4 .tc2ProfileHero img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.tc2ProfileV4 .tc2ProfileHeroEmpty {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  font-size: 54px;
+  opacity: .55;
+}
+
+.tc2ProfileV4 .tc2ProfileActionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 2px 0;
+}
+
+.tc2ProfileV4 .tc2ProfileAction {
+  min-height: 74px !important;
+  margin: 0 !important;
+  padding: 11px 10px !important;
+  display: grid !important;
+  grid-template-columns: 30px minmax(0, 1fr) 10px;
+  align-items: center;
+  gap: 8px;
+  text-align: left !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg,rgba(21,43,62,.98),rgba(9,23,35,.98)) !important;
+  border: 1px solid rgba(125,170,210,.24) !important;
+  box-shadow: 0 14px 28px rgba(0,0,0,.24) !important;
+  color: #f4f7fb !important;
+}
+
+.tc2ProfileV4 .tc2ProfileAction:active {
+  transform: scale(.985);
+}
+
+.tc2ProfileV4 .tc2ProfileActionIcon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+}
+
+.tc2ProfileV4 .tc2ProfileActionText {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.1;
+  font-weight: 1000;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc2ProfileV4 .tc2ProfileActionArrow {
+  color: #9cf05b;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.tc2ProfileV4 .tc2ProfileStats,
+.tc2ProfileV4 .tc2ProfileOverviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tc2ProfileV4 .tc2ProfileStats div,
+.tc2ProfileV4 .tc2ProfileOverviewGrid div {
+  min-height: 76px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(7,18,29,.72);
+  border: 1px solid rgba(125,170,210,.22);
+  text-align: center;
+}
+
+.tc2ProfileV4 .tc2ProfileStats small,
+.tc2ProfileV4 .tc2ProfileOverviewGrid small {
+  font-size: 11px;
+  font-weight: 800;
+  color: #aeb9c4 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileStats b,
+.tc2ProfileV4 .tc2ProfileOverviewGrid b {
+  font-size: 19px;
+  line-height: 1.05;
+  font-weight: 1000;
+  color: #f4f7fb;
+}
+
+.tc2ProfileV4 .tc2ProfileBody {
+  display: grid;
+  gap: 12px;
+}
+
+.tc2ProfileV4 .tc2SubCard {
+  padding: 16px !important;
+  border-radius: 22px !important;
+}
+
+.tc2ProfileV4 .tc2SubCard h3 {
+  margin: 0 0 12px !important;
+  font-size: 21px !important;
+}
+
+.tc2ProfileV4 .tc2InfoRows {
+  display: grid;
+  gap: 8px;
+}
+
+.tc2ProfileV4 .tc2InfoRows div {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.tc2ProfileV4 .tc2InfoRows div:last-child {
+  border-bottom: 0;
+}
+
+.tc2ProfileV4 .tc2InfoRows b {
+  color: #dce8f2;
+  font-size: 13px;
+}
+
+.tc2ProfileV4 .tc2InfoRows span {
+  color: #aeb9c4;
+  font-size: 13px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+/* TC2 Foto-Fix */
+
+.tc2ProfileHero,
+.tc2TaxAnimal div,
+.tc2TaxAnimalGrid .tc2TaxAnimal div {
+  overflow: hidden !important;
+}
+
+.tc2ProfileHero img,
+.tc2TaxAnimal img,
+.tc2TaxAnimalGrid img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: block !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero {
+  width: 100% !important;
+  height: 240px !important;
+  min-height: 240px !important;
+  max-height: 240px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero img {
+  width: 100% !important;
+  height: 240px !important;
+  object-fit: cover !important;
+}
+
+.tc2TaxAnimal div {
+  width: 100% !important;
+  height: 160px !important;
+  border-radius: 18px !important;
+  background: rgba(7,18,29,.72) !important;
+}
+
+.tc2TaxAnimal img {
+  border-radius: 18px !important;
+}
+/* TC2 Foto-Fix V2 */
+
+.tc2ProfileV4 .tc2ProfileHero {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #071521 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: unset !important;
+  object-position: center center !important;
+  display: block !important;
+  border-radius: 24px !important;
+}
+
+.tc2TaxAnimal div {
+  height: 180px !important;
+  overflow: hidden !important;
+  background: #071521 !important;
+  padding: 0 !important;
+}
+
+.tc2TaxAnimal img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: block !important;
+}
 /* Analytics */
 .tc2AnalyticsPage{
  display:flex;
@@ -296,5 +3494,146 @@
  .tc2AnalyticsListRow b,
  .tc2AnalyticsListRow small{
   white-space:normal;
+ }
+}
+/* Offspring */
+.tc2OffspringPage{
+ display:flex;
+ flex-direction:column;
+ gap:18px;
+}
+
+.tc2OffspringHero{
+ padding:22px;
+ border-radius:26px;
+ background:
+  linear-gradient(
+   135deg,
+   rgba(80,62,25,.94),
+   rgba(20,38,49,.98)
+  );
+ border:1px solid rgba(242,195,107,.3);
+ box-shadow:0 18px 42px rgba(0,0,0,.22);
+}
+
+.tc2OffspringHero>div{
+ display:flex;
+ align-items:center;
+ gap:16px;
+}
+
+.tc2OffspringHero>div>span{
+ display:grid;
+ place-items:center;
+ width:58px;
+ height:58px;
+ flex:0 0 58px;
+ border-radius:19px;
+ font-size:30px;
+ background:rgba(255,255,255,.07);
+ border:1px solid rgba(255,255,255,.08);
+}
+
+.tc2OffspringHero h2{
+ margin:0 0 6px;
+ font-size:29px;
+}
+
+.tc2OffspringHero p{
+ margin:0;
+ color:var(--muted);
+ line-height:1.45;
+}
+
+.tc2OffspringSummary{
+ margin:0;
+}
+
+.tc2OffspringPageHead{
+ margin:0;
+}
+
+.tc2OffspringFolder{
+ border-color:rgba(242,195,107,.34);
+}
+
+.tc2OffspringFolder>span{
+ display:grid;
+ place-items:center;
+ min-height:48px;
+ font-size:25px;
+}
+
+.tc2OffspringAnimal{
+ position:relative;
+ overflow:hidden;
+}
+
+.tc2OffspringAnimal>div{
+ overflow:hidden;
+}
+
+.tc2OffspringAnimal>div img{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:cover;
+}
+
+.tc2OffspringStatus{
+ display:inline-flex;
+ align-self:flex-start;
+ margin-top:7px;
+ padding:5px 9px;
+ border-radius:999px;
+ color:#f7d98e;
+ background:rgba(242,195,107,.09);
+ border:1px solid rgba(242,195,107,.28);
+ font-size:11px;
+ font-weight:800;
+ font-style:normal;
+}
+
+.tc2OffspringEditor{
+ margin-top:0;
+}
+
+.tc2OffspringEditor .tc2AnimalEditorHead{
+ border-color:rgba(242,195,107,.28);
+}
+
+.tc2OffspringEditor .tc2AnimalEditorBlock h4{
+ color:#f7d98e;
+}
+
+.tc2OffspringFoodEmpty{
+ margin-top:14px;
+}
+
+.tc2OffspringFoodEmpty button{
+ max-width:280px;
+ margin:12px auto 0;
+}
+
+@media(max-width:620px){
+ .tc2OffspringHero{
+  padding:17px;
+  border-radius:21px;
+ }
+
+ .tc2OffspringHero>div{
+  align-items:flex-start;
+ }
+
+ .tc2OffspringHero>div>span{
+  width:48px;
+  height:48px;
+  flex-basis:48px;
+  border-radius:16px;
+  font-size:25px;
+ }
+
+ .tc2OffspringHero h2{
+  font-size:25px;
  }
 }
