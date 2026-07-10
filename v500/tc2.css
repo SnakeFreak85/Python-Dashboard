@@ -10957,3 +10957,157 @@ body.menuOpen #drawer{
   min-height:58px!important;
  }
 }
+/* =========================================================
+   TC2 GLOBALE ZURÜCK-NAVIGATION
+   ========================================================= */
+
+.tc2GlobalBackBar{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+
+ width:100%;
+ max-width:100%;
+
+ margin:0 0 14px;
+ padding:0;
+}
+
+.tc2GlobalBackButton{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:7px!important;
+
+ width:auto!important;
+ min-width:105px!important;
+ max-width:none!important;
+
+ height:42px!important;
+ min-height:42px!important;
+ max-height:42px!important;
+
+ margin:0!important;
+ padding:0 14px!important;
+
+ border-radius:14px!important;
+
+ color:#f4f7fb!important;
+
+ background:
+  linear-gradient(
+   180deg,
+   rgba(24,45,62,.98),
+   rgba(12,28,41,.99)
+  )!important;
+
+ border:1px solid rgba(125,170,210,.28)!important;
+
+ box-shadow:0 8px 20px rgba(0,0,0,.15)!important;
+
+ font-size:13px!important;
+ font-weight:850!important;
+ line-height:1!important;
+}
+
+.tc2GlobalBackButton>span{
+ display:block;
+ margin-top:-1px;
+ font-size:24px;
+ font-weight:400;
+ line-height:1;
+}
+
+.tc2GlobalBackButton>b{
+ font-size:12px;
+ font-weight:850;
+ line-height:1;
+}
+
+.tc2GlobalBackButton:hover{
+ transform:translateY(-1px);
+ border-color:rgba(139,220,63,.48)!important;
+ background:
+  linear-gradient(
+   180deg,
+   rgba(29,53,70,.99),
+   rgba(14,32,46,.99)
+  )!important;
+}
+
+.tc2GlobalBackButton:active{
+ transform:translateY(0);
+}
+
+.tc2GlobalBackBar>small{
+ min-width:0;
+ overflow:hidden;
+
+ color:#83929f!important;
+ font-size:10px;
+ font-weight:800;
+
+ text-align:right;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+/* Fehlermeldung bei nicht ladbarer Route */
+
+.tc2RouteError{
+ padding:20px;
+ border-radius:22px;
+
+ background:
+  linear-gradient(
+   180deg,
+   rgba(61,31,39,.96),
+   rgba(14,30,43,.99)
+  );
+
+ border:1px solid rgba(224,108,117,.42);
+ box-shadow:0 14px 31px rgba(0,0,0,.18);
+}
+
+.tc2RouteError h2{
+ margin:0 0 8px!important;
+ font-size:20px!important;
+}
+
+.tc2RouteError p{
+ margin:0 0 15px;
+ color:#c8b7bc;
+ line-height:1.5;
+}
+
+.tc2RouteError button{
+ width:100%;
+ min-height:45px;
+ margin:0!important;
+ border-radius:14px!important;
+}
+
+/* Mobile */
+
+@media(max-width:560px){
+ .tc2GlobalBackBar{
+  margin-bottom:12px;
+ }
+
+ .tc2GlobalBackButton{
+  min-width:98px!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  padding:0 12px!important;
+ }
+
+ .tc2GlobalBackButton>span{
+  font-size:22px;
+ }
+
+ .tc2GlobalBackBar>small{
+  font-size:9px;
+ }
+}
