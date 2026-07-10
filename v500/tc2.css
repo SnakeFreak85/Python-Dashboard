@@ -5937,3 +5937,476 @@ body:not(.tc2RefMode) .wrap {
   max-width:96%;
  }
 }
+/* =========================================================
+   TC2 QR / TIERPASS
+   ========================================================= */
+
+.tc2QR{
+ display:flex;
+ flex-direction:column;
+ gap:16px;
+ width:100%;
+ max-width:100%;
+}
+
+.tc2QR *,
+.tc2QR *::before,
+.tc2QR *::after{
+ box-sizing:border-box;
+}
+
+/* Hero */
+
+.tc2QRHero{
+ position:relative;
+ overflow:hidden;
+ padding:21px;
+ border-radius:25px;
+ background:
+  radial-gradient(
+   circle at 100% 0,
+   rgba(180,129,255,.16),
+   transparent 43%
+  ),
+  linear-gradient(
+   145deg,
+   rgba(45,48,83,.98),
+   rgba(15,31,47,.98)
+  );
+ border:1px solid rgba(180,129,255,.34);
+ box-shadow:0 17px 38px rgba(0,0,0,.22);
+}
+
+.tc2QRHero::after{
+ content:"";
+ position:absolute;
+ right:-40px;
+ bottom:-66px;
+ width:160px;
+ height:160px;
+ border-radius:50%;
+ background:rgba(180,129,255,.055);
+ pointer-events:none;
+}
+
+.tc2QRHero>div{
+ position:relative;
+ z-index:1;
+}
+
+.tc2QRHero h2{
+ margin:0 0 7px!important;
+ font-size:28px!important;
+ line-height:1.1;
+}
+
+.tc2QRHero p{
+ margin:0;
+ color:#bdc8d2;
+ line-height:1.48;
+}
+
+/* Hauptkarten */
+
+.tc2QRCard,
+.tc2QRResult{
+ margin:0;
+ padding:18px;
+ border-radius:23px;
+ background:
+  linear-gradient(
+   180deg,
+   rgba(24,45,62,.97),
+   rgba(14,30,43,.99)
+  );
+ border:1px solid rgba(125,170,210,.25);
+ box-shadow:0 14px 32px rgba(0,0,0,.18);
+}
+
+.tc2QRHead{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ margin-bottom:8px;
+}
+
+.tc2QRHead h3,
+.tc2QRResult>h3{
+ margin:0!important;
+ font-size:20px!important;
+}
+
+.tc2QRCard>p{
+ margin:0 0 14px;
+ color:#aeb9c4;
+ line-height:1.5;
+}
+
+/* Scanner-Aktionen */
+
+.tc2QRActions{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;
+}
+
+.tc2QRActions button{
+ min-height:48px;
+ margin:0!important;
+ border-radius:16px!important;
+}
+
+.tc2QRActions button:first-child{
+ color:#071521!important;
+ background:
+  linear-gradient(
+   135deg,
+   #69d2c4,
+   #8bdc3f
+  )!important;
+ border:0!important;
+ font-weight:900!important;
+}
+
+.tc2QRActions button:last-child{
+ color:#ffd1d5!important;
+ background:rgba(91,35,44,.4)!important;
+ border:1px solid rgba(224,108,117,.42)!important;
+}
+
+/* Scanner-Anzeige */
+
+#scanBox:empty{
+ display:none;
+}
+
+#scanBox{
+ margin-top:13px;
+}
+
+#scanBox .tc2QREmpty{
+ margin:0!important;
+}
+
+#scanBox video{
+ display:block;
+ width:100%!important;
+ max-height:430px;
+ object-fit:cover;
+ border-radius:19px!important;
+ background:#000!important;
+ border:1px solid rgba(125,170,210,.28);
+ box-shadow:0 13px 30px rgba(0,0,0,.3);
+}
+
+#scanBox video+ p{
+ margin:11px 0 0;
+ text-align:center;
+}
+
+/* Eingabe */
+
+.tc2QR textarea{
+ width:100%!important;
+ min-height:125px;
+ margin:13px 0 11px!important;
+ padding:14px!important;
+ resize:vertical;
+ border-radius:17px!important;
+ background:#06131e!important;
+ border:1px solid rgba(125,170,210,.31)!important;
+ color:#f4f7fb!important;
+ font-size:13px;
+ line-height:1.5;
+ box-shadow:inset 0 4px 14px rgba(0,0,0,.17);
+}
+
+.tc2QR textarea::placeholder{
+ color:#81909d;
+}
+
+.tc2QR textarea:focus{
+ outline:none;
+ border-color:rgba(180,129,255,.64)!important;
+ box-shadow:
+  0 0 0 3px rgba(180,129,255,.1),
+  inset 0 4px 14px rgba(0,0,0,.17);
+}
+
+.tc2QRPrimary{
+ width:100%;
+ min-height:48px;
+ margin:0!important;
+ border:0!important;
+ border-radius:16px!important;
+ color:#071521!important;
+ background:
+  linear-gradient(
+   135deg,
+   #b481ff,
+   #69d2c4
+  )!important;
+ font-weight:900!important;
+ box-shadow:0 10px 24px rgba(0,0,0,.19)!important;
+}
+
+.tc2QRPrimary:hover{
+ filter:brightness(1.05);
+ transform:translateY(-1px);
+}
+
+/* Ergebnisbereich */
+
+#qrResult{
+ display:flex;
+ flex-direction:column;
+ gap:14px;
+}
+
+#qrResult:empty{
+ display:none;
+}
+
+.tc2QRResult{
+ border-color:rgba(180,129,255,.29);
+}
+
+.tc2QRResult>p{
+ margin:13px 0 0;
+ color:#b9c4cf;
+ line-height:1.5;
+}
+
+/* Tierpass-Karte */
+
+.tc2QRPassport{
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+ margin-top:14px;
+ padding:17px;
+ border-radius:19px;
+ background:
+  radial-gradient(
+   circle at 100% 0,
+   rgba(180,129,255,.1),
+   transparent 44%
+  ),
+  rgba(5,17,27,.35);
+ border:1px solid rgba(180,129,255,.24);
+}
+
+.tc2QRPassport>b{
+ font-size:22px;
+ line-height:1.2;
+ overflow-wrap:anywhere;
+}
+
+.tc2QRPassport>span{
+ color:#b7c3cd;
+ font-size:13px;
+ line-height:1.4;
+}
+
+.tc2QRPassport>div{
+ display:grid;
+ grid-template-columns:minmax(90px,.7fr) minmax(0,1.3fr);
+ overflow:hidden;
+ margin-top:6px;
+ border-radius:15px;
+ background:rgba(3,12,20,.3);
+ border:1px solid rgba(125,170,210,.16);
+}
+
+.tc2QRPassport small,
+.tc2QRPassport strong{
+ padding:10px 11px;
+ border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.tc2QRPassport small{
+ color:#9eabb7!important;
+ font-size:11px;
+ font-weight:800;
+}
+
+.tc2QRPassport strong{
+ min-width:0;
+ color:#edf3f7;
+ font-size:12px;
+ overflow-wrap:anywhere;
+ text-align:right;
+}
+
+.tc2QRPassport small:nth-last-child(-n+2),
+.tc2QRPassport strong:nth-last-child(-n+2){
+ border-bottom:0;
+}
+
+/* QR-Code */
+
+.tc2QRBox{
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:13px;
+ margin-top:15px;
+ padding:18px;
+ border-radius:21px;
+ background:
+  linear-gradient(
+   180deg,
+   rgba(255,255,255,.99),
+   rgba(233,238,243,.99)
+  );
+ border:1px solid rgba(255,255,255,.7);
+ box-shadow:0 15px 34px rgba(0,0,0,.28);
+}
+
+.tc2QRBox #qrCode{
+ display:grid;
+ place-items:center;
+ width:100%;
+}
+
+.tc2QRBox canvas,
+.tc2QRBox img{
+ display:block;
+ max-width:100%;
+ height:auto;
+ margin:auto;
+}
+
+.tc2QRBox>span{
+ display:block;
+ max-width:100%;
+ padding:7px 10px;
+ border-radius:10px;
+ color:#18232c;
+ background:rgba(13,29,42,.07);
+ font-family:monospace;
+ font-size:11px;
+ overflow-wrap:anywhere;
+ text-align:center;
+}
+
+/* Leer- und Statuszustände */
+
+.tc2QREmpty{
+ padding:21px;
+ border-radius:20px;
+ text-align:center;
+ background:
+  linear-gradient(
+   180deg,
+   rgba(24,45,62,.95),
+   rgba(14,30,43,.98)
+  );
+ border:1px dashed rgba(125,170,210,.34);
+ box-shadow:0 12px 27px rgba(0,0,0,.15);
+}
+
+.tc2QREmpty h3{
+ margin:0 0 8px!important;
+ font-size:19px!important;
+}
+
+.tc2QREmpty p{
+ margin:0;
+ color:#aeb9c4;
+ line-height:1.5;
+}
+
+.tc2QREmpty+.animalCard,
+#qrResult>.animalCard{
+ margin:0!important;
+}
+
+/* Bestehende Tierkarte im Ergebnis */
+
+#qrResult .animalCard,
+#qrResult .tc2AnimalCard,
+#qrResult>.card{
+ margin:0!important;
+ border-radius:22px!important;
+ background:
+  linear-gradient(
+   180deg,
+   rgba(24,45,62,.97),
+   rgba(14,30,43,.99)
+  )!important;
+ border:1px solid rgba(125,170,210,.25)!important;
+ box-shadow:0 14px 32px rgba(0,0,0,.18)!important;
+}
+
+#qrResult button{
+ border-radius:15px!important;
+}
+
+/* Animation */
+
+#qrResult>*{
+ animation:tc2QRResultIn .2s ease-out;
+}
+
+@keyframes tc2QRResultIn{
+ from{
+  opacity:0;
+  transform:translateY(6px);
+ }
+
+ to{
+  opacity:1;
+  transform:translateY(0);
+ }
+}
+
+/* Responsive */
+
+@media(max-width:560px){
+ .tc2QRHero{
+  padding:17px;
+  border-radius:21px;
+ }
+
+ .tc2QRHero h2{
+  font-size:25px!important;
+ }
+
+ .tc2QRCard,
+ .tc2QRResult{
+  padding:15px;
+  border-radius:20px;
+ }
+
+ .tc2QRActions{
+  grid-template-columns:1fr;
+ }
+
+ .tc2QRPassport>div{
+  grid-template-columns:1fr;
+ }
+
+ .tc2QRPassport small{
+  padding-bottom:3px;
+  border-bottom:0;
+ }
+
+ .tc2QRPassport strong{
+  padding-top:3px;
+  text-align:left;
+ }
+
+ .tc2QRPassport strong:not(:last-child){
+  border-bottom:1px solid rgba(255,255,255,.05);
+ }
+
+ .tc2QRBox{
+  padding:13px;
+ }
+
+ #scanBox video{
+  max-height:330px;
+ }
+}
