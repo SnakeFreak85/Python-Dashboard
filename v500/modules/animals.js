@@ -8,7 +8,10 @@ function jsArg(v){
 }
 
 function isOffspringAnimal(a){
- if(window.NGTIdManager&&NGTIdManager.isOffspring)return NGTIdManager.isOffspring(a);
+ if(window.NGTIdManager&&NGTIdManager.isOffspring){
+  return NGTIdManager.isOffspring(a);
+ }
+
  return String((a&&a.status)||'').toLowerCase()==='nachzucht' ||
   String((a&&a.collection)||'').toLowerCase()==='offspring' ||
   String((a&&a.collection)||'').toLowerCase()==='nachzuchten';
@@ -16,24 +19,69 @@ function isOffspringAnimal(a){
 
 function statusOptions(cur){
  return ['Bestand','Verkauft','Abgegeben','Verstorben','Archiv']
-  .map(s=>`<option ${cur===s?'selected':''}>${s}</option>`)
+  .map(function(status){
+   return `<option ${cur===status?'selected':''}>${status}</option>`;
+  })
   .join('');
 }
 
 function opt(list,cur){
  return (list||[])
-  .map(v=>`<option value="${esc(v)}" ${String(cur||'')===String(v)?'selected':''}>${esc(v)}</option>`)
+  .map(function(value){
+   return `<option value="${esc(value)}" ${String(cur||'')===String(value)?'selected':''}>${esc(value)}</option>`;
+  })
   .join('');
 }
 
+function photoSrc(photo,preferThumb){
+ if(!photo)return '';
+
+ if(window.NGTPhotoStorage&&NGTPhotoStorage.src){
+  return NGTPhotoStorage.src(photo,preferThumb);
+ }
+
+ if(preferThumb&&(photo.thumbUrl||photo.thumbnailUrl)){
+  return photo.thumbUrl||photo.thumbnailUrl;
+ }
+
+ return photo.url||
+  photo.thumbUrl||
+  photo.thumbnailUrl||
+  photo.data||
+  '';
+}
+
+function isUsablePhoto(photo){
+ return !!photoSrc(photo,true);
+}
+
+function coverPhoto(animal){
+ const photos=(
+  animal&&Array.isArray(animal.photos)
+   ?animal.photos
+   :[]
+ ).filter(isUsablePhoto);
+
+ return photos.find(function(photo){
+  return photo.cover;
+ })||photos[0]||null;
+}
+
 function hknDraft(){
- try{return JSON.parse(sessionStorage.getItem('terracontrol_hkn_import_v1')||'null')}
- catch(e){return null}
+ try{
+  return JSON.parse(
+   sessionStorage.getItem('terracontrol_hkn_import_v1')||'null'
+  );
+ }catch(e){
+  return null;
+ }
 }
 
 function hknInfo(){
  const h=hknDraft();
+
  if(!h)return '';
+
  return `<div class="subcard ok tc2FormCard">
   <h3>📄 Herkunftsnachweis übernommen</h3>
   <p class="muted">Das Foto wurde übernommen. Die KI-Analyse läuft automatisch und füllt die Felder aus, sobald Daten erkannt wurden.</p>
@@ -44,29 +92,48 @@ function hknInfo(){
 }
 
 function allActive(){
- const all=NGTStore.allAnimals?NGTStore.allAnimals():[];
- return all.filter(x=>
-  !['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status) &&
-  !isOffspringAnimal(x.a)
- );
+ const all=NGTStore.allAnimals
+  ?NGTStore.allAnimals()
+  :[];
+
+ return all.filter(function(row){
+  return ![
+   'Archiv',
+   'Verkauft',
+   'Abgegeben',
+   'Verstorben'
+  ].includes(row.a.status) &&
+  !isOffspringAnimal(row.a);
+ });
 }
 
 function countBy(rows,keyFn){
  const map={};
- rows.forEach(x=>{
-  const k=keyFn(x)||'Unsortiert';
-  map[k]=(map[k]||0)+1;
+
+ rows.forEach(function(row){
+  const key=keyFn(row)||'Unsortiert';
+  map[key]=(map[key]||0)+1;
  });
- return Object.keys(map).sort().map(k=>({label:k,count:map[k]}));
+
+ return Object.keys(map)
+  .sort()
+  .map(function(key){
+   return {
+    label:key,
+    count:map[key]
+   };
+  });
 }
 
 function backButton(args){
  if(args&&args.genus){
   return `<button onclick="NGT500.route('animals',{group:'${jsArg(args.group)}'})">‹ ${esc(args.group)}</button>`;
  }
+
  if(args&&args.group){
   return `<button onclick="NGT500.route('dashboard')">‹ Start</button>`;
  }
+
  return `<button onclick="NGT500.route('dashboard')">‹ Start</button>`;
 }
 
@@ -79,11 +146,13 @@ function folderGrid(items,onclick){
  }
 
  return `<div class="tc2TaxGrid">
-  ${items.map(item=>`<button class="tc2TaxFolder" onclick="${onclick(item)}">
-   <span>●●●</span>
-   <b>${esc(item.label)}</b>
-   <small>${item.count} ${item.count===1?'Tier':'Tiere'}</small>
-  </button>`).join('')}
+  ${items.map(function(item){
+   return `<button class="tc2TaxFolder" onclick="${onclick(item)}">
+    <span>●●●</span>
+    <b>${esc(item.label)}</b>
+    <small>${item.count} ${item.count===1?'Tier':'Tiere'}</small>
+   </button>`;
+  }).join('')}
  </div>`;
 }
 
@@ -96,18 +165,25 @@ function animalIconGrid(rows){
  }
 
  return `<div class="tc2TaxAnimalGrid">
-  ${rows.map(x=>{
-   const a=x.a;
-   const photo=(a.photos||[]).find(p=>p.cover)||(a.photos||[])[0];
-   const img=photo&&photo.data
-    ? `<img src="${photo.data}">`
-    : `<span>📷</span>`;
-   const tax=[a.genus,a.species].filter(Boolean).join(' ');
-   return `<button class="tc2TaxAnimal" onclick="NGT500.route('profile',{t:'${jsArg(x.t)}',i:${x.i}})">
-    <div>${img}</div>
-    <b>${esc(a.publicId||a.displayId||'')}</b>
-    <strong>${esc(a.name||'Unbenannt')}</strong>
-    <small>${esc(tax||a.animalGroup||'')}</small>
+  ${rows.map(function(row){
+   const animal=row.a;
+   const photo=coverPhoto(animal);
+   const source=photoSrc(photo,true);
+
+   const image=source
+    ?`<img src="${esc(source)}" alt="${esc(animal.name||'Tierfoto')}" loading="lazy">`
+    :`<span>📷</span>`;
+
+   const taxonomy=[
+    animal.genus,
+    animal.species
+   ].filter(Boolean).join(' ');
+
+   return `<button class="tc2TaxAnimal" onclick="NGT500.route('profile',{t:'${jsArg(row.t)}',i:${row.i}})">
+    <div>${image}</div>
+    <b>${esc(animal.publicId||animal.displayId||'')}</b>
+    <strong>${esc(animal.name||'Unbenannt')}</strong>
+    <small>${esc(taxonomy||animal.animalGroup||'')}</small>
    </button>`;
   }).join('')}
  </div>`;
@@ -130,6 +206,7 @@ function render(args){
      <p class="muted">Tiergruppe, Gattung, Art und Stammdaten.</p>
     </div>
    </div>
+
    ${hkn?hknInfo()+editor(t,undefined,true):''}
    ${edit!==undefined?editor(t,Number(edit)):''}
   </div>`;
@@ -138,7 +215,12 @@ function render(args){
  const all=allActive();
 
  if(!group){
-  const groups=countBy(all,x=>x.a.animalGroup||'Unsortiert');
+  const groups=countBy(
+   all,
+   function(row){
+    return row.a.animalGroup||'Unsortiert';
+   }
+  );
 
   return `<div class="card tc2PageCard tc2AnimalsPage">
    <div class="tc2PageHead">
@@ -147,48 +229,97 @@ function render(args){
      <p class="muted">Dynamische Tiergruppen aus deinem Bestand.</p>
     </div>
    </div>
-   ${folderGrid(groups,item=>`NGT500.route('animals',{group:'${jsArg(item.label)}'})`)}
+
+   ${folderGrid(
+    groups,
+    function(item){
+     return `NGT500.route('animals',{group:'${jsArg(item.label)}'})`;
+    }
+   )}
   </div>`;
  }
 
- const groupRows=all.filter(x=>String(x.a.animalGroup||'Unsortiert')===String(group));
+ const groupRows=all.filter(function(row){
+  return String(row.a.animalGroup||'Unsortiert')===String(group);
+ });
 
  if(group&&!genus){
-  const genusRows=countBy(groupRows,x=>x.a.genus||'Ohne Gattung');
+  const genusRows=countBy(
+   groupRows,
+   function(row){
+    return row.a.genus||'Ohne Gattung';
+   }
+  );
 
   return `<div class="card tc2PageCard tc2AnimalsPage">
    <div class="tc2PageHead">
     <div>
-     ${backButton({group})}
+     ${backButton({group:group})}
      <h2>${esc(group)}</h2>
      <p class="muted">Wähle eine Gattung.</p>
     </div>
    </div>
-   ${folderGrid(genusRows,item=>`NGT500.route('animals',{group:'${jsArg(group)}',genus:'${jsArg(item.label)}'})`)}
+
+   ${folderGrid(
+    genusRows,
+    function(item){
+     return `NGT500.route('animals',{group:'${jsArg(group)}',genus:'${jsArg(item.label)}'})`;
+    }
+   )}
   </div>`;
  }
 
- const animalRows=groupRows.filter(x=>String(x.a.genus||'Ohne Gattung')===String(genus));
+ const animalRows=groupRows.filter(function(row){
+  return String(row.a.genus||'Ohne Gattung')===String(genus);
+ });
 
  return `<div class="card tc2PageCard tc2AnimalsPage">
   <div class="tc2PageHead">
    <div>
-    ${backButton({group,genus})}
+    ${backButton({
+     group:group,
+     genus:genus
+    })}
     <h2>${esc(genus)}</h2>
     <p class="muted">${esc(group)} · ${animalRows.length} ${animalRows.length===1?'Tier':'Tiere'}</p>
    </div>
   </div>
+
   ${animalIconGrid(animalRows)}
  </div>`;
 }
 
 function editor(t,i,fromHkn){
- const a=i!==undefined?NGTStore.animal(t,i):{};
- const parsed=NGTStore.parseFeeder(a.defaultFeeder||a.futterStandard||a.standardFeed||'');
- const defState=a.defaultFeederState||parsed.state||'Frost';
- const defType=a.defaultFeederType||parsed.prey||'Ratte';
- const defSize=a.defaultFeederSize||parsed.size||((NGTStore.FEEDER_SIZES[defType]||[])[0]||'');
- const feedInterval=a.feedIntervalDays||a.feedingInterval||a.feedInterval||14;
+ const animal=i!==undefined
+  ?NGTStore.animal(t,i)
+  :{};
+
+ const parsed=NGTStore.parseFeeder(
+  animal.defaultFeeder||
+  animal.futterStandard||
+  animal.standardFeed||
+  ''
+ );
+
+ const defState=animal.defaultFeederState||
+  parsed.state||
+  'Frost';
+
+ const defType=animal.defaultFeederType||
+  parsed.prey||
+  'Ratte';
+
+ const defSize=animal.defaultFeederSize||
+  parsed.size||
+  (
+   (NGTStore.FEEDER_SIZES[defType]||[])[0]||
+   ''
+  );
+
+ const feedInterval=animal.feedIntervalDays||
+  animal.feedingInterval||
+  animal.feedInterval||
+  14;
 
  return `<section class="tc2AnimalEditor">
   <div class="tc2AnimalEditorHead">
@@ -200,60 +331,131 @@ function editor(t,i,fromHkn){
 
   <div class="tc2AnimalEditorBlock">
    <h4>Taxonomie</h4>
+
    <div class="tc2AnimalFields">
-    <label><span>Tiergruppe</span><input id="edAnimalGroup" placeholder="z. B. Pythons" value="${esc(a.animalGroup||'')}"></label>
-    <label><span>Gattung</span><input id="edGenus" placeholder="z. B. Python" value="${esc(a.genus||'')}"></label>
-    <label><span>Art</span><input id="edSpecies" placeholder="z. B. regius" value="${esc(a.species||'')}"></label>
+    <label>
+     <span>Tiergruppe</span>
+     <input id="edAnimalGroup" placeholder="z. B. Pythons" value="${esc(animal.animalGroup||'')}">
+    </label>
+
+    <label>
+     <span>Gattung</span>
+     <input id="edGenus" placeholder="z. B. Python" value="${esc(animal.genus||'')}">
+    </label>
+
+    <label>
+     <span>Art</span>
+     <input id="edSpecies" placeholder="z. B. regius" value="${esc(animal.species||'')}">
+    </label>
    </div>
   </div>
 
   <div class="tc2AnimalEditorBlock">
    <h4>Stammdaten</h4>
+
    <div class="tc2AnimalFields">
-    <label><span>Name</span><input id="edName" value="${esc(a.name||'')}"></label>
-    <label><span>Morph</span><input id="edMorph" value="${esc(a.morph||'')}"></label>
-    <label><span>Gewicht</span><input id="edWeight" type="number" value="${esc(a.weight||'')}"></label>
-    <label><span>Geschlecht</span><select id="edSex">
-     <option ${a.sex==='Unbestimmt'?'selected':''}>Unbestimmt</option>
-     <option ${a.sex==='Männlich'?'selected':''}>Männlich</option>
-     <option ${a.sex==='Weiblich'?'selected':''}>Weiblich</option>
-    </select></label>
-    <label><span>Status</span><select id="edStatus">${statusOptions(a.status||'Bestand')}</select></label>
+    <label>
+     <span>Name</span>
+     <input id="edName" value="${esc(animal.name||'')}">
+    </label>
+
+    <label>
+     <span>Morph</span>
+     <input id="edMorph" value="${esc(animal.morph||'')}">
+    </label>
+
+    <label>
+     <span>Gewicht</span>
+     <input id="edWeight" type="number" value="${esc(animal.weight||'')}">
+    </label>
+
+    <label>
+     <span>Geschlecht</span>
+     <select id="edSex">
+      <option ${animal.sex==='Unbestimmt'?'selected':''}>Unbestimmt</option>
+      <option ${animal.sex==='Männlich'?'selected':''}>Männlich</option>
+      <option ${animal.sex==='Weiblich'?'selected':''}>Weiblich</option>
+     </select>
+    </label>
+
+    <label>
+     <span>Status</span>
+     <select id="edStatus">
+      ${statusOptions(animal.status||'Bestand')}
+     </select>
+    </label>
    </div>
   </div>
 
   <div class="tc2AnimalEditorBlock">
    <h4>Herkunft</h4>
+
    <div class="tc2AnimalFields">
-    <label><span>Herkunft / ENZ / FNZ</span><input id="edOrigin" value="${esc(a.origin||a.originType||'')}"></label>
-    <label><span>Schlupfdatum</span><input id="edBirth" type="date" value="${esc(a.birth||a.birthDate||'')}"></label>
-    <label><span>Vatertier</span><input id="edFather" value="${esc(a.father||a.vater||a.sire||'')}"></label>
-    <label><span>Muttertier</span><input id="edMother" value="${esc(a.mother||a.mutter||a.dam||'')}"></label>
-    <label><span>Kaufpreis</span><input id="edBuy" type="number" value="${esc(a.buyPrice||'')}"></label>
+    <label>
+     <span>Herkunft / ENZ / FNZ</span>
+     <input id="edOrigin" value="${esc(animal.origin||animal.originType||'')}">
+    </label>
+
+    <label>
+     <span>Schlupfdatum</span>
+     <input id="edBirth" type="date" value="${esc(animal.birth||animal.birthDate||'')}">
+    </label>
+
+    <label>
+     <span>Vatertier</span>
+     <input id="edFather" value="${esc(animal.father||animal.vater||animal.sire||'')}">
+    </label>
+
+    <label>
+     <span>Muttertier</span>
+     <input id="edMother" value="${esc(animal.mother||animal.mutter||animal.dam||'')}">
+    </label>
+
+    <label>
+     <span>Kaufpreis</span>
+     <input id="edBuy" type="number" value="${esc(animal.buyPrice||'')}">
+    </label>
    </div>
   </div>
 
   <div class="tc2AnimalEditorBlock">
    <h4>Standardfutter</h4>
+
    <div class="tc2AnimalFields">
-    <label><span>Intervall in Tagen</span><input id="edFeedInterval" type="number" min="1" value="${esc(feedInterval)}"></label>
-    <label><span>Zustand</span><select id="edFeederState">
-     <option ${defState==='Frost'?'selected':''}>Frost</option>
-     <option ${defState==='Lebend'?'selected':''}>Lebend</option>
-    </select></label>
-    <label><span>Futtertier</span><select id="edFeederType" onchange="NGTAnimals.refreshSizeSelect('edFeederType','edFeederSize')">
-     ${opt(NGTStore.FEEDER_TYPES,defType)}
-    </select></label>
-    <label><span>Größe</span><select id="edFeederSize">
-     ${opt(NGTStore.FEEDER_SIZES[defType]||[],defSize)}
-    </select></label>
+    <label>
+     <span>Intervall in Tagen</span>
+     <input id="edFeedInterval" type="number" min="1" value="${esc(feedInterval)}">
+    </label>
+
+    <label>
+     <span>Zustand</span>
+     <select id="edFeederState">
+      <option ${defState==='Frost'?'selected':''}>Frost</option>
+      <option ${defState==='Lebend'?'selected':''}>Lebend</option>
+     </select>
+    </label>
+
+    <label>
+     <span>Futtertier</span>
+     <select id="edFeederType" onchange="NGTAnimals.refreshSizeSelect('edFeederType','edFeederSize')">
+      ${opt(NGTStore.FEEDER_TYPES,defType)}
+     </select>
+    </label>
+
+    <label>
+     <span>Größe</span>
+     <select id="edFeederSize">
+      ${opt(NGTStore.FEEDER_SIZES[defType]||[],defSize)}
+     </select>
+    </label>
    </div>
+
    <p>Gewichtsintervall: 30 Tage festgelegt.</p>
   </div>
 
   <div class="tc2AnimalEditorBlock">
    <h4>Notizen</h4>
-   <textarea id="edNote" placeholder="Notizen">${esc(a.note||'')}</textarea>
+   <textarea id="edNote" placeholder="Notizen">${esc(animal.note||'')}</textarea>
   </div>
 
   <div class="tc2AnimalEditorActions">
@@ -266,52 +468,79 @@ function editor(t,i,fromHkn){
 function refreshSizeSelect(typeId,sizeId){
  const type=document.getElementById(typeId).value;
  const size=document.getElementById(sizeId);
+
  size.innerHTML=(NGTStore.FEEDER_SIZES[type]||[])
-  .map(v=>`<option value="${esc(v)}">${esc(v)}</option>`)
+  .map(function(value){
+   return `<option value="${esc(value)}">${esc(value)}</option>`;
+  })
   .join('');
 }
 
 function openEditor(t){
- document.querySelector('.tc2AnimalsPage, .card').insertAdjacentHTML('afterbegin',editor(t));
+ const target=document.querySelector(
+  '.tc2AnimalsPage, .card'
+ );
+
+ if(!target)return;
+
+ target.insertAdjacentHTML(
+  'afterbegin',
+  editor(t)
+ );
 }
 
 function save(t,i){
- const old=i===null?{}:NGTStore.animal(t,i);
- const interval=Math.max(1,Number(edFeedInterval.value||14));
- const state=edFeederState.value||'Frost';
- const type=edFeederType.value||'Ratte';
- const size=edFeederSize.value||'';
+ const old=i===null
+  ?{}
+  :NGTStore.animal(t,i);
+
+ const interval=Math.max(
+  1,
+  Number(document.getElementById('edFeedInterval').value||14)
+ );
+
+ const state=document.getElementById('edFeederState').value||'Frost';
+ const type=document.getElementById('edFeederType').value||'Ratte';
+ const size=document.getElementById('edFeederSize').value||'';
  const feeder=NGTStore.feederLabel(state,type,size);
  const h=hknDraft();
- const noteBase=edNote.value.trim();
- const note=h&&i===null
-  ? (noteBase?noteBase+'\n\n':'')+'HKN importiert: '+(h.name||'Herkunftsnachweis')
-  : noteBase;
+ const noteBase=document.getElementById('edNote').value.trim();
 
- const a={
+ const note=h&&i===null
+  ?(
+   noteBase
+    ?noteBase+'\n\n'
+    :''
+  )+'HKN importiert: '+(h.name||'Herkunftsnachweis')
+  :noteBase;
+
+ const animal={
   ...old,
-  animalGroup:edAnimalGroup.value.trim()||old.animalGroup||'Unsortiert',
-  genus:edGenus.value.trim()||'Ohne Gattung',
-  species:edSpecies.value.trim(),
-  name:edName.value.trim(),
-  morph:edMorph.value.trim(),
-  weight:edWeight.value,
-  origin:edOrigin.value.trim(),
-  originType:edOrigin.value.trim(),
-  birth:edBirth.value,
-  father:edFather.value.trim(),
-  vater:edFather.value.trim(),
-  sire:edFather.value.trim(),
-  mother:edMother.value.trim(),
-  mutter:edMother.value.trim(),
-  dam:edMother.value.trim(),
+  animalGroup:document.getElementById('edAnimalGroup').value.trim()||
+   old.animalGroup||
+   'Unsortiert',
+  genus:document.getElementById('edGenus').value.trim()||
+   'Ohne Gattung',
+  species:document.getElementById('edSpecies').value.trim(),
+  name:document.getElementById('edName').value.trim(),
+  morph:document.getElementById('edMorph').value.trim(),
+  weight:document.getElementById('edWeight').value,
+  origin:document.getElementById('edOrigin').value.trim(),
+  originType:document.getElementById('edOrigin').value.trim(),
+  birth:document.getElementById('edBirth').value,
+  father:document.getElementById('edFather').value.trim(),
+  vater:document.getElementById('edFather').value.trim(),
+  sire:document.getElementById('edFather').value.trim(),
+  mother:document.getElementById('edMother').value.trim(),
+  mutter:document.getElementById('edMother').value.trim(),
+  dam:document.getElementById('edMother').value.trim(),
   feedIntervalDays:interval,
   feedingInterval:interval,
   feedInterval:interval,
   weightIntervalDays:30,
-  buyPrice:edBuy.value,
-  sex:edSex.value,
-  status:edStatus.value,
+  buyPrice:document.getElementById('edBuy').value,
+  sex:document.getElementById('edSex').value,
+  status:document.getElementById('edStatus').value,
   collection:'stock',
   defaultFeeder:feeder,
   defaultFeederState:state,
@@ -319,16 +548,21 @@ function save(t,i){
   defaultFeederSize:size,
   futterStandard:feeder,
   standardFeed:feeder,
-  note
+  note:note
  };
 
- a.feeds=a.feeds||[];
- a.sheds=a.sheds||[];
- a.weights=a.weights||[];
- a.photos=a.photos||[];
+ animal.feeds=animal.feeds||[];
+ animal.sheds=animal.sheds||[];
+ animal.weights=animal.weights||[];
+ animal.photos=animal.photos||[];
 
- if(h&&h.data&&String(h.data).startsWith('data:image')&&i===null){
-  a.photos.unshift({
+ if(
+  h&&
+  h.data&&
+  String(h.data).startsWith('data:image')&&
+  i===null
+ ){
+  animal.photos.unshift({
    date:NGT500.today(),
    type:'Herkunftsnachweis',
    note:h.name||'Herkunftsnachweis',
@@ -338,23 +572,46 @@ function save(t,i){
  }
 
  if(i===null){
-  NGTStore.addAnimal(t,a);
-  try{sessionStorage.removeItem('terracontrol_hkn_import_v1')}catch(e){}
+  NGTStore.addAnimal(t,animal);
+
+  try{
+   sessionStorage.removeItem(
+    'terracontrol_hkn_import_v1'
+   );
+  }catch(e){}
+
  }else{
-  NGTStore.updateAnimal(t,i,a);
+  NGTStore.updateAnimal(t,i,animal);
  }
 
- NGT500.route('animals',{group:a.animalGroup,genus:a.genus});
+ NGT500.route('animals',{
+  group:animal.animalGroup,
+  genus:animal.genus
+ });
 }
 
 function remove(t,i){
- if(confirm('Tier wirklich löschen?')){
-  const a=NGTStore.animal(t,i)||{};
-  NGTStore.deleteAnimal(t,i);
-  NGT500.route('animals',{group:a.animalGroup||'Unsortiert',genus:a.genus||'Ohne Gattung'});
- }
+ if(!confirm('Tier wirklich löschen?'))return;
+
+ const animal=NGTStore.animal(t,i)||{};
+
+ NGTStore.deleteAnimal(t,i);
+
+ NGT500.route('animals',{
+  group:animal.animalGroup||'Unsortiert',
+  genus:animal.genus||'Ohne Gattung'
+ });
 }
 
-window.NGTAnimals={openEditor,save,remove,refreshSizeSelect};
-NGT500.register('animals',{render});
+window.NGTAnimals={
+ openEditor:openEditor,
+ save:save,
+ remove:remove,
+ refreshSizeSelect:refreshSizeSelect
+};
+
+NGT500.register('animals',{
+ render:render
+});
+
 })();
