@@ -19,6 +19,7 @@ const PROFILE_KEY=
 let app=null;
 let auth=null;
 let db=null;
+let storage=null;
 let user=null;
 let mods=null;
 
@@ -195,10 +196,16 @@ async function loadSdk(){
    "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js"
   );
 
+ const storageMod=
+  await import(
+   "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js"
+  );
+
  mods={
   appMod:appMod,
   authMod:authMod,
-  fsMod:fsMod
+  fsMod:fsMod,
+  storageMod:storageMod
  };
 
  return mods;
@@ -223,8 +230,14 @@ async function init(){
   );
  }
 
- auth=modules.authMod.getAuth(app);
- db=modules.fsMod.getFirestore(app);
+ auth=
+  modules.authMod.getAuth(app);
+
+ db=
+  modules.fsMod.getFirestore(app);
+
+ storage=
+  modules.storageMod.getStorage(app);
 }
 
 async function getContext(){
@@ -234,12 +247,19 @@ async function getContext(){
   app:app,
   auth:auth,
   db:db,
+  storage:storage,
   user:user,
   mods:mods,
+
   appMod:mods.appMod,
   authMod:mods.authMod,
   fsMod:mods.fsMod,
-  config:Object.assign({},CONFIG)
+  storageMod:mods.storageMod,
+
+  config:Object.assign(
+   {},
+   CONFIG
+  )
  };
 }
 
@@ -253,7 +273,9 @@ function isSignedIn(){
 
 function saveProfile(firebaseUser){
  const profile={
-  name:firebaseUser.displayName||"",
+  name:
+   firebaseUser.displayName||"",
+
   displayName:
    firebaseUser.displayName||"",
 
@@ -262,10 +284,18 @@ function saveProfile(firebaseUser){
     firebaseUser.displayName||""
    ).split(" ")[0]||"",
 
-  email:firebaseUser.email||"",
-  picture:firebaseUser.photoURL||"",
-  sub:firebaseUser.uid||"",
-  provider:"firebase-google",
+  email:
+   firebaseUser.email||"",
+
+  picture:
+   firebaseUser.photoURL||"",
+
+  sub:
+   firebaseUser.uid||"",
+
+  provider:
+   "firebase-google",
+
   updatedAt:
    new Date().toISOString()
  };
@@ -440,9 +470,10 @@ async function saveCloud(){
   await mods.fsMod.setDoc(
    docRef(),
    {
-    data:stripLegacyPhotoData(
-     NGTStore.data()
-    ),
+    data:
+     stripLegacyPhotoData(
+      NGTStore.data()
+     ),
 
     updatedAt:
      mods.fsMod.serverTimestamp(),
@@ -507,7 +538,9 @@ async function syncTaxonomy(){
   NGTTaxonomy.syncCloud
  ){
   try{
-   return await NGTTaxonomy.syncCloud();
+   return await NGTTaxonomy
+    .syncCloud();
+
   }catch(error){
    console.error(
     'Taxonomie-Synchronisierung fehlgeschlagen.',
@@ -525,17 +558,19 @@ async function signIn(){
  autoSaveReady=false;
 
  const provider=
-  new mods.authMod.GoogleAuthProvider();
+  new mods.authMod
+   .GoogleAuthProvider();
 
  provider.setCustomParameters({
   prompt:"select_account"
  });
 
  const result=
-  await mods.authMod.signInWithPopup(
-   auth,
-   provider
-  );
+  await mods.authMod
+   .signInWithPopup(
+    auth,
+    provider
+   );
 
  user=result.user;
 
@@ -545,6 +580,7 @@ async function signIn(){
   'firebase:auth',
   {
    signedIn:true,
+
    user:{
     uid:user.uid||'',
     email:user.email||'',
@@ -606,7 +642,9 @@ async function start(){
  mods.authMod.onAuthStateChanged(
   auth,
   async function(firebaseUser){
-   user=firebaseUser||null;
+   user=
+    firebaseUser||
+    null;
 
    if(user){
     saveProfile(user);
@@ -620,6 +658,7 @@ async function start(){
      'firebase:auth',
      {
       signedIn:true,
+
       user:{
        uid:user.uid||'',
        email:user.email||'',
@@ -665,7 +704,9 @@ async function start(){
 function label(){
  const currentState=state();
 
- if(currentState.status==="ok"){
+ if(
+  currentState.status==="ok"
+ ){
   return (
    currentState.message||
    "Firestore synchronisiert"

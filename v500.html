@@ -24,6 +24,7 @@
 <body>
 <header class="appHeader tc2GlobalHeader">
   <button id="menuBtn" class="menuBtn tc2HeaderMenu">☰</button>
+
   <div class="tc2GlobalTitle">
     <h1>TerraControl</h1>
     <div class="version">Version 1.0.4 RC11</div>
@@ -39,7 +40,12 @@
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
     navigator.serviceWorker.register('./service-worker.js?v=1.0.4-offspring-v1')
-      .catch(function(e){console.warn('Service Worker registration failed',e);});
+      .catch(function(e){
+        console.warn(
+          'Service Worker registration failed',
+          e
+        );
+      });
   });
 }
 </script>
@@ -50,6 +56,7 @@ if('serviceWorker' in navigator){
 <script src="./v500/ui.js?v=1.0.4-offspring-v1"></script>
 
 <script src="./v500/taxonomy.js?v=1.0.4-offspring-v1"></script>
+<script src="./v500/taxonomy-images.js?v=1.0.4-offspring-v1"></script>
 
 <script src="./v500/ai-engine.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/ai-context.js?v=1.0.4-offspring-v1"></script>
@@ -58,6 +65,7 @@ if('serviceWorker' in navigator){
 <script src="./v500/ai-manager.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/smart-dashboard.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/photo-storage.js?v=1.0.4-offspring-v1"></script>
+
 <script src="./v500/modules/dashboard.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/hkn-import.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/modules/animals.js?v=1.0.4-offspring-v1"></script>
@@ -68,6 +76,7 @@ if('serviceWorker' in navigator){
 <script src="./v500/modules/backup.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/modules/assistant-v2.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/modules/chat.js?v=1.0.4-offspring-v1"></script>
+
 <script src="./v500/firebase-sync.js?v=1.0.4-offspring-v1"></script>
 <script src="./v500/app.js?v=1.0.4-offspring-v1"></script>
 </body>
