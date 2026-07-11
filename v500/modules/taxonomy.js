@@ -2,6 +2,7 @@
 'use strict';
 
 const STORAGE_KEY='terracontrol_taxonomy_cache_v1';
+const COLLECTION_NAME='taxonomy';
 
 const LEVELS={
  GROUP:'group',
@@ -21,17 +22,9 @@ const EMPTY_IMAGE={
  height:0
 };
 
-/*
- * Bekannte Kurz- und Schreibweisen.
- *
- * Diese Liste ersetzt später keine echte Taxonomiequelle.
- * Sie hilft lediglich dabei, typische Nutzereingaben
- * auf einen einheitlichen Namen abzubilden.
- */
 const GENUS_ALIASES={
  poeci:'Poecilotheria',
  poec:'Poecilotheria',
- p:'Poecilotheria',
 
  brachy:'Brachypelma',
  brachypelma:'Brachypelma',
@@ -45,6 +38,10 @@ const GENUS_ALIASES={
  python:'Python',
  testudo:'Testudo'
 };
+
+let cloudSyncPromise=null;
+let cloudSyncRunning=false;
+let lastCloudSyncAt='';
 
 function clone(value){
  try{
@@ -104,10 +101,6 @@ function normalizeGenus(value){
   return GENUS_ALIASES[folded];
  }
 
- /*
-  * Kurzform wie "P." bleibt ohne bekannte Zuordnung
-  * absichtlich unverändert, da sie mehrdeutig sein kann.
-  */
  if(/^[a-z]\.$/i.test(text)){
   return text.toUpperCase();
  }
@@ -134,15 +127,6 @@ function slug(value){
   .replace(/^-+|-+$/g,'');
 }
 
-function scientificName(input){
- const normalized=normalizeInput(input);
-
- return [
-  normalized.genus,
-  normalized.species
- ].filter(Boolean).join(' ');
-}
-
 function groupKey(group){
  const value=normalizeGroup(group);
 
@@ -167,7 +151,10 @@ function speciesKey(genus,species){
  const normalizedGenus=normalizeGenus(genus);
  const normalizedSpecies=normalizeSpecies(species);
 
- if(!normalizedGenus||!normalizedSpecies){
+ if(
+  !normalizedGenus||
+  !normalizedSpecies
+ ){
   return '';
  }
 
@@ -201,31 +188,37 @@ function normalizeInput(input){
   ''
  );
 
- /*
-  * Unterstützt Eingaben wie:
-  * "Poecilotheria metallica"
-  * im Gattungs- oder Artenfeld.
-  */
- if(genus&&genus.includes(' ')&&!species){
+ if(
+  genus&&
+  genus.includes(' ')&&
+  !species
+ ){
   const parts=cleanText(genus).split(' ');
 
-  genus=normalizeGenus(parts.shift());
-  species=normalizeSpecies(parts.join(' '));
+  genus=normalizeGenus(
+   parts.shift()
+  );
+
+  species=normalizeSpecies(
+   parts.join(' ')
+  );
  }
 
- if(species&&species.includes(' ')){
+ if(
+  species&&
+  species.includes(' ')
+ ){
   const parts=cleanText(species).split(' ');
 
-  /*
-   * Falls das erste Wort bereits der Gattung entspricht,
-   * wird es aus dem Artfeld entfernt.
-   */
   if(
    genus&&
    fold(parts[0])===fold(genus)
   ){
    parts.shift();
-   species=normalizeSpecies(parts.join(' '));
+
+   species=normalizeSpecies(
+    parts.join(' ')
+   );
   }
  }
 
@@ -241,8 +234,16 @@ function normalizeInput(input){
   scientificName:name,
   groupKey:groupKey(group),
   genusKey:genusKey(genus),
-  speciesKey:speciesKey(genus,species)
+  speciesKey:speciesKey(
+   genus,
+   species
+  )
  };
+}
+
+function scientificName(input){
+ return normalizeInput(input)
+  .scientificName;
 }
 
 function emptyDatabase(){
@@ -257,7 +258,9 @@ function emptyDatabase(){
 function loadDatabase(){
  try{
   const parsed=JSON.parse(
-   localStorage.getItem(STORAGE_KEY)||'null'
+   localStorage.getItem(
+    STORAGE_KEY
+   )||'null'
   );
 
   if(
@@ -293,8 +296,21 @@ function loadDatabase(){
  }
 }
 
-function saveDatabase(database){
+function emitChanged(payload){
+ if(
+  window.NGT500&&
+  NGT500.emit
+ ){
+  NGT500.emit(
+   'taxonomy:changed',
+   payload||{}
+  );
+ }
+}
+
+function saveDatabase(database,options){
  const db=database||emptyDatabase();
+ const opts=options||{};
 
  db.schemaVersion=1;
  db.updatedAt=now();
@@ -305,16 +321,10 @@ function saveDatabase(database){
    JSON.stringify(db)
   );
 
-  if(
-   window.NGT500&&
-   NGT500.emit
-  ){
-   NGT500.emit(
-    'taxonomy:changed',
-    {
-     updatedAt:db.updatedAt
-    }
-   );
+  if(!opts.silent){
+   emitChanged({
+    updatedAt:db.updatedAt
+   });
   }
 
   return true;
@@ -371,8 +381,13 @@ function normalizeImage(image){
    ''
   ),
 
-  width:Number(source.width||0),
-  height:Number(source.height||0)
+  width:Number(
+   source.width||0
+  ),
+
+  height:Number(
+   source.height||0
+  )
  };
 }
 
@@ -405,6 +420,16 @@ function recordLevel(input){
  return '';
 }
 
+function uniqueStrings(values){
+ return Array.from(
+  new Set(
+   (values||[])
+    .map(cleanText)
+    .filter(Boolean)
+  )
+ );
+}
+
 function createRecord(input,existing){
  const normalized=normalizeInput(input);
  const old=existing||{};
@@ -413,7 +438,10 @@ function createRecord(input,existing){
  const key=recordKey(normalized);
  const level=recordLevel(normalized);
 
- if(!key||!level){
+ if(
+  !key||
+  !level
+ ){
   return null;
  }
 
@@ -425,13 +453,15 @@ function createRecord(input,existing){
   group:normalized.group,
   genus:normalized.genus,
   species:normalized.species,
-  scientificName:normalized.scientificName,
+  scientificName:
+   normalized.scientificName,
 
   germanName:cleanText(
    input&&(
     input.germanName||
     input.commonName||
-    input.deutscherName
+    input.deutscherName||
+    old.germanName
    )
   ),
 
@@ -447,18 +477,14 @@ function createRecord(input,existing){
     :old.imageStatus||'empty'
   ),
 
-  aliases:Array.from(
-   new Set(
-    []
-     .concat(old.aliases||[])
-     .concat(
-      input&&Array.isArray(input.aliases)
-       ?input.aliases
-       :[]
-     )
-     .map(cleanText)
-     .filter(Boolean)
-   )
+  aliases:uniqueStrings(
+   []
+    .concat(old.aliases||[])
+    .concat(
+     input&&Array.isArray(input.aliases)
+      ?input.aliases
+      :[]
+    )
   ),
 
   sourceData:Object.assign(
@@ -469,8 +495,30 @@ function createRecord(input,existing){
     :{}
   ),
 
-  createdAt:old.createdAt||timestamp,
-  updatedAt:timestamp
+  createdBy:cleanText(
+   input&&input.createdBy||
+   old.createdBy||
+   ''
+  ),
+
+  updatedBy:cleanText(
+   input&&input.updatedBy||
+   old.updatedBy||
+   ''
+  ),
+
+  createdAt:
+   old.createdAt||
+   cleanText(
+    input&&input.createdAt
+   )||
+   timestamp,
+
+  updatedAt:
+   cleanText(
+    input&&input.updatedAt
+   )||
+   timestamp
  };
 }
 
@@ -492,11 +540,29 @@ function registerAliases(database,record){
   .filter(Boolean);
 
  values.forEach(function(value){
-  database.aliases[fold(value)]=record.key;
+  database.aliases[
+   fold(value)
+  ]=record.key;
  });
 }
 
-function upsert(input){
+function rebuildAliases(database){
+ database.aliases={};
+
+ Object.keys(
+  database.records||{}
+ ).forEach(function(key){
+  registerAliases(
+   database,
+   database.records[key]
+  );
+ });
+
+ return database;
+}
+
+function upsertLocal(input,options){
+ const opts=options||{};
  const db=loadDatabase();
  const key=recordKey(input);
 
@@ -504,17 +570,28 @@ function upsert(input){
   return null;
  }
 
- const existing=db.records[key]||null;
- const record=createRecord(input,existing);
+ const existing=
+  db.records[key]||
+  null;
+
+ const record=createRecord(
+  input,
+  existing
+ );
 
  if(!record){
   return null;
  }
 
  db.records[key]=record;
-
  registerAliases(db,record);
- saveDatabase(db);
+
+ saveDatabase(
+  db,
+  {
+   silent:!!opts.silent
+  }
+ );
 
  return clone(record);
 }
@@ -536,26 +613,39 @@ function find(input){
  const db=loadDatabase();
 
  if(typeof input==='string'){
-  const directKey=slug(input);
+  const direct=cleanText(input);
 
-  if(db.records[directKey]){
-   return clone(db.records[directKey]);
+  if(db.records[direct]){
+   return clone(
+    db.records[direct]
+   );
+  }
+
+  const slugged=slug(direct);
+
+  if(db.records[slugged]){
+   return clone(
+    db.records[slugged]
+   );
   }
 
   const aliasKey=resolveAliasKey(
-   input,
+   direct,
    db
   );
 
-  if(aliasKey&&db.records[aliasKey]){
-   return clone(db.records[aliasKey]);
+  if(
+   aliasKey&&
+   db.records[aliasKey]
+  ){
+   return clone(
+    db.records[aliasKey]
+   );
   }
 
-  /*
-   * Versucht einen wissenschaftlichen Namen
-   * aus einer freien Texteingabe zu bilden.
-   */
-  const parts=cleanText(input).split(' ');
+  const parts=cleanText(
+   direct
+  ).split(' ');
 
   if(parts.length>=2){
    const key=speciesKey(
@@ -563,8 +653,13 @@ function find(input){
     parts.join(' ')
    );
 
-   if(key&&db.records[key]){
-    return clone(db.records[key]);
+   if(
+    key&&
+    db.records[key]
+   ){
+    return clone(
+     db.records[key]
+    );
    }
   }
 
@@ -573,74 +668,71 @@ function find(input){
 
  const key=recordKey(input);
 
- if(key&&db.records[key]){
-  return clone(db.records[key]);
+ if(
+  key&&
+  db.records[key]
+ ){
+  return clone(
+   db.records[key]
+  );
  }
 
  const normalized=normalizeInput(input);
 
- const aliasCandidates=[
+ const candidates=[
   normalized.scientificName,
   normalized.genus,
   normalized.group
  ];
 
- for(const candidate of aliasCandidates){
+ for(const candidate of candidates){
   const aliasKey=resolveAliasKey(
    candidate,
    db
   );
 
-  if(aliasKey&&db.records[aliasKey]){
-   return clone(db.records[aliasKey]);
+  if(
+   aliasKey&&
+   db.records[aliasKey]
+  ){
+   return clone(
+    db.records[aliasKey]
+   );
   }
  }
 
  return null;
 }
 
-function remove(input){
- const db=loadDatabase();
- const record=find(input);
-
- if(!record){
-  return false;
- }
-
- delete db.records[record.key];
-
- Object.keys(db.aliases).forEach(function(alias){
-  if(db.aliases[alias]===record.key){
-   delete db.aliases[alias];
-  }
- });
-
- return saveDatabase(db);
-}
-
 function all(){
  const db=loadDatabase();
 
- return Object.keys(db.records)
-  .map(function(key){
-   return clone(db.records[key]);
-  })
-  .sort(function(a,b){
-   return String(
-    a.scientificName||
-    a.germanName||
-    a.group||
-    ''
-   ).localeCompare(
-    String(
-     b.scientificName||
-     b.germanName||
-     b.group||
-     ''
-    ),
-    'de'
-   );
-  });
+ return Object.keys(
+  db.records
+ ).map(function(key){
+  return clone(
+   db.records[key]
+  );
+ }).sort(function(a,b){
+  const left=String(
+   a.scientificName||
+   a.germanName||
+   a.group||
+   ''
+  );
+
+  const right=String(
+   b.scientificName||
+   b.germanName||
+   b.group||
+   ''
+  );
+
+  return left.localeCompare(
+   right,
+   'de'
+  );
+ });
 }
 
 function findGroup(input){
@@ -686,7 +778,10 @@ function findSpecies(input){
 }
 
 function imageUrl(record){
- if(!record||!record.image){
+ if(
+  !record||
+  !record.image
+ ){
   return '';
  }
 
@@ -699,40 +794,42 @@ function imageUrl(record){
 function imageFor(input){
  const normalized=normalizeInput(input);
 
- /*
-  * Fallback-Reihenfolge:
-  *
-  * 1. Artenbild
-  * 2. Gattungsbild
-  * 3. Gruppenbild
-  */
- const speciesRecord=findSpecies(normalized);
+ const speciesRecord=
+  findSpecies(normalized);
 
  if(imageUrl(speciesRecord)){
   return {
    level:LEVELS.SPECIES,
    record:speciesRecord,
-   url:imageUrl(speciesRecord)
+   url:imageUrl(
+    speciesRecord
+   )
   };
  }
 
- const genusRecord=findGenus(normalized);
+ const genusRecord=
+  findGenus(normalized);
 
  if(imageUrl(genusRecord)){
   return {
    level:LEVELS.GENUS,
    record:genusRecord,
-   url:imageUrl(genusRecord)
+   url:imageUrl(
+    genusRecord
+   )
   };
  }
 
- const groupRecord=findGroup(normalized);
+ const groupRecord=
+  findGroup(normalized);
 
  if(imageUrl(groupRecord)){
   return {
    level:LEVELS.GROUP,
    record:groupRecord,
-   url:imageUrl(groupRecord)
+   url:imageUrl(
+    groupRecord
+   )
   };
  }
 
@@ -743,14 +840,349 @@ function imageFor(input){
  };
 }
 
-function ensureLocal(input){
+function timestampValue(value){
+ const timestamp=Date.parse(
+  value||''
+ );
+
+ return Number.isFinite(timestamp)
+  ?timestamp
+  :0;
+}
+
+function recordScore(record){
+ if(!record){
+  return 0;
+ }
+
+ let score=0;
+
+ if(record.image){
+  if(record.image.url){
+   score+=100;
+  }
+
+  if(record.image.storagePath){
+   score+=100;
+  }
+
+  if(record.image.license){
+   score+=10;
+  }
+
+  if(record.image.author){
+   score+=5;
+  }
+ }
+
+ if(record.scientificName){
+  score+=20;
+ }
+
+ if(record.germanName){
+  score+=10;
+ }
+
+ score+=(
+  record.aliases||[]
+ ).length;
+
+ return score;
+}
+
+function chooseRecord(localRecord,cloudRecord){
+ if(!localRecord){
+  return cloudRecord
+   ?clone(cloudRecord)
+   :null;
+ }
+
+ if(!cloudRecord){
+  return clone(localRecord);
+ }
+
+ const localTime=timestampValue(
+  localRecord.updatedAt
+ );
+
+ const cloudTime=timestampValue(
+  cloudRecord.updatedAt
+ );
+
+ if(cloudTime>localTime){
+  return clone(cloudRecord);
+ }
+
+ if(localTime>cloudTime){
+  return clone(localRecord);
+ }
+
+ return recordScore(cloudRecord)>
+  recordScore(localRecord)
+   ?clone(cloudRecord)
+   :clone(localRecord);
+}
+
+function mergeRecord(localRecord,cloudRecord){
+ const selected=chooseRecord(
+  localRecord,
+  cloudRecord
+ );
+
+ if(!selected){
+  return null;
+ }
+
+ const secondary=
+  selected===localRecord
+   ?cloudRecord
+   :localRecord;
+
+ return createRecord(
+  Object.assign(
+   {},
+   secondary||{},
+   selected,
+   {
+    aliases:uniqueStrings(
+     []
+      .concat(
+       localRecord&&localRecord.aliases||[]
+      )
+      .concat(
+       cloudRecord&&cloudRecord.aliases||[]
+      )
+    ),
+
+    sourceData:Object.assign(
+     {},
+     localRecord&&localRecord.sourceData||{},
+     cloudRecord&&cloudRecord.sourceData||{},
+     selected.sourceData||{}
+    )
+   }
+  ),
+  selected
+ );
+}
+
+async function firebaseContext(){
+ if(
+  !window.NGTFirebaseSync||
+  !NGTFirebaseSync.getContext
+ ){
+  return null;
+ }
+
+ try{
+  return await NGTFirebaseSync.getContext();
+ }catch(error){
+  console.warn(
+   'Firebase-Kontext für Taxonomie nicht verfügbar.',
+   error
+  );
+
+  return null;
+ }
+}
+
+function cloudAvailable(context){
+ return !!(
+  context&&
+  context.db&&
+  context.user&&
+  context.fsMod
+ );
+}
+
+function cloudDocumentData(record,context){
+ const user=context&&context.user;
+
+ return {
+  id:record.id,
+  key:record.key,
+  level:record.level,
+
+  group:record.group,
+  genus:record.genus,
+  species:record.species,
+  scientificName:
+   record.scientificName,
+
+  germanName:
+   record.germanName||'',
+
+  image:normalizeImage(
+   record.image
+  ),
+
+  imageStatus:
+   record.imageStatus||'empty',
+
+  aliases:uniqueStrings(
+   record.aliases||[]
+  ),
+
+  sourceData:clone(
+   record.sourceData||{}
+  ),
+
+  createdBy:
+   record.createdBy||
+   (
+    user&&user.uid
+     ?user.uid
+     :''
+   ),
+
+  updatedBy:
+   user&&user.uid
+    ?user.uid
+    :record.updatedBy||'',
+
+  createdAt:
+   record.createdAt||now(),
+
+  updatedAt:now(),
+
+  updatedAtMs:Date.now()
+ };
+}
+
+async function getCloudRecord(input){
+ const context=await firebaseContext();
+
+ if(!cloudAvailable(context)){
+  return null;
+ }
+
+ const key=recordKey(input);
+
+ if(!key){
+  return null;
+ }
+
+ try{
+  const reference=
+   context.fsMod.doc(
+    context.db,
+    COLLECTION_NAME,
+    key
+   );
+
+  const snapshot=
+   await context.fsMod.getDoc(
+    reference
+   );
+
+  if(!snapshot.exists()){
+   return null;
+  }
+
+  return createRecord(
+   Object.assign(
+    {},
+    snapshot.data()||{},
+    {
+     key:key,
+     id:key
+    }
+   ),
+   snapshot.data()||{}
+  );
+
+ }catch(error){
+  console.error(
+   'Taxonomie-Eintrag konnte nicht aus Firestore geladen werden.',
+   key,
+   error
+  );
+
+  return null;
+ }
+}
+
+async function saveCloudRecord(record){
+ const context=await firebaseContext();
+
+ if(
+  !cloudAvailable(context)||
+  !record
+ ){
+  return false;
+ }
+
+ try{
+  const reference=
+   context.fsMod.doc(
+    context.db,
+    COLLECTION_NAME,
+    record.key
+   );
+
+  const data=cloudDocumentData(
+   record,
+   context
+  );
+
+  await context.fsMod.setDoc(
+   reference,
+   data,
+   {
+    merge:true
+   }
+  );
+
+  upsertLocal(
+   data,
+   {
+    silent:true
+   }
+  );
+
+  return true;
+
+ }catch(error){
+  console.error(
+   'Taxonomie-Eintrag konnte nicht in Firestore gespeichert werden.',
+   record.key,
+   error
+  );
+
+  return false;
+ }
+}
+
+async function upsert(input,options){
+ const opts=options||{};
+ const localRecord=upsertLocal(
+  input
+ );
+
+ if(
+  !localRecord||
+  opts.localOnly
+ ){
+  return localRecord;
+ }
+
+ await saveCloudRecord(
+  localRecord
+ );
+
+ return find(
+  localRecord.key
+ );
+}
+
+async function ensureLocal(input){
  const existing=find(input);
 
  if(existing){
   return existing;
  }
 
- return upsert(
+ return upsertLocal(
   Object.assign(
    {},
    input||{},
@@ -761,42 +1193,320 @@ function ensureLocal(input){
  );
 }
 
-/*
- * Öffentliche Ensure-Funktion.
- *
- * In diesem ersten Commit arbeitet sie ausschließlich
- * mit dem lokalen Cache.
- *
- * Im nächsten Commit wird hier Firestore ergänzt.
- * Danach folgt die externe Bildsuche.
- */
 async function ensure(input){
- return ensureLocal(input);
-}
+ const normalized=normalizeInput(input);
+ const key=recordKey(normalized);
 
-function setImage(input,image){
- const existing=find(input);
+ if(!key){
+  return null;
+ }
 
- const payload=Object.assign(
-  {},
-  existing||{},
-  normalizeInput(input),
-  {
-   image:normalizeImage(image),
-   imageStatus:
-    image&&(
-     image.url||
-     image.storagePath
-    )
-     ?'ready'
-     :'empty'
-  }
+ const localRecord=find(normalized);
+ const cloudRecord=await getCloudRecord(
+  normalized
  );
 
- return upsert(payload);
+ const merged=mergeRecord(
+  localRecord,
+  cloudRecord
+ );
+
+ if(merged){
+  const stored=upsertLocal(
+   merged,
+   {
+    silent:true
+   }
+  );
+
+  if(
+   !cloudRecord||
+   timestampValue(
+    stored.updatedAt
+   )>
+   timestampValue(
+    cloudRecord.updatedAt
+   )||
+   recordScore(stored)>
+   recordScore(cloudRecord)
+  ){
+   await saveCloudRecord(
+    stored
+   );
+  }
+
+  emitChanged({
+   key:key,
+   source:
+    cloudRecord
+     ?'merged'
+     :'local'
+  });
+
+  return find(key);
+ }
+
+ const created=await ensureLocal(
+  normalized
+ );
+
+ if(created){
+  await saveCloudRecord(
+   created
+  );
+ }
+
+ return find(key);
 }
 
-function markImageSearching(input){
+async function remove(input,options){
+ const opts=options||{};
+ const db=loadDatabase();
+ const record=find(input);
+
+ if(!record){
+  return false;
+ }
+
+ delete db.records[
+  record.key
+ ];
+
+ rebuildAliases(db);
+ saveDatabase(db);
+
+ if(opts.cloud!==true){
+  return true;
+ }
+
+ const context=await firebaseContext();
+
+ if(!cloudAvailable(context)){
+  return true;
+ }
+
+ try{
+  await context.fsMod.deleteDoc(
+   context.fsMod.doc(
+    context.db,
+    COLLECTION_NAME,
+    record.key
+   )
+  );
+
+  return true;
+
+ }catch(error){
+  console.error(
+   'Taxonomie-Eintrag konnte nicht aus Firestore gelöscht werden.',
+   record.key,
+   error
+  );
+
+  return false;
+ }
+}
+
+async function syncCloud(){
+ if(cloudSyncRunning){
+  return cloudSyncPromise;
+ }
+
+ cloudSyncRunning=true;
+
+ cloudSyncPromise=(async function(){
+  const context=await firebaseContext();
+
+  if(!cloudAvailable(context)){
+   return {
+    ok:false,
+    reason:'not-authenticated',
+    loaded:0,
+    uploaded:0
+   };
+  }
+
+  let loaded=0;
+  let uploaded=0;
+
+  try{
+   const collectionReference=
+    context.fsMod.collection(
+     context.db,
+     COLLECTION_NAME
+    );
+
+   const snapshot=
+    await context.fsMod.getDocs(
+     collectionReference
+    );
+
+   const localDb=loadDatabase();
+   const cloudMap={};
+
+   snapshot.forEach(function(documentSnapshot){
+    const data=documentSnapshot.data()||{};
+    const key=documentSnapshot.id;
+
+    const record=createRecord(
+     Object.assign(
+      {},
+      data,
+      {
+       key:key,
+       id:key
+      }
+     ),
+     data
+    );
+
+    if(record){
+     cloudMap[key]=record;
+    }
+   });
+
+   const allKeys=new Set(
+    []
+     .concat(
+      Object.keys(
+       localDb.records||{}
+      )
+     )
+     .concat(
+      Object.keys(cloudMap)
+     )
+   );
+
+   const recordsToUpload=[];
+
+   allKeys.forEach(function(key){
+    const localRecord=
+     localDb.records[key]||
+     null;
+
+    const cloudRecord=
+     cloudMap[key]||
+     null;
+
+    const merged=mergeRecord(
+     localRecord,
+     cloudRecord
+    );
+
+    if(!merged){
+     return;
+    }
+
+    localDb.records[key]=merged;
+
+    if(cloudRecord){
+     loaded++;
+    }
+
+    if(
+     !cloudRecord||
+     timestampValue(
+      merged.updatedAt
+     )>
+     timestampValue(
+      cloudRecord.updatedAt
+     )||
+     recordScore(merged)>
+     recordScore(cloudRecord)
+    ){
+     recordsToUpload.push(
+      merged
+     );
+    }
+   });
+
+   rebuildAliases(localDb);
+
+   saveDatabase(
+    localDb,
+    {
+     silent:true
+    }
+   );
+
+   for(const record of recordsToUpload){
+    const saved=await saveCloudRecord(
+     record
+    );
+
+    if(saved){
+     uploaded++;
+    }
+   }
+
+   lastCloudSyncAt=now();
+
+   emitChanged({
+    source:'cloud-sync',
+    loaded:loaded,
+    uploaded:uploaded,
+    syncedAt:
+     lastCloudSyncAt
+   });
+
+   return {
+    ok:true,
+    loaded:loaded,
+    uploaded:uploaded,
+    syncedAt:
+     lastCloudSyncAt
+   };
+
+  }catch(error){
+   console.error(
+    'Taxonomie-Cloud-Synchronisierung fehlgeschlagen.',
+    error
+   );
+
+   return {
+    ok:false,
+    error:
+     error&&error.message
+      ?error.message
+      :String(error),
+    loaded:loaded,
+    uploaded:uploaded
+   };
+
+  }finally{
+   cloudSyncRunning=false;
+  }
+ })();
+
+ return cloudSyncPromise;
+}
+
+async function setImage(input,image){
+ const existing=
+  find(input)||
+  {};
+
+ return upsert(
+  Object.assign(
+   {},
+   existing,
+   normalizeInput(input),
+   {
+    image:normalizeImage(image),
+
+    imageStatus:
+     image&&(
+      image.url||
+      image.storagePath
+     )
+      ?'ready'
+      :'empty'
+   }
+  )
+ );
+}
+
+async function markImageSearching(input){
  return upsert(
   Object.assign(
    {},
@@ -809,20 +1519,22 @@ function markImageSearching(input){
  );
 }
 
-function markImageFailed(input,error){
+async function markImageFailed(input,error){
+ const existing=
+  find(input)||
+  {};
+
  return upsert(
   Object.assign(
    {},
-   find(input)||{},
+   existing,
    normalizeInput(input),
    {
     imageStatus:'failed',
 
     sourceData:Object.assign(
      {},
-     find(input)&&find(input).sourceData
-      ?find(input).sourceData
-      :{},
+     existing.sourceData||{},
      {
       imageError:cleanText(
        error&&error.message
@@ -840,19 +1552,13 @@ function markImageFailed(input,error){
 
 function clear(){
  try{
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(
+   STORAGE_KEY
+  );
 
-  if(
-   window.NGT500&&
-   NGT500.emit
-  ){
-   NGT500.emit(
-    'taxonomy:changed',
-    {
-     cleared:true
-    }
-   );
-  }
+  emitChanged({
+   cleared:true
+  });
 
   return true;
 
@@ -902,7 +1608,14 @@ function importJson(text){
 
  Object.keys(records).forEach(function(key){
   const record=createRecord(
-   records[key],
+   Object.assign(
+    {},
+    records[key],
+    {
+     key:key,
+     id:key
+    }
+   ),
    records[key]
   );
 
@@ -911,12 +1624,36 @@ function importJson(text){
   }
 
   db.records[record.key]=record;
-  registerAliases(db,record);
  });
 
+ rebuildAliases(db);
  saveDatabase(db);
 
  return all();
+}
+
+function cloudState(){
+ return {
+  syncing:cloudSyncRunning,
+  lastSyncAt:lastCloudSyncAt
+ };
+}
+
+if(
+ window.NGT500&&
+ NGT500.on
+){
+ NGT500.on(
+  'firebase:auth',
+  function(event){
+   if(
+    event&&
+    event.signedIn
+   ){
+    syncCloud();
+   }
+  }
+ );
 }
 
 window.NGTTaxonomy={
@@ -941,10 +1678,16 @@ window.NGTTaxonomy={
  all:all,
 
  upsert:upsert,
+ upsertLocal:upsertLocal,
  ensure:ensure,
  ensureLocal:ensureLocal,
  remove:remove,
  clear:clear,
+
+ getCloudRecord:getCloudRecord,
+ saveCloudRecord:saveCloudRecord,
+ syncCloud:syncCloud,
+ cloudState:cloudState,
 
  imageFor:imageFor,
  setImage:setImage,
