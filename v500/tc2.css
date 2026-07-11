@@ -11785,3 +11785,349 @@ body.menuOpen #drawer{
   display:none;
  }
 }
+/* =========================================================
+   TC2 TAXONOMIE-BILDER UND BILDAUSWAHL
+   ========================================================= */
+
+/* Tiergruppen und Gattungen */
+
+.tc2TaxFolder{
+ grid-template-columns:88px minmax(0,1fr) 28px!important;
+ grid-template-rows:auto auto!important;
+ align-items:center!important;
+ column-gap:16px!important;
+
+ min-height:132px!important;
+ padding:14px!important;
+}
+
+.tc2TaxFolder>.tc2TaxVisual{
+ grid-column:1!important;
+ grid-row:1 / 3!important;
+
+ display:grid!important;
+ place-items:center!important;
+
+ width:88px!important;
+ min-width:88px!important;
+ height:88px!important;
+ min-height:88px!important;
+
+ margin:0!important;
+ padding:0!important;
+
+ overflow:hidden!important;
+ border-radius:23px!important;
+
+ color:#9bec58!important;
+ background:
+  radial-gradient(
+   circle at 35% 28%,
+   rgba(139,220,63,.13),
+   transparent 55%
+  ),
+  rgba(5,17,27,.48)!important;
+
+ border:1px solid rgba(125,170,210,.25)!important;
+
+ font-size:28px!important;
+ letter-spacing:0!important;
+}
+
+.tc2TaxFolder>.tc2TaxVisual.hasImage{
+ background:#071521!important;
+}
+
+.tc2TaxVisualImage{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ object-fit:cover!important;
+ object-position:center!important;
+}
+
+.tc2TaxFolder>b{
+ grid-column:2!important;
+ grid-row:1!important;
+
+ align-self:end!important;
+
+ font-size:18px!important;
+ line-height:1.2!important;
+}
+
+.tc2TaxFolder>small{
+ grid-column:2!important;
+ grid-row:2!important;
+
+ align-self:start!important;
+
+ font-size:11px!important;
+}
+
+.tc2TaxFolder::after{
+ content:"›";
+
+ grid-column:3;
+ grid-row:1 / 3;
+
+ color:#91a0ac;
+ font-size:31px;
+ line-height:1;
+}
+
+/* Einzelne Tiere */
+
+.tc2TaxAnimal>.tc2TaxAnimalVisual{
+ display:grid!important;
+ place-items:center!important;
+ overflow:hidden!important;
+
+ background:
+  radial-gradient(
+   circle at 35% 28%,
+   rgba(139,220,63,.11),
+   transparent 58%
+  ),
+  rgba(5,17,27,.48)!important;
+}
+
+.tc2TaxAnimal>.tc2TaxAnimalVisual.hasImage{
+ background:#071521!important;
+}
+
+.tc2TaxAnimalVisualImage{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ object-fit:cover!important;
+ object-position:center!important;
+}
+
+/* Modal */
+
+.tc2TaxImageModal{
+ display:flex;
+ flex-direction:column;
+ gap:14px;
+
+ width:min(920px,94vw);
+ max-height:88vh;
+ overflow:hidden;
+}
+
+.tc2TaxImageModalHead{
+ display:flex;
+ align-items:flex-start;
+ justify-content:space-between;
+ gap:14px;
+}
+
+.tc2TaxImageModalHead h2{
+ margin:0 0 5px!important;
+ font-size:23px!important;
+}
+
+.tc2TaxImageModalHead p{
+ margin:0;
+ color:#9eabb7;
+ font-size:12px;
+}
+
+.tc2TaxImageModalHead>button{
+ display:grid!important;
+ place-items:center!important;
+
+ width:40px!important;
+ min-width:40px!important;
+ height:40px!important;
+ min-height:40px!important;
+
+ margin:0!important;
+ padding:0!important;
+
+ border-radius:13px!important;
+
+ font-size:22px!important;
+}
+
+.tc2TaxLicenseInfo{
+ padding:11px 13px;
+ border-radius:14px;
+
+ color:#b9c6cf;
+ background:rgba(105,210,196,.06);
+ border:1px solid rgba(105,210,196,.2);
+
+ font-size:10px;
+ line-height:1.45;
+}
+
+.tc2TaxCandidateGrid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+
+ overflow-y:auto;
+ padding-right:3px;
+}
+
+.tc2TaxCandidate{
+ display:flex;
+ flex-direction:column;
+ overflow:hidden;
+
+ border-radius:19px;
+
+ background:
+  linear-gradient(
+   180deg,
+   rgba(24,45,62,.98),
+   rgba(13,29,42,.99)
+  );
+
+ border:1px solid rgba(125,170,210,.24);
+ box-shadow:0 12px 28px rgba(0,0,0,.17);
+}
+
+.tc2TaxCandidatePreview{
+ display:block!important;
+
+ width:100%!important;
+ height:210px!important;
+
+ margin:0!important;
+ padding:0!important;
+
+ overflow:hidden!important;
+
+ border:0!important;
+ border-radius:0!important;
+ background:#06131d!important;
+ box-shadow:none!important;
+}
+
+.tc2TaxCandidatePreview img{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ object-position:center;
+}
+
+.tc2TaxCandidateBody{
+ display:flex;
+ flex-direction:column;
+ gap:6px;
+
+ padding:12px;
+}
+
+.tc2TaxCandidateBody strong{
+ overflow:hidden;
+ color:#f4f7fb;
+ font-size:12px;
+ line-height:1.3;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.tc2TaxCandidateBody small{
+ overflow:hidden;
+ color:#91a0ac!important;
+ font-size:9px;
+ line-height:1.35;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.tc2TaxCandidateBody button{
+ width:100%!important;
+ min-height:39px!important;
+
+ margin:5px 0 0!important;
+ padding:7px 10px!important;
+
+ border-radius:12px!important;
+
+ font-size:10px!important;
+ font-weight:900!important;
+}
+
+.tc2TaxModalActions{
+ display:flex;
+ justify-content:flex-end;
+}
+
+.tc2TaxModalActions button{
+ width:auto!important;
+ min-width:130px!important;
+ min-height:41px!important;
+
+ margin:0!important;
+ border-radius:13px!important;
+}
+
+/* Mobil */
+
+@media(max-width:620px){
+ .tc2TaxFolder{
+  grid-template-columns:76px minmax(0,1fr) 24px!important;
+
+  min-height:112px!important;
+  column-gap:13px!important;
+  padding:12px!important;
+ }
+
+ .tc2TaxFolder>.tc2TaxVisual{
+  width:76px!important;
+  min-width:76px!important;
+  height:76px!important;
+  min-height:76px!important;
+
+  border-radius:20px!important;
+ }
+
+ .tc2TaxFolder>b{
+  font-size:16px!important;
+ }
+
+ .tc2TaxCandidateGrid{
+  grid-template-columns:1fr;
+ }
+
+ .tc2TaxCandidatePreview{
+  height:200px!important;
+ }
+}
+
+@media(max-width:390px){
+ .tc2TaxFolder{
+  grid-template-columns:66px minmax(0,1fr) 20px!important;
+
+  min-height:96px!important;
+  column-gap:11px!important;
+  padding:10px!important;
+ }
+
+ .tc2TaxFolder>.tc2TaxVisual{
+  width:66px!important;
+  min-width:66px!important;
+  height:66px!important;
+  min-height:66px!important;
+
+  border-radius:18px!important;
+ }
+
+ .tc2TaxFolder>b{
+  font-size:14px!important;
+ }
+
+ .tc2TaxFolder>small{
+  font-size:9px!important;
+ }
+
+ .tc2TaxCandidatePreview{
+  height:175px!important;
+ }
+}
