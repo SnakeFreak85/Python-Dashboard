@@ -3,257 +3,845 @@
 
 const DAY=86400000;
 
-function esc(v){return NGT500.esc(v||'')}
-function today0(){const d=new Date();d.setHours(0,0,0,0);return d}
-function daysSince(date){const t=Date.parse(date||'');if(!t)return null;const d=new Date(t);d.setHours(0,0,0,0);return Math.floor((today0()-d)/DAY)}
-function latest(list){return (list||[]).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null}
+function esc(value){
+ return NGT500.esc(value||'');
+}
+
+function today0(){
+ const date=new Date();
+
+ date.setHours(
+  0,
+  0,
+  0,
+  0
+ );
+
+ return date;
+}
+
+function daysSince(value){
+ const time=Date.parse(
+  value||''
+ );
+
+ if(!time){
+  return null;
+ }
+
+ const date=new Date(time);
+
+ date.setHours(
+  0,
+  0,
+  0,
+  0
+ );
+
+ return Math.floor(
+  (
+   today0()-
+   date
+  )/
+  DAY
+ );
+}
+
+function latest(list){
+ return (
+  list||
+  []
+ )
+  .slice()
+  .sort(function(a,b){
+   return String(
+    b.date||
+    ''
+   ).localeCompare(
+    String(
+     a.date||
+     ''
+    )
+   );
+  })[0]||
+  null;
+}
+
+function positiveInteger(value){
+ const number=Number(value);
+
+ if(
+  Number.isFinite(number)&&
+  number>=1
+ ){
+  return Math.round(number);
+ }
+
+ return null;
+}
 
 function animals(){
-  try{return NGTStore.allAnimals().filter(x=>!['Archiv','Verkauft','Abgegeben','Verstorben'].includes(x.a.status))}
-  catch(e){return []}
+ try{
+  return NGTStore
+   .allAnimals()
+   .filter(function(row){
+    return ![
+     'Archiv',
+     'Verkauft',
+     'Abgegeben',
+     'Verstorben'
+    ].includes(
+     row.a.status
+    );
+   });
+
+ }catch(error){
+  return [];
+ }
 }
 
 function inventory(){
-  try{return (NGTStore.data().foodInventory||[]).filter(x=>Number(x.qty||0)>0)}
-  catch(e){return []}
+ try{
+  return (
+   NGTStore
+    .data()
+    .foodInventory||
+   []
+  ).filter(function(item){
+   return Number(
+    item.qty||
+    0
+   )>0;
+  });
+
+ }catch(error){
+  return [];
+ }
 }
 
 function documents(){
-  try{
-    const d=NGTStore.data();
-    return []
-      .concat(d.documents||[])
-      .concat(d.sales||[])
-      .concat(d.clutches||[]);
-  }catch(e){return []}
+ try{
+  const data=
+   NGTStore.data();
+
+  return []
+   .concat(
+    data.documents||
+    []
+   )
+   .concat(
+    data.sales||
+    []
+   )
+   .concat(
+    data.clutches||
+    []
+   );
+
+ }catch(error){
+  return [];
+ }
 }
 
-function foodKey(s){return NGTStore.foodKey?NGTStore.foodKey(s):String(s||'').toLowerCase().replace(/\s+/g,'')}
-function foodLabel(s){return NGTStore.foodLabel?NGTStore.foodLabel(s):String(s||'')}
-function feedName(a){return a.defaultFeeder||a.futterStandard||a.standardFeed||''}
-function feedInterval(a){return Math.max(1,Number(a.feedIntervalDays||a.feedingInterval||a.feedInterval||14))}
-function weightInterval(a){return Math.max(1,Number(a.weightIntervalDays||a.weightInterval||30))}
-
-function dueFeed(a,offset){
-  const lf=latest(a.feeds);
-  const days=daysSince(lf&&lf.date);
-  if(days===null)return false;
-  return days>=feedInterval(a)-offset;
+function feedName(animal){
+ return (
+  animal.defaultFeeder||
+  animal.futterStandard||
+  animal.standardFeed||
+  ''
+ );
 }
 
-function dueWeight(a,offset){
-  const lw=latest(a.weights);
-  const days=daysSince(lw&&lw.date);
-  if(days===null)return false;
-  return days>=weightInterval(a)-offset;
+function feedEnabled(animal){
+ if(
+  animal.feedIntervalEnabled===
+  false
+ ){
+  return false;
+ }
+
+ if(
+  animal.feedIntervalEnabled===
+  true
+ ){
+  return true;
+ }
+
+ return (
+  positiveInteger(
+   animal.feedIntervalDays||
+   animal.feedingInterval||
+   animal.feedInterval
+  )!==null
+ );
+}
+
+function weightEnabled(animal){
+ if(
+  animal.weightIntervalEnabled===
+  false
+ ){
+  return false;
+ }
+
+ if(
+  animal.weightIntervalEnabled===
+  true
+ ){
+  return true;
+ }
+
+ return (
+  positiveInteger(
+   animal.weightIntervalDays||
+   animal.weightInterval
+  )!==null
+ );
+}
+
+function feedInterval(animal){
+ if(!feedEnabled(animal)){
+  return null;
+ }
+
+ return positiveInteger(
+  animal.feedIntervalDays||
+  animal.feedingInterval||
+  animal.feedInterval
+ );
+}
+
+function weightInterval(animal){
+ if(!weightEnabled(animal)){
+  return null;
+ }
+
+ return positiveInteger(
+  animal.weightIntervalDays||
+  animal.weightInterval
+ );
+}
+
+function dueFeed(
+ animal,
+ offset
+){
+ const interval=
+  feedInterval(animal);
+
+ if(interval===null){
+  return false;
+ }
+
+ const lastFeed=
+  latest(
+   animal.feeds
+  );
+
+ const days=
+  daysSince(
+   lastFeed&&
+   lastFeed.date
+  );
+
+ if(days===null){
+  return false;
+ }
+
+ return (
+  days>=
+  interval-
+  offset
+ );
+}
+
+function dueWeight(
+ animal,
+ offset
+){
+ const interval=
+  weightInterval(animal);
+
+ if(interval===null){
+  return false;
+ }
+
+ const lastWeight=
+  latest(
+   animal.weights
+  );
+
+ const days=
+  daysSince(
+   lastWeight&&
+   lastWeight.date
+  );
+
+ if(days===null){
+  return false;
+ }
+
+ return (
+  days>=
+  interval-
+  offset
+ );
 }
 
 function plannedFeeds(offset){
-  return animals().filter(x=>dueFeed(x.a,offset)).map(x=>({
-    name:x.a.name||'Unbenannt',
-    food:feedName(x.a),
-    type:'Fütterung',
-    t:x.t
-  }));
+ return animals()
+  .filter(function(row){
+   return dueFeed(
+    row.a,
+    offset
+   );
+  })
+  .map(function(row){
+   return {
+    name:
+     row.a.name||
+     'Unbenannt',
+
+    food:
+     feedName(
+      row.a
+     ),
+
+    type:
+     'Fütterung',
+
+    t:
+     row.t,
+
+    i:
+     row.i
+   };
+  });
 }
 
 function plannedWeights(offset){
-  return animals().filter(x=>dueWeight(x.a,offset)).map(x=>({
-    name:x.a.name||'Unbenannt',
-    type:'Gewicht',
-    t:x.t
-  }));
+ return animals()
+  .filter(function(row){
+   return dueWeight(
+    row.a,
+    offset
+   );
+  })
+  .map(function(row){
+   return {
+    name:
+     row.a.name||
+     'Unbenannt',
+
+    type:
+     'Gewicht',
+
+    t:
+     row.t,
+
+    i:
+     row.i
+   };
+  });
 }
 
 function groupRows(){
-  const all=animals(),rows=[];
-  (NGTStore.TYPES||[]).forEach(t=>{
-    const count=all.filter(x=>x.t===t).length;
-    if(count>0){
-      rows.push({
-        t,
-        count,
-        label:(NGTStore.LABELS&&NGTStore.LABELS[t])?NGTStore.LABELS[t]:t
-      });
-    }
+ const all=animals();
+ const map={};
+
+ all.forEach(function(row){
+  const group=
+   row.a.animalGroup||
+   'Unsortiert';
+
+  map[group]=
+   (
+    map[group]||
+    0
+   )+
+   1;
+ });
+
+ return Object.keys(map)
+  .sort(function(a,b){
+   return a.localeCompare(
+    b,
+    'de'
+   );
+  })
+  .map(function(group){
+   return {
+    label:group,
+    count:map[group]
+   };
   });
-  return rows;
 }
 
 function lowFood(){
-  return inventory().filter(x=>Number(x.qty||0)<=5);
+ return inventory()
+  .filter(function(item){
+   return Number(
+    item.qty||
+    0
+   )<=5;
+  });
 }
 
 function recentActivities(){
-  const rows=[];
-  animals().forEach(x=>{
-    const a=x.a;
-    (a.feeds||[]).slice(-2).forEach(f=>rows.push({icon:'🍽',title:a.name||'Unbenannt',sub:'Fütterung · '+(f.date||'-')}));
-    (a.weights||[]).slice(-2).forEach(w=>rows.push({icon:'⚖',title:a.name||'Unbenannt',sub:'Gewicht · '+(w.date||'-')}));
-    (a.sheds||[]).slice(-2).forEach(s=>rows.push({icon:'🧤',title:a.name||'Unbenannt',sub:'Häutung · '+(s.date||'-')}));
+ const rows=[];
+
+ animals().forEach(function(row){
+  const animal=row.a;
+
+  (
+   animal.feeds||
+   []
+  )
+   .slice(-2)
+   .forEach(function(feed){
+    rows.push({
+     icon:'🍽',
+     title:
+      animal.name||
+      'Unbenannt',
+
+     sub:
+      'Fütterung · '+
+      (
+       feed.date||
+       '-'
+      )
+    });
+   });
+
+  (
+   animal.weights||
+   []
+  )
+   .slice(-2)
+   .forEach(function(weight){
+    rows.push({
+     icon:'⚖',
+     title:
+      animal.name||
+      'Unbenannt',
+
+     sub:
+      'Gewicht · '+
+      (
+       weight.date||
+       '-'
+      )
+    });
+   });
+
+  (
+   animal.sheds||
+   []
+  )
+   .slice(-2)
+   .forEach(function(shed){
+    rows.push({
+     icon:'🧤',
+     title:
+      animal.name||
+      'Unbenannt',
+
+     sub:
+      'Häutung · '+
+      (
+       shed.date||
+       '-'
+      )
+    });
+   });
+ });
+
+ return rows
+  .slice(-4)
+  .reverse();
+}
+
+function donutStyle(
+ groups,
+ total
+){
+ if(!total){
+  return '';
+ }
+
+ const colors=[
+  '#63d93f',
+  '#2f86e8',
+  '#8b3bd6',
+  '#ff9500'
+ ];
+
+ let start=0;
+
+ const parts=
+  groups.map(function(group,index){
+   const degrees=
+    (
+     group.count/
+     total
+    )*
+    360;
+
+   const part=
+    colors[
+     index%
+     colors.length
+    ]+
+    ' '+
+    start+
+    'deg '+
+    (
+     start+
+     degrees
+    )+
+    'deg';
+
+   start+=degrees;
+
+   return part;
   });
-  return rows.slice(-4).reverse();
+
+ return (
+  'style="background:conic-gradient('+
+  parts.join(',')+
+  ')"'
+ );
 }
 
-function iconFor(t){
-  if(t==='boas')return '🐍';
-  if(t==='geckos')return '🦎';
-  if(t==='spinnen')return '🕷';
-  return '●';
+function kpi(
+ icon,
+ number,
+ label,
+ sub,
+ className
+){
+ return `
+  <div class="tc2SDkpi ${className||''}">
+   <span>${icon}</span>
+   <b>${number}</b>
+   <small>${esc(label)}</small>
+   ${sub?`<em>${esc(sub)}</em>`:''}
+  </div>
+ `;
 }
 
-function donutStyle(groups,total){
-  if(!total)return '';
-  const cols=['#63d93f','#2f86e8','#8b3bd6','#ff9500'];
-  let start=0;
-  const parts=groups.map((g,i)=>{
-    const deg=(g.count/total)*360;
-    const p=`${cols[i%cols.length]} ${start}deg ${start+deg}deg`;
-    start+=deg;
-    return p;
-  });
-  return `style="background:conic-gradient(${parts.join(',')})"`;
+function taskRow(
+ row,
+ index
+){
+ return `
+  <button
+   class="tc2SDtask"
+   onclick="NGT500.route('profile',{t:'${String(row.t||'').replace(/'/g,"\\'")}',i:${Number(row.i||0)}})"
+  >
+   <span>
+    ${
+     index%3===0
+      ?'🟣'
+      :index%3===1
+       ?'🟢'
+       :'⚡'
+    }
+   </span>
+
+   <div>
+    <b>${esc(row.name)}</b>
+    <small>${esc(row.type)}</small>
+   </div>
+
+   <em>heute</em>
+   <i>›</i>
+  </button>
+ `;
 }
 
-function kpi(icon,num,label,sub,cls){
-  return `<div class="tc2SDkpi ${cls||''}">
-    <span>${icon}</span>
-    <b>${num}</b>
-    <small>${esc(label)}</small>
-    ${sub?`<em>${esc(sub)}</em>`:''}
-  </div>`;
-}
+function foodRow(item){
+ const quantity=Number(
+  item.qty||
+  0
+ );
 
-function taskRow(r,i){
-  return `<button class="tc2SDtask">
-    <span>${i%3===0?'🟣':i%3===1?'🟢':'⚡'}</span>
-    <div>
-      <b>${esc(r.name)}</b>
-      <small>${esc(r.type)}</small>
-    </div>
-    <em>heute</em>
-    <i>›</i>
-  </button>`;
-}
+ return `
+  <button
+   class="tc2SDfood"
+   onclick="NGT500.route('food')"
+  >
+   <div class="tc2SDfoodImg">
+    🥩
+   </div>
 
-function foodRow(f){
-  const qty=Number(f.qty||0);
-  return `<button class="tc2SDfood">
-    <div class="tc2SDfoodImg">🥩</div>
-    <div>
-      <b>${esc(f.label||f.name)}</b>
-      <small>Bestand: ${qty}</small>
-    </div>
-    <em class="${qty<=5?'warn':''}">${qty<=5?'NIEDRIG':'OK'}</em>
-    <i>›</i>
-  </button>`;
+   <div>
+    <b>
+     ${esc(
+      item.label||
+      item.name
+     )}
+    </b>
+
+    <small>
+     Bestand: ${quantity}
+    </small>
+   </div>
+
+   <em class="${quantity<=5?'warn':''}">
+    ${quantity<=5?'NIEDRIG':'OK'}
+   </em>
+
+   <i>›</i>
+  </button>
+ `;
 }
 
 function render(){
-  const all=animals();
-  const inv=inventory();
-  const docs=documents();
-  const groups=groupRows();
-  const today=[...plannedFeeds(0),...plannedWeights(0)];
-  const low=lowFood();
-  const acts=recentActivities();
-  const total=all.length;
+ const all=animals();
+ const stock=inventory();
+ const docs=documents();
+ const groups=groupRows();
 
-  return `
-    <section class="tc2SD">
+ const today=[
+  ...plannedFeeds(0),
+  ...plannedWeights(0)
+ ];
 
-      <header class="tc2SDtop">
-        <button onclick="NGT500.route('dashboard')">☰</button>
-        <div>
-          <h2>Smart Dashboard</h2>
-          <p>Deine intelligente Übersicht</p>
+ const low=lowFood();
+ const activities=
+  recentActivities();
+
+ const total=all.length;
+
+ return `
+  <section class="tc2SD">
+   <header class="tc2SDtop">
+    <button onclick="NGT500.openMenu()">
+     ☰
+    </button>
+
+    <div>
+     <h2>Smart Dashboard</h2>
+     <p>Deine intelligente Übersicht</p>
+    </div>
+
+    <div class="tc2SDsync">
+     <b>☁ Synchronisiert</b>
+     <span>Heute</span>
+    </div>
+
+    <strong>TC</strong>
+   </header>
+
+   <div class="tc2SDkpis">
+    ${kpi(
+     '●●●',
+     total,
+     'Tiere',
+     '',
+     'green'
+    )}
+
+    ${kpi(
+     '⌂',
+     stock.length,
+     'Futterartikel',
+     low.length
+      ?low.length+' niedrig'
+      :'',
+     'orange'
+    )}
+
+    ${kpi(
+     '▣',
+     today.length,
+     'Heute fällig',
+     today.length
+      ?today.length+' Aufgaben'
+      :'',
+     'orange'
+    )}
+
+    ${kpi(
+     '▱',
+     docs.length,
+     'Dokumente',
+     '',
+     'blue'
+    )}
+   </div>
+
+   <section class="tc2SDcard">
+    <div class="tc2SDcardHead">
+     <h3>Bestand nach Tierart</h3>
+
+     <button onclick="NGT500.route('animals')">
+      Alle anzeigen ›
+     </button>
+    </div>
+
+    ${
+     groups.length
+      ?`
+       <div class="tc2SDdonutRow">
+        <div
+         class="tc2SDdonut"
+         ${donutStyle(groups,total)}
+        >
+         <div>
+          <b>${total}</b>
+          <span>Gesamt</span>
+         </div>
         </div>
-        <div class="tc2SDsync">
-          <b>☁ Synchronisiert</b>
-          <span>Heute</span>
+
+        <div class="tc2SDlegend">
+         ${groups.map(function(group,index){
+          return `
+           <button
+            onclick="NGT500.route('animals',{group:'${String(group.label).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}'})"
+           >
+            <i class="c${index%4}"></i>
+            <span>${esc(group.label)}</span>
+            <b>${group.count}</b>
+           </button>
+          `;
+         }).join('')}
         </div>
-        <strong>TC</strong>
-      </header>
+       </div>
+      `
+      :`
+       <div class="tc2SDempty">
+        Noch keine Tiere im Bestand.
+       </div>
+      `
+    }
+   </section>
 
-      <div class="tc2SDkpis">
-        ${kpi('●●●',total,'Tiere','','green')}
-        ${kpi('⌂',inv.length,'Futterartikel',low.length?low.length+' niedrig':'','orange')}
-        ${kpi('▣',today.length,'Heute fällig',today.length?today.length+' Aufgaben':'','orange')}
-        ${kpi('▱',docs.length,'Dokumente','','blue')}
-      </div>
+   <section class="tc2SDcard">
+    <div class="tc2SDcardHead">
+     <h3>Heute fällig</h3>
+    </div>
 
-      <section class="tc2SDcard">
-        <div class="tc2SDcardHead">
-          <h3>Bestand nach Tierart</h3>
-          <button onclick="NGT500.route('dashboard')">Alle anzeigen ›</button>
+    ${
+     today.length
+      ?today
+       .slice(0,3)
+       .map(taskRow)
+       .join('')+
+       (
+        today.length>3
+         ?`
+          <div class="tc2SDmore">
+           + ${today.length-3} weitere
+          </div>
+         `
+         :''
+       )
+      :`
+       <div class="tc2SDempty">
+        Heute nichts fällig.
+       </div>
+      `
+    }
+   </section>
+
+   <section class="tc2SDcard">
+    <div class="tc2SDcardHead">
+     <h3>Futterbestand</h3>
+
+     <button onclick="NGT500.route('food')">
+      Alle anzeigen ›
+     </button>
+    </div>
+
+    ${
+     stock.length
+      ?stock
+       .slice(0,3)
+       .map(foodRow)
+       .join('')
+      :`
+       <div class="tc2SDempty">
+        Kein Futterbestand erfasst.
+       </div>
+      `
+    }
+   </section>
+
+   <section class="tc2SDcard">
+    <div class="tc2SDcardHead">
+     <h3>Aktivitäten</h3>
+    </div>
+
+    ${
+     activities.length
+      ?activities.map(function(activity){
+       return `
+        <div class="tc2SDactivity">
+         <span>${activity.icon}</span>
+
+         <div>
+          <b>${esc(activity.title)}</b>
+          <small>${esc(activity.sub)}</small>
+         </div>
         </div>
-        ${
-          groups.length
-          ? `<div class="tc2SDdonutRow">
-              <div class="tc2SDdonut" ${donutStyle(groups,total)}>
-                <div><b>${total}</b><span>Gesamt</span></div>
-              </div>
-              <div class="tc2SDlegend">
-                ${groups.map((g,i)=>`<button onclick="NGT500.route('animals',{t:'${g.t}'})">
-                  <i class="c${i%4}"></i>
-                  <span>${esc(g.label.replace(/^.\s*/,''))}</span>
-                  <b>${g.count}</b>
-                </button>`).join('')}
-              </div>
-            </div>`
-          : `<div class="tc2SDempty">Noch keine Tiere im Bestand.</div>`
-        }
-      </section>
+       `;
+      }).join('')
+      :`
+       <div class="tc2SDempty">
+        Noch keine Aktivitäten vorhanden.
+       </div>
+      `
+    }
+   </section>
 
-      <section class="tc2SDcard">
-        <div class="tc2SDcardHead">
-          <h3>Heute fällig</h3>
-          <button>Alle anzeigen ›</button>
-        </div>
-        ${
-          today.length
-          ? today.slice(0,3).map(taskRow).join('')+(today.length>3?`<div class="tc2SDmore">+ ${today.length-3} weitere</div>`:'')
-          : `<div class="tc2SDempty">Heute nichts fällig.</div>`
-        }
-      </section>
+   <nav class="tc2SDnav">
+    <button class="on">
+     ▥
+     <span>Übersicht</span>
+    </button>
 
-      <section class="tc2SDcard">
-        <div class="tc2SDcardHead">
-          <h3>Futterbestand</h3>
-          <button onclick="NGT500.route('food')">Alle anzeigen ›</button>
-        </div>
-        ${
-          inv.length
-          ? inv.slice(0,3).map(foodRow).join('')
-          : `<div class="tc2SDempty">Kein Futterbestand erfasst.</div>`
-        }
-      </section>
+    <button onclick="NGT500.route('dashboard')">
+     ●●●
+     <span>Start</span>
+    </button>
 
-      <section class="tc2SDcard">
-        <div class="tc2SDcardHead">
-          <h3>Aktivitäten</h3>
-          <button>Alle anzeigen ›</button>
-        </div>
-        ${
-          acts.length
-          ? acts.map(a=>`<div class="tc2SDactivity"><span>${a.icon}</span><div><b>${esc(a.title)}</b><small>${esc(a.sub)}</small></div></div>`).join('')
-          : `<div class="tc2SDempty">Noch keine Aktivitäten vorhanden.</div>`
-        }
-      </section>
+    <button onclick="NGT500.route('food')">
+     ⌂
+     <span>Futter</span>
+    </button>
 
-      <nav class="tc2SDnav">
-        <button class="on">▥<span>Übersicht</span></button>
-        <button onclick="NGT500.route('dashboard')">●●●<span>Start</span></button>
-        <button onclick="NGT500.route('food')">⌂<span>Futter</span></button>
-        <button onclick="NGT500.route('qr')">▱<span>QR</span></button>
-        <button onclick="NGT500.route('settings')">⚙<span>System</span></button>
-      </nav>
+    <button onclick="NGT500.route('qr')">
+     ▱
+     <span>QR</span>
+    </button>
 
-    </section>
-  `;
+    <button onclick="NGT500.route('settings')">
+     ⚙
+     <span>System</span>
+    </button>
+   </nav>
+  </section>
+ `;
 }
 
-window.NGTSmartDashboard={render};
-if(window.NGT500)NGT500.register('smartDashboard',{render});
+window.NGTSmartDashboard={
+ render:render,
+ feedEnabled:feedEnabled,
+ weightEnabled:weightEnabled,
+ feedInterval:feedInterval,
+ weightInterval:weightInterval
+};
+
+if(window.NGT500){
+ NGT500.register(
+  'smartDashboard',
+  {
+   render:render
+  }
+ );
+}
 
 })();
