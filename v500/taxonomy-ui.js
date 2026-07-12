@@ -1,22 +1,10 @@
 (function(){
 'use strict';
 
-/*
- * TerraControl Taxonomy UI
- *
- * Verwendet ausschließlich lokal erzeugte SVG-Illustrationen.
- * Es werden keine Bestandsfotos als Gruppen- oder Gattungsbilder benutzt.
- * Es findet keine automatische Bildsuche im Internet statt.
- *
- * Priorität auf Einzeltierebene:
- * 1. eigenes Tierfoto
- * 2. passende Taxonomie-Illustration
- */
-
-const STYLE_ID='tc2TaxonomyIllustrationStyles';
+const STYLE_ID='tc2TaxonomySilhouetteStyles';
 
 let observer=null;
-let decorationTimer=null;
+let timer=null;
 
 function clean(value){
  return String(
@@ -37,15 +25,6 @@ function normalize(value){
 }
 
 function escapeHtml(value){
- if(
-  window.NGT500&&
-  typeof NGT500.esc==='function'
- ){
-  return NGT500.esc(
-   value||''
-  );
- }
-
  return String(value||'')
   .replace(/&/g,'&amp;')
   .replace(/</g,'&lt;')
@@ -54,85 +33,11 @@ function escapeHtml(value){
   .replace(/'/g,'&#39;');
 }
 
-function currentRoute(){
- if(
-  window.NGT500&&
-  typeof NGT500.current==='function'
- ){
-  return NGT500.current();
- }
-
- return null;
-}
-
-function hashText(value){
- const text=String(value||'');
- let hash=0;
-
- for(let index=0;index<text.length;index++){
-  hash=(
-   (
-    hash<<5
-   )-
-   hash+
-   text.charCodeAt(index)
-  )|0;
- }
-
- return Math.abs(hash);
-}
-
-function paletteFor(value){
- const palettes=[
-  {
-   main:'#9bec58',
-   second:'#65c6ba',
-   dark:'#0d2630',
-   glow:'rgba(155,236,88,.28)'
-  },
-  {
-   main:'#62d6ff',
-   second:'#7d8cff',
-   dark:'#102538',
-   glow:'rgba(98,214,255,.25)'
-  },
-  {
-   main:'#ffb454',
-   second:'#ff6b81',
-   dark:'#31231d',
-   glow:'rgba(255,180,84,.25)'
-  },
-  {
-   main:'#c58cff',
-   second:'#6dd6ff',
-   dark:'#251d35',
-   glow:'rgba(197,140,255,.25)'
-  },
-  {
-   main:'#72e3a6',
-   second:'#f1d35f',
-   dark:'#142b25',
-   glow:'rgba(114,227,166,.25)'
-  },
-  {
-   main:'#ff8e72',
-   second:'#ffd06b',
-   dark:'#33211f',
-   glow:'rgba(255,142,114,.25)'
-  }
- ];
-
- return palettes[
-  hashText(value)%
-  palettes.length
- ];
-}
-
-function classifyTaxon(value){
+function classify(value){
  const text=normalize(value);
 
  if(
-  /(vogelspinne|spinne|tarantel|brachypelma|caribena|nhandu|poecilotheria|psalmopoeus|teraphosa|hamorii|boehmei|versicolor|metallica|blondi)/.test(
+  /(vogelspinne|spinne|tarantel|brachypelma|caribena|nhandu|poecilotheria|psalmopoeus|theraphosa|grammostola|avicularia)/.test(
    text
   )
  ){
@@ -140,7 +45,7 @@ function classifyTaxon(value){
  }
 
  if(
-  /(python|schlange|boa|natter|cobra|viper|naja|lampropeltis|pantherophis|morelia|antaresia|regius|reticulatus|molurus)/.test(
+  /(python|schlange|boa|natter|morelia|antaresia|lampropeltis|pantherophis|regius|reticulatus|molurus)/.test(
    text
   )
  ){
@@ -148,7 +53,7 @@ function classifyTaxon(value){
  }
 
  if(
-  /(chamaleon|chamaeleon|furcifer|calyptratus|trioceros|jemen|pantherchamaleon)/.test(
+  /(chamaleon|chamaeleon|furcifer|calyptratus|trioceros)/.test(
    text
   )
  ){
@@ -164,19 +69,11 @@ function classifyTaxon(value){
  }
 
  if(
-  /(schildkrote|landschildkrote|testudo|turtle|tortoise)/.test(
+  /(schildkrote|landschildkrote|testudo|tortoise|turtle)/.test(
    text
   )
  ){
   return 'tortoise';
- }
-
- if(
-  /(frosch|frog|dendrobates|ranitomeya|kröte|krote)/.test(
-   text
-  )
- ){
-  return 'frog';
  }
 
  if(
@@ -188,15 +85,15 @@ function classifyTaxon(value){
  }
 
  if(
-  /(mantis|heuschrecke|kafer|käfer|insekt|schabe|phasmid|gespenstschrecke)/.test(
+  /(frosch|frog|dendrobates|ranitomeya|krote)/.test(
    text
   )
  ){
-  return 'insect';
+  return 'frog';
  }
 
  if(
-  /(agame|waran|iguana|leguan|echse|anolis|pogona|varanus)/.test(
+  /(agame|waran|leguan|iguana|echse|anolis|pogona|varanus)/.test(
    text
   )
  ){
@@ -204,772 +101,677 @@ function classifyTaxon(value){
  }
 
  if(
-  /(vogel|papagei|sittich|amadine|fink|eule)/.test(
+  /(mantis|insekt|kafer|heuschrecke|schabe|phasmid)/.test(
    text
   )
  ){
-  return 'bird';
- }
-
- if(
-  /(fisch|aquarium|betta|cichlide|wels|guppy)/.test(
-   text
-  )
- ){
-  return 'fish';
+  return 'insect';
  }
 
  return 'generic';
 }
 
-function svgFrame(content,palette,label){
+function frame(content,label){
  return `
   <svg
-   class="tc2TaxIllustrationSvg"
-   viewBox="0 0 120 120"
+   class="tc2TaxSilhouetteSvg"
+   viewBox="0 0 160 120"
    role="img"
-   aria-label="${escapeHtml(label||'Tierillustration')}"
+   aria-label="${escapeHtml(label||'Tier')}"
   >
    <defs>
-    <radialGradient id="taxGlow" cx="38%" cy="30%" r="75%">
-     <stop offset="0%" stop-color="${palette.second}" stop-opacity=".34"/>
-     <stop offset="58%" stop-color="${palette.main}" stop-opacity=".09"/>
-     <stop offset="100%" stop-color="${palette.dark}" stop-opacity="0"/>
+    <radialGradient
+     id="tc2TaxBackground"
+     cx="42%"
+     cy="38%"
+     r="72%"
+    >
+     <stop
+      offset="0%"
+      stop-color="#214c53"
+      stop-opacity=".58"
+     />
+
+     <stop
+      offset="54%"
+      stop-color="#112c38"
+      stop-opacity=".30"
+     />
+
+     <stop
+      offset="100%"
+      stop-color="#06121d"
+      stop-opacity="0"
+     />
     </radialGradient>
 
-    <linearGradient id="taxMain" x1="0" y1="0" x2="1" y2="1">
-     <stop offset="0%" stop-color="${palette.main}"/>
-     <stop offset="100%" stop-color="${palette.second}"/>
+    <linearGradient
+     id="tc2TaxBody"
+     x1="0"
+     y1="0"
+     x2="1"
+     y2="1"
+    >
+     <stop
+      offset="0%"
+      stop-color="#d6e8e7"
+     />
+
+     <stop
+      offset="52%"
+      stop-color="#85aaa9"
+     />
+
+     <stop
+      offset="100%"
+      stop-color="#3f6469"
+     />
     </linearGradient>
 
-    <filter id="taxShadow" x="-30%" y="-30%" width="160%" height="160%">
+    <filter
+     id="tc2TaxShadow"
+     x="-40%"
+     y="-40%"
+     width="180%"
+     height="180%"
+    >
      <feDropShadow
       dx="0"
-      dy="4"
-      stdDeviation="5"
-      flood-color="${palette.main}"
-      flood-opacity=".22"
+      dy="5"
+      stdDeviation="6"
+      flood-color="#4bc9bb"
+      flood-opacity=".18"
      />
     </filter>
    </defs>
 
-   <circle
-    cx="60"
-    cy="60"
-    r="53"
-    fill="url(#taxGlow)"
+   <ellipse
+    cx="80"
+    cy="61"
+    rx="70"
+    ry="51"
+    fill="url(#tc2TaxBackground)"
    />
 
    <g
-    class="tc2TaxIllustrationCreature"
-    filter="url(#taxShadow)"
+    class="tc2TaxSilhouetteCreature"
+    fill="url(#tc2TaxBody)"
+    stroke="#d8eeee"
+    stroke-opacity=".20"
+    stroke-width="1.2"
+    filter="url(#tc2TaxShadow)"
    >
     ${content}
    </g>
 
-   <circle
-    class="tc2TaxIllustrationSpark tc2TaxIllustrationSparkOne"
-    cx="94"
-    cy="28"
-    r="3"
-    fill="${palette.second}"
-   />
-
-   <circle
-    class="tc2TaxIllustrationSpark tc2TaxIllustrationSparkTwo"
-    cx="25"
-    cy="91"
-    r="2.5"
-    fill="${palette.main}"
+   <path
+    d="M24 101 C58 111 105 111 137 99"
+    fill="none"
+    stroke="#65c6ba"
+    stroke-opacity=".17"
+    stroke-width="2"
    />
   </svg>
  `;
 }
 
-function snakeSvg(palette,label){
- return svgFrame(
+function spider(label){
+ return frame(
+  `
+   <g
+    fill="none"
+    stroke="url(#tc2TaxBody)"
+    stroke-width="6.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+   >
+    <path d="M67 51 C49 31 36 27 22 30"/>
+    <path d="M63 58 C43 45 30 43 16 49"/>
+    <path d="M62 68 C39 65 28 70 17 81"/>
+    <path d="M67 76 C48 91 40 101 39 110"/>
+
+    <path d="M93 51 C111 31 124 27 138 30"/>
+    <path d="M97 58 C117 45 130 43 144 49"/>
+    <path d="M98 68 C121 65 132 70 143 81"/>
+    <path d="M93 76 C112 91 120 101 121 110"/>
+   </g>
+
+   <ellipse
+    cx="80"
+    cy="71"
+    rx="22"
+    ry="27"
+   />
+
+   <ellipse
+    cx="80"
+    cy="46"
+    rx="15"
+    ry="14"
+   />
+
+   <g fill="#10252d" stroke="none">
+    <circle cx="74" cy="43" r="2"/>
+    <circle cx="80" cy="41" r="2"/>
+    <circle cx="86" cy="43" r="2"/>
+    <circle cx="77" cy="47" r="1.5"/>
+    <circle cx="83" cy="47" r="1.5"/>
+   </g>
+  `,
+  label
+ );
+}
+
+function snake(label){
+ return frame(
   `
    <path
     d="
-     M26 75
-     C31 49 55 88 72 68
-     C87 50 66 39 54 50
-     C43 60 52 72 65 65
-     C80 57 91 42 82 28
+     M28 82
+     C34 56 56 91 78 76
+     C101 61 96 39 79 36
+     C62 33 52 48 61 58
+     C72 70 93 55 104 43
+     C116 30 120 22 116 16
     "
     fill="none"
-    stroke="url(#taxMain)"
-    stroke-width="13"
+    stroke="url(#tc2TaxBody)"
+    stroke-width="15"
     stroke-linecap="round"
     stroke-linejoin="round"
    />
 
    <path
-    d="M81 28 L96 25 L88 38 Z"
-    fill="${palette.second}"
+    d="M111 17 L131 20 L118 34 Z"
    />
 
    <circle
-    cx="87"
-    cy="29"
+    cx="120"
+    cy="22"
     r="2.2"
-    fill="#06111a"
+    fill="#07131b"
+    stroke="none"
    />
 
    <path
-    d="M96 29 L104 26 M96 29 L104 33"
-    stroke="${palette.main}"
-    stroke-width="2"
+    d="M130 26 L140 22 M130 26 L140 30"
+    fill="none"
+    stroke="#8abfba"
+    stroke-width="1.8"
     stroke-linecap="round"
    />
   `,
-  palette,
   label
  );
 }
 
-function spiderSvg(palette,label){
- const legs=[
-  'M48 49 C31 32 22 31 14 34',
-  'M44 57 C25 48 17 49 10 55',
-  'M44 66 C24 67 17 72 11 80',
-  'M48 73 C33 87 27 94 28 105',
-  'M72 49 C89 32 98 31 106 34',
-  'M76 57 C95 48 103 49 110 55',
-  'M76 66 C96 67 103 72 109 80',
-  'M72 73 C87 87 93 94 92 105'
- ];
-
- return svgFrame(
-  `
-   <g
-    fill="none"
-    stroke="url(#taxMain)"
-    stroke-width="6"
-    stroke-linecap="round"
-   >
-    ${legs.map(function(path){
-     return `<path d="${path}"/>`;
-    }).join('')}
-   </g>
-
-   <ellipse
-    cx="60"
-    cy="67"
-    rx="22"
-    ry="26"
-    fill="url(#taxMain)"
-   />
-
-   <circle
-    cx="60"
-    cy="43"
-    r="14"
-    fill="${palette.second}"
-   />
-
-   <g fill="#071521">
-    <circle cx="54" cy="40" r="2"/>
-    <circle cx="60" cy="38" r="2"/>
-    <circle cx="66" cy="40" r="2"/>
-    <circle cx="57" cy="45" r="1.7"/>
-    <circle cx="63" cy="45" r="1.7"/>
-   </g>
-
-   <path
-    d="M49 65 Q60 75 71 65"
-    fill="none"
-    stroke="${palette.dark}"
-    stroke-width="3"
-    opacity=".45"
-   />
-  `,
-  palette,
-  label
- );
-}
-
-function chameleonSvg(palette,label){
- return svgFrame(
+function chameleon(label){
+ return frame(
   `
    <path
     d="
-     M35 72
-     C44 43 72 34 87 51
-     C99 65 88 86 67 86
-     C51 86 39 80 35 72
+     M42 76
+     C43 49 67 32 95 39
+     C115 44 123 61 113 76
+     C103 90 75 91 57 84
+     C49 81 44 78 42 76
     "
-    fill="url(#taxMain)"
+   />
+
+   <path
+    d="
+     M45 74
+     C27 63 18 76 25 89
+     C31 100 47 98 50 87
+     C52 80 44 76 39 82
+     C36 87 41 91 45 88
+    "
+    fill="none"
+    stroke="url(#tc2TaxBody)"
+    stroke-width="8"
+    stroke-linecap="round"
+   />
+
+   <path
+    d="M101 43 L108 26 L116 47 Z"
    />
 
    <circle
-    cx="82"
+    cx="108"
     cy="51"
-    r="14"
-    fill="${palette.second}"
+    r="10"
    />
 
    <circle
-    cx="86"
-    cy="48"
-    r="4"
-    fill="#f7fbff"
-   />
-
-   <circle
-    cx="87"
-    cy="48"
-    r="2"
-    fill="#071521"
+    cx="111"
+    cy="49"
+    r="3"
+    fill="#08141c"
+    stroke="none"
    />
 
    <path
-    d="
-     M38 71
-     C19 65 18 89 35 91
-     C49 93 52 79 42 76
-     C35 74 31 80 36 84
-    "
+    d="M66 80 L58 101 M87 83 L94 103"
     fill="none"
-    stroke="${palette.main}"
-    stroke-width="8"
-    stroke-linecap="round"
-   />
-
-   <path
-    d="M56 83 L48 103 M69 84 L76 103"
-    stroke="${palette.second}"
+    stroke="url(#tc2TaxBody)"
     stroke-width="6"
     stroke-linecap="round"
    />
 
    <path
-    d="M75 39 L81 25 L88 42"
-    fill="${palette.main}"
+    d="M38 103 C68 98 100 100 131 96"
+    fill="none"
+    stroke="#55746f"
+    stroke-width="5"
+    stroke-linecap="round"
    />
   `,
-  palette,
   label
  );
 }
 
-function geckoSvg(palette,label){
- return svgFrame(
+function gecko(label){
+ return frame(
   `
    <path
     d="
-     M32 68
-     C43 43 73 38 87 55
-     C96 66 87 81 69 83
-     C50 85 37 78 32 68
+     M42 71
+     C49 46 73 37 99 45
+     C117 50 121 66 108 77
+     C93 90 63 88 48 79
+     C44 76 42 73 42 71
     "
-    fill="url(#taxMain)"
    />
 
    <circle
-    cx="86"
-    cy="55"
-    r="12"
-    fill="${palette.second}"
+    cx="108"
+    cy="53"
+    r="10"
    />
 
    <circle
-    cx="90"
-    cy="52"
-    r="2.5"
-    fill="#06111a"
+    cx="112"
+    cy="50"
+    r="2.4"
+    fill="#08141c"
+    stroke="none"
    />
 
    <path
-    d="M34 69 C20 72 18 88 30 93"
+    d="M43 72 C27 72 20 84 25 95"
     fill="none"
-    stroke="${palette.main}"
+    stroke="url(#tc2TaxBody)"
     stroke-width="8"
     stroke-linecap="round"
    />
 
    <g
-    stroke="${palette.second}"
+    fill="none"
+    stroke="url(#tc2TaxBody)"
     stroke-width="6"
     stroke-linecap="round"
    >
-    <path d="M48 75 L35 91"/>
-    <path d="M61 79 L55 99"/>
-    <path d="M70 78 L82 94"/>
-    <path d="M78 70 L96 78"/>
+    <path d="M58 77 L42 96"/>
+    <path d="M74 82 L68 103"/>
+    <path d="M88 79 L101 96"/>
+    <path d="M97 68 L119 75"/>
    </g>
 
-   <g fill="${palette.second}">
-    <circle cx="33" cy="93" r="4"/>
-    <circle cx="54" cy="101" r="4"/>
-    <circle cx="84" cy="96" r="4"/>
-    <circle cx="99" cy="79" r="4"/>
+   <g stroke="none">
+    <circle cx="40" cy="98" r="4"/>
+    <circle cx="68" cy="105" r="4"/>
+    <circle cx="103" cy="98" r="4"/>
+    <circle cx="122" cy="76" r="4"/>
    </g>
   `,
-  palette,
   label
  );
 }
 
-function tortoiseSvg(palette,label){
- return svgFrame(
+function tortoise(label){
+ return frame(
   `
    <ellipse
-    cx="57"
-    cy="62"
-    rx="35"
-    ry="28"
-    fill="url(#taxMain)"
+    cx="76"
+    cy="65"
+    rx="39"
+    ry="29"
    />
 
    <path
-    d="M31 61 Q57 30 83 61 Q57 90 31 61"
+    d="M39 65 Q75 32 113 65 Q76 96 39 65"
     fill="none"
-    stroke="${palette.dark}"
-    stroke-width="4"
-    opacity=".45"
+    stroke="#314e52"
+    stroke-width="3"
    />
 
    <path
-    d="M57 36 L57 88 M31 61 L83 61"
-    stroke="${palette.dark}"
-    stroke-width="3"
-    opacity=".38"
+    d="M76 37 L76 93 M40 65 L112 65"
+    fill="none"
+    stroke="#314e52"
+    stroke-width="2"
+   />
+
+   <ellipse
+    cx="124"
+    cy="64"
+    rx="14"
+    ry="11"
    />
 
    <circle
-    cx="94"
-    cy="62"
-    r="12"
-    fill="${palette.second}"
-   />
-
-   <circle
-    cx="98"
-    cy="59"
+    cx="129"
+    cy="61"
     r="2"
-    fill="#06111a"
+    fill="#08141c"
+    stroke="none"
    />
 
-   <g fill="${palette.second}">
-    <ellipse cx="34" cy="88" rx="9" ry="5"/>
-    <ellipse cx="74" cy="89" rx="9" ry="5"/>
-    <ellipse cx="31" cy="38" rx="8" ry="5"/>
-    <ellipse cx="73" cy="36" rx="8" ry="5"/>
-   </g>
+   <ellipse cx="48" cy="91" rx="10" ry="5"/>
+   <ellipse cx="91" cy="92" rx="10" ry="5"/>
+   <ellipse cx="47" cy="38" rx="9" ry="5"/>
+   <ellipse cx="91" cy="37" rx="9" ry="5"/>
   `,
-  palette,
   label
  );
 }
 
-function frogSvg(palette,label){
- return svgFrame(
+function scorpion(label){
+ return frame(
   `
    <ellipse
-    cx="60"
-    cy="67"
-    rx="31"
-    ry="25"
-    fill="url(#taxMain)"
+    cx="77"
+    cy="70"
+    rx="18"
+    ry="24"
    />
 
-   <circle
-    cx="43"
-    cy="45"
-    r="14"
-    fill="${palette.second}"
-   />
-
-   <circle
+   <ellipse
     cx="77"
     cy="45"
-    r="14"
-    fill="${palette.second}"
+    rx="13"
+    ry="12"
    />
 
-   <circle cx="43" cy="44" r="5" fill="#f7fbff"/>
-   <circle cx="77" cy="44" r="5" fill="#f7fbff"/>
-   <circle cx="43" cy="44" r="2.5" fill="#06111a"/>
-   <circle cx="77" cy="44" r="2.5" fill="#06111a"/>
+   <g
+    fill="none"
+    stroke="url(#tc2TaxBody)"
+    stroke-width="5"
+    stroke-linecap="round"
+   >
+    <path d="M64 55 L44 43 L28 48"/>
+    <path d="M61 66 L37 62 L23 70"/>
+    <path d="M63 77 L43 88 L35 103"/>
+
+    <path d="M90 55 L110 43 L126 48"/>
+    <path d="M93 66 L117 62 L131 70"/>
+    <path d="M91 77 L111 88 L119 103"/>
+   </g>
 
    <path
-    d="M48 70 Q60 78 72 70"
+    d="
+     M80 91
+     C88 108 113 105 119 88
+     C124 73 112 65 104 74
+    "
     fill="none"
-    stroke="${palette.dark}"
+    stroke="url(#tc2TaxBody)"
+    stroke-width="8"
+    stroke-linecap="round"
+   />
+
+   <path
+    d="M101 75 L112 70 L109 83 Z"
+   />
+  `,
+  label
+ );
+}
+
+function frog(label){
+ return frame(
+  `
+   <ellipse
+    cx="80"
+    cy="72"
+    rx="34"
+    ry="25"
+   />
+
+   <circle
+    cx="60"
+    cy="47"
+    r="14"
+   />
+
+   <circle
+    cx="100"
+    cy="47"
+    r="14"
+   />
+
+   <circle
+    cx="60"
+    cy="46"
+    r="4"
+    fill="#08141c"
+    stroke="none"
+   />
+
+   <circle
+    cx="100"
+    cy="46"
+    r="4"
+    fill="#08141c"
+    stroke="none"
+   />
+
+   <path
+    d="M66 75 Q80 82 94 75"
+    fill="none"
+    stroke="#314e52"
     stroke-width="3"
     stroke-linecap="round"
    />
 
    <path
-    d="M36 78 L17 94 M84 78 L103 94"
-    stroke="${palette.second}"
+    d="M53 82 L29 101 M107 82 L131 101"
+    fill="none"
+    stroke="url(#tc2TaxBody)"
     stroke-width="7"
     stroke-linecap="round"
    />
   `,
-  palette,
   label
  );
 }
 
-function scorpionSvg(palette,label){
- return svgFrame(
-  `
-   <ellipse
-    cx="57"
-    cy="69"
-    rx="20"
-    ry="24"
-    fill="url(#taxMain)"
-   />
-
-   <circle
-    cx="57"
-    cy="45"
-    r="12"
-    fill="${palette.second}"
-   />
-
-   <g
-    stroke="${palette.main}"
-    stroke-width="5"
-    stroke-linecap="round"
-    fill="none"
-   >
-    <path d="M43 57 L25 47 L15 51"/>
-    <path d="M40 66 L20 63 L10 70"/>
-    <path d="M42 76 L23 84 L17 95"/>
-    <path d="M71 57 L89 47 L99 51"/>
-    <path d="M74 66 L94 63 L104 70"/>
-    <path d="M72 76 L91 84 L97 95"/>
-   </g>
-
-   <path
-    d="
-     M59 91
-     C65 107 88 104 91 88
-     C94 72 80 68 75 78
-    "
-    fill="none"
-    stroke="${palette.second}"
-    stroke-width="8"
-    stroke-linecap="round"
-   />
-
-   <path
-    d="M73 79 L82 74 L80 85 Z"
-    fill="${palette.main}"
-   />
-  `,
-  palette,
-  label
- );
-}
-
-function insectSvg(palette,label){
- return svgFrame(
-  `
-   <ellipse
-    cx="60"
-    cy="68"
-    rx="15"
-    ry="29"
-    fill="url(#taxMain)"
-   />
-
-   <circle
-    cx="60"
-    cy="39"
-    r="12"
-    fill="${palette.second}"
-   />
-
-   <ellipse
-    cx="39"
-    cy="61"
-    rx="17"
-    ry="25"
-    fill="${palette.second}"
-    opacity=".55"
-    transform="rotate(-25 39 61)"
-   />
-
-   <ellipse
-    cx="81"
-    cy="61"
-    rx="17"
-    ry="25"
-    fill="${palette.second}"
-    opacity=".55"
-    transform="rotate(25 81 61)"
-   />
-
-   <g
-    stroke="${palette.main}"
-    stroke-width="4"
-    stroke-linecap="round"
-   >
-    <path d="M48 54 L25 43"/>
-    <path d="M45 67 L20 67"/>
-    <path d="M48 80 L25 94"/>
-    <path d="M72 54 L95 43"/>
-    <path d="M75 67 L100 67"/>
-    <path d="M72 80 L95 94"/>
-   </g>
-
-   <path
-    d="M55 30 L45 18 M65 30 L75 18"
-    stroke="${palette.second}"
-    stroke-width="3"
-    stroke-linecap="round"
-   />
-  `,
-  palette,
-  label
- );
-}
-
-function lizardSvg(palette,label){
- return svgFrame(
+function lizard(label){
+ return frame(
   `
    <path
     d="
-     M25 70
-     C39 43 70 40 88 57
-     C98 67 88 81 70 84
-     C48 88 32 81 25 70
+     M38 71
+     C48 44 77 38 105 49
+     C120 55 122 68 108 78
+     C91 90 61 88 45 79
+     C40 76 38 73 38 71
     "
-    fill="url(#taxMain)"
    />
 
    <circle
-    cx="89"
-    cy="57"
-    r="12"
-    fill="${palette.second}"
+    cx="112"
+    cy="55"
+    r="10"
    />
 
    <circle
-    cx="93"
-    cy="54"
-    r="2.5"
-    fill="#06111a"
+    cx="116"
+    cy="52"
+    r="2.3"
+    fill="#08141c"
+    stroke="none"
    />
 
    <path
-    d="M28 70 C11 72 12 91 28 96"
+    d="M40 72 C23 73 18 87 25 98"
     fill="none"
-    stroke="${palette.main}"
+    stroke="url(#tc2TaxBody)"
     stroke-width="8"
     stroke-linecap="round"
    />
 
    <g
-    stroke="${palette.second}"
+    fill="none"
+    stroke="url(#tc2TaxBody)"
     stroke-width="6"
     stroke-linecap="round"
    >
-    <path d="M47 77 L36 96"/>
-    <path d="M66 80 L74 100"/>
-    <path d="M75 72 L96 80"/>
+    <path d="M58 78 L42 98"/>
+    <path d="M78 82 L74 104"/>
+    <path d="M92 78 L106 96"/>
    </g>
   `,
-  palette,
   label
  );
 }
 
-function birdSvg(palette,label){
- return svgFrame(
+function insect(label){
+ return frame(
   `
-   <path
-    d="
-     M29 69
-     C39 41 72 34 89 52
-     C99 63 91 81 71 86
-     C49 91 34 82 29 69
-    "
-    fill="url(#taxMain)"
-   />
-
-   <circle
-    cx="84"
-    cy="48"
-    r="14"
-    fill="${palette.second}"
-   />
-
-   <path
-    d="M97 49 L110 55 L97 60 Z"
-    fill="${palette.main}"
-   />
-
-   <circle
-    cx="88"
-    cy="45"
-    r="2.5"
-    fill="#06111a"
-   />
-
-   <path
-    d="M45 61 Q61 51 73 68 Q57 80 45 61"
-    fill="${palette.second}"
-    opacity=".68"
-   />
-
-   <path
-    d="M55 87 L50 103 M68 86 L72 103"
-    stroke="${palette.main}"
-    stroke-width="4"
-    stroke-linecap="round"
-   />
-  `,
-  palette,
-  label
- );
-}
-
-function fishSvg(palette,label){
- return svgFrame(
-  `
-   <path
-    d="
-     M23 62
-     C38 37 76 38 94 61
-     C76 85 38 86 23 62
-    "
-    fill="url(#taxMain)"
-   />
-
-   <path
-    d="M25 62 L10 43 L10 81 Z"
-    fill="${palette.second}"
+   <ellipse
+    cx="80"
+    cy="70"
+    rx="15"
+    ry="30"
    />
 
    <circle
     cx="80"
-    cy="55"
-    r="4"
-    fill="#f7fbff"
+    cy="39"
+    r="12"
    />
 
-   <circle
-    cx="81"
-    cy="55"
-    r="2"
-    fill="#06111a"
+   <ellipse
+    cx="56"
+    cy="63"
+    rx="17"
+    ry="27"
+    opacity=".58"
+    transform="rotate(-25 56 63)"
    />
 
-   <path
-    d="M52 47 Q63 61 52 77"
+   <ellipse
+    cx="104"
+    cy="63"
+    rx="17"
+    ry="27"
+    opacity=".58"
+    transform="rotate(25 104 63)"
+   />
+
+   <g
     fill="none"
-    stroke="${palette.second}"
+    stroke="url(#tc2TaxBody)"
     stroke-width="4"
-   />
+    stroke-linecap="round"
+   >
+    <path d="M67 55 L42 42"/>
+    <path d="M65 69 L36 69"/>
+    <path d="M67 82 L43 100"/>
 
-   <circle cx="94" cy="28" r="4" fill="${palette.second}" opacity=".65"/>
-   <circle cx="103" cy="17" r="3" fill="${palette.main}" opacity=".55"/>
+    <path d="M93 55 L118 42"/>
+    <path d="M95 69 L124 69"/>
+    <path d="M93 82 L117 100"/>
+
+    <path d="M75 29 L64 17"/>
+    <path d="M85 29 L96 17"/>
+   </g>
   `,
-  palette,
   label
  );
 }
 
-function genericSvg(palette,label){
- return svgFrame(
+function generic(label){
+ return frame(
   `
-   <circle
-    cx="60"
-    cy="66"
-    r="23"
-    fill="url(#taxMain)"
+   <path
+    d="
+     M44 75
+     C46 51 66 38 88 42
+     C108 45 120 61 114 77
+     C108 92 86 96 66 90
+     C54 87 46 81 44 75
+    "
    />
 
    <circle
-    cx="35"
-    cy="40"
-    r="10"
-    fill="${palette.second}"
+    cx="102"
+    cy="50"
+    r="12"
    />
 
    <circle
-    cx="54"
-    cy="28"
-    r="10"
-    fill="${palette.main}"
-   />
-
-   <circle
-    cx="76"
-    cy="31"
-    r="10"
-    fill="${palette.second}"
-   />
-
-   <circle
-    cx="91"
-    cy="49"
-    r="10"
-    fill="${palette.main}"
+    cx="106"
+    cy="47"
+    r="2.3"
+    fill="#08141c"
+    stroke="none"
    />
 
    <path
-    d="
-     M39 77
-     C43 57 77 54 83 77
-     C88 96 68 103 60 94
-     C50 104 35 94 39 77
-    "
-    fill="url(#taxMain)"
+    d="M46 75 C29 75 22 87 27 99"
+    fill="none"
+    stroke="url(#tc2TaxBody)"
+    stroke-width="7"
+    stroke-linecap="round"
+   />
+
+   <path
+    d="M60 85 L55 103 M88 87 L95 103"
+    fill="none"
+    stroke="url(#tc2TaxBody)"
+    stroke-width="6"
+    stroke-linecap="round"
    />
   `,
-  palette,
   label
  );
 }
 
 function illustrationFor(value){
  const label=clean(value)||'Tier';
- const type=classifyTaxon(label);
- const palette=paletteFor(label);
 
- switch(type){
-  case 'snake':
-   return snakeSvg(palette,label);
-
+ switch(classify(label)){
   case 'spider':
-   return spiderSvg(palette,label);
+   return spider(label);
+
+  case 'snake':
+   return snake(label);
 
   case 'chameleon':
-   return chameleonSvg(palette,label);
+   return chameleon(label);
 
   case 'gecko':
-   return geckoSvg(palette,label);
+   return gecko(label);
 
   case 'tortoise':
-   return tortoiseSvg(palette,label);
-
-  case 'frog':
-   return frogSvg(palette,label);
+   return tortoise(label);
 
   case 'scorpion':
-   return scorpionSvg(palette,label);
+   return scorpion(label);
 
-  case 'insect':
-   return insectSvg(palette,label);
+  case 'frog':
+   return frog(label);
 
   case 'lizard':
-   return lizardSvg(palette,label);
+   return lizard(label);
 
-  case 'bird':
-   return birdSvg(palette,label);
-
-  case 'fish':
-   return fishSvg(palette,label);
+  case 'insect':
+   return insect(label);
 
   default:
-   return genericSvg(palette,label);
+   return generic(label);
  }
 }
 
@@ -989,130 +791,11 @@ function installStyles(){
  style.id=STYLE_ID;
 
  style.textContent=`
-  .tc2TaxIllustrationHost{
-   display:grid!important;
-   place-items:center!important;
-
-   overflow:hidden!important;
-
-   color:#9bec58!important;
-
-   background:
-    radial-gradient(
-     circle at 35% 28%,
-     rgba(105,210,196,.12),
-     transparent 58%
-    ),
-    rgba(5,17,27,.58)!important;
-
-   border:
-    1px solid
-    rgba(125,170,210,.24)!important;
-  }
-
-  .tc2TaxIllustrationSvg{
-   display:block!important;
-
-   width:100%!important;
-   height:100%!important;
-
-   overflow:visible!important;
-  }
-
-  .tc2TaxIllustrationCreature{
-   transform-origin:60px 62px;
-   animation:
-    tc2TaxFloat
-    4.6s
-    ease-in-out
-    infinite;
-  }
-
-  .tc2TaxIllustrationSpark{
-   transform-origin:center;
-   animation:
-    tc2TaxSpark
-    2.8s
-    ease-in-out
-    infinite;
-  }
-
-  .tc2TaxIllustrationSparkTwo{
-   animation-delay:1.2s;
-  }
-
-  @keyframes tc2TaxFloat{
-   0%,
-   100%{
-    transform:
-     translateY(1px)
-     rotate(-1deg);
-   }
-
-   50%{
-    transform:
-     translateY(-4px)
-     rotate(1deg);
-   }
-  }
-
-  @keyframes tc2TaxSpark{
-   0%,
-   100%{
-    opacity:.3;
-    transform:scale(.75);
-   }
-
-   50%{
-    opacity:1;
-    transform:scale(1.25);
-   }
-  }
-
-  @media(
-   prefers-reduced-motion:
-   reduce
-  ){
-   .tc2TaxIllustrationCreature,
-   .tc2TaxIllustrationSpark{
-    animation:none!important;
-   }
-  }
-
-  .tc2TaxFolder>
-  .tc2TaxIllustrationHost{
-   width:84px!important;
-   min-width:84px!important;
-   max-width:84px!important;
-
-   height:84px!important;
-   min-height:84px!important;
-   max-height:84px!important;
-
-   margin:0!important;
-   padding:5px!important;
-
-   border-radius:21px!important;
-
-   font-size:0!important;
-   letter-spacing:0!important;
-  }
-
-  .tc2TaxAnimal>
-  .tc2TaxIllustrationHost{
-   width:100%!important;
-   height:100%!important;
-
-   margin:0!important;
-   padding:10px!important;
-
-   border:0!important;
-   border-radius:0!important;
-  }
-
   .tc2TaxFolder{
+   display:grid!important;
+
    grid-template-columns:
-    84px
+    96px
     minmax(0,1fr)
     24px!important;
 
@@ -1120,19 +803,60 @@ function installStyles(){
     auto
     auto!important;
 
-   column-gap:14px!important;
-   row-gap:5px!important;
-
    align-items:center!important;
 
-   min-height:112px!important;
+   column-gap:15px!important;
+   row-gap:4px!important;
+
+   width:100%!important;
+   min-height:122px!important;
+
    padding:13px!important;
+
+   text-align:left!important;
   }
 
   .tc2TaxFolder>
-  .tc2TaxIllustrationHost{
+  .tc2TaxSilhouetteHost{
    grid-column:1!important;
    grid-row:1 / 3!important;
+
+   display:grid!important;
+   place-items:center!important;
+
+   width:96px!important;
+   min-width:96px!important;
+   max-width:96px!important;
+
+   height:96px!important;
+   min-height:96px!important;
+   max-height:96px!important;
+
+   margin:0!important;
+   padding:3px!important;
+
+   overflow:hidden!important;
+
+   border:
+    1px solid
+    rgba(112,164,182,.28)!important;
+
+   border-radius:23px!important;
+
+   background:
+    linear-gradient(
+     145deg,
+     rgba(19,47,60,.96),
+     rgba(4,17,27,.98)
+    )!important;
+
+   box-shadow:
+    inset 0 1px 0
+    rgba(255,255,255,.04),
+    0 12px 25px
+    rgba(0,0,0,.19)!important;
+
+   font-size:0!important;
   }
 
   .tc2TaxFolder>b{
@@ -1144,10 +868,10 @@ function installStyles(){
    max-width:100%!important;
    overflow:hidden!important;
 
-   color:#f4f7fb!important;
+   color:#f0f5f7!important;
 
-   font-size:17px!important;
-   font-weight:900!important;
+   font-size:18px!important;
+   font-weight:850!important;
    line-height:1.2!important;
 
    text-align:left!important;
@@ -1161,10 +885,11 @@ function installStyles(){
 
    align-self:start!important;
 
-   color:#a7b3bd!important;
+   color:#9baeb6!important;
 
-   font-size:10px!important;
-   font-weight:750!important;
+   font-size:12px!important;
+   font-weight:700!important;
+   line-height:1.3!important;
 
    text-align:left!important;
   }
@@ -1176,33 +901,100 @@ function installStyles(){
    align-self:center!important;
   }
 
-  @media(max-width:420px){
+  .tc2TaxSilhouetteSvg{
+   display:block!important;
+
+   width:100%!important;
+   height:100%!important;
+  }
+
+  .tc2TaxSilhouetteCreature{
+   transform-origin:80px 63px;
+
+   animation:
+    tc2TaxSilhouetteBreath
+    5.5s
+    ease-in-out
+    infinite;
+  }
+
+  @keyframes tc2TaxSilhouetteBreath{
+   0%,
+   100%{
+    transform:
+     translateY(1px)
+     scale(1);
+   }
+
+   50%{
+    transform:
+     translateY(-2px)
+     scale(1.015);
+   }
+  }
+
+  .tc2TaxAnimal>
+  .tc2TaxSilhouetteHost{
+   display:grid!important;
+   place-items:center!important;
+
+   width:100%!important;
+   height:100%!important;
+
+   overflow:hidden!important;
+
+   background:
+    linear-gradient(
+     145deg,
+     rgba(19,47,60,.96),
+     rgba(4,17,27,.98)
+    )!important;
+
+   font-size:0!important;
+  }
+
+  @media(
+   prefers-reduced-motion:
+   reduce
+  ){
+   .tc2TaxSilhouetteCreature{
+    animation:none!important;
+   }
+  }
+
+  @media(max-width:440px){
    .tc2TaxFolder{
     grid-template-columns:
-     74px
+     82px
      minmax(0,1fr)
      22px!important;
 
-    min-height:100px!important;
-    column-gap:11px!important;
+    min-height:106px!important;
+
+    column-gap:12px!important;
+
     padding:11px!important;
    }
 
    .tc2TaxFolder>
-   .tc2TaxIllustrationHost{
-    width:74px!important;
-    min-width:74px!important;
-    max-width:74px!important;
+   .tc2TaxSilhouetteHost{
+    width:82px!important;
+    min-width:82px!important;
+    max-width:82px!important;
 
-    height:74px!important;
-    min-height:74px!important;
-    max-height:74px!important;
+    height:82px!important;
+    min-height:82px!important;
+    max-height:82px!important;
 
-    border-radius:19px!important;
+    border-radius:20px!important;
    }
 
    .tc2TaxFolder>b{
-    font-size:15px!important;
+    font-size:16px!important;
+   }
+
+   .tc2TaxFolder>small{
+    font-size:11px!important;
    }
   }
  `;
@@ -1213,15 +1005,15 @@ function installStyles(){
 }
 
 function directChild(
- parent,
+ element,
  selector
 ){
- if(!parent){
+ if(!element){
   return null;
  }
 
  return Array.from(
-  parent.children
+  element.children
  ).find(function(child){
   return child.matches(
    selector
@@ -1230,92 +1022,47 @@ function directChild(
 }
 
 function folderLabel(button){
- const label=
-  directChild(
-   button,
-   'b'
-  );
+ const title=directChild(
+  button,
+  'b'
+ );
 
  return clean(
-  label&&label.textContent
+  title&&title.textContent
  );
-}
-
-function folderIllustrationTarget(
- button
-){
- const firstSpan=
-  directChild(
-   button,
-   'span'
-  );
-
- if(firstSpan){
-  return firstSpan;
- }
-
- return null;
 }
 
 function decorateFolder(button){
  if(
   !button||
-  button.dataset.taxIllustrated==='1'
+  button.dataset.tc2Silhouette==='1'
  ){
   return;
  }
 
- const label=folderLabel(
+ const title=folderLabel(
   button
  );
 
- if(!label){
-  return;
- }
+ const target=directChild(
+  button,
+  'span'
+ );
 
- const target=
-  folderIllustrationTarget(
-   button
-  );
-
- if(!target){
+ if(
+  !title||
+  !target
+ ){
   return;
  }
 
  target.className=
-  'tc2TaxIllustrationHost';
+  'tc2TaxSilhouetteHost';
 
  target.innerHTML=
-  illustrationFor(label);
+  illustrationFor(title);
 
- button.dataset.taxIllustrated='1';
-}
-
-function animalTaxonomyLabel(card){
- const taxonomy=
-  directChild(
-   card,
-   'small'
-  );
-
- if(
-  taxonomy&&
-  clean(taxonomy.textContent)
- ){
-  return clean(
-   taxonomy.textContent
-  );
- }
-
- const name=
-  directChild(
-   card,
-   'strong'
-  );
-
- return clean(
-  name&&name.textContent
- )||'Tier';
+ button.dataset.tc2Silhouette='1';
 }
 
 function animalImageTarget(card){
@@ -1325,65 +1072,97 @@ function animalImageTarget(card){
  );
 }
 
-function targetHasRealPhoto(target){
+function hasRealPhoto(target){
  if(!target){
   return false;
  }
 
- const image=
-  target.querySelector(
-   'img'
-  );
+ const image=target.querySelector(
+  'img'
+ );
 
  if(!image){
   return false;
  }
 
- const source=clean(
+ return !!clean(
   image.getAttribute('src')
  );
+}
 
- return !!source;
+function animalLabel(card){
+ const scientific=directChild(
+  card,
+  'small'
+ );
+
+ if(
+  scientific&&
+  clean(scientific.textContent)
+ ){
+  return clean(
+   scientific.textContent
+  );
+ }
+
+ const name=directChild(
+  card,
+  'strong'
+ );
+
+ if(
+  name&&
+  clean(name.textContent)
+ ){
+  return clean(
+   name.textContent
+  );
+ }
+
+ const title=directChild(
+  card,
+  'b'
+ );
+
+ return clean(
+  title&&title.textContent
+ )||'Tier';
 }
 
 function decorateAnimal(card){
  if(
   !card||
-  card.dataset.taxIllustrated==='1'
+  card.dataset.tc2Silhouette==='1'
  ){
   return;
  }
 
- const target=
-  animalImageTarget(
-   card
-  );
+ const target=animalImageTarget(
+  card
+ );
 
  if(!target){
   return;
  }
 
  /*
-  * Eigene Tierfotos bleiben erhalten.
-  * Nur Kamera-/Platzhalter werden ersetzt.
+  * Ein echtes, vom Benutzer gespeichertes Tierfoto
+  * bleibt auf der jeweiligen Tierkarte erhalten.
   */
- if(targetHasRealPhoto(target)){
-  card.dataset.taxIllustrated='1';
+ if(hasRealPhoto(target)){
+  card.dataset.tc2Silhouette='1';
   return;
  }
 
- const label=
-  animalTaxonomyLabel(
-   card
-  );
-
  target.className=
-  'tc2TaxIllustrationHost';
+  'tc2TaxSilhouetteHost';
 
  target.innerHTML=
-  illustrationFor(label);
+  illustrationFor(
+   animalLabel(card)
+  );
 
- card.dataset.taxIllustrated='1';
+ card.dataset.tc2Silhouette='1';
 }
 
 function decorate(){
@@ -1406,42 +1185,36 @@ function decorate(){
   );
 }
 
-function scheduleDecoration(){
- clearTimeout(
-  decorationTimer
- );
+function schedule(){
+ clearTimeout(timer);
 
- decorationTimer=setTimeout(
+ timer=setTimeout(
   decorate,
-  60
+  50
  );
 }
 
-function observeApp(){
+function observe(){
  if(observer){
   return;
  }
 
- const app=
-  document.getElementById(
-   'app'
-  );
+ const app=document.getElementById(
+  'app'
+ );
 
  if(!app){
   setTimeout(
-   observeApp,
+   observe,
    100
   );
 
   return;
  }
 
- observer=
-  new MutationObserver(
-   function(){
-    scheduleDecoration();
-   }
-  );
+ observer=new MutationObserver(
+  schedule
+ );
 
  observer.observe(
   app,
@@ -1454,7 +1227,7 @@ function observeApp(){
 
 function init(){
  installStyles();
- observeApp();
+ observe();
 
  if(
   window.NGT500&&
@@ -1462,37 +1235,38 @@ function init(){
  ){
   NGT500.on(
    'route',
-   scheduleDecoration
+   schedule
   );
 
   NGT500.on(
    'store:changed',
-   scheduleDecoration
+   schedule
   );
  }
 
  window.addEventListener(
   'load',
-  scheduleDecoration
+  schedule
  );
 
- scheduleDecoration();
+ schedule();
 }
 
 window.NGTTaxonomyUI={
  decorate:decorate,
- illustrationFor:
-  illustrationFor,
-
- classifyTaxon:
-  classifyTaxon
+ illustrationFor:illustrationFor,
+ classify:classify
 };
 
-document.readyState==='loading'
- ?document.addEventListener(
-   'DOMContentLoaded',
-   init
-  )
- :init();
+if(
+ document.readyState==='loading'
+){
+ document.addEventListener(
+  'DOMContentLoaded',
+  init
+ );
+}else{
+ init();
+}
 
 })();
