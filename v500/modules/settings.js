@@ -3,271 +3,505 @@
 
 const KEY='terracontrol_settings_v1';
 const SELLER_KEY='ngt_seller_profile_v1';
+
 let editMode='';
 
 function storeSettings(){
-  try{
-    const d=NGTStore&&NGTStore.data?NGTStore.data():null;
-    if(!d)return {};
-    d.settings=d.settings||{};
-    return d.settings;
-  }catch(e){return {}}
+ try{
+  const data=
+   window.NGTStore&&
+   NGTStore.data
+    ?NGTStore.data()
+    :null;
+
+  if(!data){
+   return {};
+  }
+
+  data.settings=data.settings||{};
+
+  return data.settings;
+
+ }catch(error){
+  return {};
+ }
 }
 
-function legacyLoad(k){
-  try{return JSON.parse(localStorage.getItem(k)||'{}')}catch(e){return {}}
+function legacyLoad(key){
+ try{
+  return JSON.parse(
+   localStorage.getItem(key)||'{}'
+  );
+ }catch(error){
+  return {};
+ }
 }
 
 function load(){
-  const st=storeSettings();
-  return Object.keys(st).length?st:legacyLoad(KEY);
+ const stored=storeSettings();
+
+ return Object.keys(stored).length
+  ?stored
+  :legacyLoad(KEY);
 }
 
 function seller(){
-  const st=storeSettings();
-  if(st.seller&&Object.keys(st.seller).length)return st.seller;
-  return legacyLoad(SELLER_KEY);
+ const stored=storeSettings();
+
+ if(
+  stored.seller&&
+  Object.keys(stored.seller).length
+ ){
+  return stored.seller;
+ }
+
+ return legacyLoad(
+  SELLER_KEY
+ );
 }
 
 function cloud(){
-  try{return JSON.parse(localStorage.getItem('terracontrol_cloud_meta_v1')||'{}')}catch(e){return {}}
+ try{
+  return JSON.parse(
+   localStorage.getItem(
+    'terracontrol_cloud_meta_v1'
+   )||'{}'
+  );
+ }catch(error){
+  return {};
+ }
 }
 
-function saveSettingsToStore(sellerData,defaultsData){
-  const d=NGTStore.data();
-  d.settings=d.settings||{};
-  d.settings.seller=sellerData;
-  d.settings.defaults=defaultsData;
-  NGTStore.save();
+function saveSettingsToStore(
+ sellerData
+){
+ const data=NGTStore.data();
+
+ data.settings=data.settings||{};
+ data.settings.seller=sellerData;
+
+ /*
+  * Alte globale Intervallwerte werden bewusst entfernt.
+  * Pflegeintervalle gehören ausschließlich zum jeweiligen Tier.
+  */
+ delete data.settings.defaults;
+
+ NGTStore.save();
 }
 
-function msg(t,type){if(NGT500.toast)NGT500.toast(t,type);else alert(t)}
-function mailto(subject){location.href='mailto:saschad1711@gmail.com?subject='+encodeURIComponent(subject||'TerraControl Feedback')}
+function message(
+ text,
+ type
+){
+ if(
+  window.NGT500&&
+  NGT500.toast
+ ){
+  NGT500.toast(
+   text,
+   type
+  );
 
-function esc(v){return NGT500.esc(v||'')}
-function days(v){return `${Number(v||0)} Tage`}
+  return;
+ }
 
-function field(id,label,value,type){
+ alert(text);
+}
+
+function mailto(subject){
+ location.href=
+  'mailto:saschad1711@gmail.com?subject='+
+  encodeURIComponent(
+   subject||
+   'TerraControl Feedback'
+  );
+}
+
+function esc(value){
+ return NGT500.esc(
+  value||''
+ );
+}
+
+function field(
+ id,
+ label,
+ value,
+ type
+){
+ return `
+  <label class="tc2SettingsField">
+   <span>${esc(label)}</span>
+
+   <input
+    id="${esc(id)}"
+    ${type?'type="'+esc(type)+'"':''}
+    value="${esc(value)}"
+   >
+  </label>
+ `;
+}
+
+function sellerSummary(profile){
+ const hasData=
+  profile.name||
+  profile.street||
+  profile.address||
+  profile.city||
+  profile.phone||
+  profile.email||
+  profile.mail;
+
+ if(!hasData){
   return `
-    <label class="tc2SettingsField">
-      <span>${label}</span>
-      <input id="${id}" ${type?'type="'+type+'"':''} value="${esc(value)}">
-    </label>
+   <div class="tc2SettingsEmpty">
+    <b>Noch keine Verkäuferdaten</b>
+
+    <span>
+     Füge deine Daten für Abgabenachweise hinzu.
+    </span>
+   </div>
   `;
+ }
+
+ return `
+  <div class="tc2SettingsProfile">
+   <b>
+    ${esc(profile.name||'Unbenannter Verkäufer')}
+   </b>
+
+   <span>
+    ${esc(
+     profile.street||
+     profile.address||
+     ''
+    )}
+   </span>
+
+   <span>
+    ${esc(profile.city||'')}
+   </span>
+
+   <span>
+    ${esc(profile.phone||'')}
+   </span>
+
+   <span>
+    ${esc(
+     profile.email||
+     profile.mail||
+     ''
+    )}
+   </span>
+  </div>
+ `;
 }
 
-function sellerSummary(p){
-  const has=p.name||p.street||p.address||p.city||p.phone||p.email||p.mail;
-  if(!has){
-    return `
-      <div class="tc2SettingsEmpty">
-        <b>Noch keine Verkäuferdaten</b>
-        <span>Füge deine Daten für Abgabenachweise hinzu.</span>
-      </div>
-    `;
-  }
+function sellerEditor(profile){
+ return `
+  <div class="tc2SettingsEdit">
+   ${field(
+    'setSellerName',
+    'Name',
+    profile.name||''
+   )}
 
-  return `
-    <div class="tc2SettingsProfile">
-      <b>${esc(p.name||'Unbenannter Verkäufer')}</b>
-      <span>${esc(p.street||p.address||'')}</span>
-      <span>${esc(p.city||'')}</span>
-      <span>${esc(p.phone||'')}</span>
-      <span>${esc(p.email||p.mail||'')}</span>
-    </div>
-  `;
-}
+   ${field(
+    'setSellerStreet',
+    'Straße / Hausnummer',
+    profile.street||
+    profile.address||
+    ''
+   )}
 
-function sellerEditor(p){
-  return `
-    <div class="tc2SettingsEdit">
-      ${field('setSellerName','Name',p.name)}
-      ${field('setSellerStreet','Straße / Hausnummer',p.street||p.address)}
-      ${field('setSellerCity','PLZ / Ort',p.city)}
-      ${field('setSellerPhone','Telefon',p.phone)}
-      ${field('setSellerMail','E-Mail',p.email||p.mail)}
-      <div class="tc2SettingsActions">
-        <button onclick="NGTSettings.cancel()">Abbrechen</button>
-        <button onclick="NGTSettings.saveSeller()">Speichern</button>
-      </div>
-    </div>
-  `;
-}
+   ${field(
+    'setSellerCity',
+    'PLZ / Ort',
+    profile.city||''
+   )}
 
-function defaultsSummary(v){
-  return `
-    <div class="tc2SettingsRows">
-      <div><span>Jungtier</span><b>${days(v.feedBaby||7)}</b></div>
-      <div><span>Subadult</span><b>${days(v.feedSubadult||10)}</b></div>
-      <div><span>Adult</span><b>${days(v.feedAdult||14)}</b></div>
-      <div><span>Gewicht</span><b>${days(v.weightDays||30)}</b></div>
-    </div>
-  `;
-}
+   ${field(
+    'setSellerPhone',
+    'Telefon',
+    profile.phone||''
+   )}
 
-function defaultsEditor(v){
-  return `
-    <div class="tc2SettingsEdit">
-      ${field('setFeedBaby','Fütterungsintervall Jungtier',v.feedBaby||7,'number')}
-      ${field('setFeedSubadult','Fütterungsintervall Subadult',v.feedSubadult||10,'number')}
-      ${field('setFeedAdult','Fütterungsintervall Adult',v.feedAdult||14,'number')}
-      ${field('setWeightDays','Gewichtsintervall',v.weightDays||30,'number')}
-      <div class="tc2SettingsActions">
-        <button onclick="NGTSettings.cancel()">Abbrechen</button>
-        <button onclick="NGTSettings.saveDefaults()">Speichern</button>
-      </div>
-    </div>
-  `;
+   ${field(
+    'setSellerMail',
+    'E-Mail',
+    profile.email||
+    profile.mail||
+    ''
+   )}
+
+   <div class="tc2SettingsActions">
+    <button onclick="NGTSettings.cancel()">
+     Abbrechen
+    </button>
+
+    <button onclick="NGTSettings.saveSeller()">
+     Speichern
+    </button>
+   </div>
+  </div>
+ `;
 }
 
 function render(){
-  const s=load(),v=s.defaults||{},p=seller(),c=cloud();
-  const last=c.lastBackupAt?new Date(c.lastBackupAt).toLocaleString('de-DE'):'Noch keine Sicherung';
+ const profile=seller();
+ const cloudMeta=cloud();
 
-  return `
-    <section class="tc2Settings">
-      <div class="tc2SettingsHero">
-        <div>
-          <h2>⚙️ Einstellungen</h2>
-          <p>Profil, Standards, Cloud und App-Informationen.</p>
-        </div>
-      </div>
+ const lastBackup=
+  cloudMeta.lastBackupAt
+   ?new Date(
+     cloudMeta.lastBackupAt
+    ).toLocaleString('de-DE')
+   :'Noch keine Sicherung';
 
-      <div class="tc2SettingsSection">
-        <div class="tc2SettingsSectionHead">
-          <h3>👤 Verkäufer</h3>
-          ${editMode==='seller'?'':'<button onclick="NGTSettings.edit(\'seller\')">Bearbeiten</button>'}
-        </div>
-        ${editMode==='seller'?sellerEditor(p):sellerSummary(p)}
-      </div>
+ return `
+  <section class="tc2Settings">
+   <div class="tc2SettingsHero">
+    <div>
+     <h2>⚙️ Einstellungen</h2>
 
-      <div class="tc2SettingsSection">
-        <div class="tc2SettingsSectionHead">
-          <h3>⚙️ Standardwerte</h3>
-          ${editMode==='defaults'?'':'<button onclick="NGTSettings.edit(\'defaults\')">Ändern</button>'}
-        </div>
-        ${editMode==='defaults'?defaultsEditor(v):defaultsSummary(v)}
-      </div>
+     <p>
+      Profil, Cloud und App-Informationen.
+     </p>
+    </div>
+   </div>
 
-      <div class="tc2SettingsSection">
-        <h3>☁️ Cloud</h3>
-        <div class="tc2SettingsStatus">
-          <span>Letzte Sicherung</span>
-          <b>${esc(last)}</b>
-        </div>
-        <div class="tc2SettingsActions">
-          <button onclick="NGTApp.loadAccount&&NGTApp.loadAccount()">Cloud öffnen</button>
-          <button onclick="NGT500.route('backup')">Backup</button>
-        </div>
-      </div>
+   <div class="tc2SettingsSection">
+    <div class="tc2SettingsSectionHead">
+     <h3>👤 Verkäufer</h3>
 
-      <div class="tc2SettingsSection">
-        <h3>📱 TerraControl</h3>
-        <div class="tc2SettingsRows">
-          <div><span>Version</span><b>1.0.4 RC11</b></div>
-          <div><span>Design</span><b>TC2</b></div>
-          <div><span>Modus</span><b>Mobile First</b></div>
-        </div>
-      </div>
+     ${
+      editMode==='seller'
+       ?''
+       :`
+        <button
+         onclick="NGTSettings.edit('seller')"
+        >
+         Bearbeiten
+        </button>
+       `
+     }
+    </div>
 
-      <div class="tc2SettingsSection">
-        <h3>Rechtliches & Support</h3>
-        <div class="tc2SettingsActions">
-          <button onclick="NGTSettings.privacy()">Datenschutz</button>
-          <button onclick="NGTSettings.imprint()">Impressum</button>
-          <button onclick="NGTSettings.feedback()">Feedback</button>
-          <button onclick="NGTSettings.about()">Über</button>
-        </div>
-        <div id="settingsInfo"></div>
-      </div>
-    </section>
-  `;
+    ${
+     editMode==='seller'
+      ?sellerEditor(profile)
+      :sellerSummary(profile)
+    }
+   </div>
+
+   <div class="tc2SettingsSection">
+    <h3>☁️ Cloud</h3>
+
+    <div class="tc2SettingsStatus">
+     <span>Letzte Sicherung</span>
+     <b>${esc(lastBackup)}</b>
+    </div>
+
+    <div class="tc2SettingsActions">
+     <button
+      onclick="NGTApp.loadAccount&&NGTApp.loadAccount()"
+     >
+      Cloud öffnen
+     </button>
+
+     <button onclick="NGT500.route('backup')">
+      Backup
+     </button>
+    </div>
+   </div>
+
+   <div class="tc2SettingsSection">
+    <h3>📱 TerraControl</h3>
+
+    <div class="tc2SettingsRows">
+     <div>
+      <span>Version</span>
+      <b>1.0.4 RC11</b>
+     </div>
+
+     <div>
+      <span>Design</span>
+      <b>TC2</b>
+     </div>
+
+     <div>
+      <span>Modus</span>
+      <b>Mobile First</b>
+     </div>
+    </div>
+   </div>
+
+   <div class="tc2SettingsSection">
+    <h3>Rechtliches & Support</h3>
+
+    <div class="tc2SettingsActions">
+     <button onclick="NGTSettings.privacy()">
+      Datenschutz
+     </button>
+
+     <button onclick="NGTSettings.imprint()">
+      Impressum
+     </button>
+
+     <button onclick="NGTSettings.feedback()">
+      Feedback
+     </button>
+
+     <button onclick="NGTSettings.about()">
+      Über
+     </button>
+    </div>
+
+    <div id="settingsInfo"></div>
+   </div>
+  </section>
+ `;
 }
 
 function rerender(){
-  NGT500.route('settings');
+ NGT500.route(
+  'settings'
+ );
 }
 
 function edit(mode){
-  editMode=mode;
-  rerender();
+ editMode=mode;
+ rerender();
 }
 
 function cancel(){
-  editMode='';
-  rerender();
-}
-
-function currentDefaults(){
-  const s=load();
-  return s.defaults||{};
+ editMode='';
+ rerender();
 }
 
 function saveSeller(){
-  const oldDefaults=currentDefaults();
-  const p={
-    name:setSellerName.value.trim(),
-    street:setSellerStreet.value.trim(),
-    address:setSellerStreet.value.trim(),
-    city:setSellerCity.value.trim(),
-    phone:setSellerPhone.value.trim(),
-    email:setSellerMail.value.trim(),
-    mail:setSellerMail.value.trim()
-  };
+ const street=
+  document.getElementById(
+   'setSellerStreet'
+  ).value.trim();
 
-  saveSettingsToStore(p,oldDefaults);
+ const mail=
+  document.getElementById(
+   'setSellerMail'
+  ).value.trim();
 
-  try{
-    localStorage.setItem(SELLER_KEY,JSON.stringify(p));
-    localStorage.setItem(KEY,JSON.stringify({seller:p,defaults:oldDefaults}));
-  }catch(e){}
+ const profile={
+  name:
+   document.getElementById(
+    'setSellerName'
+   ).value.trim(),
 
-  editMode='';
-  msg('Verkäuferdaten gespeichert.');
-  rerender();
-}
+  street:street,
+  address:street,
 
-function saveDefaults(){
-  const p=seller();
-  const defaults={
-    feedBaby:Number(setFeedBaby.value||7),
-    feedSubadult:Number(setFeedSubadult.value||10),
-    feedAdult:Number(setFeedAdult.value||14),
-    weightDays:Number(setWeightDays.value||30)
-  };
+  city:
+   document.getElementById(
+    'setSellerCity'
+   ).value.trim(),
 
-  saveSettingsToStore(p,defaults);
+  phone:
+   document.getElementById(
+    'setSellerPhone'
+   ).value.trim(),
 
-  try{
-    localStorage.setItem(SELLER_KEY,JSON.stringify(p));
-    localStorage.setItem(KEY,JSON.stringify({seller:p,defaults}));
-  }catch(e){}
+  email:mail,
+  mail:mail
+ };
 
-  editMode='';
-  msg('Standardwerte gespeichert.');
-  rerender();
+ saveSettingsToStore(
+  profile
+ );
+
+ try{
+  localStorage.setItem(
+   SELLER_KEY,
+   JSON.stringify(profile)
+  );
+
+  localStorage.setItem(
+   KEY,
+   JSON.stringify({
+    seller:profile
+   })
+  );
+
+ }catch(error){
+  console.warn(
+   'Lokale Einstellungen konnten nicht gespiegelt werden.',
+   error
+  );
+ }
+
+ editMode='';
+
+ message(
+  'Verkäuferdaten gespeichert.'
+ );
+
+ rerender();
 }
 
 function info(html){
-  const box=document.getElementById('settingsInfo');
-  if(box)box.innerHTML='<div class="tc2SettingsInlineInfo">'+html+'</div>';
+ const box=
+  document.getElementById(
+   'settingsInfo'
+  );
+
+ if(box){
+  box.innerHTML=
+   '<div class="tc2SettingsInlineInfo">'+
+   html+
+   '</div>';
+ }
 }
 
 function privacy(){
-  info('<h4>Datenschutz</h4><p>TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account.</p>');
+ info(
+  '<h4>Datenschutz</h4>'+
+  '<p>TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account.</p>'
+ );
 }
 
 function imprint(){
-  info('<h4>Impressum</h4><p>Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.</p>');
+ info(
+  '<h4>Impressum</h4>'+
+  '<p>Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.</p>'
+ );
 }
 
-function feedback(){mailto('TerraControl Feedback')}
+function feedback(){
+ mailto(
+  'TerraControl Feedback'
+ );
+}
 
 function about(){
-  info('<h4>Über TerraControl</h4><p>Terraristikverwaltung für Bestand, Pflege, Fütterung, QR-Tierpass, Abgabenachweis und Cloud-Sicherung.</p>');
+ info(
+  '<h4>Über TerraControl</h4>'+
+  '<p>Terraristikverwaltung für Bestand, Pflege, Fütterung, QR-Tierpass, Abgabenachweis und Cloud-Sicherung.</p>'
+ );
 }
 
-window.NGTSettings={edit,cancel,saveSeller,saveDefaults,privacy,imprint,feedback,about};
-NGT500.register('settings',{render});
+window.NGTSettings={
+ edit:edit,
+ cancel:cancel,
+ saveSeller:saveSeller,
+ privacy:privacy,
+ imprint:imprint,
+ feedback:feedback,
+ about:about
+};
+
+NGT500.register(
+ 'settings',
+ {
+  render:render
+ }
+);
 
 })();
