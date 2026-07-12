@@ -1,13 +1,22 @@
 (function(){
 'use strict';
 
-const STYLE_ID='tc2TaxonomyUiStyles';
+/*
+ * TerraControl Taxonomy UI
+ *
+ * Verwendet ausschließlich lokal erzeugte SVG-Illustrationen.
+ * Es werden keine Bestandsfotos als Gruppen- oder Gattungsbilder benutzt.
+ * Es findet keine automatische Bildsuche im Internet statt.
+ *
+ * Priorität auf Einzeltierebene:
+ * 1. eigenes Tierfoto
+ * 2. passende Taxonomie-Illustration
+ */
 
-let candidatesByKey={};
-let savePatched=false;
-let routePatched=false;
-let decorationTimer=null;
+const STYLE_ID='tc2TaxonomyIllustrationStyles';
+
 let observer=null;
+let decorationTimer=null;
 
 function clean(value){
  return String(
@@ -19,10 +28,18 @@ function clean(value){
   .trim();
 }
 
-function esc(value){
+function normalize(value){
+ return clean(value)
+  .toLowerCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g,'')
+  .replace(/ß/g,'ss');
+}
+
+function escapeHtml(value){
  if(
   window.NGT500&&
-  NGT500.esc
+  typeof NGT500.esc==='function'
  ){
   return NGT500.esc(
    value||''
@@ -37,39 +54,6 @@ function esc(value){
   .replace(/'/g,'&#39;');
 }
 
-function jsArg(value){
- return String(value||'')
-  .replace(/\\/g,'\\\\')
-  .replace(/'/g,"\\'");
-}
-
-function clone(value){
- try{
-  return JSON.parse(
-   JSON.stringify(value)
-  );
- }catch(error){
-  return value;
- }
-}
-
-function taxonomyReady(){
- return !!(
-  window.NGTTaxonomy&&
-  NGTTaxonomy.normalizeInput&&
-  NGTTaxonomy.imageFor&&
-  NGTTaxonomy.recordKey
- );
-}
-
-function imageSearchReady(){
- return !!(
-  window.NGTTaxonomyImages&&
-  NGTTaxonomyImages.searchCommons&&
-  NGTTaxonomyImages.storeCandidate
- );
-}
-
 function currentRoute(){
  if(
   window.NGT500&&
@@ -81,271 +65,912 @@ function currentRoute(){
  return null;
 }
 
-function isInactive(animal){
- return [
-  'Archiv',
-  'Verkauft',
-  'Abgegeben',
-  'Verstorben'
- ].includes(
-  animal&&animal.status
- );
-}
+function hashText(value){
+ const text=String(value||'');
+ let hash=0;
 
-function isOffspring(animal){
- if(
-  window.NGTIdManager&&
-  NGTIdManager.isOffspring
- ){
-  return NGTIdManager.isOffspring(
-   animal
-  );
+ for(let index=0;index<text.length;index++){
+  hash=(
+   (
+    hash<<5
+   )-
+   hash+
+   text.charCodeAt(index)
+  )|0;
  }
 
- return (
-  clean(
-   animal&&animal.status
-  ).toLowerCase()==='nachzucht'||
-
-  clean(
-   animal&&animal.collection
-  ).toLowerCase()==='offspring'||
-
-  clean(
-   animal&&animal.collection
-  ).toLowerCase()==='nachzuchten'
- );
+ return Math.abs(hash);
 }
 
-function allAnimalRows(){
- try{
-  if(
-   !window.NGTStore||
-   !NGTStore.allAnimals
-  ){
-   return [];
+function paletteFor(value){
+ const palettes=[
+  {
+   main:'#9bec58',
+   second:'#65c6ba',
+   dark:'#0d2630',
+   glow:'rgba(155,236,88,.28)'
+  },
+  {
+   main:'#62d6ff',
+   second:'#7d8cff',
+   dark:'#102538',
+   glow:'rgba(98,214,255,.25)'
+  },
+  {
+   main:'#ffb454',
+   second:'#ff6b81',
+   dark:'#31231d',
+   glow:'rgba(255,180,84,.25)'
+  },
+  {
+   main:'#c58cff',
+   second:'#6dd6ff',
+   dark:'#251d35',
+   glow:'rgba(197,140,255,.25)'
+  },
+  {
+   main:'#72e3a6',
+   second:'#f1d35f',
+   dark:'#142b25',
+   glow:'rgba(114,227,166,.25)'
+  },
+  {
+   main:'#ff8e72',
+   second:'#ffd06b',
+   dark:'#33211f',
+   glow:'rgba(255,142,114,.25)'
   }
+ ];
 
-  return NGTStore
-   .allAnimals()
-   .filter(function(row){
-    const animal=row.a||{};
-
-    return (
-     !isInactive(animal)&&
-     !isOffspring(animal)
-    );
-   });
-
- }catch(error){
-  console.error(
-   'Tierbestand konnte nicht für Taxonomiebilder gelesen werden.',
-   error
-  );
-
-  return [];
- }
+ return palettes[
+  hashText(value)%
+  palettes.length
+ ];
 }
 
-function photoSource(
- photo,
- preferThumb
-){
- if(!photo){
-  return '';
- }
+function classifyTaxon(value){
+ const text=normalize(value);
 
  if(
-  window.NGTPhotoStorage&&
-  NGTPhotoStorage.src
- ){
-  return NGTPhotoStorage.src(
-   photo,
-   preferThumb
-  );
- }
-
- if(
-  preferThumb&&
-  (
-   photo.thumbUrl||
-   photo.thumbnailUrl
+  /(vogelspinne|spinne|tarantel|brachypelma|caribena|nhandu|poecilotheria|psalmopoeus|teraphosa|hamorii|boehmei|versicolor|metallica|blondi)/.test(
+   text
   )
  ){
-  return (
-   photo.thumbUrl||
-   photo.thumbnailUrl
-  );
+  return 'spider';
  }
 
- return (
-  photo.url||
-  photo.thumbUrl||
-  photo.thumbnailUrl||
-  photo.data||
-  ''
- );
-}
-
-function ownAnimalPhoto(animal){
- const photos=(
-  animal&&
-  Array.isArray(animal.photos)
-   ?animal.photos
-   :[]
- ).filter(function(photo){
-  return !!photoSource(
-   photo,
-   true
-  );
- });
-
- const cover=
-  photos.find(function(photo){
-   return !!photo.cover;
-  })||
-  photos[0]||
-  null;
-
- return photoSource(
-  cover,
-  true
- );
-}
-
-function taxonForAnimal(animal){
- return {
-  group:clean(
-   animal&&animal.animalGroup
-  ),
-
-  genus:clean(
-   animal&&animal.genus
-  ),
-
-  species:clean(
-   animal&&animal.species
+ if(
+  /(python|schlange|boa|natter|cobra|viper|naja|lampropeltis|pantherophis|morelia|antaresia|regius|reticulatus|molurus)/.test(
+   text
   )
- };
-}
-
-function taxonomyResult(input){
- if(!taxonomyReady()){
-  return null;
+ ){
+  return 'snake';
  }
 
- try{
-  return NGTTaxonomy.imageFor(
-   input||{}
-  )||null;
-
- }catch(error){
-  console.error(
-   'Taxonomiebild konnte nicht ermittelt werden.',
-   error
-  );
-
-  return null;
- }
-}
-
-function taxonomyImage(input){
- const result=taxonomyResult(
-  input
- );
-
- return result&&result.url
-  ?result.url
-  :'';
-}
-
-function imageForAnimal(animal){
- return (
-  ownAnimalPhoto(animal)||
-  taxonomyImage(
-   taxonForAnimal(animal)
-  )||
-  ''
- );
-}
-
-function rowsForGroup(group){
- const wanted=clean(group);
-
- return allAnimalRows().filter(
-  function(row){
-   return clean(
-    row.a&&row.a.animalGroup
-   )===wanted;
-  }
- );
-}
-
-function rowsForGenus(
- group,
- genus
-){
- const wantedGroup=clean(group);
- const wantedGenus=clean(genus);
-
- return allAnimalRows().filter(
-  function(row){
-   const animal=row.a||{};
-
-   return (
-    clean(animal.animalGroup)===
-     wantedGroup&&
-
-    clean(animal.genus)===
-     wantedGenus
-   );
-  }
- );
-}
-
-function firstAnimalImage(rows){
- for(const row of rows||[]){
-  const source=imageForAnimal(
-   row.a||{}
-  );
-
-  if(source){
-   return source;
-  }
+ if(
+  /(chamaleon|chamaeleon|furcifer|calyptratus|trioceros|jemen|pantherchamaleon)/.test(
+   text
+  )
+ ){
+  return 'chameleon';
  }
 
- return '';
+ if(
+  /(gecko|gekko|phelsuma|correlophus|eublepharis|leopardgecko|kronengecko)/.test(
+   text
+  )
+ ){
+  return 'gecko';
+ }
+
+ if(
+  /(schildkrote|landschildkrote|testudo|turtle|tortoise)/.test(
+   text
+  )
+ ){
+  return 'tortoise';
+ }
+
+ if(
+  /(frosch|frog|dendrobates|ranitomeya|kröte|krote)/.test(
+   text
+  )
+ ){
+  return 'frog';
+ }
+
+ if(
+  /(skorpion|scorpion|pandinus|heterometrus)/.test(
+   text
+  )
+ ){
+  return 'scorpion';
+ }
+
+ if(
+  /(mantis|heuschrecke|kafer|käfer|insekt|schabe|phasmid|gespenstschrecke)/.test(
+   text
+  )
+ ){
+  return 'insect';
+ }
+
+ if(
+  /(agame|waran|iguana|leguan|echse|anolis|pogona|varanus)/.test(
+   text
+  )
+ ){
+  return 'lizard';
+ }
+
+ if(
+  /(vogel|papagei|sittich|amadine|fink|eule)/.test(
+   text
+  )
+ ){
+  return 'bird';
+ }
+
+ if(
+  /(fisch|aquarium|betta|cichlide|wels|guppy)/.test(
+   text
+  )
+ ){
+  return 'fish';
+ }
+
+ return 'generic';
 }
 
-function groupImage(group){
- return (
-  taxonomyImage({
-   group:group
-  })||
-  firstAnimalImage(
-   rowsForGroup(group)
-  )||
-  ''
+function svgFrame(content,palette,label){
+ return `
+  <svg
+   class="tc2TaxIllustrationSvg"
+   viewBox="0 0 120 120"
+   role="img"
+   aria-label="${escapeHtml(label||'Tierillustration')}"
+  >
+   <defs>
+    <radialGradient id="taxGlow" cx="38%" cy="30%" r="75%">
+     <stop offset="0%" stop-color="${palette.second}" stop-opacity=".34"/>
+     <stop offset="58%" stop-color="${palette.main}" stop-opacity=".09"/>
+     <stop offset="100%" stop-color="${palette.dark}" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="taxMain" x1="0" y1="0" x2="1" y2="1">
+     <stop offset="0%" stop-color="${palette.main}"/>
+     <stop offset="100%" stop-color="${palette.second}"/>
+    </linearGradient>
+
+    <filter id="taxShadow" x="-30%" y="-30%" width="160%" height="160%">
+     <feDropShadow
+      dx="0"
+      dy="4"
+      stdDeviation="5"
+      flood-color="${palette.main}"
+      flood-opacity=".22"
+     />
+    </filter>
+   </defs>
+
+   <circle
+    cx="60"
+    cy="60"
+    r="53"
+    fill="url(#taxGlow)"
+   />
+
+   <g
+    class="tc2TaxIllustrationCreature"
+    filter="url(#taxShadow)"
+   >
+    ${content}
+   </g>
+
+   <circle
+    class="tc2TaxIllustrationSpark tc2TaxIllustrationSparkOne"
+    cx="94"
+    cy="28"
+    r="3"
+    fill="${palette.second}"
+   />
+
+   <circle
+    class="tc2TaxIllustrationSpark tc2TaxIllustrationSparkTwo"
+    cx="25"
+    cy="91"
+    r="2.5"
+    fill="${palette.main}"
+   />
+  </svg>
+ `;
+}
+
+function snakeSvg(palette,label){
+ return svgFrame(
+  `
+   <path
+    d="
+     M26 75
+     C31 49 55 88 72 68
+     C87 50 66 39 54 50
+     C43 60 52 72 65 65
+     C80 57 91 42 82 28
+    "
+    fill="none"
+    stroke="url(#taxMain)"
+    stroke-width="13"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+   />
+
+   <path
+    d="M81 28 L96 25 L88 38 Z"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="87"
+    cy="29"
+    r="2.2"
+    fill="#06111a"
+   />
+
+   <path
+    d="M96 29 L104 26 M96 29 L104 33"
+    stroke="${palette.main}"
+    stroke-width="2"
+    stroke-linecap="round"
+   />
+  `,
+  palette,
+  label
  );
 }
 
-function genusImage(
- group,
- genus
-){
- return (
-  taxonomyImage({
-   group:group,
-   genus:genus
-  })||
-  firstAnimalImage(
-   rowsForGenus(
-    group,
-    genus
-   )
-  )||
-  ''
+function spiderSvg(palette,label){
+ const legs=[
+  'M48 49 C31 32 22 31 14 34',
+  'M44 57 C25 48 17 49 10 55',
+  'M44 66 C24 67 17 72 11 80',
+  'M48 73 C33 87 27 94 28 105',
+  'M72 49 C89 32 98 31 106 34',
+  'M76 57 C95 48 103 49 110 55',
+  'M76 66 C96 67 103 72 109 80',
+  'M72 73 C87 87 93 94 92 105'
+ ];
+
+ return svgFrame(
+  `
+   <g
+    fill="none"
+    stroke="url(#taxMain)"
+    stroke-width="6"
+    stroke-linecap="round"
+   >
+    ${legs.map(function(path){
+     return `<path d="${path}"/>`;
+    }).join('')}
+   </g>
+
+   <ellipse
+    cx="60"
+    cy="67"
+    rx="22"
+    ry="26"
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="60"
+    cy="43"
+    r="14"
+    fill="${palette.second}"
+   />
+
+   <g fill="#071521">
+    <circle cx="54" cy="40" r="2"/>
+    <circle cx="60" cy="38" r="2"/>
+    <circle cx="66" cy="40" r="2"/>
+    <circle cx="57" cy="45" r="1.7"/>
+    <circle cx="63" cy="45" r="1.7"/>
+   </g>
+
+   <path
+    d="M49 65 Q60 75 71 65"
+    fill="none"
+    stroke="${palette.dark}"
+    stroke-width="3"
+    opacity=".45"
+   />
+  `,
+  palette,
+  label
  );
+}
+
+function chameleonSvg(palette,label){
+ return svgFrame(
+  `
+   <path
+    d="
+     M35 72
+     C44 43 72 34 87 51
+     C99 65 88 86 67 86
+     C51 86 39 80 35 72
+    "
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="82"
+    cy="51"
+    r="14"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="86"
+    cy="48"
+    r="4"
+    fill="#f7fbff"
+   />
+
+   <circle
+    cx="87"
+    cy="48"
+    r="2"
+    fill="#071521"
+   />
+
+   <path
+    d="
+     M38 71
+     C19 65 18 89 35 91
+     C49 93 52 79 42 76
+     C35 74 31 80 36 84
+    "
+    fill="none"
+    stroke="${palette.main}"
+    stroke-width="8"
+    stroke-linecap="round"
+   />
+
+   <path
+    d="M56 83 L48 103 M69 84 L76 103"
+    stroke="${palette.second}"
+    stroke-width="6"
+    stroke-linecap="round"
+   />
+
+   <path
+    d="M75 39 L81 25 L88 42"
+    fill="${palette.main}"
+   />
+  `,
+  palette,
+  label
+ );
+}
+
+function geckoSvg(palette,label){
+ return svgFrame(
+  `
+   <path
+    d="
+     M32 68
+     C43 43 73 38 87 55
+     C96 66 87 81 69 83
+     C50 85 37 78 32 68
+    "
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="86"
+    cy="55"
+    r="12"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="90"
+    cy="52"
+    r="2.5"
+    fill="#06111a"
+   />
+
+   <path
+    d="M34 69 C20 72 18 88 30 93"
+    fill="none"
+    stroke="${palette.main}"
+    stroke-width="8"
+    stroke-linecap="round"
+   />
+
+   <g
+    stroke="${palette.second}"
+    stroke-width="6"
+    stroke-linecap="round"
+   >
+    <path d="M48 75 L35 91"/>
+    <path d="M61 79 L55 99"/>
+    <path d="M70 78 L82 94"/>
+    <path d="M78 70 L96 78"/>
+   </g>
+
+   <g fill="${palette.second}">
+    <circle cx="33" cy="93" r="4"/>
+    <circle cx="54" cy="101" r="4"/>
+    <circle cx="84" cy="96" r="4"/>
+    <circle cx="99" cy="79" r="4"/>
+   </g>
+  `,
+  palette,
+  label
+ );
+}
+
+function tortoiseSvg(palette,label){
+ return svgFrame(
+  `
+   <ellipse
+    cx="57"
+    cy="62"
+    rx="35"
+    ry="28"
+    fill="url(#taxMain)"
+   />
+
+   <path
+    d="M31 61 Q57 30 83 61 Q57 90 31 61"
+    fill="none"
+    stroke="${palette.dark}"
+    stroke-width="4"
+    opacity=".45"
+   />
+
+   <path
+    d="M57 36 L57 88 M31 61 L83 61"
+    stroke="${palette.dark}"
+    stroke-width="3"
+    opacity=".38"
+   />
+
+   <circle
+    cx="94"
+    cy="62"
+    r="12"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="98"
+    cy="59"
+    r="2"
+    fill="#06111a"
+   />
+
+   <g fill="${palette.second}">
+    <ellipse cx="34" cy="88" rx="9" ry="5"/>
+    <ellipse cx="74" cy="89" rx="9" ry="5"/>
+    <ellipse cx="31" cy="38" rx="8" ry="5"/>
+    <ellipse cx="73" cy="36" rx="8" ry="5"/>
+   </g>
+  `,
+  palette,
+  label
+ );
+}
+
+function frogSvg(palette,label){
+ return svgFrame(
+  `
+   <ellipse
+    cx="60"
+    cy="67"
+    rx="31"
+    ry="25"
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="43"
+    cy="45"
+    r="14"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="77"
+    cy="45"
+    r="14"
+    fill="${palette.second}"
+   />
+
+   <circle cx="43" cy="44" r="5" fill="#f7fbff"/>
+   <circle cx="77" cy="44" r="5" fill="#f7fbff"/>
+   <circle cx="43" cy="44" r="2.5" fill="#06111a"/>
+   <circle cx="77" cy="44" r="2.5" fill="#06111a"/>
+
+   <path
+    d="M48 70 Q60 78 72 70"
+    fill="none"
+    stroke="${palette.dark}"
+    stroke-width="3"
+    stroke-linecap="round"
+   />
+
+   <path
+    d="M36 78 L17 94 M84 78 L103 94"
+    stroke="${palette.second}"
+    stroke-width="7"
+    stroke-linecap="round"
+   />
+  `,
+  palette,
+  label
+ );
+}
+
+function scorpionSvg(palette,label){
+ return svgFrame(
+  `
+   <ellipse
+    cx="57"
+    cy="69"
+    rx="20"
+    ry="24"
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="57"
+    cy="45"
+    r="12"
+    fill="${palette.second}"
+   />
+
+   <g
+    stroke="${palette.main}"
+    stroke-width="5"
+    stroke-linecap="round"
+    fill="none"
+   >
+    <path d="M43 57 L25 47 L15 51"/>
+    <path d="M40 66 L20 63 L10 70"/>
+    <path d="M42 76 L23 84 L17 95"/>
+    <path d="M71 57 L89 47 L99 51"/>
+    <path d="M74 66 L94 63 L104 70"/>
+    <path d="M72 76 L91 84 L97 95"/>
+   </g>
+
+   <path
+    d="
+     M59 91
+     C65 107 88 104 91 88
+     C94 72 80 68 75 78
+    "
+    fill="none"
+    stroke="${palette.second}"
+    stroke-width="8"
+    stroke-linecap="round"
+   />
+
+   <path
+    d="M73 79 L82 74 L80 85 Z"
+    fill="${palette.main}"
+   />
+  `,
+  palette,
+  label
+ );
+}
+
+function insectSvg(palette,label){
+ return svgFrame(
+  `
+   <ellipse
+    cx="60"
+    cy="68"
+    rx="15"
+    ry="29"
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="60"
+    cy="39"
+    r="12"
+    fill="${palette.second}"
+   />
+
+   <ellipse
+    cx="39"
+    cy="61"
+    rx="17"
+    ry="25"
+    fill="${palette.second}"
+    opacity=".55"
+    transform="rotate(-25 39 61)"
+   />
+
+   <ellipse
+    cx="81"
+    cy="61"
+    rx="17"
+    ry="25"
+    fill="${palette.second}"
+    opacity=".55"
+    transform="rotate(25 81 61)"
+   />
+
+   <g
+    stroke="${palette.main}"
+    stroke-width="4"
+    stroke-linecap="round"
+   >
+    <path d="M48 54 L25 43"/>
+    <path d="M45 67 L20 67"/>
+    <path d="M48 80 L25 94"/>
+    <path d="M72 54 L95 43"/>
+    <path d="M75 67 L100 67"/>
+    <path d="M72 80 L95 94"/>
+   </g>
+
+   <path
+    d="M55 30 L45 18 M65 30 L75 18"
+    stroke="${palette.second}"
+    stroke-width="3"
+    stroke-linecap="round"
+   />
+  `,
+  palette,
+  label
+ );
+}
+
+function lizardSvg(palette,label){
+ return svgFrame(
+  `
+   <path
+    d="
+     M25 70
+     C39 43 70 40 88 57
+     C98 67 88 81 70 84
+     C48 88 32 81 25 70
+    "
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="89"
+    cy="57"
+    r="12"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="93"
+    cy="54"
+    r="2.5"
+    fill="#06111a"
+   />
+
+   <path
+    d="M28 70 C11 72 12 91 28 96"
+    fill="none"
+    stroke="${palette.main}"
+    stroke-width="8"
+    stroke-linecap="round"
+   />
+
+   <g
+    stroke="${palette.second}"
+    stroke-width="6"
+    stroke-linecap="round"
+   >
+    <path d="M47 77 L36 96"/>
+    <path d="M66 80 L74 100"/>
+    <path d="M75 72 L96 80"/>
+   </g>
+  `,
+  palette,
+  label
+ );
+}
+
+function birdSvg(palette,label){
+ return svgFrame(
+  `
+   <path
+    d="
+     M29 69
+     C39 41 72 34 89 52
+     C99 63 91 81 71 86
+     C49 91 34 82 29 69
+    "
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="84"
+    cy="48"
+    r="14"
+    fill="${palette.second}"
+   />
+
+   <path
+    d="M97 49 L110 55 L97 60 Z"
+    fill="${palette.main}"
+   />
+
+   <circle
+    cx="88"
+    cy="45"
+    r="2.5"
+    fill="#06111a"
+   />
+
+   <path
+    d="M45 61 Q61 51 73 68 Q57 80 45 61"
+    fill="${palette.second}"
+    opacity=".68"
+   />
+
+   <path
+    d="M55 87 L50 103 M68 86 L72 103"
+    stroke="${palette.main}"
+    stroke-width="4"
+    stroke-linecap="round"
+   />
+  `,
+  palette,
+  label
+ );
+}
+
+function fishSvg(palette,label){
+ return svgFrame(
+  `
+   <path
+    d="
+     M23 62
+     C38 37 76 38 94 61
+     C76 85 38 86 23 62
+    "
+    fill="url(#taxMain)"
+   />
+
+   <path
+    d="M25 62 L10 43 L10 81 Z"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="80"
+    cy="55"
+    r="4"
+    fill="#f7fbff"
+   />
+
+   <circle
+    cx="81"
+    cy="55"
+    r="2"
+    fill="#06111a"
+   />
+
+   <path
+    d="M52 47 Q63 61 52 77"
+    fill="none"
+    stroke="${palette.second}"
+    stroke-width="4"
+   />
+
+   <circle cx="94" cy="28" r="4" fill="${palette.second}" opacity=".65"/>
+   <circle cx="103" cy="17" r="3" fill="${palette.main}" opacity=".55"/>
+  `,
+  palette,
+  label
+ );
+}
+
+function genericSvg(palette,label){
+ return svgFrame(
+  `
+   <circle
+    cx="60"
+    cy="66"
+    r="23"
+    fill="url(#taxMain)"
+   />
+
+   <circle
+    cx="35"
+    cy="40"
+    r="10"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="54"
+    cy="28"
+    r="10"
+    fill="${palette.main}"
+   />
+
+   <circle
+    cx="76"
+    cy="31"
+    r="10"
+    fill="${palette.second}"
+   />
+
+   <circle
+    cx="91"
+    cy="49"
+    r="10"
+    fill="${palette.main}"
+   />
+
+   <path
+    d="
+     M39 77
+     C43 57 77 54 83 77
+     C88 96 68 103 60 94
+     C50 104 35 94 39 77
+    "
+    fill="url(#taxMain)"
+   />
+  `,
+  palette,
+  label
+ );
+}
+
+function illustrationFor(value){
+ const label=clean(value)||'Tier';
+ const type=classifyTaxon(label);
+ const palette=paletteFor(label);
+
+ switch(type){
+  case 'snake':
+   return snakeSvg(palette,label);
+
+  case 'spider':
+   return spiderSvg(palette,label);
+
+  case 'chameleon':
+   return chameleonSvg(palette,label);
+
+  case 'gecko':
+   return geckoSvg(palette,label);
+
+  case 'tortoise':
+   return tortoiseSvg(palette,label);
+
+  case 'frog':
+   return frogSvg(palette,label);
+
+  case 'scorpion':
+   return scorpionSvg(palette,label);
+
+  case 'insect':
+   return insectSvg(palette,label);
+
+  case 'lizard':
+   return lizardSvg(palette,label);
+
+  case 'bird':
+   return birdSvg(palette,label);
+
+  case 'fish':
+   return fishSvg(palette,label);
+
+  default:
+   return genericSvg(palette,label);
+ }
 }
 
 function installStyles(){
@@ -357,65 +982,25 @@ function installStyles(){
   return;
  }
 
- const style=
-  document.createElement(
-   'style'
-  );
+ const style=document.createElement(
+  'style'
+ );
 
  style.id=STYLE_ID;
 
  style.textContent=`
-  .tc2TaxFolder{
-   display:grid!important;
-   grid-template-columns:92px minmax(0,1fr) 24px!important;
-   grid-template-rows:1fr!important;
-   align-items:center!important;
-   gap:14px!important;
-
-   width:100%!important;
-   min-height:118px!important;
-
-   margin:0!important;
-   padding:12px!important;
-
-   overflow:hidden!important;
-   text-align:left!important;
-  }
-
-  .tc2TaxFolder::after{
-   display:none!important;
-   content:none!important;
-  }
-
-  .tc2TaxFolder>
-  .tc2TaxVisual{
-   grid-column:1!important;
-   grid-row:1!important;
-
+  .tc2TaxIllustrationHost{
    display:grid!important;
    place-items:center!important;
 
-   width:92px!important;
-   min-width:92px!important;
-   max-width:92px!important;
-
-   height:92px!important;
-   min-height:92px!important;
-   max-height:92px!important;
-
-   margin:0!important;
-   padding:0!important;
-
    overflow:hidden!important;
-
-   border-radius:22px!important;
 
    color:#9bec58!important;
 
    background:
     radial-gradient(
-     circle at 35% 30%,
-     rgba(139,220,63,.15),
+     circle at 35% 28%,
+     rgba(105,210,196,.12),
      transparent 58%
     ),
     rgba(5,17,27,.58)!important;
@@ -423,44 +1008,138 @@ function installStyles(){
    border:
     1px solid
     rgba(125,170,210,.24)!important;
-
-   font-size:27px!important;
-   letter-spacing:0!important;
   }
 
-  .tc2TaxFolder>
-  .tc2TaxVisual.hasImage{
-   background:#071521!important;
-  }
-
-  .tc2TaxFolder>
-  .tc2TaxVisual img{
+  .tc2TaxIllustrationSvg{
    display:block!important;
 
    width:100%!important;
    height:100%!important;
 
-   object-fit:cover!important;
-   object-position:center!important;
+   overflow:visible!important;
+  }
+
+  .tc2TaxIllustrationCreature{
+   transform-origin:60px 62px;
+   animation:
+    tc2TaxFloat
+    4.6s
+    ease-in-out
+    infinite;
+  }
+
+  .tc2TaxIllustrationSpark{
+   transform-origin:center;
+   animation:
+    tc2TaxSpark
+    2.8s
+    ease-in-out
+    infinite;
+  }
+
+  .tc2TaxIllustrationSparkTwo{
+   animation-delay:1.2s;
+  }
+
+  @keyframes tc2TaxFloat{
+   0%,
+   100%{
+    transform:
+     translateY(1px)
+     rotate(-1deg);
+   }
+
+   50%{
+    transform:
+     translateY(-4px)
+     rotate(1deg);
+   }
+  }
+
+  @keyframes tc2TaxSpark{
+   0%,
+   100%{
+    opacity:.3;
+    transform:scale(.75);
+   }
+
+   50%{
+    opacity:1;
+    transform:scale(1.25);
+   }
+  }
+
+  @media(
+   prefers-reduced-motion:
+   reduce
+  ){
+   .tc2TaxIllustrationCreature,
+   .tc2TaxIllustrationSpark{
+    animation:none!important;
+   }
   }
 
   .tc2TaxFolder>
-  .tc2TaxFolderText{
+  .tc2TaxIllustrationHost{
+   width:84px!important;
+   min-width:84px!important;
+   max-width:84px!important;
+
+   height:84px!important;
+   min-height:84px!important;
+   max-height:84px!important;
+
+   margin:0!important;
+   padding:5px!important;
+
+   border-radius:21px!important;
+
+   font-size:0!important;
+   letter-spacing:0!important;
+  }
+
+  .tc2TaxAnimal>
+  .tc2TaxIllustrationHost{
+   width:100%!important;
+   height:100%!important;
+
+   margin:0!important;
+   padding:10px!important;
+
+   border:0!important;
+   border-radius:0!important;
+  }
+
+  .tc2TaxFolder{
+   grid-template-columns:
+    84px
+    minmax(0,1fr)
+    24px!important;
+
+   grid-template-rows:
+    auto
+    auto!important;
+
+   column-gap:14px!important;
+   row-gap:5px!important;
+
+   align-items:center!important;
+
+   min-height:112px!important;
+   padding:13px!important;
+  }
+
+  .tc2TaxFolder>
+  .tc2TaxIllustrationHost{
+   grid-column:1!important;
+   grid-row:1 / 3!important;
+  }
+
+  .tc2TaxFolder>b{
    grid-column:2!important;
    grid-row:1!important;
 
-   display:flex!important;
-   flex-direction:column!important;
-   align-items:flex-start!important;
-   justify-content:center!important;
-   gap:7px!important;
-
-   min-width:0!important;
-   max-width:100%!important;
-  }
-
-  .tc2TaxFolderText>b{
-   display:block!important;
+   align-self:end!important;
 
    max-width:100%!important;
    overflow:hidden!important;
@@ -471,397 +1150,59 @@ function installStyles(){
    font-weight:900!important;
    line-height:1.2!important;
 
+   text-align:left!important;
    text-overflow:ellipsis!important;
    white-space:nowrap!important;
   }
 
-  .tc2TaxFolderText>small{
-   display:block!important;
+  .tc2TaxFolder>small{
+   grid-column:2!important;
+   grid-row:2!important;
+
+   align-self:start!important;
 
    color:#a7b3bd!important;
 
    font-size:10px!important;
    font-weight:750!important;
-   line-height:1.3!important;
-  }
 
-  .tc2TaxFolder>
-  .tc2TaxFolderArrow{
-   grid-column:3!important;
-   grid-row:1!important;
-
-   display:block!important;
-
-   color:#91a0ac!important;
-
-   font-size:29px!important;
-   font-weight:500!important;
-   line-height:1!important;
-  }
-
-  .tc2TaxAnimal{
-   display:grid!important;
-
-   grid-template-columns:
-    126px minmax(0,1fr) 20px!important;
-
-   grid-template-rows:1fr!important;
-
-   align-items:center!important;
-   gap:13px!important;
-
-   width:100%!important;
-   min-height:158px!important;
-
-   margin:0!important;
-   padding:0 13px 0 0!important;
-
-   overflow:hidden!important;
    text-align:left!important;
   }
 
-  .tc2TaxAnimal>
-  .tc2TaxAnimalVisual{
-   grid-column:1!important;
-   grid-row:1!important;
-
-   display:grid!important;
-   place-items:center!important;
-
-   width:126px!important;
-   min-width:126px!important;
-   max-width:126px!important;
-
-   height:158px!important;
-   min-height:158px!important;
-   max-height:158px!important;
-
-   margin:0!important;
-   padding:0!important;
-
-   overflow:hidden!important;
-
-   color:#9bec58!important;
-
-   background:
-    radial-gradient(
-     circle at 35% 30%,
-     rgba(139,220,63,.14),
-     transparent 58%
-    ),
-    #071521!important;
-
-   font-size:31px!important;
-  }
-
-  .tc2TaxAnimal>
-  .tc2TaxAnimalVisual img{
-   display:block!important;
-
-   width:100%!important;
-   height:100%!important;
-
-   object-fit:cover!important;
-   object-position:center!important;
-  }
-
-  .tc2TaxAnimal>
-  .tc2TaxAnimalText{
-   grid-column:2!important;
-   grid-row:1!important;
-
-   display:flex!important;
-   flex-direction:column!important;
-   align-items:flex-start!important;
-   justify-content:center!important;
-   gap:8px!important;
-
-   min-width:0!important;
-   max-width:100%!important;
-  }
-
-  .tc2TaxAnimalText>b{
-   display:block!important;
-
-   color:#9bec58!important;
-
-   font-size:11px!important;
-   font-weight:900!important;
-   line-height:1.2!important;
-  }
-
-  .tc2TaxAnimalText>strong{
-   display:block!important;
-
-   max-width:100%!important;
-   overflow:hidden!important;
-
-   color:#f4f7fb!important;
-
-   font-size:17px!important;
-   font-weight:900!important;
-   line-height:1.2!important;
-
-   text-overflow:ellipsis!important;
-   white-space:nowrap!important;
-  }
-
-  .tc2TaxAnimalText>small{
-   display:block!important;
-
-   max-width:100%!important;
-   overflow:hidden!important;
-
-   color:#a7b3bd!important;
-
-   font-size:10px!important;
-   font-style:italic!important;
-   line-height:1.3!important;
-
-   text-overflow:ellipsis!important;
-   white-space:nowrap!important;
-  }
-
-  .tc2TaxAnimal>
-  .tc2TaxAnimalArrow{
+  .tc2TaxFolder::after{
    grid-column:3!important;
-   grid-row:1!important;
+   grid-row:1 / 3!important;
 
-   display:block!important;
-
-   color:#91a0ac!important;
-
-   font-size:28px!important;
-   line-height:1!important;
+   align-self:center!important;
   }
 
-  .tc2TaxImageModal{
-   display:flex;
-   flex-direction:column;
-   gap:14px;
-
-   width:min(920px,94vw);
-   max-height:88vh;
-
-   overflow:hidden;
-  }
-
-  .tc2TaxImageModalHead{
-   display:flex;
-   align-items:flex-start;
-   justify-content:space-between;
-   gap:14px;
-  }
-
-  .tc2TaxImageModalHead h2{
-   margin:0 0 5px!important;
-   font-size:23px!important;
-  }
-
-  .tc2TaxImageModalHead p{
-   margin:0;
-   color:#9eabb7;
-   font-size:12px;
-  }
-
-  .tc2TaxImageModalHead>button{
-   display:grid!important;
-   place-items:center!important;
-
-   width:40px!important;
-   min-width:40px!important;
-   height:40px!important;
-   min-height:40px!important;
-
-   margin:0!important;
-   padding:0!important;
-
-   border-radius:13px!important;
-
-   font-size:22px!important;
-  }
-
-  .tc2TaxLicenseInfo{
-   padding:11px 13px;
-
-   border-radius:14px;
-
-   color:#b9c6cf;
-
-   background:
-    rgba(105,210,196,.06);
-
-   border:
-    1px solid
-    rgba(105,210,196,.2);
-
-   font-size:10px;
-   line-height:1.45;
-  }
-
-  .tc2TaxCandidateGrid{
-   display:grid;
-
-   grid-template-columns:
-    repeat(2,minmax(0,1fr));
-
-   gap:12px;
-
-   overflow-y:auto;
-   padding-right:3px;
-  }
-
-  .tc2TaxCandidate{
-   display:flex;
-   flex-direction:column;
-
-   overflow:hidden;
-
-   border-radius:19px;
-
-   background:
-    linear-gradient(
-     180deg,
-     rgba(24,45,62,.98),
-     rgba(13,29,42,.99)
-    );
-
-   border:
-    1px solid
-    rgba(125,170,210,.24);
-
-   box-shadow:
-    0 12px 28px
-    rgba(0,0,0,.17);
-  }
-
-  .tc2TaxCandidatePreview{
-   display:block!important;
-
-   width:100%!important;
-   height:210px!important;
-
-   margin:0!important;
-   padding:0!important;
-
-   overflow:hidden!important;
-
-   border:0!important;
-   border-radius:0!important;
-
-   background:#06131d!important;
-   box-shadow:none!important;
-  }
-
-  .tc2TaxCandidatePreview img{
-   display:block;
-
-   width:100%;
-   height:100%;
-
-   object-fit:cover;
-   object-position:center;
-  }
-
-  .tc2TaxCandidateBody{
-   display:flex;
-   flex-direction:column;
-   gap:6px;
-
-   padding:12px;
-  }
-
-  .tc2TaxCandidateBody strong,
-  .tc2TaxCandidateBody small{
-   overflow:hidden;
-   text-overflow:ellipsis;
-   white-space:nowrap;
-  }
-
-  .tc2TaxCandidateBody strong{
-   color:#f4f7fb;
-   font-size:12px;
-  }
-
-  .tc2TaxCandidateBody small{
-   color:#91a0ac!important;
-   font-size:9px;
-  }
-
-  .tc2TaxCandidateBody button{
-   width:100%!important;
-   min-height:39px!important;
-
-   margin:5px 0 0!important;
-   padding:7px 10px!important;
-
-   border-radius:12px!important;
-
-   font-size:10px!important;
-   font-weight:900!important;
-  }
-
-  .tc2TaxModalActions{
-   display:flex;
-   justify-content:flex-end;
-  }
-
-  @media(max-width:520px){
+  @media(max-width:420px){
    .tc2TaxFolder{
     grid-template-columns:
-     82px minmax(0,1fr) 20px!important;
+     74px
+     minmax(0,1fr)
+     22px!important;
 
-    min-height:104px!important;
-    gap:11px!important;
-    padding:10px!important;
+    min-height:100px!important;
+    column-gap:11px!important;
+    padding:11px!important;
    }
 
    .tc2TaxFolder>
-   .tc2TaxVisual{
-    width:82px!important;
-    min-width:82px!important;
-    max-width:82px!important;
+   .tc2TaxIllustrationHost{
+    width:74px!important;
+    min-width:74px!important;
+    max-width:74px!important;
 
-    height:82px!important;
-    min-height:82px!important;
-    max-height:82px!important;
+    height:74px!important;
+    min-height:74px!important;
+    max-height:74px!important;
 
     border-radius:19px!important;
    }
 
-   .tc2TaxFolderText>b{
+   .tc2TaxFolder>b{
     font-size:15px!important;
-   }
-
-   .tc2TaxAnimal{
-    grid-template-columns:
-     106px minmax(0,1fr) 18px!important;
-
-    min-height:142px!important;
-    gap:11px!important;
-   }
-
-   .tc2TaxAnimal>
-   .tc2TaxAnimalVisual{
-    width:106px!important;
-    min-width:106px!important;
-    max-width:106px!important;
-
-    height:142px!important;
-    min-height:142px!important;
-    max-height:142px!important;
-   }
-
-   .tc2TaxAnimalText>strong{
-    font-size:15px!important;
-   }
-
-   .tc2TaxCandidateGrid{
-    grid-template-columns:1fr;
-   }
-
-   .tc2TaxCandidatePreview{
-    height:190px!important;
    }
   }
  `;
@@ -871,291 +1212,198 @@ function installStyles(){
  );
 }
 
+function directChild(
+ parent,
+ selector
+){
+ if(!parent){
+  return null;
+ }
+
+ return Array.from(
+  parent.children
+ ).find(function(child){
+  return child.matches(
+   selector
+  );
+ })||null;
+}
+
 function folderLabel(button){
- const labelElement=
-  button.querySelector(
-   ':scope > b'
-  )||
-  button.querySelector(
-   '.tc2TaxFolderText > b'
-  );
-
- return clean(
-  labelElement&&
-  labelElement.textContent
- );
-}
-
-function folderCount(button){
- const countElement=
-  button.querySelector(
-   ':scope > small'
-  )||
-  button.querySelector(
-   '.tc2TaxFolderText > small'
-  );
-
- return clean(
-  countElement&&
-  countElement.textContent
- );
-}
-
-function rebuildFolder(
- button,
- label,
- count,
- source
-){
- button.innerHTML=`
-  <span class="tc2TaxVisual ${source?'hasImage':''}">
-   ${
-    source
-     ?`
-      <img
-       src="${esc(source)}"
-       alt="${esc(label)}"
-       loading="lazy"
-      >
-     `
-     :'🐾'
-   }
-  </span>
-
-  <span class="tc2TaxFolderText">
-   <b>${esc(label)}</b>
-   <small>${esc(count)}</small>
-  </span>
-
-  <span class="tc2TaxFolderArrow">
-   ›
-  </span>
- `;
-}
-
-function decorateFolders(){
- const route=currentRoute();
-
- if(
-  !route||
-  route.name!=='animals'
- ){
-  return;
- }
-
- const args=route.args||{};
- const group=clean(args.group);
- const genus=clean(args.genus);
-
- if(genus){
-  return;
- }
-
- const buttons=
-  Array.from(
-   document.querySelectorAll(
-    '.tc2TaxFolder'
-   )
-  );
-
- buttons.forEach(function(button){
-  const label=folderLabel(
-   button
-  );
-
-  const count=folderCount(
-   button
-  );
-
-  if(!label){
-   return;
-  }
-
-  let source='';
-
-  if(!group){
-   source=groupImage(
-    label
-   );
-
-  }else{
-   source=genusImage(
-    group,
-    label
-   );
-  }
-
-  rebuildFolder(
+ const label=
+  directChild(
    button,
-   label,
-   count,
-   source
+   'b'
   );
- });
+
+ return clean(
+  label&&label.textContent
+ );
 }
 
-function animalCardData(card){
- return {
-  id:clean(
-   (
-    card.querySelector(
-     ':scope > b'
-    )||
-    card.querySelector(
-     '.tc2TaxAnimalText > b'
-    )
-   )?.textContent
-  ),
-
-  name:clean(
-   (
-    card.querySelector(
-     ':scope > strong'
-    )||
-    card.querySelector(
-     '.tc2TaxAnimalText > strong'
-    )
-   )?.textContent
-  ),
-
-  taxonomy:clean(
-   (
-    card.querySelector(
-     ':scope > small'
-    )||
-    card.querySelector(
-     '.tc2TaxAnimalText > small'
-    )
-   )?.textContent
-  )
- };
-}
-
-function rebuildAnimalCard(
- card,
- data,
- animal,
- source
+function folderIllustrationTarget(
+ button
 ){
- card.innerHTML=`
-  <div class="tc2TaxAnimalVisual">
-   ${
-    source
-     ?`
-      <img
-       src="${esc(source)}"
-       alt="${esc(
-        animal.name||
-        data.name||
-        'Tierbild'
-       )}"
-       loading="lazy"
-      >
-     `
-     :'🐾'
-   }
-  </div>
+ const firstSpan=
+  directChild(
+   button,
+   'span'
+  );
 
-  <span class="tc2TaxAnimalText">
-   <b>${esc(data.id)}</b>
+ if(firstSpan){
+  return firstSpan;
+ }
 
-   <strong>
-    ${esc(
-     data.name||
-     animal.name||
-     'Unbenannt'
-    )}
-   </strong>
-
-   <small>
-    ${esc(
-     data.taxonomy||
-     [
-      animal.genus,
-      animal.species
-     ].filter(Boolean).join(' ')
-    )}
-   </small>
-  </span>
-
-  <span class="tc2TaxAnimalArrow">
-   ›
-  </span>
- `;
+ return null;
 }
 
-function decorateAnimals(){
- const route=currentRoute();
-
+function decorateFolder(button){
  if(
-  !route||
-  route.name!=='animals'
+  !button||
+  button.dataset.taxIllustrated==='1'
  ){
   return;
  }
 
- const args=route.args||{};
- const group=clean(args.group);
- const genus=clean(args.genus);
-
- if(
-  !group||
-  !genus
- ){
-  return;
- }
-
- const rows=rowsForGenus(
-  group,
-  genus
+ const label=folderLabel(
+  button
  );
 
- const cards=
-  Array.from(
-   document.querySelectorAll(
-    '.tc2TaxAnimal'
-   )
+ if(!label){
+  return;
+ }
+
+ const target=
+  folderIllustrationTarget(
+   button
   );
 
- cards.forEach(function(card,index){
-  const data=animalCardData(
+ if(!target){
+  return;
+ }
+
+ target.className=
+  'tc2TaxIllustrationHost';
+
+ target.innerHTML=
+  illustrationFor(label);
+
+ button.dataset.taxIllustrated='1';
+}
+
+function animalTaxonomyLabel(card){
+ const taxonomy=
+  directChild(
+   card,
+   'small'
+  );
+
+ if(
+  taxonomy&&
+  clean(taxonomy.textContent)
+ ){
+  return clean(
+   taxonomy.textContent
+  );
+ }
+
+ const name=
+  directChild(
+   card,
+   'strong'
+  );
+
+ return clean(
+  name&&name.textContent
+ )||'Tier';
+}
+
+function animalImageTarget(card){
+ return directChild(
+  card,
+  'div'
+ );
+}
+
+function targetHasRealPhoto(target){
+ if(!target){
+  return false;
+ }
+
+ const image=
+  target.querySelector(
+   'img'
+  );
+
+ if(!image){
+  return false;
+ }
+
+ const source=clean(
+  image.getAttribute('src')
+ );
+
+ return !!source;
+}
+
+function decorateAnimal(card){
+ if(
+  !card||
+  card.dataset.taxIllustrated==='1'
+ ){
+  return;
+ }
+
+ const target=
+  animalImageTarget(
    card
   );
 
-  let row=rows[index];
+ if(!target){
+  return;
+ }
 
-  if(data.id){
-   row=rows.find(function(candidate){
-    const animal=candidate.a||{};
+ /*
+  * Eigene Tierfotos bleiben erhalten.
+  * Nur Kamera-/Platzhalter werden ersetzt.
+  */
+ if(targetHasRealPhoto(target)){
+  card.dataset.taxIllustrated='1';
+  return;
+ }
 
-    return clean(
-     animal.publicId||
-     animal.displayId
-    )===data.id;
-   })||row;
-  }
-
-  if(!row||!row.a){
-   return;
-  }
-
-  const source=imageForAnimal(
-   row.a
+ const label=
+  animalTaxonomyLabel(
+   card
   );
 
-  rebuildAnimalCard(
-   card,
-   data,
-   row.a,
-   source
-  );
- });
+ target.className=
+  'tc2TaxIllustrationHost';
+
+ target.innerHTML=
+  illustrationFor(label);
+
+ card.dataset.taxIllustrated='1';
 }
 
-function decorateNavigation(){
+function decorate(){
  installStyles();
- decorateFolders();
- decorateAnimals();
+
+ document
+  .querySelectorAll(
+   '.tc2TaxFolder'
+  )
+  .forEach(
+   decorateFolder
+  );
+
+ document
+  .querySelectorAll(
+   '.tc2TaxAnimal'
+  )
+  .forEach(
+   decorateAnimal
+  );
 }
 
 function scheduleDecoration(){
@@ -1164,12 +1412,12 @@ function scheduleDecoration(){
  );
 
  decorationTimer=setTimeout(
-  decorateNavigation,
+  decorate,
   60
  );
 }
 
-function installObserver(){
+function observeApp(){
  if(observer){
   return;
  }
@@ -1181,18 +1429,19 @@ function installObserver(){
 
  if(!app){
   setTimeout(
-   installObserver,
+   observeApp,
    100
   );
 
   return;
  }
 
- observer=new MutationObserver(
-  function(){
-   scheduleDecoration();
-  }
- );
+ observer=
+  new MutationObserver(
+   function(){
+    scheduleDecoration();
+   }
+  );
 
  observer.observe(
   app,
@@ -1203,538 +1452,13 @@ function installObserver(){
  );
 }
 
-function patchRoute(){
- if(
-  routePatched||
-  !window.NGT500||
-  typeof NGT500.route!=='function'
- ){
-  return false;
- }
-
- const originalRoute=
-  NGT500.route;
-
- NGT500.route=function(){
-  const result=
-   originalRoute.apply(
-    NGT500,
-    arguments
-   );
-
-  scheduleDecoration();
-
-  return result;
- };
-
- routePatched=true;
-
- return true;
-}
-
-function editorTaxon(){
- const groupElement=
-  document.getElementById(
-   'edAnimalGroup'
-  );
-
- const genusElement=
-  document.getElementById(
-   'edGenus'
-  );
-
- const speciesElement=
-  document.getElementById(
-   'edSpecies'
-  );
-
- if(
-  !groupElement&&
-  !genusElement&&
-  !speciesElement
- ){
-  return null;
- }
-
- return {
-  group:clean(
-   groupElement&&
-   groupElement.value
-  ),
-
-  genus:clean(
-   genusElement&&
-   genusElement.value
-  ),
-
-  species:clean(
-   speciesElement&&
-   speciesElement.value
-  )
- };
-}
-
-function validTaxon(taxon){
- return !!(
-  taxon&&
-  (
-   taxon.group||
-   taxon.genus||
-   taxon.species
-  )
- );
-}
-
-function taxonLabel(taxon){
- if(!taxonomyReady()){
-  return [
-   taxon&&taxon.genus,
-   taxon&&taxon.species
-  ].filter(Boolean).join(' ');
- }
-
- const normalized=
-  NGTTaxonomy.normalizeInput(
-   taxon||{}
-  );
-
- return (
-  normalized.scientificName||
-  normalized.genus||
-  normalized.group||
-  'Taxonomie'
- );
-}
-
-function recordKey(taxon){
- if(!taxonomyReady()){
-  return '';
- }
-
- return NGTTaxonomy.recordKey(
-  taxon||{}
- );
-}
-
-function toast(
- message,
- type
-){
- if(
-  window.NGT500&&
-  NGT500.toast
- ){
-  NGT500.toast(
-   message,
-   type||'ok'
-  );
-
-  return;
- }
-
- console.log(message);
-}
-
-async function ensureTaxonomy(taxon){
- if(
-  !taxonomyReady()||
-  !validTaxon(taxon)
- ){
-  return null;
- }
-
- try{
-  return await NGTTaxonomy.ensure(
-   taxon
-  );
-
- }catch(error){
-  console.error(
-   'Taxonomie konnte nicht angelegt werden.',
-   error
-  );
-
-  return null;
- }
-}
-
-function candidateCard(
- candidate,
- key,
- index
-){
- const dimensions=
-  candidate.width&&
-  candidate.height
-   ?candidate.width+
-    ' × '+
-    candidate.height
-   :'';
-
- return `
-  <article class="tc2TaxCandidate">
-   <button
-    type="button"
-    class="tc2TaxCandidatePreview"
-    onclick="NGTTaxonomyUI.previewCandidate('${jsArg(key)}',${index})"
-   >
-    <img
-     src="${esc(candidate.previewUrl)}"
-     alt="${esc(candidate.title||'Bildvorschlag')}"
-     loading="lazy"
-    >
-   </button>
-
-   <div class="tc2TaxCandidateBody">
-    <strong>
-     ${esc(candidate.title||'Bildvorschlag')}
-    </strong>
-
-    <small>
-     ${esc(
-      candidate.author||
-      'Urheber nicht angegeben'
-     )}
-    </small>
-
-    <small>
-     ${esc(
-      candidate.license||
-      'Lizenz nicht angegeben'
-     )}
-     ${dimensions?' · '+esc(dimensions):''}
-    </small>
-
-    <button
-     type="button"
-     class="primary"
-     onclick="NGTTaxonomyUI.selectCandidate('${jsArg(key)}',${index})"
-    >
-     Dieses Bild verwenden
-    </button>
-   </div>
-  </article>
- `;
-}
-
-function showCandidateModal(
- taxon,
- candidates
-){
- const key=recordKey(
-  taxon
- );
-
- candidatesByKey[key]={
-  taxon:clone(taxon),
-  candidates:clone(candidates)
- };
-
- const html=`
-  <div class="tc2TaxImageModal">
-   <div class="tc2TaxImageModalHead">
-    <div>
-     <h2>Artenbild auswählen</h2>
-     <p>${esc(taxonLabel(taxon))}</p>
-    </div>
-
-    <button
-     type="button"
-     onclick="NGT500.closeModal()"
-    >
-     ×
-    </button>
-   </div>
-
-   <div class="tc2TaxLicenseInfo">
-    Die Vorschläge stammen aus Wikimedia Commons.
-    Quelle, Fotograf und Lizenz werden dauerhaft gespeichert.
-   </div>
-
-   <div class="tc2TaxCandidateGrid">
-    ${candidates.map(function(candidate,index){
-     return candidateCard(
-      candidate,
-      key,
-      index
-     );
-    }).join('')}
-   </div>
-
-   <div class="tc2TaxModalActions">
-    <button
-     type="button"
-     onclick="NGT500.closeModal()"
-    >
-     Später auswählen
-    </button>
-   </div>
-  </div>
- `;
-
- if(
-  window.NGT500&&
-  NGT500.modal
- ){
-  NGT500.modal(
-   html
-  );
- }
-}
-
-async function searchAndChoose(taxon){
- if(
-  !imageSearchReady()||
-  !validTaxon(taxon)
- ){
-  return;
- }
-
- if(taxonomyImage(taxon)){
-  scheduleDecoration();
-  return;
- }
-
- try{
-  toast(
-   'Passendes Artenbild wird gesucht …',
-   'ok'
-  );
-
-  const candidates=
-   await NGTTaxonomyImages
-    .searchCommons(
-     taxon,
-     {
-      limit:8
-     }
-    );
-
-  if(!candidates.length){
-   toast(
-    'Kein frei nutzbares Artenbild gefunden.',
-    'warn'
-   );
-
-   return;
-  }
-
-  showCandidateModal(
-   taxon,
-   candidates
-  );
-
- }catch(error){
-  console.error(
-   'Artenbildsuche fehlgeschlagen.',
-   error
-  );
-
-  toast(
-   error&&error.message
-    ?error.message
-    :'Artenbildsuche fehlgeschlagen.',
-   'danger'
-  );
- }
-}
-
-async function selectCandidate(
- key,
- index
-){
- const entry=
-  candidatesByKey[key];
-
- if(
-  !entry||
-  !entry.candidates||
-  !entry.candidates[index]
- ){
-  toast(
-   'Bildvorschlag nicht mehr verfügbar.',
-   'danger'
-  );
-
-  return;
- }
-
- if(
-  !window.NGTFirebaseSync||
-  !NGTFirebaseSync.isSignedIn||
-  !NGTFirebaseSync.isSignedIn()
- ){
-  toast(
-   'Bitte zuerst bei Firebase anmelden.',
-   'warn'
-  );
-
-  return;
- }
-
- try{
-  toast(
-   'Artenbild wird gespeichert …',
-   'ok'
-  );
-
-  await NGTTaxonomyImages
-   .storeCandidate(
-    entry.taxon,
-    entry.candidates[index]
-   );
-
-  if(
-   window.NGT500&&
-   NGT500.closeModal
-  ){
-   NGT500.closeModal();
-  }
-
-  toast(
-   'Artenbild wurde gespeichert.',
-   'ok'
-  );
-
-  scheduleDecoration();
-
- }catch(error){
-  console.error(
-   'Artenbild konnte nicht gespeichert werden.',
-   error
-  );
-
-  toast(
-   error&&error.message
-    ?error.message
-    :'Artenbild konnte nicht gespeichert werden.',
-   'danger'
-  );
- }
-}
-
-function previewCandidate(
- key,
- index
-){
- const entry=
-  candidatesByKey[key];
-
- if(
-  !entry||
-  !entry.candidates||
-  !entry.candidates[index]
- ){
-  return;
- }
-
- const candidate=
-  entry.candidates[index];
-
- window.open(
-  candidate.previewUrl||
-  candidate.originalUrl||
-  candidate.sourceUrl,
-  '_blank',
-  'noopener,noreferrer'
- );
-}
-
-async function afterAnimalSave(taxon){
- if(!validTaxon(taxon)){
-  return;
- }
-
- await ensureTaxonomy(
-  taxon
- );
-
- if(taxonomyImage(taxon)){
-  scheduleDecoration();
-  return;
- }
-
- await searchAndChoose(
-  taxon
- );
-}
-
-function patchAnimalSave(){
- if(
-  savePatched||
-  !window.NGTAnimals||
-  typeof NGTAnimals.save!=='function'
- ){
-  return false;
- }
-
- const originalSave=
-  NGTAnimals.save;
-
- NGTAnimals.save=function(t,i){
-  const taxon=
-   editorTaxon();
-
-  const result=
-   originalSave.call(
-    NGTAnimals,
-    t,
-    i
-   );
-
-  Promise.resolve()
-   .then(function(){
-    return afterAnimalSave(
-     taxon
-    );
-   })
-   .catch(function(error){
-    console.error(
-     'Taxonomie-Nachbearbeitung fehlgeschlagen.',
-     error
-    );
-   });
-
-  return result;
- };
-
- savePatched=true;
-
- return true;
-}
-
-function waitForModules(){
- let attempts=0;
-
- const timer=setInterval(
-  function(){
-   attempts++;
-
-   patchRoute();
-   patchAnimalSave();
-
-   if(
-    (
-     routePatched&&
-     savePatched
-    )||
-    attempts>=150
-   ){
-    clearInterval(timer);
-   }
-  },
-  100
- );
-}
-
 function init(){
  installStyles();
- installObserver();
- waitForModules();
+ observeApp();
 
  if(
   window.NGT500&&
-  NGT500.on
+  typeof NGT500.on==='function'
  ){
   NGT500.on(
    'route',
@@ -1742,12 +1466,7 @@ function init(){
   );
 
   NGT500.on(
-   'taxonomy:changed',
-   scheduleDecoration
-  );
-
-  NGT500.on(
-   'taxonomy:image-upload-complete',
+   'store:changed',
    scheduleDecoration
   );
  }
@@ -1761,26 +1480,12 @@ function init(){
 }
 
 window.NGTTaxonomyUI={
- decorateNavigation:
-  decorateNavigation,
+ decorate:decorate,
+ illustrationFor:
+  illustrationFor,
 
- searchAndChoose:
-  searchAndChoose,
-
- selectCandidate:
-  selectCandidate,
-
- previewCandidate:
-  previewCandidate,
-
- imageForAnimal:
-  imageForAnimal,
-
- groupImage:
-  groupImage,
-
- genusImage:
-  genusImage
+ classifyTaxon:
+  classifyTaxon
 };
 
 document.readyState==='loading'
