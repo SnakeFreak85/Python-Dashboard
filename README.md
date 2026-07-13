@@ -54,7 +54,10 @@ Wichtige Prinzipien:
 | `v500/app.js` | abschließende Anwendungsinitialisierung |
 | `v500/store.js` | zentraler lokaler Zustand, Persistenz und Normalisierung |
 | `v500/animal-engine.js` | zentrale tierbezogene Domain-Logik |
-| `v500/taxonomy.js` | Taxonomiedaten und Taxonomieoperationen |
+| `v500/taxonomy-core.js` | Normalisierung, Schlüssel und Datensatz-Zusammenführung der Taxonomie |
+| `v500/taxonomy-store.js` | lokaler Taxonomie-Cache, Suche und Import/Export |
+| `v500/taxonomy-cloud.js` | Firestore-Adapter und Taxonomie-Synchronisation |
+| `v500/taxonomy.js` | kompatibler Controller und öffentliche `NGTTaxonomy`-API |
 | `v500/taxonomy-ui.js` | Taxonomie-Oberfläche |
 | `v500/firebase-sync.js` | gekapselte Firebase- und Synchronisationslogik |
 | `service-worker.js` | PWA- und Offline-Unterstützung |
@@ -88,6 +91,20 @@ animals.js
 ```
 
 `animals.js` bleibt der Controller und stellt die kompatible öffentliche `NGTAnimals`-API bereit. Gemeinsame Hilfen, Futteranbindung, Bestandsansicht und Editor liegen in getrennten internen Modulen.
+
+## Taxonomiemodule
+
+Die Taxonomie wird in dieser Reihenfolge geladen:
+
+```text
+taxonomy-core.js
+taxonomy-store.js
+taxonomy-cloud.js
+taxonomy.js
+taxonomy-ui.js
+```
+
+`taxonomy.js` bleibt der Controller und stellt die kompatible öffentliche `NGTTaxonomy`-API bereit. Normalisierung, lokaler Cache und Cloud-Synchronisation liegen in getrennten internen Modulen; `taxonomy-ui.js` bleibt für die Darstellung zuständig.
 
 ## Weitere Module
 

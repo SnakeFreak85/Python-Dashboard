@@ -55,6 +55,25 @@ Bei Änderungen an einem Profilmodul:
 - neue produktive Dateien in `service-worker.js` ergänzen,
 - Profilnavigation, Formulare, Fotos und QR-Funktion manuell testen.
 
+## Taxonomiearchitektur
+
+Die Taxonomie wird in dieser Reihenfolge geladen:
+
+1. `v500/taxonomy-core.js`
+2. `v500/taxonomy-store.js`
+3. `v500/taxonomy-cloud.js`
+4. `v500/taxonomy.js`
+5. `v500/taxonomy-ui.js`
+
+`taxonomy.js` stellt die kompatible öffentliche `NGTTaxonomy`-API bereit. Reine Normalisierung und Schlüsselbildung liegen in `taxonomy-core.js`, der lokale Cache in `taxonomy-store.js` und Firestore-Zugriffe in `taxonomy-cloud.js`. Die internen Teile kommunizieren über `window.NGTTaxonomyInternal`.
+
+Bei Änderungen an einem Taxonomiemodul:
+
+- Speicher-Schlüssel und Firestore-Collection kompatibel halten,
+- die Lade-Reihenfolge und öffentliche `NGTTaxonomy`-API nicht unbeabsichtigt ändern,
+- neue produktive Dateien in `service-worker.js` ergänzen,
+- Taxonomie-Test, App-Smoke-Test und Cloud-Verhalten prüfen.
+
 ## Script- und PWA-Regeln
 
 - Neue Browserdateien müssen in `v500.html` an der korrekten Stelle eingebunden werden.

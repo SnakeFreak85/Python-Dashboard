@@ -31,6 +31,9 @@ window.NGT500={
  }
 };
 </script>
+<script src="../taxonomy-core.js?v=1.0.4-rc.11"></script>
+<script src="../taxonomy-store.js?v=1.0.4-rc.11"></script>
+<script src="../taxonomy-cloud.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy-ui.js?v=1.0.4-rc.11"></script>
 <script>
@@ -178,7 +181,27 @@ try{
   equal(NGTTaxonomy.all().length,0);
   const imported=NGTTaxonomy.importJson(exported);
   assert(imported.length>=4,'Import enthält zu wenige Datensätze');
-  equal(NGTTaxonomy.find('Königspython').key,'python-regius');
+ equal(NGTTaxonomy.find('Königspython').key,'python-regius');
+ });
+
+ await test('Importfehler behalten ihren bisherigen Wortlaut',function(){
+  let jsonMessage='';
+  let valueMessage='';
+
+  try{
+   NGTTaxonomy.importJson('{');
+  }catch(error){
+   jsonMessage=error.message;
+  }
+
+  try{
+   NGTTaxonomy.importJson('null');
+  }catch(error){
+   valueMessage=error.message;
+  }
+
+  equal(jsonMessage,'Taxonomie-Datei enthält kein gültiges JSON.');
+  equal(valueMessage,'Taxonomie-Datei ist ungültig.');
  });
 
  await test('Cloud-Sync degradiert ohne Anmeldung kontrolliert',async function(){

@@ -19,6 +19,9 @@ const APP_SHELL=[
   './v500/store.js'+VERSION_QUERY,
   './v500/ui.js'+VERSION_QUERY,
 
+  './v500/taxonomy-core.js'+VERSION_QUERY,
+  './v500/taxonomy-store.js'+VERSION_QUERY,
+  './v500/taxonomy-cloud.js'+VERSION_QUERY,
   './v500/taxonomy.js'+VERSION_QUERY,
   './v500/taxonomy-ui.js'+VERSION_QUERY,
   './v500/animal-engine.js'+VERSION_QUERY,

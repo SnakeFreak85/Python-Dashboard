@@ -119,6 +119,16 @@ function testRuntime(){
     record('NGT500 verfügbar',!!win.NGT500);
     record('NGTStore verfügbar',!!win.NGTStore);
     record('AnimalEngine verfügbar',!!win.AnimalEngine);
+    record('NGTTaxonomy verfügbar',!!win.NGTTaxonomy);
+    record(
+     'Taxonomie-Teilmodule verfügbar',
+     !!(
+      win.NGTTaxonomyInternal&&
+      win.NGTTaxonomyInternal.core&&
+      win.NGTTaxonomyInternal.store&&
+      win.NGTTaxonomyInternal.cloud
+     )
+    );
     record('NGTAIQuery verfügbar',!!win.NGTAIQuery);
     record('NGTAnimals verfügbar',!!win.NGTAnimals);
     record(

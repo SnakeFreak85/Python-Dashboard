@@ -79,6 +79,9 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── store.js
     ├── ui.js
     ├── animal-engine.js
+    ├── taxonomy-core.js
+    ├── taxonomy-store.js
+    ├── taxonomy-cloud.js
     ├── taxonomy.js
     ├── taxonomy-ui.js
     ├── photo-storage.js
@@ -180,7 +183,7 @@ Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 `index.html` verweist auf die aktive Anwendung in `v500.html`. Dort werden die Scripts in definierter Reihenfolge geladen:
 
 1. Kernsystem: `core.js`, `id-manager.js`, `store.js`, `ui.js`
-2. Taxonomie und AnimalEngine
+2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui.js`; danach AnimalEngine
 3. AI-, Dashboard- und Foto-Services
 4. Fachmodule
 5. Firebase-Synchronisation
@@ -262,6 +265,28 @@ animals.js
 | `animals.js` | Controller, öffentliche `NGTAnimals`-API und Modulregistrierung |
 
 Die öffentliche `NGTAnimals`-API bleibt der Integrationspunkt für Inline-Handler und andere Module. Die internen Teilmodule kommunizieren über `window.NGTAnimalsInternal`.
+
+### 7.5 Taxonomie-Architektur
+
+Die Taxonomie wird in dieser Reihenfolge geladen:
+
+```text
+taxonomy-core.js
+taxonomy-store.js
+taxonomy-cloud.js
+taxonomy.js
+taxonomy-ui.js
+```
+
+| Datei | Verantwortung |
+|---|---|
+| `taxonomy-core.js` | reine Normalisierung, Schlüsselbildung, Datensätze und Zusammenführung |
+| `taxonomy-store.js` | lokaler Cache, Aliase, Suche, Bild-Fallbacks sowie Import und Export |
+| `taxonomy-cloud.js` | Firestore-Zugriff, Cloud-Synchronisation und Bildstatus-Operationen |
+| `taxonomy.js` | Controller, Auth-Ereignis und kompatible öffentliche `NGTTaxonomy`-API |
+| `taxonomy-ui.js` | Klassifikation, Illustrationen und DOM-Dekoration |
+
+Die internen Datenmodule kommunizieren über `window.NGTTaxonomyInternal`. Der lokale Schlüssel `terracontrol_taxonomy_cache_v1`, die Firestore-Collection `taxonomy`, das Ereignis `taxonomy:changed` und die öffentliche `NGTTaxonomy`-API sind Kompatibilitätsverträge.
 
 ---
 
@@ -513,11 +538,12 @@ Architektur-, Datenmodell-, Script- oder Workflow-Änderungen müssen in der pas
 - bestätigte Profil-Duplikate auf AnimalEngine umgestellt.
 - Tierprofil in fachliche Module aufgeteilt.
 - Tierbestand in Core-, Futter-, Bestands- und Editor-Teilmodule aufgeteilt.
+- Taxonomiedaten in Core-, Store- und Cloud-Teilmodule mit kompatiblem Controller aufgeteilt.
 - Repository-Anweisungen für Coding Agents ergänzt.
 
 ### Nächste Prioritäten
 
-1. Taxonomie und Taxonomie-UI weiter entkoppeln.
+1. Taxonomie-UI-Dekoration schrittweise weiter entkoppeln.
 2. Nachzuchtmodul schrittweise verkleinern.
 3. Store-Migrationen mit zusätzlichen Fixtures absichern.
 4. Service-Worker- und Offline-Tests automatisieren.
