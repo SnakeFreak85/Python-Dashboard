@@ -10,32 +10,19 @@ function esc(v){return NGT500.esc(v||'')}
 function current(){return NGTStore.animal(ctx.t,ctx.i)}
 
 function ensure(a){
- a.health=Array.isArray(a.health)?a.health:[];
- a.photos=Array.isArray(a.photos)?a.photos:[];
- a.feeds=Array.isArray(a.feeds)?a.feeds:[];
- a.sheds=Array.isArray(a.sheds)?a.sheds:[];
- a.weights=Array.isArray(a.weights)?a.weights:[];
+ return AnimalEngine.ensureHistories(a);
 }
 
 function latest(list){
- return (list||[])
-  .slice()
-  .sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null;
+ return AnimalEngine.latest(list);
 }
 
 function daysSince(d){
- const t=Date.parse(d||'');
- return t?Math.floor((Date.now()-t)/86400000):9999;
+ return AnimalEngine.daysSinceOr(d,9999);
 }
 
 function age(birth){
- const t=Date.parse(birth||'');
-
- if(!t)return '-';
-
- const y=Math.floor((Date.now()-t)/31557600000);
-
- return y>0?y+' Jahre':'< 1 Jahr';
+ return AnimalEngine.getAgeYearsText({birth:birth});
 }
 
 function s(v,n){
@@ -70,11 +57,7 @@ function sexCode(v){
 }
 
 function scientificName(a){
- return [a.genus,a.species]
-  .filter(Boolean)
-  .join(' ')||
-  a.animalGroup||
-  '-';
+ return AnimalEngine.getScientificName(a)||'-';
 }
 
 function photoSrc(photo,thumb){
