@@ -9,10 +9,14 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 - Tierverwaltung, Tierprofil, Taxonomie, Nachzuchten, Futterverwaltung, QR-Tierpass, Backup und Firebase-Synchronisation weiterentwickelt.
 - AnimalEngine als zentrale tierbezogene Fachlogik erweitert.
 - Browser-Checks für zentrale AnimalEngine-Funktionen ergänzt.
-- README und Developer Handbook auf den aktuellen Projektstand gebracht.
+- App-Smoke-Test für Einstiegspunkt, lokale Assets, globale APIs, Store und Modulregistrierung ergänzt.
 - Nicht mehr verwendete v1-Root-Assets entfernt.
 - Versionsangaben, Cache-Busting-Parameter, Manifest und Service-Worker-Cache auf `1.0.4-rc.11` vereinheitlicht.
 - Service-Worker-App-Shell auf alle lokal geladenen produktiven Module erweitert.
+- Bestätigte Profil-Hilfslogik auf AnimalEngine umgestellt.
+- Tierprofil in `profile-core`, `profile-food`, `profile-health`, `profile-passport`, `profile-photos` und den Profil-Controller aufgeteilt.
+- README und Developer Handbook auf die modulare Profilarchitektur und den aktuellen Projektstand aktualisiert.
+- `AGENTS.md` mit verbindlichen Repository-Regeln für Codex und andere Coding Agents ergänzt.
 
 ## 1.0.0
 
