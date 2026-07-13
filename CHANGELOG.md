@@ -1,10 +1,22 @@
 # Changelog
 
+Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
+
+## 1.0.4-rc.11
+
+- `v500/` als aktive Codebasis konsolidiert.
+- TerraControl-Branding, TC2-Oberfläche und mobile PWA-Nutzung vereinheitlicht.
+- Tierverwaltung, Tierprofil, Taxonomie, Nachzuchten, Futterverwaltung, QR-Tierpass, Backup und Firebase-Synchronisation weiterentwickelt.
+- AnimalEngine als zentrale tierbezogene Fachlogik erweitert.
+- Browser-Checks für zentrale AnimalEngine-Funktionen ergänzt.
+- README und Developer Handbook auf den aktuellen Projektstand gebracht.
+- Nicht mehr verwendete v1-Root-Assets entfernt.
+- Versionsangaben, Cache-Busting-Parameter, Manifest und Service-Worker-Cache auf `1.0.4-rc.11` vereinheitlicht.
+- Service-Worker-App-Shell auf alle lokal geladenen produktiven Module erweitert.
+
 ## 1.0.0
 
 - Version 1.0 im Branch `release/v1` vorbereitet.
-- PWA-Manifest auf den Release-Stand angepasst.
+- PWA-Manifest auf den damaligen Release-Stand angepasst.
 - Service-Worker-Cache auf Version 1.0 benannt.
-- README mit Projektstruktur, Funktionsumfang und Betriebshinweisen ergänzt.
-
-Die bestehende App-Struktur bleibt erhalten.
+- Erstes README mit Projektstruktur, Funktionsumfang und Betriebshinweisen ergänzt.
