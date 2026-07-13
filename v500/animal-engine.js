@@ -11,14 +11,17 @@ function number(v){
 }
 
 function getName(animal){
-    return text(animal.name);
+    return text(animal && animal.name);
 }
 
 function getScientificName(animal){
+    animal=animal||{};
+
     return [
         text(animal.genus),
         text(animal.species)
-    ].filter(Boolean).join(" ");
+    ].filter(Boolean).join(" ") ||
+    text(animal.animalGroup);
 }
 
 function getDisplayName(animal){
@@ -26,6 +29,8 @@ function getDisplayName(animal){
 }
 
 function getBirthDate(animal){
+    animal=animal||{};
+
     return (
         animal.birthDate ||
         animal.birth ||
@@ -33,14 +38,21 @@ function getBirthDate(animal){
     );
 }
 
-function getAgeDays(animal){
+function getAgeDays(animal,now){
 
     const birth = getBirthDate(animal);
 
     if(!birth) return null;
 
     const b = new Date(birth);
-    const t = new Date();
+    const t = now ? new Date(now) : new Date();
+
+    if(
+        Number.isNaN(b.getTime()) ||
+        Number.isNaN(t.getTime())
+    ){
+        return null;
+    }
 
     b.setHours(0,0,0,0);
     t.setHours(0,0,0,0);
@@ -48,12 +60,11 @@ function getAgeDays(animal){
     return Math.floor(
         (t-b)/86400000
     );
-
 }
 
-function getAgeText(animal){
+function getAgeText(animal,now){
 
-    const d = getAgeDays(animal);
+    const d = getAgeDays(animal,now);
 
     if(d===null) return "";
 
@@ -68,7 +79,6 @@ function getAgeText(animal){
     }
 
     const years=Math.floor(d/365);
-
     const months=Math.floor(
         (d%365)/30
     );
@@ -80,10 +90,51 @@ function getAgeText(animal){
         " Jahre "+
         months+
         " Monate";
+}
 
+function latest(list){
+    return (Array.isArray(list)?list:[])
+        .slice()
+        .sort(function(a,b){
+            return String((b&&b.date)||"")
+                .localeCompare(String((a&&a.date)||""));
+        })[0]||null;
+}
+
+function daysSince(value,now){
+    const date=Date.parse(value||"");
+    const today=now ? Date.parse(now) : Date.now();
+
+    if(
+        !Number.isFinite(date) ||
+        !Number.isFinite(today)
+    ){
+        return null;
+    }
+
+    return Math.floor((today-date)/86400000);
+}
+
+function ensureHistories(animal){
+    animal=animal||{};
+
+    [
+        "health",
+        "photos",
+        "feeds",
+        "sheds",
+        "weights"
+    ].forEach(function(key){
+        if(!Array.isArray(animal[key])){
+            animal[key]=[];
+        }
+    });
+
+    return animal;
 }
 
 function getFeedInterval(animal){
+    animal=animal||{};
 
     if(
         animal.feedIntervalEnabled===false
@@ -96,10 +147,10 @@ function getFeedInterval(animal){
         animal.feedInterval ??
         animal.feedingInterval
     );
-
 }
 
 function getWeightInterval(animal){
+    animal=animal||{};
 
     if(
         animal.weightIntervalEnabled===false
@@ -111,7 +162,6 @@ function getWeightInterval(animal){
         animal.weightIntervalDays ??
         animal.weightInterval
     );
-
 }
 
 function feedEnabled(animal){
@@ -135,6 +185,12 @@ window.AnimalEngine={
     getAgeDays,
 
     getAgeText,
+
+    latest,
+
+    daysSince,
+
+    ensureHistories,
 
     getFeedInterval,
 
