@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AnimalEngine Tests</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 16px;background:#0d1722;color:#f5f7fb}
+.pass{color:#69d2c4}.fail{color:#ff7b7b}code{background:#172331;padding:2px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<h1>AnimalEngine Browser Tests</h1>
+<div id="results"></div>
+<script src="../animal-engine.js"></script>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function assert(name,condition,details){
+ results.push({name:name,ok:!!condition,details:details||''});
+}
+
+function equal(name,actual,expected){
+ assert(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+const fullAnimal={
+ name:'Luna',
+ animalGroup:'Schlangen',
+ genus:'Python',
+ species:'regius',
+ birth:'2025-01-01',
+ feedIntervalDays:14,
+ weightIntervalDays:30,
+ feeds:[
+  {date:'2026-01-01',accepted:true},
+  {date:'2026-03-01',accepted:false},
+  {date:'2026-02-01',accepted:true}
+ ]
+};
+
+equal('Name wird gelesen',AnimalEngine.getName(fullAnimal),'Luna');
+equal('Wissenschaftlicher Name',AnimalEngine.getScientificName(fullAnimal),'Python regius');
+equal('Fallback auf Tiergruppe',AnimalEngine.getScientificName({animalGroup:'Geckos'}),'Geckos');
+equal('Anzeigename bevorzugt Namen',AnimalEngine.getDisplayName(fullAnimal),'Luna');
+equal('Geburtsdatum-Fallback',AnimalEngine.getBirthDate(fullAnimal),'2025-01-01');
+equal('Alter in Tagen ist deterministisch',AnimalEngine.getAgeDays(fullAnimal,'2025-01-31'),30);
+equal('Alterstext unter 365 Tagen',AnimalEngine.getAgeText(fullAnimal,'2025-02-01'),'1 Monate');
+equal('Neuester Historieneintrag',AnimalEngine.latest(fullAnimal.feeds).date,'2026-03-01');
+equal('Tage seit Datum',AnimalEngine.daysSince('2026-01-01','2026-01-11'),10);
+equal('Ungültiges Datum liefert null',AnimalEngine.daysSince('ungültig','2026-01-11'),null);
+equal('Fütterungsintervall',AnimalEngine.getFeedInterval(fullAnimal),14);
+equal('Gewichtsintervall',AnimalEngine.getWeightInterval(fullAnimal),30);
+equal('Deaktiviertes Fütterungsintervall',AnimalEngine.getFeedInterval({feedIntervalEnabled:false,feedIntervalDays:14}),null);
+
+const legacyAnimal={name:'Altbestand'};
+const normalized=AnimalEngine.ensureHistories(legacyAnimal);
+assert(
+ 'Historien werden initialisiert',
+ ['health','photos','feeds','sheds','weights'].every(function(key){
+  return Array.isArray(normalized[key]);
+ })
+);
+assert('Bestehende Felder bleiben erhalten',normalized.name==='Altbestand');
+
+const repeat=AnimalEngine.ensureHistories(normalized);
+assert('Normalisierung ist wiederholbar',repeat===normalized);
+
+const box=document.getElementById('results');
+const passed=results.filter(function(result){return result.ok;}).length;
+box.innerHTML='<p><strong>'+passed+' / '+results.length+' Tests bestanden</strong></p>'+results.map(function(result){
+ return '<p class="'+(result.ok?'pass':'fail')+'">'+(result.ok?'✓':'✗')+' '+result.name+(result.ok||!result.details?'':' — '+result.details)+'</p>';
+}).join('');
+
+document.title=passed===results.length?'PASS: AnimalEngine Tests':'FAIL: AnimalEngine Tests';
+})();
+</script>
+</body>
+</html>
