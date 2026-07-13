@@ -119,6 +119,7 @@ function testRuntime(){
     record('NGT500 verfügbar',!!win.NGT500);
     record('NGTStore verfügbar',!!win.NGTStore);
     record('AnimalEngine verfügbar',!!win.AnimalEngine);
+    record('NGTAIQuery verfügbar',!!win.NGTAIQuery);
     record('NGTAnimals verfügbar',!!win.NGTAnimals);
     record(
      'Animals-Teilmodule verfügbar',
@@ -150,6 +151,20 @@ function testRuntime(){
      !!(
       win.AnimalEngine&&
       win.AnimalEngine.getScientificName({genus:'Python',species:'regius'})==='Python regius'
+     )
+    );
+
+    const aiAnswer=
+     win.NGTAIQuery&&
+     win.NGTAIQuery.query(
+      'welche tiere muessen gefuettert?'
+     );
+
+    record(
+     'AI-Abfrage ausführbar',
+     !!(
+      aiAnswer&&
+      Array.isArray(aiAnswer.rows)
      )
     );
    }catch(error){
