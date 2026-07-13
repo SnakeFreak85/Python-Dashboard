@@ -10,6 +10,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 - Fehlende Abschlussklammer in `ai-query.js` behoben und die globale AI-Abfrage im Smoke-Test abgesichert.
 - Browser-Charakterisierungstest für Taxonomie-Normalisierung, lokalen Cache, Bild-Fallbacks und UI-Dekoration ergänzt.
 - Taxonomiedaten verhaltensneutral in Core-, Store- und Cloud-Module mit kompatiblem `NGTTaxonomy`-Controller aufgeteilt.
+- Taxonomie-UI verhaltensneutral in Illustrations-, Dekorations- und kompatiblen `NGTTaxonomyUI`-Controller aufgeteilt.
 
 - `v500/` als aktive Codebasis konsolidiert.
 - TerraControl-Branding, TC2-Oberfläche und mobile PWA-Nutzung vereinheitlicht.

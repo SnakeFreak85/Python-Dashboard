@@ -83,6 +83,8 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── taxonomy-store.js
     ├── taxonomy-cloud.js
     ├── taxonomy.js
+    ├── taxonomy-ui-illustrations.js
+    ├── taxonomy-ui-decoration.js
     ├── taxonomy-ui.js
     ├── photo-storage.js
     ├── firebase-sync.js
@@ -183,7 +185,7 @@ Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 `index.html` verweist auf die aktive Anwendung in `v500.html`. Dort werden die Scripts in definierter Reihenfolge geladen:
 
 1. Kernsystem: `core.js`, `id-manager.js`, `store.js`, `ui.js`
-2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui.js`; danach AnimalEngine
+2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui-illustrations.js`, `taxonomy-ui-decoration.js`, `taxonomy-ui.js`; danach AnimalEngine
 3. AI-, Dashboard- und Foto-Services
 4. Fachmodule
 5. Firebase-Synchronisation
@@ -275,6 +277,8 @@ taxonomy-core.js
 taxonomy-store.js
 taxonomy-cloud.js
 taxonomy.js
+taxonomy-ui-illustrations.js
+taxonomy-ui-decoration.js
 taxonomy-ui.js
 ```
 
@@ -284,9 +288,11 @@ taxonomy-ui.js
 | `taxonomy-store.js` | lokaler Cache, Aliase, Suche, Bild-Fallbacks sowie Import und Export |
 | `taxonomy-cloud.js` | Firestore-Zugriff, Cloud-Synchronisation und Bildstatus-Operationen |
 | `taxonomy.js` | Controller, Auth-Ereignis und kompatible öffentliche `NGTTaxonomy`-API |
-| `taxonomy-ui.js` | Klassifikation, Illustrationen und DOM-Dekoration |
+| `taxonomy-ui-illustrations.js` | Textnormalisierung, Klassifikation und SVG-Illustrationen |
+| `taxonomy-ui-decoration.js` | Stile, Karten-Dekoration, MutationObserver und UI-Ereignisse |
+| `taxonomy-ui.js` | Controller, Initialisierung und kompatible öffentliche `NGTTaxonomyUI`-API |
 
-Die internen Datenmodule kommunizieren über `window.NGTTaxonomyInternal`. Der lokale Schlüssel `terracontrol_taxonomy_cache_v1`, die Firestore-Collection `taxonomy`, das Ereignis `taxonomy:changed` und die öffentliche `NGTTaxonomy`-API sind Kompatibilitätsverträge.
+Die internen Datenmodule kommunizieren über `window.NGTTaxonomyInternal`, die UI-Module über `window.NGTTaxonomyUIInternal`. Der lokale Schlüssel `terracontrol_taxonomy_cache_v1`, die Firestore-Collection `taxonomy`, das Ereignis `taxonomy:changed` sowie die öffentlichen APIs `NGTTaxonomy` und `NGTTaxonomyUI` sind Kompatibilitätsverträge.
 
 ---
 
@@ -451,7 +457,7 @@ Prüft:
 http://localhost:8000/v500/tests/taxonomy.test.html
 ```
 
-Charakterisiert Normalisierung, Schlüssel, lokalen Cache, Import/Export, Bild-Fallbacks sowie die öffentliche `NGTTaxonomyUI`-Dekoration.
+Charakterisiert Normalisierung, Schlüssel, lokalen Cache, Import/Export, Bild-Fallbacks sowie Klassifikation, Illustrationen und öffentliche `NGTTaxonomyUI`-Dekoration.
 
 ### 12.4 Manuelle Mindestprüfung
 
@@ -539,15 +545,15 @@ Architektur-, Datenmodell-, Script- oder Workflow-Änderungen müssen in der pas
 - Tierprofil in fachliche Module aufgeteilt.
 - Tierbestand in Core-, Futter-, Bestands- und Editor-Teilmodule aufgeteilt.
 - Taxonomiedaten in Core-, Store- und Cloud-Teilmodule mit kompatiblem Controller aufgeteilt.
+- Taxonomie-UI in Illustrations-, Dekorations- und Controller-Teilmodule aufgeteilt.
 - Repository-Anweisungen für Coding Agents ergänzt.
 
 ### Nächste Prioritäten
 
-1. Taxonomie-UI-Dekoration schrittweise weiter entkoppeln.
-2. Nachzuchtmodul schrittweise verkleinern.
-3. Store-Migrationen mit zusätzlichen Fixtures absichern.
-4. Service-Worker- und Offline-Tests automatisieren.
-5. Gesundheitsstatus und weitere Fachregeln aus UI-Modulen in testbare Domain-Logik verschieben.
+1. Nachzuchtmodul schrittweise verkleinern.
+2. Store-Migrationen mit zusätzlichen Fixtures absichern.
+3. Service-Worker- und Offline-Tests automatisieren.
+4. Gesundheitsstatus und weitere Fachregeln aus UI-Modulen in testbare Domain-Logik verschieben.
 
 ---
 

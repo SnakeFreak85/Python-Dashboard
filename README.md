@@ -58,7 +58,9 @@ Wichtige Prinzipien:
 | `v500/taxonomy-store.js` | lokaler Taxonomie-Cache, Suche und Import/Export |
 | `v500/taxonomy-cloud.js` | Firestore-Adapter und Taxonomie-Synchronisation |
 | `v500/taxonomy.js` | kompatibler Controller und öffentliche `NGTTaxonomy`-API |
-| `v500/taxonomy-ui.js` | Taxonomie-Oberfläche |
+| `v500/taxonomy-ui-illustrations.js` | Taxonomie-Klassifikation und SVG-Illustrationen |
+| `v500/taxonomy-ui-decoration.js` | Stile, DOM-Dekoration und UI-Lifecycle |
+| `v500/taxonomy-ui.js` | kompatibler Controller und öffentliche `NGTTaxonomyUI`-API |
 | `v500/firebase-sync.js` | gekapselte Firebase- und Synchronisationslogik |
 | `service-worker.js` | PWA- und Offline-Unterstützung |
 | `manifest.json` | PWA-Metadaten |
@@ -101,10 +103,12 @@ taxonomy-core.js
 taxonomy-store.js
 taxonomy-cloud.js
 taxonomy.js
+taxonomy-ui-illustrations.js
+taxonomy-ui-decoration.js
 taxonomy-ui.js
 ```
 
-`taxonomy.js` bleibt der Controller und stellt die kompatible öffentliche `NGTTaxonomy`-API bereit. Normalisierung, lokaler Cache und Cloud-Synchronisation liegen in getrennten internen Modulen; `taxonomy-ui.js` bleibt für die Darstellung zuständig.
+`taxonomy.js` bleibt der Daten-Controller und stellt die kompatible öffentliche `NGTTaxonomy`-API bereit. `taxonomy-ui.js` bleibt der UI-Controller und stellt `NGTTaxonomyUI` bereit. Normalisierung, lokaler Cache, Cloud-Synchronisation, Illustrationen und DOM-Dekoration liegen in getrennten internen Modulen.
 
 ## Weitere Module
 

@@ -63,9 +63,11 @@ Die Taxonomie wird in dieser Reihenfolge geladen:
 2. `v500/taxonomy-store.js`
 3. `v500/taxonomy-cloud.js`
 4. `v500/taxonomy.js`
-5. `v500/taxonomy-ui.js`
+5. `v500/taxonomy-ui-illustrations.js`
+6. `v500/taxonomy-ui-decoration.js`
+7. `v500/taxonomy-ui.js`
 
-`taxonomy.js` stellt die kompatible öffentliche `NGTTaxonomy`-API bereit. Reine Normalisierung und Schlüsselbildung liegen in `taxonomy-core.js`, der lokale Cache in `taxonomy-store.js` und Firestore-Zugriffe in `taxonomy-cloud.js`. Die internen Teile kommunizieren über `window.NGTTaxonomyInternal`.
+`taxonomy.js` stellt die kompatible öffentliche `NGTTaxonomy`-API bereit. Reine Normalisierung und Schlüsselbildung liegen in `taxonomy-core.js`, der lokale Cache in `taxonomy-store.js` und Firestore-Zugriffe in `taxonomy-cloud.js`. Illustrationen und DOM-Dekoration liegen in eigenen UI-Modulen; `taxonomy-ui.js` stellt die kompatible öffentliche `NGTTaxonomyUI`-API bereit. Die internen Teile kommunizieren über `window.NGTTaxonomyInternal` und `window.NGTTaxonomyUIInternal`.
 
 Bei Änderungen an einem Taxonomiemodul:
 

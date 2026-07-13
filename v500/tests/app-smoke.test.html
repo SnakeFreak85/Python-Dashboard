@@ -129,6 +129,14 @@ function testRuntime(){
       win.NGTTaxonomyInternal.cloud
      )
     );
+    record(
+     'Taxonomie-UI-Teilmodule verfügbar',
+     !!(
+      win.NGTTaxonomyUIInternal&&
+      win.NGTTaxonomyUIInternal.illustrations&&
+      win.NGTTaxonomyUIInternal.decoration
+     )
+    );
     record('NGTAIQuery verfügbar',!!win.NGTAIQuery);
     record('NGTAnimals verfügbar',!!win.NGTAnimals);
     record(

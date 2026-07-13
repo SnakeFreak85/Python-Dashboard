@@ -35,6 +35,8 @@ window.NGT500={
 <script src="../taxonomy-store.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy-cloud.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy.js?v=1.0.4-rc.11"></script>
+<script src="../taxonomy-ui-illustrations.js?v=1.0.4-rc.11"></script>
+<script src="../taxonomy-ui-decoration.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy-ui.js?v=1.0.4-rc.11"></script>
 <script>
 (async function(){
@@ -97,6 +99,13 @@ try{
   names.forEach(function(name){
    assert(typeof NGTTaxonomy[name]==='function',name+' fehlt');
   });
+ });
+
+ await test('öffentliche Taxonomie-UI-API bleibt unverändert',function(){
+  equal(
+   Object.keys(window.NGTTaxonomyUI).sort().join(','),
+   'classify,decorate,illustrationFor'
+  );
  });
 
  await test('Legacy-Feldnamen werden normalisiert',function(){
@@ -219,6 +228,7 @@ try{
  await test('UI-Klassifizierung bleibt kompatibel',function(){
   const cases={
    'Vogelspinne':'spider','Python regius':'snake','Phelsuma':'gecko',
+   'Chamäleon':'chameleon','Chamaeleon calyptratus':'chameleon',
    'Testudo':'tortoise','Pandinus':'scorpion','Dendrobates':'frog',
    'Pogona':'lizard','Mantis':'insect','Unbekannt':'generic'
   };
@@ -229,8 +239,18 @@ try{
 
  await test('Illustration liefert zugängliches SVG und escaped Labels',function(){
   const svg=NGTTaxonomyUI.illustrationFor('<Python>');
+  const fallback=NGTTaxonomyUI.illustrationFor('   ');
   assert(svg.includes('<svg'),'SVG fehlt');
   assert(svg.includes('aria-label="&lt;Python&gt;"'),'Label ist nicht escaped');
+  assert(fallback.includes('aria-label="Tier"'),'Leeres Label verwendet nicht den Tier-Fallback');
+ });
+
+ await test('Dekorationsstile werden genau einmal installiert',function(){
+  NGTTaxonomyUI.decorate();
+  NGTTaxonomyUI.decorate();
+  const styles=document.querySelectorAll('#tc2TaxonomySilhouetteStyles');
+  equal(styles.length,1);
+  assert(styles[0].textContent.includes('prefers-reduced-motion'),'Reduced-Motion-Regel fehlt');
  });
 
  await test('Taxonomie-Ordner wird dekoriert',function(){
@@ -244,6 +264,16 @@ try{
   assert(target.innerHTML.includes('<svg'),'Ordner-Silhouette fehlt');
  });
 
+ await test('unvollständiger Taxonomie-Ordner bleibt unverändert',function(){
+  const app=document.getElementById('app');
+  app.innerHTML='<button class="tc2TaxFolder"><span>...</span></button>';
+  const button=app.querySelector('.tc2TaxFolder');
+  const before=button.innerHTML;
+  NGTTaxonomyUI.decorate();
+  equal(button.dataset.tc2Silhouette,undefined);
+  equal(button.innerHTML,before);
+ });
+
  await test('Tierkarte ohne Foto erhält eine Silhouette',function(){
   const app=document.getElementById('app');
   app.innerHTML='<button class="tc2TaxAnimal"><div><span>Foto</span></div><b>KP-1</b><strong>Luna</strong><small>Python regius</small></button>';
@@ -251,6 +281,20 @@ try{
   const target=app.querySelector('.tc2TaxAnimal>div');
   equal(target.className,'tc2TaxSilhouetteHost');
   assert(target.innerHTML.includes('<svg'),'Tier-Silhouette fehlt');
+ });
+
+ await test('Tierkarten-Label priorisiert wissenschaftlichen Namen, Namen und Kennung',function(){
+  const app=document.getElementById('app');
+  app.innerHTML=`
+   <button class="tc2TaxAnimal"><div></div><b>KP-1</b><strong>Luna</strong><small>Python regius</small></button>
+   <button class="tc2TaxAnimal"><div></div><b>KP-2</b><strong>Nova</strong></button>
+   <button class="tc2TaxAnimal"><div></div><b>KP-3</b></button>
+  `;
+  NGTTaxonomyUI.decorate();
+  const labels=Array.from(app.querySelectorAll('.tc2TaxSilhouetteSvg')).map(function(svg){
+   return svg.getAttribute('aria-label');
+  });
+  equal(labels.join('|'),'Python regius|Nova|KP-3');
  });
 
  await test('echtes Tierfoto bleibt unverändert',function(){
