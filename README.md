@@ -143,6 +143,12 @@ Tierbestandsmodule:
 http://localhost:8000/v500/tests/animals.test.html
 ```
 
+Taxonomie und Taxonomie-UI:
+
+```text
+http://localhost:8000/v500/tests/taxonomy.test.html
+```
+
 Zusätzlich betroffene Funktionen manuell prüfen und die Browserkonsole auf rote Fehler kontrollieren.
 
 ## Deployment

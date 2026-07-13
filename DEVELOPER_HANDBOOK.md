@@ -106,6 +106,8 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     │   └── chat.js
     └── tests/
         ├── animal-engine.test.html
+        ├── animals.test.html
+        ├── taxonomy.test.html
         └── app-smoke.test.html
 ```
 
@@ -418,7 +420,15 @@ Prüft:
 - Modulregistrierung,
 - grundlegende AnimalEngine-Ausführung.
 
-### 12.3 Manuelle Mindestprüfung
+### 12.3 Taxonomie
+
+```text
+http://localhost:8000/v500/tests/taxonomy.test.html
+```
+
+Charakterisiert Normalisierung, Schlüssel, lokalen Cache, Import/Export, Bild-Fallbacks sowie die öffentliche `NGTTaxonomyUI`-Dekoration.
+
+### 12.4 Manuelle Mindestprüfung
 
 - App startet ohne rote Konsolenfehler.
 - Drawer und Navigation funktionieren.

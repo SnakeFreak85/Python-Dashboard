@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Taxonomie Browser Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#07111b;color:#e8f1f4;margin:0;padding:24px}
+h1{margin-top:0}.ok{color:#72d6bd}.fail{color:#ff8f8f}li{margin:7px 0}
+#app{position:absolute;left:-10000px;width:400px}
+</style>
+</head>
+<body>
+<h1>Taxonomie Browser Tests</h1>
+<p>Charakterisiert Normalisierung, lokalen Cache, Bild-Fallbacks und UI-Dekoration.</p>
+<p id="status">Test läuft …</p>
+<ul id="results"></ul>
+<div id="app"></div>
+
+<script>
+window.__taxonomyEvents=[];
+window.__taxonomyHandlers={};
+window.NGT500={
+ emit:function(name,payload){
+  window.__taxonomyEvents.push({name:name,payload:payload});
+  (window.__taxonomyHandlers[name]||[]).forEach(function(handler){handler(payload);});
+ },
+ on:function(name,handler){
+  window.__taxonomyHandlers[name]=window.__taxonomyHandlers[name]||[];
+  window.__taxonomyHandlers[name].push(handler);
+ }
+};
+</script>
+<script src="../taxonomy.js?v=1.0.4-rc.11"></script>
+<script src="../taxonomy-ui.js?v=1.0.4-rc.11"></script>
+<script>
+(async function(){
+'use strict';
+
+const STORAGE_KEY='terracontrol_taxonomy_cache_v1';
+const original=localStorage.getItem(STORAGE_KEY);
+const results=document.getElementById('results');
+const status=document.getElementById('status');
+let passed=0;
+let failed=0;
+
+function assert(condition,message){
+ if(!condition)throw new Error(message||'Bedingung nicht erfüllt');
+}
+
+function equal(actual,expected,message){
+ if(actual!==expected){
+  throw new Error((message||'Werte weichen ab')+': '+JSON.stringify(actual)+' !== '+JSON.stringify(expected));
+ }
+}
+
+async function test(name,run){
+ const item=document.createElement('li');
+ try{
+  await run();
+  passed++;
+  item.className='ok';
+  item.textContent='PASS — '+name;
+ }catch(error){
+  failed++;
+  item.className='fail';
+  item.textContent='FAIL — '+name+': '+error.message;
+ }
+ results.appendChild(item);
+}
+
+function restoreStorage(){
+ if(original===null){
+  localStorage.removeItem(STORAGE_KEY);
+ }else{
+  localStorage.setItem(STORAGE_KEY,original);
+ }
+}
+
+window.addEventListener('beforeunload',restoreStorage);
+localStorage.removeItem(STORAGE_KEY);
+
+try{
+ await test('öffentliche Taxonomie-APIs verfügbar',function(){
+  const names=[
+   'normalizeInput','normalizeGroup','normalizeGenus','normalizeSpecies',
+   'scientificName','groupKey','genusKey','speciesKey','recordKey',
+   'find','findGroup','findGenus','findSpecies','all',
+   'upsert','upsertLocal','ensure','ensureLocal','remove','clear',
+   'syncCloud','cloudState','imageFor','setImage',
+   'exportJson','importJson'
+  ];
+  assert(window.NGTTaxonomy,'NGTTaxonomy fehlt');
+  names.forEach(function(name){
+   assert(typeof NGTTaxonomy[name]==='function',name+' fehlt');
+  });
+ });
+
+ await test('Legacy-Feldnamen werden normalisiert',function(){
+  const normalized=NGTTaxonomy.normalizeInput({
+   tiergruppe:' Pythons ',
+   gattung:'python',
+   art:'Python regius'
+  });
+  equal(normalized.group,'Pythons');
+  equal(normalized.genus,'Python');
+  equal(normalized.species,'regius');
+  equal(normalized.scientificName,'Python regius');
+ });
+
+ await test('zusammengesetzte Gattung wird in Gattung und Art getrennt',function(){
+  const normalized=NGTTaxonomy.normalizeInput({genus:'Python regius'});
+  equal(normalized.genus,'Python');
+  equal(normalized.species,'regius');
+ });
+
+ await test('Gattungs-Alias bleibt kompatibel',function(){
+  equal(NGTTaxonomy.normalizeGenus('poeci'),'Poecilotheria');
+  equal(NGTTaxonomy.normalizeGenus('theraposa'),'Theraphosa');
+ });
+
+ await test('stabile Schlüssel werden erzeugt',function(){
+  equal(NGTTaxonomy.groupKey('Vogelspinnen'),'group-vogelspinnen');
+  equal(NGTTaxonomy.genusKey('Python'),'genus-python');
+  equal(NGTTaxonomy.speciesKey('Python','regius'),'python-regius');
+ });
+
+ await test('lokaler Datensatz wird gespeichert und wiedergefunden',function(){
+  const record=NGTTaxonomy.upsertLocal({
+   group:'Pythons',genus:'Python',species:'regius',
+   germanName:'Königspython',aliases:['Ball Python']
+  });
+  equal(record.key,'python-regius');
+  equal(NGTTaxonomy.find('python-regius').germanName,'Königspython');
+  equal(NGTTaxonomy.find('Königspython').key,'python-regius');
+  equal(NGTTaxonomy.find('Ball Python').key,'python-regius');
+ });
+
+ await test('Änderungsereignis wird beim lokalen Speichern ausgelöst',function(){
+  assert(window.__taxonomyEvents.some(function(event){
+   return event.name==='taxonomy:changed';
+  }),'taxonomy:changed fehlt');
+ });
+
+ await test('Bild-Fallback verwendet zuerst die Tiergruppe',function(){
+  NGTTaxonomy.upsertLocal({group:'Pythons',image:{url:'group.jpg'}});
+  NGTTaxonomy.upsertLocal({group:'Pythons',genus:'Python'});
+  const image=NGTTaxonomy.imageFor({group:'Pythons',genus:'Python',species:'bivittatus'});
+  equal(image.level,NGTTaxonomy.LEVELS.GROUP);
+  equal(image.url,'group.jpg');
+ });
+
+ await test('Gattungsbild wird über den bestehenden Alias-Fallback gefunden',function(){
+  NGTTaxonomy.upsertLocal({group:'Pythons',genus:'Python',image:{url:'genus.jpg'}});
+  const image=NGTTaxonomy.imageFor({group:'Pythons',genus:'Python',species:'bivittatus'});
+  equal(image.url,'genus.jpg');
+  equal(image.record.level,NGTTaxonomy.LEVELS.GENUS);
+  equal(image.level,NGTTaxonomy.LEVELS.SPECIES);
+ });
+
+ await test('Artbild hat höchste Priorität',function(){
+  NGTTaxonomy.upsertLocal({group:'Pythons',genus:'Python',species:'bivittatus',image:{url:'species.jpg'}});
+  const image=NGTTaxonomy.imageFor({group:'Pythons',genus:'Python',species:'bivittatus'});
+  equal(image.level,NGTTaxonomy.LEVELS.SPECIES);
+  equal(image.url,'species.jpg');
+ });
+
+ await test('ensureLocal erhält einen bestehenden Datensatz',async function(){
+  const before=NGTTaxonomy.find('python-regius');
+  const after=await NGTTaxonomy.ensureLocal({genus:'Python',species:'regius'});
+  equal(after.createdAt,before.createdAt);
+  equal(after.germanName,'Königspython');
+ });
+
+ await test('Export und Import erhalten Taxonomiedaten',function(){
+  const exported=NGTTaxonomy.exportJson();
+  NGTTaxonomy.clear();
+  equal(NGTTaxonomy.all().length,0);
+  const imported=NGTTaxonomy.importJson(exported);
+  assert(imported.length>=4,'Import enthält zu wenige Datensätze');
+  equal(NGTTaxonomy.find('Königspython').key,'python-regius');
+ });
+
+ await test('Cloud-Sync degradiert ohne Anmeldung kontrolliert',async function(){
+  const result=await NGTTaxonomy.syncCloud();
+  equal(result.ok,false);
+  equal(result.reason,'not-authenticated');
+ });
+
+ await test('lokaler Datensatz kann entfernt werden',async function(){
+  const removed=await NGTTaxonomy.remove({genus:'Python',species:'regius'});
+  equal(removed,true);
+  equal(NGTTaxonomy.find('python-regius'),null);
+ });
+
+ await test('UI-Klassifizierung bleibt kompatibel',function(){
+  const cases={
+   'Vogelspinne':'spider','Python regius':'snake','Phelsuma':'gecko',
+   'Testudo':'tortoise','Pandinus':'scorpion','Dendrobates':'frog',
+   'Pogona':'lizard','Mantis':'insect','Unbekannt':'generic'
+  };
+  Object.keys(cases).forEach(function(value){
+   equal(NGTTaxonomyUI.classify(value),cases[value],value);
+  });
+ });
+
+ await test('Illustration liefert zugängliches SVG und escaped Labels',function(){
+  const svg=NGTTaxonomyUI.illustrationFor('<Python>');
+  assert(svg.includes('<svg'),'SVG fehlt');
+  assert(svg.includes('aria-label="&lt;Python&gt;"'),'Label ist nicht escaped');
+ });
+
+ await test('Taxonomie-Ordner wird dekoriert',function(){
+  const app=document.getElementById('app');
+  app.innerHTML='<button class="tc2TaxFolder"><span>...</span><b>Pythons</b><small>2 Tiere</small></button>';
+  NGTTaxonomyUI.decorate();
+  const button=app.querySelector('.tc2TaxFolder');
+  const target=button.querySelector('span');
+  equal(button.dataset.tc2Silhouette,'1');
+  equal(target.className,'tc2TaxSilhouetteHost');
+  assert(target.innerHTML.includes('<svg'),'Ordner-Silhouette fehlt');
+ });
+
+ await test('Tierkarte ohne Foto erhält eine Silhouette',function(){
+  const app=document.getElementById('app');
+  app.innerHTML='<button class="tc2TaxAnimal"><div><span>Foto</span></div><b>KP-1</b><strong>Luna</strong><small>Python regius</small></button>';
+  NGTTaxonomyUI.decorate();
+  const target=app.querySelector('.tc2TaxAnimal>div');
+  equal(target.className,'tc2TaxSilhouetteHost');
+  assert(target.innerHTML.includes('<svg'),'Tier-Silhouette fehlt');
+ });
+
+ await test('echtes Tierfoto bleibt unverändert',function(){
+  const app=document.getElementById('app');
+  app.innerHTML='<button class="tc2TaxAnimal"><div><img src="data:image/png;base64,AA==" alt="Tier"></div><strong>Luna</strong><small>Python regius</small></button>';
+  const image=app.querySelector('img');
+  NGTTaxonomyUI.decorate();
+  assert(app.querySelector('img')===image,'Foto wurde ersetzt');
+  equal(image.getAttribute('src'),'data:image/png;base64,AA==');
+ });
+
+ await test('wiederholte UI-Dekoration ist idempotent',function(){
+  const app=document.getElementById('app');
+  const before=app.innerHTML;
+  NGTTaxonomyUI.decorate();
+  equal(app.innerHTML,before);
+ });
+
+ await test('clear entfernt den Taxonomie-Cache',function(){
+  NGTTaxonomy.clear();
+  equal(localStorage.getItem(STORAGE_KEY),null);
+  equal(NGTTaxonomy.all().length,0);
+ });
+}finally{
+ restoreStorage();
+}
+
+status.textContent=failed
+ ?failed+' fehlgeschlagen, '+passed+' erfolgreich.'
+ :passed+' Prüfungen erfolgreich.';
+status.className=failed?'fail':'ok';
+})();
+</script>
+</body>
+</html>

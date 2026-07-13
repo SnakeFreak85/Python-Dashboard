@@ -8,6 +8,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 - Browser-Charakterisierungstests für Bestandsfilter, Editor, Legacy-Felder und öffentliche `NGTAnimals`-API ergänzt.
 - App-Smoke-Test gegen frühes Laden des App-Frames abgesichert und um die Prüfung der Service-Worker-App-Shell erweitert.
 - Fehlende Abschlussklammer in `ai-query.js` behoben und die globale AI-Abfrage im Smoke-Test abgesichert.
+- Browser-Charakterisierungstest für Taxonomie-Normalisierung, lokalen Cache, Bild-Fallbacks und UI-Dekoration ergänzt.
 
 - `v500/` als aktive Codebasis konsolidiert.
 - TerraControl-Branding, TC2-Oberfläche und mobile PWA-Nutzung vereinheitlicht.
