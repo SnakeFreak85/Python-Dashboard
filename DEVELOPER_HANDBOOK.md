@@ -1,241 +1,265 @@
 # TerraControl Developer Handbook
 
-> Zentrale Entwicklerdokumentation für `SnakeFreak85/Python-Dashboard`.
->
-> **Aktuelle Codebasis:** `v500/`  
+> Zentrale Entwicklerdokumentation für `SnakeFreak85/Python-Dashboard`  
+> **Aktive Codebasis:** `v500/`  
+> **Produktiver Einstieg:** `index.html` → `v500.html`  
 > **Hauptzweig:** `main`  
-> **Dokumentstatus:** Living Document – bei Architektur-, Datenmodell- oder Workflow-Änderungen mitpflegen.
+> **Release-Stand:** `1.0.4-rc.11`  
+> **Status:** Living Document
 
 ---
 
-## 1. Zweck dieses Handbuchs
+## 1. Zweck
 
-Dieses Handbuch beschreibt den tatsächlichen technischen Aufbau von TerraControl und dient als Einstiegspunkt für Entwicklung, Wartung und Reviews.
+Dieses Handbuch beschreibt den aktuellen technischen Aufbau von TerraControl und ist die verbindliche Grundlage für Entwicklung, Reviews, Refactorings und den Einsatz von Coding Agents.
 
-Es verfolgt vier Ziele:
+Es soll:
 
 1. neue Entwickler schnell in die Codebasis einführen,
-2. verbindliche Architekturprinzipien festhalten,
-3. Datenflüsse und Modulgrenzen nachvollziehbar machen,
-4. veraltete Annahmen und parallele Implementierungen vermeiden.
+2. Architektur- und Datenregeln festhalten,
+3. Abhängigkeiten und Script-Reihenfolge dokumentieren,
+4. sichere Änderungs- und Testabläufe definieren,
+5. geplante Arbeiten klar vom bereits implementierten Stand trennen.
 
-Die Implementierung im Repository bleibt im Konfliktfall die technische Wahrheit. Widersprüche zwischen Dokumentation und Code sind durch eine Aktualisierung dieses Handbuchs zu beheben.
-
----
-
-## 2. Projektüberblick
-
-TerraControl ist eine mobile-first Terraristik-Management-Anwendung. Sie verwaltet Tiere, Taxonomie, Profile, Fütterungen, Häutungen, Gewichtsdaten, Gesundheitsinformationen, Fotos, Nachzuchten und weitere haltungsrelevante Daten.
-
-Die Anwendung ist als statische Webanwendung aufgebaut und nutzt Vanilla JavaScript. Lokale Datenhaltung, Offline-Fähigkeit und Cloud-Synchronisation werden klar voneinander getrennt.
-
-### Leitprinzipien
-
-- dynamische statt fest codierter Stammdaten,
-- mobile-first Benutzeroberfläche,
-- zentrale lokale Datenhaltung,
-- gekapselte Cloud-Anbindung,
-- eindeutige interne Identitäten,
-- Trennung von Darstellung, Geschäftslogik und Persistenz,
-- schrittweise Modernisierung ohne unnötige Parallelarchitekturen.
+Bei einem Widerspruch ist der aktuelle Code die technische Wahrheit; die Dokumentation muss dann im selben Änderungsschritt korrigiert werden.
 
 ---
 
-## 3. Gültige Codebasis
+## 2. Produktüberblick
 
-Die aktuelle Anwendung liegt unter:
+TerraControl ist eine mobile-first Terraristik-Management-Anwendung. Sie verwaltet unter anderem:
+
+- Tierbestand und Tierprofile,
+- dynamische Taxonomie,
+- Fütterungen, Häutungen und Gewichtsdaten,
+- Gesundheitsinformationen,
+- Fotos und Titelbilder,
+- Nachzuchten,
+- QR-Tierpass und Dokumente,
+- Futterbestand,
+- Backups,
+- optionale Firebase-Synchronisation.
+
+Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, HTML und CSS. Sie arbeitet lokal-first und ergänzt diese Basis durch PWA- und Cloud-Funktionen.
+
+---
+
+## 3. Verbindliche Leitprinzipien
+
+- Neue Entwicklung erfolgt ausschließlich in der aktiven `v500/`-Codebasis.
+- Der Store ist die führende lokale Datenquelle.
+- Wiederverwendbare Fachlogik wird zentralisiert statt in UI-Modulen dupliziert.
+- Firebase-Details werden von Darstellung und lokaler Datenhaltung getrennt.
+- UUIDs und dauerhafte IDs sind Identitäten; Array-Indizes sind nur Positionen.
+- Taxonomie bleibt dynamisch.
+- Datenzugriffe sind defensiv gegenüber älteren und unvollständigen Datensätzen.
+- Refactoring und neue Funktionalität werden nach Möglichkeit getrennt.
+- Änderungen müssen mobile Nutzung, Offlinebetrieb und bestehende Daten berücksichtigen.
+- Dokumentation wird zusammen mit der Architektur gepflegt.
+
+---
+
+## 4. Aktive Repository-Struktur
 
 ```text
-v500/
+.
+├── AGENTS.md
+├── CHANGELOG.md
+├── DEVELOPER_HANDBOOK.md
+├── README.md
+├── VERSION
+├── index.html
+├── manifest.json
+├── service-worker.js
+├── v500.html
+└── v500/
+    ├── app.js
+    ├── core.js
+    ├── id-manager.js
+    ├── store.js
+    ├── ui.js
+    ├── animal-engine.js
+    ├── taxonomy.js
+    ├── taxonomy-ui.js
+    ├── photo-storage.js
+    ├── firebase-sync.js
+    ├── ai-*.js
+    ├── smart-dashboard.js
+    ├── modules/
+    │   ├── dashboard.js
+    │   ├── animals.js
+    │   ├── offspring.js
+    │   ├── profile-core.js
+    │   ├── profile-food.js
+    │   ├── profile-health.js
+    │   ├── profile-passport.js
+    │   ├── profile-photos.js
+    │   ├── profile.js
+    │   ├── food.js
+    │   ├── qr.js
+    │   ├── backup.js
+    │   ├── assistant-v2.js
+    │   └── chat.js
+    └── tests/
+        ├── animal-engine.test.html
+        └── app-smoke.test.html
 ```
 
-Ältere Versionsstände im Repository sind historische Referenzen und keine Grundlage für neue Funktionen. Änderungen sollen grundsätzlich in der aktuellen Codebasis erfolgen.
-
-Historische Dateien dürfen nicht ungeprüft gelöscht werden. Eine spätere Archivierung soll als eigener, nachvollziehbarer Änderungsschritt erfolgen.
+Ältere Versionsstände sind keine Grundlage für neue Features. Legacy-Dateien dürfen nur nach belegter Nichtverwendung entfernt werden.
 
 ---
 
-## 4. Architekturübersicht
+## 5. Architektur
 
-TerraControl folgt konzeptionell diesem Datenfluss:
+Der grundlegende Datenfluss lautet:
 
 ```text
 Benutzerinteraktion
         │
         ▼
-UI-Module und Views
+UI-Module / Views
         │
         ▼
-Domain-/Engine-Logik
+Domain- und Engine-Logik
         │
         ▼
 Zentraler Store
         │
-        ├── lokale Persistenz / Offlinebetrieb
-        │
-        └── Firebase-Adapter / Cloud-Synchronisation
+        ├── lokale Persistenz
+        ├── Migration / Normalisierung
+        └── Firebase-Adapter / Cloud-Sync
 ```
 
-Die Trennung ist ein Zielbild und in der aktuellen Codebasis weitgehend vorhanden. Größere ältere Module enthalten jedoch teilweise noch Darstellung, Orchestrierung und fachliche Hilfslogik in derselben Datei. Neue Änderungen sollen diese Kopplung nicht weiter verstärken.
+### 5.1 UI-Schicht
 
-### 4.1 UI-Schicht
+Die UI-Schicht übernimmt Darstellung, Navigation, Formulare, Benutzerfeedback und Orchestrierung. Sie soll keine widersprüchliche zweite Quelle fachlicher Regeln bilden.
 
-Die UI-Schicht ist verantwortlich für:
+### 5.2 Domain- und Engine-Schicht
 
-- Darstellung,
-- Navigation,
-- Formulare,
-- Benutzereingaben,
-- Dialoge,
-- visuelles Feedback,
-- Aufruf fachlicher Operationen.
+Die zentrale vorhandene Domänenkomponente ist `v500/animal-engine.js`. Sie bündelt wiederverwendbare tierbezogene Logik, unter anderem:
 
-UI-Code soll keine zweite, unabhängige Quelle fachlicher Regeln bilden.
+- Anzeigenamen und wissenschaftliche Namen,
+- Geburtsdatum- und Altersberechnungen,
+- Historiennormalisierung,
+- neuesten Historieneintrag,
+- Datumsabstände,
+- Fütterungs- und Gewichtsintervalle.
 
-### 4.2 Engines und Domain-Logik
+Engines erzeugen keine DOM-Ausgabe und enthalten keine UI-spezifischen Dialogabläufe.
 
-Engines bündeln wiederverwendbare Geschäftslogik. Die zentrale vorhandene Domänenkomponente ist die `AnimalEngine`.
+### 5.3 Store
 
-Eine Engine soll:
+`v500/store.js` ist die zentrale Quelle lokal verfügbarer Anwendungsdaten. Typische Aufgaben:
 
-- Eingaben validieren und normalisieren,
-- fachliche Regeln zentral anwenden,
-- Berechnungen durchführen,
-- konsistente Ergebnisse an UI oder Store liefern,
-- keine DOM-Darstellung erzeugen,
-- keine Firebase-Details in die Oberfläche leaken.
-
-Weitere Engines wie Reminder-, Health-, Statistics-, Search-, Photo- oder Document-Logik sind nur dann als eigenständige Komponenten anzulegen, wenn sie eine klar abgegrenzte fachliche Verantwortung besitzen. Geplante Komponenten dürfen nicht als bereits vollständig implementiert dokumentiert werden.
-
-### 4.3 Zentraler Store
-
-Der Store ist die zentrale Quelle für lokal verfügbare Anwendungsdaten.
-
-Typische Aufgaben:
-
-- Laden und Speichern des Anwendungszustands,
-- Zugriff auf Tiere und verwandte Datensätze,
+- Laden und Speichern,
+- Zugriff auf Tiere und verwandte Daten,
+- Normalisierung und Migration,
 - lokale Persistenz,
-- Datenmigration und Normalisierung,
-- Benachrichtigung abhängiger UI-Bereiche,
-- Vorbereitung oder Übernahme von Synchronisationsdaten.
+- Bereitstellung für UI und Sync.
 
-Module sollen Daten nicht in konkurrierenden lokalen Strukturen dauerhaft duplizieren.
+Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 
-### 4.4 Firebase-Schicht
+### 5.4 Firebase
 
-Firebase ist gekapselt und dient der Cloud-Funktionalität:
+`v500/firebase-sync.js` und die zugehörigen Services kapseln Cloud-Funktionen wie Authentifizierung, Firestore, Storage und Synchronisation. UI-Code soll nicht verteilt direkt auf Firebase zugreifen.
 
-- Authentifizierung,
-- Firestore-Datenhaltung,
-- Firebase Storage,
-- Synchronisation.
+### 5.5 PWA
 
-Cloud-Code darf keine Darstellungslogik enthalten. UI-Module sollen möglichst über definierte Adapter oder Service-Funktionen statt über direkte, verteilte Firebase-Aufrufe arbeiten.
+`manifest.json` beschreibt die installierbare Anwendung. `service-worker.js` verwaltet die Offline-App-Shell und Cache-Aktualisierung. Neue produktive Assets müssen sowohl in `v500.html` eingebunden als auch in der App-Shell berücksichtigt werden.
 
 ---
 
-## 5. Laufzeit und Initialisierung
+## 6. Start- und Lade-Reihenfolge
 
-TerraControl wird als statische Webanwendung ausgeliefert. Der typische Startablauf ist:
+`index.html` verweist auf die aktive Anwendung in `v500.html`. Dort werden die Scripts in definierter Reihenfolge geladen:
 
-1. HTML, Styles und JavaScript-Dateien werden geladen.
-2. Globale Kernobjekte und Hilfsfunktionen werden registriert.
-3. Der lokale Store wird initialisiert und normalisiert.
-4. Module binden Ereignisse und rendern ihre Startansicht.
-5. Falls Cloud-Funktionen aktiv sind, wird Firebase initialisiert.
-6. Lokaler und entfernter Zustand werden nach den implementierten Synchronisationsregeln abgeglichen.
-7. Die UI reagiert auf Store-Änderungen und Benutzeraktionen.
+1. Kernsystem: `core.js`, `id-manager.js`, `store.js`, `ui.js`
+2. Taxonomie und AnimalEngine
+3. AI-, Dashboard- und Foto-Services
+4. Fachmodule
+5. Firebase-Synchronisation
+6. `app.js` als Abschluss der Initialisierung
 
-Bei Änderungen der Lade-Reihenfolge ist besonders auf globale Abhängigkeiten zu achten. Die aktuelle Codebasis verwendet browserweite Namespaces wie `NGT500`, `NGTStore` und modulbezogene globale APIs. Ein Umbau auf ES-Module wäre ein eigenes Architekturprojekt und darf nicht beiläufig innerhalb einer Fachänderung begonnen werden.
+Die Anwendung verwendet globale Browser-Namespaces wie:
 
----
+- `NGT500`
+- `NGTStore`
+- `AnimalEngine`
+- `NGTProfile`
+- weitere modulbezogene APIs
 
-## 6. Modulstruktur
-
-Die Anwendung ist nach fachlichen und technischen Verantwortlichkeiten gegliedert. Wichtige Bereiche sind unter anderem:
-
-- Tierbestand und Tierverwaltung,
-- Tierprofil,
-- Taxonomie und Taxonomie-UI,
-- Nachzuchten,
-- Fütterungs-, Häutungs- und Gewichtsverläufe,
-- Gesundheit und Dokumentation,
-- Fotos und Mediendaten,
-- Store und Persistenz,
-- Firebase-Integration,
-- Dashboard und Navigation.
-
-### Bekannte große Module
-
-Folgende Dateien sind besonders umfangreich und deshalb bei Änderungen risikoreich:
-
-| Datei | Größenordnung | Schwerpunkt |
-|---|---:|---|
-| `v500/modules/profile.js` | ca. 1.990 Zeilen | Tierprofil, Tabs, Formulare, Historien, Fotos |
-| `v500/taxonomy.js` | ca. 1.700 Zeilen | Taxonomiedaten und -operationen |
-| `v500/modules/animals.js` | ca. 1.490 Zeilen | Tierliste und Tierverwaltung |
-| `v500/taxonomy-ui.js` | ca. 1.270 Zeilen | Taxonomie-Oberfläche |
-| `v500/modules/offspring.js` | ca. 1.150 Zeilen | Nachzuchten und zugehörige Abläufe |
-
-Diese Zahlen sind Richtwerte aus dem Architektur-Audit und können sich durch spätere Commits ändern.
-
-### Regeln für große Module
-
-- Vor Änderungen vollständigen Kontrollfluss und globale Abhängigkeiten prüfen.
-- Fachliche Hilfslogik bevorzugt in klar benannte Funktionen oder Engines extrahieren.
-- Keine rein kosmetische Aufteilung ohne bessere Verantwortungsgrenzen.
-- Refactorings von Funktionsänderungen möglichst trennen.
-- Bestehendes Verhalten durch gezielte manuelle Tests absichern.
+Die Script-Reihenfolge ist deshalb Teil des Laufzeitvertrags. Ein Umbau auf ES Modules ist ein eigenes Architekturprojekt und darf nicht beiläufig erfolgen.
 
 ---
 
-## 7. AnimalEngine
+## 7. Tierprofil-Architektur
 
-Die `AnimalEngine` ist die zentrale fachliche Abstraktion für tierbezogene Operationen.
+Der frühere Profil-Monolith wurde in fachliche Module aufgeteilt.
 
-Sie soll langfristig die Regeln bündeln, die in mehreren UI-Bereichen benötigt werden, beispielsweise:
+### 7.1 Lade-Reihenfolge
 
-- Erzeugen und Normalisieren von Tierdatensätzen,
-- Ableitung von Anzeigenamen und wissenschaftlichen Namen,
-- Status- und Aktivitätslogik,
-- Auswertung letzter Fütterungen, Häutungen oder Wiegungen,
-- Berechnung fälliger Aktivitäten,
-- Validierung tierbezogener Eingaben,
-- konsistente Behandlung von UUID und Public-ID.
+```text
+profile-core.js
+profile-food.js
+profile-health.js
+profile-passport.js
+profile-photos.js
+profile.js
+```
 
-UI-Module dürfen Darstellungshelfer besitzen, sollen aber keine widersprüchlichen fachlichen Berechnungen parallel zur Engine aufbauen.
+### 7.2 Verantwortlichkeiten
+
+| Datei | Verantwortung |
+|---|---|
+| `profile-core.js` | gemeinsamer Zustand, Hilfen, Verlaufseinträge, Diagramme, Gewichts- und Häutungsaktionen |
+| `profile-food.js` | Futterbestand im Profil, Fütterungsformular, Bestandsprüfung und Speichern |
+| `profile-health.js` | Gesundheitsstatus, Gesundheitsformular, Historie und Speichern |
+| `profile-passport.js` | QR-Payload, Tierpass, Dokumentencenter und QR-Rendering |
+| `profile-photos.js` | Fotoquellen, Upload, Migration, Cover, Löschung und Viewer |
+| `profile.js` | Seitenrendering, Tabs, Übersicht, Analyse und öffentliche `NGTProfile`-API |
+
+### 7.3 Vertrag
+
+Die öffentliche `NGTProfile`-API bleibt der Integrationspunkt für Inline-Handler und andere Module. Interne Fachmodule kommunizieren über `window.NGTProfileInternal`.
+
+Bei Profiländerungen müssen mindestens getestet werden:
+
+- Profil öffnen,
+- Tabwechsel,
+- Fütterung,
+- Gewicht,
+- Häutung,
+- Gesundheit,
+- Fotos und Viewer,
+- QR-Tierpass,
+- Dokumentencenter,
+- Speichern und Reload.
 
 ---
 
 ## 8. Datenmodell
 
-TerraControl verwaltet dynamische, verschachtelte Datensätze. Das konkrete Schema kann durch Migrationen erweitert werden. Code muss deshalb mit fehlenden optionalen Feldern umgehen können.
+TerraControl arbeitet mit dynamischen, verschachtelten Datensätzen. Optional fehlende Felder müssen toleriert werden.
 
-### 8.1 Tier
+### 8.1 Tierdatensatz
 
-Ein Tierdatensatz enthält typischerweise:
+Ein Tier kann unter anderem enthalten:
 
-- interne UUID,
-- benutzerorientierte Public-ID,
+- `uuid` oder ältere ID-Felder,
+- `publicId` / `displayId`,
 - Name,
-- Tiergruppe,
-- Gattung,
-- Art,
-- Unterart,
-- Morph,
-- Geschlecht,
+- Tiergruppe, Gattung, Art und Unterart,
+- Morph und Geschlecht,
 - Status,
 - Geburts- oder Schlupfdatum,
-- Einzugsdatum,
-- Herkunft und Züchter,
-- optionale Preis- und Wertangaben,
-- Profil- und Haltungsdaten,
-- Historien und Medien.
+- Herkunft, Elterntiere und Notizen,
+- Fütterungs- und Gewichtsintervalle,
+- aktuelle und historische Messwerte,
+- Fotos und Dokumentinformationen.
 
-### 8.2 Eingebettete Historien
+### 8.2 Historien
 
-Tierdatensätze können Listen wie diese enthalten:
+Typische eingebettete Listen:
 
 ```text
 feeds[]
@@ -245,23 +269,17 @@ health[]
 photos[]
 ```
 
-Module müssen diese Felder defensiv initialisieren, wenn ältere Datensätze sie noch nicht besitzen.
+`AnimalEngine.ensureHistories()` initialisiert diese defensiv.
 
 ### 8.3 Identitäten
 
-#### UUID
-
-Die UUID ist die stabile technische Identität eines Datensatzes. Sie wird für interne Verknüpfungen genutzt und darf nachträglich nicht anhand sichtbarer Attribute neu berechnet werden.
-
-#### Public-ID
-
-Die Public-ID ist für Anzeige, Suche, QR-Code und Arbeitsabläufe des Benutzers gedacht. Sie ist nicht mit einem Array-Index gleichzusetzen.
+- **UUID:** stabile technische Identität.
+- **Public-ID:** sichtbare Kennung für Suche, Anzeige und QR-Abläufe.
+- **Array-Index:** nur aktuelle Position; niemals dauerhafte Identität.
 
 ### 8.4 Taxonomie
 
-Taxonomische Werte sind dynamische Daten. Tiergruppen, Gattungen, Arten und Unterarten dürfen nicht über verstreute feste Listen in UI-Modulen definiert werden.
-
-Die Abhängigkeit folgt grundsätzlich:
+Die Abhängigkeit lautet:
 
 ```text
 Tiergruppe
@@ -270,292 +288,218 @@ Tiergruppe
             └── Unterart
 ```
 
-Auswahlfelder müssen nach Änderungen übergeordneter Ebenen abhängige Werte neu validieren.
+Auswahlfelder müssen abhängige Werte nach Änderungen einer übergeordneten Ebene neu validieren.
 
 ### 8.5 Fotos
 
-Ein Tier kann mehrere Fotos besitzen. Ein Bild kann als Haupt- bzw. Coverbild markiert werden. Die Codebasis berücksichtigt unterschiedliche Quellen und ältere Bildformate, darunter URL-, Thumbnail- und lokale Datenrepräsentationen.
-
-Änderungen an Fotos müssen deshalb beachten:
+Fotos können URL-, Thumbnail-, Storage- oder Legacy-Base64-Daten enthalten. Änderungen müssen beachten:
 
 - Cover-Fallback,
 - Thumbnail-Fallback,
-- Legacy-Daten,
-- lokale und entfernte Quellen,
-- Löschung verknüpfter Storage-Daten,
-- Offline-Verhalten.
-
-### 8.6 Nachzuchten
-
-Nachzuchten sind eigenständige fachliche Datensätze und können mit Elterntieren, Gelegen, Schlupfdaten, Identitäten und späteren Tierdatensätzen verknüpft sein.
-
-Verknüpfungen sollen über stabile IDs und nicht über Listenpositionen erfolgen.
+- Legacy-Migration,
+- Löschen aus Firebase Storage,
+- Offline- und Fehlerverhalten.
 
 ---
 
-## 9. Datenfluss und Zustandsänderungen
+## 9. Zustandsänderungen
 
-Für eine typische Änderung gilt:
+Der bevorzugte Ablauf lautet:
 
 ```text
-Formular / Aktion
+Benutzereingabe
       │
       ▼
-Eingabe lesen
+validieren / normalisieren
       │
       ▼
-validieren und normalisieren
-      │
-      ▼
-fachliche Operation ausführen
+fachliche Operation
       │
       ▼
 Store aktualisieren
       │
-      ├── lokal persistieren
-      ├── betroffene UI neu rendern
-      └── gegebenenfalls Cloud-Sync auslösen
+      ├── speichern
+      ├── UI neu rendern
+      └── gegebenenfalls synchronisieren
 ```
 
-### Verbindliche Regeln
+Verbindliche Regeln:
 
-- Nicht zuerst DOM und später Daten korrigieren; der Store ist führend.
-- Abgeleitete Werte nach Möglichkeit berechnen statt redundant speichern.
-- Datumswerte in einem konsistenten, sortierbaren Format halten.
-- Optionale Listen vor Zugriff normalisieren.
-- Fehler nicht still verschlucken, wenn dadurch Datenverlust droht.
-
----
-
-## 10. Lokale Persistenz und Migrationen
-
-Da ältere Datenstände weiter nutzbar bleiben sollen, muss neuer Code tolerant gegenüber unvollständigen Datensätzen sein.
-
-Eine Migration oder Normalisierung soll:
-
-1. bestehende Nutzerdaten erhalten,
-2. fehlende Felder mit sicheren Defaults ergänzen,
-3. keine stabilen IDs verändern,
-4. wiederholbar sein,
-5. unbekannte Felder nicht unnötig entfernen,
-6. vor persistierenden Änderungen getestet werden.
-
-Migrationslogik gehört zentral in den Store- oder Persistenzbereich und nicht verteilt in mehrere Views.
+- Store vor DOM-Kosmetik aktualisieren.
+- Abgeleitete Werte möglichst berechnen statt redundant speichern.
+- Datumswerte konsistent und sortierbar halten.
+- Listen vor Zugriff defensiv initialisieren.
+- Destruktive Migrationen niemals still ausführen.
 
 ---
 
-## 11. Offline- und Cloud-Verhalten
+## 10. UI- und TC2-Regeln
 
-TerraControl soll lokal funktionsfähig bleiben. Cloud-Synchronisation erweitert die lokale Anwendung, ersetzt aber nicht ihre stabile Datenbasis.
+TerraControl ist mobile-first. Neue UI muss:
 
-Bei synchronisierten Änderungen sind mindestens diese Fälle zu bedenken:
+- auf kleinen Displays vollständig nutzbar sein,
+- ausreichende Touch-Ziele besitzen,
+- bestehende TC2-Klassen und visuelle Sprache fortführen,
+- klare Zustände für Laden, Erfolg, Warnung und Fehler anzeigen,
+- Inline-Handler nur über stabile öffentliche APIs aufrufen,
+- bestehende deutsche Begriffe konsistent verwenden.
 
-- Benutzer ist nicht angemeldet,
-- Netzwerk ist nicht verfügbar,
-- lokaler Stand ist neuer,
-- Cloud-Stand ist neuer,
-- Datensatz wurde lokal oder remote gelöscht,
-- Upload einer Datei ist nur teilweise abgeschlossen,
-- ältere Datenschemata treffen auf aktuelle Module.
-
-Konfliktregeln müssen explizit sein. Ein stilles Überschreiben aufgrund einer zufälligen Lade-Reihenfolge ist zu vermeiden.
+Barrierearme Beschriftungen, sinnvolle `aria-label`-Werte und Tastaturverhalten sind insbesondere bei Modalen und Viewern zu berücksichtigen.
 
 ---
 
-## 12. UI- und Designstandard
+## 11. Lokale Entwicklung
 
-Der aktuelle Designstandard wird projektintern als **TC2** bezeichnet.
+Repository im Root-Verzeichnis über HTTP starten:
 
-Kennzeichen:
+```bash
+python -m http.server 8000
+```
 
-- mobile-first,
-- hochwertige, ruhige Darstellung,
-- dunkles Grundthema,
-- blaue Flächen und grüne Akzente,
-- große Karten,
-- abgerundete Ecken,
-- konsistente Icons,
-- klare Typografie,
-- keine Comic- oder Kinderbuchoptik.
+Danach:
 
-### UI-Regeln
+```text
+http://localhost:8000/
+http://localhost:8000/v500.html
+```
 
-- Kleine Viewports zuerst prüfen.
-- Touch-Ziele ausreichend groß halten.
-- Formulare klar beschriften.
-- Leere Zustände und Fehlerzustände sichtbar behandeln.
-- Modale Dialoge müssen schließbar und fokussierbar bleiben.
-- Neue Komponenten an vorhandenen Abständen, Radien und Typografie ausrichten.
-- Keine neue parallele Design-Sprache innerhalb einzelner Module einführen.
+Ein Start über `file://` reicht für Service Worker, Manifest, Fetch und vollständige PWA-Tests nicht aus.
 
 ---
 
-## 13. Coding Guidelines
+## 12. Tests
 
-### JavaScript
+### 12.1 AnimalEngine
 
-- Bestehenden Stil der betroffenen Datei respektieren.
-- Funktionen klein und nach Verantwortung benennen.
-- Seiteneffekte erkennbar halten.
-- Eingaben an Modulgrenzen normalisieren.
-- Benutzerinhalte vor HTML-Ausgabe escapen.
-- Globale APIs nur bewusst erweitern.
-- Keine neue implizite Abhängigkeit von der Script-Reihenfolge einführen.
-- Keine Geschäftsregel ausschließlich in Event-Handlern verstecken.
+```text
+http://localhost:8000/v500/tests/animal-engine.test.html
+```
 
-### Datenzugriff
+Prüft zentrale deterministische AnimalEngine-Funktionen.
 
-- Store-API statt direkter Parallelpersistenz verwenden.
-- Tiere über stabile IDs adressieren, sobald Daten die aktuelle View verlassen.
-- Array-Indizes nur als kurzlebigen UI-Kontext behandeln.
-- Listen vor Mutation initialisieren.
-- Datumssortierung nicht mit lokalisierten Anzeigestrings durchführen.
+### 12.2 App-Smoke-Test
 
-### HTML und CSS
+```text
+http://localhost:8000/v500/tests/app-smoke.test.html
+```
 
-- Semantische Elemente bevorzugen.
-- Bestehende Klassen und Tokens wiederverwenden.
-- Inline-Styles nur dort verwenden, wo das vorhandene Modul dies zwingend erfordert.
-- Responsive Verhalten bei jeder UI-Änderung mitprüfen.
+Prüft:
 
-### Sicherheit
+- Erreichbarkeit von `v500.html`,
+- lokale Start-Assets,
+- globale Kern-APIs,
+- Store-Zugriff,
+- Modulregistrierung,
+- grundlegende AnimalEngine-Ausführung.
 
-Im bisherigen Audit wurden keine kritischen offensichtlichen Sicherheitsprobleme, kein `eval()`, keine verbliebenen `debugger`-Anweisungen und keine auffälligen TODO-/FIXME-Reste festgestellt. Dieser Befund ist kein Ersatz für zukünftige Reviews.
+### 12.3 Manuelle Mindestprüfung
 
-Besonders beachten:
+- App startet ohne rote Konsolenfehler.
+- Drawer und Navigation funktionieren.
+- Tierbestand und Profil öffnen.
+- Änderungen bleiben nach Reload erhalten.
+- Betroffene Formulare funktionieren.
+- Mobile Darstellung ist nutzbar.
+- Bei Assetänderungen Service Worker und Offline-Fallback prüfen.
 
-- keine Secrets in das Repository committen,
-- Firebase-Regeln separat prüfen,
-- Benutzerinhalte escapen,
-- Datei- und Bildtypen validieren,
-- destruktive Aktionen bestätigen,
-- Authentifizierungszustand nicht allein über UI-Sichtbarkeit absichern.
+Tests dürfen nur als erfolgreich dokumentiert werden, wenn sie tatsächlich ausgeführt wurden.
 
 ---
 
-## 14. Entwicklungsworkflow
+## 13. Coding Standards
 
-### 14.1 Vor einer Änderung
-
-1. Aktuellen Branch und Repository-Stand prüfen.
-2. Betroffene Module vollständig lesen.
-3. Store-, Engine- und Cloud-Abhängigkeiten identifizieren.
-4. Datenmodell und Legacy-Fälle prüfen.
-5. Änderung möglichst klein und fachlich geschlossen planen.
-
-### 14.2 Während der Änderung
-
-- bestehende Architektur erweitern statt umgehen,
-- doppelte Logik vermeiden,
-- keine unbeteiligten Dateien formatieren,
-- Refactoring und Feature-Änderung trennen, wenn dies das Review vereinfacht,
-- Dokumentation bei geänderten Verträgen aktualisieren.
-
-### 14.3 Validierung
-
-Da die Anwendung stark browser- und UI-getrieben ist, gehören gezielte manuelle Tests zum Pflichtumfang.
-
-Mindestens prüfen:
-
-- Anwendung startet ohne Konsolenfehler,
-- bestehende Daten werden geladen,
-- geänderte Funktion funktioniert mit neuen Daten,
-- geänderte Funktion funktioniert mit älteren oder unvollständigen Daten,
-- Persistenz bleibt nach Reload erhalten,
-- Mobile-Layout bleibt nutzbar,
-- Offline-Fall verursacht keinen Datenverlust,
-- Cloud-Funktionen degradieren kontrolliert, wenn Firebase nicht verfügbar ist.
-
-### 14.4 Commit- und PR-Regeln
-
-- Ein Commit soll eine nachvollziehbare Änderung enthalten.
-- Commit-Nachrichten sollen Zweck und Bereich knapp beschreiben.
-- Große Architekturänderungen über einen eigenen Branch und Pull Request durchführen.
-- Datenmigrationen und destruktive Änderungen im PR ausdrücklich dokumentieren.
+- Bestehende IIFE- und Namespace-Struktur beibehalten.
+- Kleine, klar benannte Funktionen bevorzugen.
+- Eingaben validieren und optionale Werte defensiv behandeln.
+- Wiederverwendbare Fachlogik zentralisieren.
+- Keine kosmetischen Komplettformatierungen zusammen mit Funktionsänderungen.
+- Keine unvollständigen Dateirekonstruktionen.
+- Keine stillen Fehler oder Datenverluste.
+- Fehlermeldungen für Benutzer verständlich formulieren; technische Details zusätzlich loggen.
+- Neue produktive Assets in HTML und Service Worker konsistent eintragen.
 
 ---
 
-## 15. Erweiterung eines Moduls
+## 14. Git- und Review-Workflow
 
-Bei einer neuen Funktion ist diese Reihenfolge zu bevorzugen:
+Empfohlenes Commit-Format:
 
-1. Datenmodell und notwendige Felder definieren.
-2. Bestehende Engine oder Store-API auf Wiederverwendbarkeit prüfen.
-3. Fachlogik zentral implementieren.
-4. Persistenz und Migration ergänzen.
-5. UI anbinden.
-6. Offline- und Cloud-Fälle prüfen.
-7. Dokumentation aktualisieren.
+```text
+type(scope): summary
+```
 
-Eine neue Engine ist nicht automatisch die richtige Lösung. Sie ist sinnvoll, wenn Logik fachlich zusammengehört, von mehreren Modulen genutzt wird oder aus einer großen UI-Datei herausgelöst werden muss.
+Beispiele:
 
----
+```text
+refactor(profile): split photo operations
+fix(store): preserve legacy history data
+docs: update architecture handbook
+test(animal-engine): cover date fallbacks
+```
 
-## 16. Refactoring-Roadmap
+Vor einem Commit:
 
-### Priorität 1: Dokumentation aktuell halten
+1. vollständigen Diff prüfen,
+2. keine temporären oder lokalen Dateien aufnehmen,
+3. relevante Tests ausführen,
+4. Dokumentation bei Bedarf aktualisieren,
+5. bei großen oder riskanten Änderungen einen Branch oder PR verwenden.
 
-- Handbook bei Architekturänderungen aktualisieren.
-- README auf die aktuelle `v500`-Codebasis ausrichten.
-- geplante und implementierte Funktionen klar unterscheiden.
-
-### Priorität 2: Große Module entlasten
-
-Schrittweise Verantwortlichkeiten aus `profile.js`, `animals.js`, `taxonomy.js`, `taxonomy-ui.js` und `offspring.js` extrahieren.
-
-Sinnvolle Schnittkandidaten:
-
-- reine Formatierungsfunktionen,
-- Validierung und Normalisierung,
-- wiederverwendbare Dialogsteuerung,
-- fachliche Berechnungen,
-- Foto- und Dokumentoperationen,
-- Taxonomie-Abfragen,
-- Historienoperationen.
-
-### Priorität 3: Engine-Grenzen schärfen
-
-- AnimalEngine als zentrale Tierlogik konsequent nutzen.
-- neue Engines nur mit klaren Verträgen einführen.
-- UI-spezifische und fachliche Funktionen systematisch trennen.
-
-### Priorität 4: Historische Versionen archivieren
-
-- weiterhin benötigte Referenzen identifizieren,
-- alte Versionen in einen klar gekennzeichneten Archivbereich verschieben,
-- produktive Einstiegspunkte eindeutig dokumentieren,
-- keine Historie ohne vorherige Sicherung löschen.
-
-### Priorität 5: Testbarkeit erhöhen
-
-- reine Fachfunktionen extrahieren,
-- deterministische Datumslogik ermöglichen,
-- Migrationen mit repräsentativen Fixtures testen,
-- kritische Store- und Engine-Funktionen automatisiert absichern.
+Fremde lokale Änderungen dürfen nicht verworfen oder überschrieben werden.
 
 ---
 
-## 17. Bekannte Risiken
+## 15. Dokumentationslandschaft
 
-### Große Dateien
+| Datei | Zweck |
+|---|---|
+| `README.md` | schneller Einstieg, Start, Architekturüberblick |
+| `DEVELOPER_HANDBOOK.md` | vollständige technische Regeln und aktueller Architekturstand |
+| `AGENTS.md` | verbindliche Arbeitsanweisungen für Codex und andere Coding Agents |
+| `CHANGELOG.md` | release-relevante Änderungen |
+| `VERSION` | maschinenlesbare Release-Kennung |
 
-Umfangreiche Module erhöhen das Risiko unbeabsichtigter Seiteneffekte und erschweren Reviews.
+Architektur-, Datenmodell-, Script- oder Workflow-Änderungen müssen in der passenden Dokumentation mitgeführt werden.
 
-### Globale Namespaces
+---
 
-Die Anwendung verwendet globale Browserobjekte. Namenskollisionen und falsche Script-Reihenfolge können Laufzeitfehler verursachen.
+## 16. Aktueller Refactoring-Status
 
-### Legacy-Daten
+### Abgeschlossen
 
-Ältere Datensätze können Felder oder Strukturen vermissen. Defensive Normalisierung bleibt notwendig.
+- `v500/` als aktive Codebasis dokumentiert.
+- README und Handbook konsolidiert.
+- ungenutzte v1-Root-Assets entfernt.
+- Versionierung und Cache-Busting vereinheitlicht.
+- Service-Worker-App-Shell vervollständigt.
+- AnimalEngine erweitert und getestet.
+- Browser-Smoke-Test ergänzt.
+- bestätigte Profil-Duplikate auf AnimalEngine umgestellt.
+- Tierprofil in fachliche Module aufgeteilt.
+- Repository-Anweisungen für Coding Agents ergänzt.
 
-### Gemischte Verantwortlichkeiten
+### Nächste Prioritäten
 
-Einige UI-Module enthalten noch fachliche Hilfslogik. Neue Änderungen dürfen diese Kopplung nicht weiter ausbauen.
+1. `animals.js` analysieren und entlang stabiler Verantwortungsgrenzen modularisieren.
+2. Taxonomie und Taxonomie-UI weiter entkoppeln.
+3. Nachzuchtmodul schrittweise verkleinern.
+4. Store-Migrationen mit zusätzlichen Fixtures absichern.
+5. Service-Worker- und Offline-Tests automatisieren.
+6. Gesundheitsstatus und weitere Fachregeln aus UI-Modulen in testbare Domain-Logik verschieben.
 
-### Dokumentationsdrift
+---
 
-Historische Dokumente und README-Inhalte können ältere Versionen beschreiben. Für technische Entscheidungen sind aktuelle Dateien unter `v500/` maßgeblich.
+## 17. Bekannte technische Schulden
+
+- globale Namespaces und feste Script-Reihenfolge,
+- mehrere noch große Fachmodule,
+- Inline-Handler in HTML-Strings,
+- begrenzte automatisierte Browserabdeckung,
+- teilweise gekoppelte UI-, Store- und Fachlogik,
+- Legacy-Datenvarianten und mehrere Feldnamen,
+- externer QR-Code-CDN als Laufzeitabhängigkeit.
+
+Diese Punkte sind keine Einladung zu einem Big-Bang-Rewrite. Sie werden in kleinen, verhaltensneutralen Schritten bearbeitet.
 
 ---
 
@@ -563,50 +507,26 @@ Historische Dokumente und README-Inhalte können ältere Versionen beschreiben. 
 
 Eine Änderung ist abgeschlossen, wenn:
 
-- die Anforderung fachlich erfüllt ist,
-- bestehende Daten weiterhin funktionieren,
-- keine konkurrierende Geschäftslogik entstanden ist,
-- Store- und Persistenzpfade korrekt genutzt werden,
-- relevante Mobile-Ansichten geprüft wurden,
-- Fehler- und Leerzustände behandelt sind,
-- keine Secrets oder Debug-Reste enthalten sind,
-- Dokumentation bei geänderten Verträgen aktualisiert ist,
-- Commit oder PR Zweck und Risiken verständlich beschreibt.
+- die Anforderung erfüllt ist,
+- bestehende Daten kompatibel bleiben,
+- öffentliche APIs bewusst behandelt wurden,
+- der Diff fachlich begrenzt und verständlich ist,
+- relevante Tests ausgeführt oder als nicht ausgeführt dokumentiert wurden,
+- neue Assets in `v500.html` und `service-worker.js` konsistent sind,
+- Dokumentation und Changelog bei Bedarf aktualisiert sind,
+- keine bekannten roten Konsolenfehler oder offensichtlichen Regressionen verbleiben.
 
 ---
 
-## 19. Wartung dieses Dokuments
+## 19. Arbeitsweise mit Codex
 
-Dieses Handbuch muss aktualisiert werden, wenn sich mindestens einer dieser Punkte ändert:
+Codex soll zuerst `AGENTS.md`, anschließend dieses Handbook und danach die betroffenen Dateien lesen.
 
-- produktive Codebasis oder Einstiegspunkt,
-- zentrale Architektur oder Datenfluss,
-- Store- oder Engine-API,
-- Datenmodell oder Migrationen,
-- Firebase- und Synchronisationsverhalten,
-- Designstandard,
-- Entwicklungs- oder Releaseworkflow,
-- bekannte technische Hauptrisiken.
+Geeignete Aufträge sind klein und überprüfbar, zum Beispiel:
 
-Veraltete Abschnitte sollen ersetzt statt durch widersprüchliche Ergänzungen erweitert werden.
+- „Analysiere `animals.js` und erstelle nur einen Refactoring-Plan mit Abhängigkeiten.“
+- „Extrahiere eine klar abgegrenzte, reine Hilfslogik und ergänze Tests.“
+- „Prüfe alle in `v500.html` geladenen lokalen Assets gegen die Service-Worker-App-Shell.“
+- „Aktualisiere Dokumentation und Changelog für diese konkrete Änderung.“
 
----
-
-## 20. Kurzreferenz
-
-```text
-Aktive Codebasis:      v500/
-Frontend:              Vanilla JavaScript
-Anwendungsform:        statische Web-App / PWA-orientiert
-Lokaler Zustand:       zentraler Store
-Cloud:                 Firebase Auth, Firestore, Storage
-Zentrale Domänenlogik: AnimalEngine
-Designstandard:        TC2, mobile-first
-Interne Identität:     UUID
-Sichtbare Identität:   Public-ID
-Hauptbaustellen:       große Module, Legacy-Dateien, Dokumentationsdrift
-```
-
----
-
-**Grundsatz:** Erst den aktuellen Code verstehen, dann die kleinste konsistente Änderung an der richtigen Architekturschicht vornehmen.
+Für große Umbauten soll Codex zuerst einen Plan, Risiken, betroffene Dateien und Tests nennen. Produktive Dateien dürfen nicht aus abgeschnittenen oder unvollständigen Quellen rekonstruiert werden.
