@@ -4,13 +4,19 @@ TerraControl ist eine mobile-first Terraristik-Management-Anwendung für Tierbes
 
 > **Aktive Codebasis:** `v500/`  
 > **Produktiver Einstieg:** `index.html` → `v500.html`  
-> **Zentrale Entwicklerdokumentation:** [`DEVELOPER_HANDBOOK.md`](./DEVELOPER_HANDBOOK.md)
+> **Release-Stand:** `1.0.4-rc.11`
+
+## Dokumentation
+
+- [`DEVELOPER_HANDBOOK.md`](./DEVELOPER_HANDBOOK.md) – vollständige Architektur, Datenregeln, Tests und Roadmap
+- [`AGENTS.md`](./AGENTS.md) – verbindliche Repository-Anweisungen für Codex und andere Coding Agents
+- [`CHANGELOG.md`](./CHANGELOG.md) – release-relevante Änderungen
 
 ## Projektstatus
 
-Die aktuelle Anwendung basiert auf der v500-Architektur. Ältere Versionsdateien im Repository sind historische Referenzen und sollen nicht als Grundlage für neue Funktionen verwendet werden.
+Die aktuelle Anwendung basiert auf der v500-Architektur. Ältere Versionsdateien im Repository sind historische Referenzen und keine Grundlage für neue Funktionen.
 
-Die sichtbare Anwendung wird über `index.html` geöffnet. Diese Startseite verweist auf `v500.html`, das die aktive Oberfläche und die JavaScript-Module in definierter Reihenfolge lädt.
+Die sichtbare Anwendung wird über `index.html` geöffnet. Diese Startseite verweist auf `v500.html`, das die aktive Oberfläche und alle JavaScript-Module in definierter Reihenfolge lädt.
 
 ## Architektur
 
@@ -30,10 +36,10 @@ Zentraler Store
         └── Firebase-Adapter / Cloud-Synchronisation
 ```
 
-Wichtige Architekturprinzipien:
+Wichtige Prinzipien:
 
 - Der Store ist die zentrale Quelle lokal verfügbarer Anwendungsdaten.
-- Die `AnimalEngine` bündelt wiederverwendbare tierbezogene Geschäftslogik.
+- Die `AnimalEngine` bündelt wiederverwendbare tierbezogene Fachlogik.
 - Taxonomische Daten werden dynamisch verwaltet.
 - Firebase-Logik ist von Darstellung und lokaler Datenhaltung getrennt.
 - UUIDs dienen als stabile interne Identitäten; Public-IDs sind für Anzeige und Benutzerabläufe vorgesehen.
@@ -43,52 +49,81 @@ Wichtige Architekturprinzipien:
 
 | Pfad | Aufgabe |
 |---|---|
-| `index.html` | Öffentliche Startseite und Link zur aktiven Anwendung |
-| `v500.html` | Produktive HTML-Shell und verbindliche Script-Reihenfolge |
-| `v500/app.js` | Abschließende Anwendungsinitialisierung |
-| `v500/store.js` | Zentraler lokaler Zustand, Persistenz und Normalisierung |
-| `v500/animal-engine.js` | Zentrale tierbezogene Domain-Logik |
+| `index.html` | öffentliche Startseite und Link zur aktiven Anwendung |
+| `v500.html` | produktive HTML-Shell und verbindliche Script-Reihenfolge |
+| `v500/app.js` | abschließende Anwendungsinitialisierung |
+| `v500/store.js` | zentraler lokaler Zustand, Persistenz und Normalisierung |
+| `v500/animal-engine.js` | zentrale tierbezogene Domain-Logik |
 | `v500/taxonomy.js` | Taxonomiedaten und Taxonomieoperationen |
 | `v500/taxonomy-ui.js` | Taxonomie-Oberfläche |
-| `v500/firebase-sync.js` | Gekapselte Firebase- und Synchronisationslogik |
+| `v500/firebase-sync.js` | gekapselte Firebase- und Synchronisationslogik |
 | `service-worker.js` | PWA- und Offline-Unterstützung |
 | `manifest.json` | PWA-Metadaten |
 
-## Modulübersicht
+## Profilmodule
 
-Die aktive Anwendung lädt unter anderem folgende Bereiche:
+Der Tierprofilbereich ist modularisiert und wird in dieser Reihenfolge geladen:
 
-- Dashboard und Navigation
-- Tierbestand und Tierverwaltung
-- Nachzuchten
-- Tierprofile
-- Futterverwaltung
-- QR-Funktionen
-- Backup und Wiederherstellung
-- Assistenz- und Chatmodule
-- Fotoablage
-- Taxonomie
-- Firebase-Synchronisation
+```text
+profile-core.js
+profile-food.js
+profile-health.js
+profile-passport.js
+profile-photos.js
+profile.js
+```
+
+`profile.js` rendert und orchestriert die Seite. Die Fachbereiche Futter, Gesundheit, Tierpass und Fotos liegen in eigenen Modulen. Die öffentliche `NGTProfile`-API bleibt der Integrationspunkt für Inline-Handler und andere Bereiche.
+
+## Weitere Module
+
+Die aktive Anwendung enthält unter anderem:
+
+- Dashboard und Navigation,
+- Tierbestand und Tierverwaltung,
+- Nachzuchten,
+- Futterverwaltung,
+- QR-Funktionen,
+- Backup und Wiederherstellung,
+- Assistenz- und Chatmodule,
+- Fotoablage,
+- Taxonomie,
+- Firebase-Synchronisation.
 
 Die genaue Lade-Reihenfolge steht in `v500.html`. Da die Anwendung globale Browser-Namespaces verwendet, darf diese Reihenfolge nicht beiläufig verändert werden.
 
 ## Lokaler Start
 
-TerraControl ist eine statische Webanwendung. Für lokale Entwicklung sollte das Repository über einen statischen HTTP-Server ausgeliefert werden, damit Service Worker, Manifest und relative Modulpfade korrekt funktionieren.
-
-Beispiel mit Python:
+TerraControl muss für vollständige PWA-, Service-Worker- und Fetch-Tests über HTTP ausgeliefert werden.
 
 ```bash
 python -m http.server 8000
 ```
 
-Anschließend im Browser öffnen:
+Danach öffnen:
 
 ```text
 http://localhost:8000/
+http://localhost:8000/v500.html
 ```
 
-Ein direktes Öffnen der HTML-Dateien über `file://` ist für vollständige PWA-, Offline- und Cloud-Tests nicht ausreichend.
+Ein direktes Öffnen über `file://` ist nicht ausreichend.
+
+## Tests
+
+AnimalEngine:
+
+```text
+http://localhost:8000/v500/tests/animal-engine.test.html
+```
+
+App-Smoke-Test:
+
+```text
+http://localhost:8000/v500/tests/app-smoke.test.html
+```
+
+Zusätzlich betroffene Funktionen manuell prüfen und die Browserkonsole auf rote Fehler kontrollieren.
 
 ## Deployment
 
@@ -108,41 +143,26 @@ Vor einem Deployment mindestens prüfen:
 
 TerraControl arbeitet lokal-first. Der zentrale Store verwaltet den lokalen Zustand und toleriert ältere oder unvollständige Datensätze über Normalisierung und Migrationen.
 
-Cloud-Funktionen ergänzen diese lokale Basis:
+Cloud-Funktionen ergänzen diese Basis:
 
-- Firebase Authentication
-- Firestore
-- Firebase Storage
-- Synchronisation
+- Firebase Authentication,
+- Firestore,
+- Firebase Storage,
+- Synchronisation.
 
 Konflikte zwischen lokalem und entferntem Zustand dürfen nicht allein durch zufällige Lade-Reihenfolge entschieden werden.
 
-## Entwicklung
+## Entwicklung mit Codex
 
-Vor jeder Änderung:
+Codex soll vor Änderungen in dieser Reihenfolge lesen:
 
-1. betroffene Dateien vollständig lesen,
-2. Store-, Engine- und Firebase-Abhängigkeiten prüfen,
-3. Legacy-Daten berücksichtigen,
-4. die kleinste fachlich geschlossene Änderung planen,
-5. Refactoring und neue Funktion nach Möglichkeit trennen.
+1. `AGENTS.md`
+2. `DEVELOPER_HANDBOOK.md`
+3. die betroffenen Dateien
+4. `v500.html` und gegebenenfalls `service-worker.js`
 
-Umfangreiche Dateien wie `v500/modules/profile.js`, `v500/modules/animals.js`, `v500/taxonomy.js`, `v500/taxonomy-ui.js` und `v500/modules/offspring.js` sind bekannte Refactoring-Kandidaten. Änderungen an diesen Dateien benötigen besonders gezielte Tests.
-
-## Dokumentation
-
-Das [`DEVELOPER_HANDBOOK.md`](./DEVELOPER_HANDBOOK.md) ist die zentrale technische Dokumentation. Es beschreibt:
-
-- Architektur und Datenfluss,
-- Store, Engines und Firebase,
-- Datenmodell und Identitäten,
-- Entwicklungs- und Testworkflow,
-- bekannte Risiken,
-- Refactoring-Roadmap,
-- Definition of Done.
-
-Bei Änderungen an Architektur, Datenmodell, Store-, Engine- oder Synchronisationsverträgen muss das Handbook im selben Änderungsschritt aktualisiert werden.
+Aufträge sollten klein, überprüfbar und fachlich begrenzt sein. Große Module werden schrittweise und verhaltensneutral refaktoriert. Bei neuen produktiven Dateien müssen Script-Reihenfolge, Service-Worker-App-Shell, Tests und Dokumentation gemeinsam berücksichtigt werden.
 
 ## Historische Dateien
 
-Ältere Versionen bleiben vorerst als Referenz im Repository. Sie dürfen nicht ungeprüft gelöscht oder mit der aktiven `v500`-Codebasis vermischt werden. Eine spätere Archivierung soll als eigener, nachvollziehbarer Änderungsschritt erfolgen.
+Ältere Versionen bleiben nur als Referenz im Repository. Sie dürfen nicht ungeprüft gelöscht oder mit der aktiven `v500`-Codebasis vermischt werden.
