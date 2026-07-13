@@ -92,6 +92,18 @@ function getAgeText(animal,now){
         " Monate";
 }
 
+function getAgeYearsText(animal,now){
+    const d=getAgeDays(animal,now);
+
+    if(d===null) return "-";
+
+    const years=Math.floor(d/365.25);
+
+    return years>0
+        ?years+" Jahre"
+        :"< 1 Jahr";
+}
+
 function latest(list){
     return (Array.isArray(list)?list:[])
         .slice()
@@ -113,6 +125,14 @@ function daysSince(value,now){
     }
 
     return Math.floor((today-date)/86400000);
+}
+
+function daysSinceOr(value,fallback,now){
+    const days=daysSince(value,now);
+
+    return days===null
+        ?fallback
+        :days;
 }
 
 function ensureHistories(animal){
@@ -186,9 +206,13 @@ window.AnimalEngine={
 
     getAgeText,
 
+    getAgeYearsText,
+
     latest,
 
     daysSince,
+
+    daysSinceOr,
 
     ensureHistories,
 
@@ -199,7 +223,6 @@ window.AnimalEngine={
     feedEnabled,
 
     weightEnabled
-
 };
 
 })();
