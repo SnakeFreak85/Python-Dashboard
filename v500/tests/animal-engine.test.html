@@ -53,9 +53,14 @@ equal('Anzeigename bevorzugt Namen',AnimalEngine.getDisplayName(fullAnimal),'Lun
 equal('Geburtsdatum-Fallback',AnimalEngine.getBirthDate(fullAnimal),'2025-01-01');
 equal('Alter in Tagen ist deterministisch',AnimalEngine.getAgeDays(fullAnimal,'2025-01-31'),30);
 equal('Alterstext unter 365 Tagen',AnimalEngine.getAgeText(fullAnimal,'2025-02-01'),'1 Monate');
+equal('Profil-Alter unter einem Jahr',AnimalEngine.getAgeYearsText(fullAnimal,'2025-02-01'),'< 1 Jahr');
+equal('Profil-Alter in Jahren',AnimalEngine.getAgeYearsText(fullAnimal,'2027-02-01'),'2 Jahre');
+equal('Profil-Alter ohne Datum',AnimalEngine.getAgeYearsText({},'2027-02-01'),'-');
 equal('Neuester Historieneintrag',AnimalEngine.latest(fullAnimal.feeds).date,'2026-03-01');
 equal('Tage seit Datum',AnimalEngine.daysSince('2026-01-01','2026-01-11'),10);
 equal('Ungültiges Datum liefert null',AnimalEngine.daysSince('ungültig','2026-01-11'),null);
+equal('Profil-Fallback für ungültiges Datum',AnimalEngine.daysSinceOr('ungültig',9999,'2026-01-11'),9999);
+equal('Profil-Fallback wird bei gültigem Datum ignoriert',AnimalEngine.daysSinceOr('2026-01-01',9999,'2026-01-11'),10);
 equal('Fütterungsintervall',AnimalEngine.getFeedInterval(fullAnimal),14);
 equal('Gewichtsintervall',AnimalEngine.getWeightInterval(fullAnimal),30);
 equal('Deaktiviertes Fütterungsintervall',AnimalEngine.getFeedInterval({feedIntervalEnabled:false,feedIntervalDays:14}),null);
