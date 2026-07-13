@@ -1,0 +1,40 @@
+name: Apply profile AnimalEngine codemod
+
+on:
+  push:
+    branches:
+      - agent/apply-profile-codemod
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/apply-profile-codemod
+          fetch-depth: 0
+
+      - name: Verify codemod matches
+        run: node tools/refactor-profile-animal-engine.mjs --check
+
+      - name: Apply codemod
+        run: node tools/refactor-profile-animal-engine.mjs
+
+      - name: Verify expected diff only
+        run: |
+          test "$(git diff --name-only)" = "v500/modules/profile.js"
+          git diff --check
+          git diff -- v500/modules/profile.js
+
+      - name: Commit migration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v500/modules/profile.js
+          git commit -m "refactor: use AnimalEngine in profile helpers"
+          git push origin HEAD:agent/apply-profile-codemod
