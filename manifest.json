@@ -3,8 +3,8 @@
   "name": "TerraControl",
   "short_name": "TerraControl",
   "description": "TerraControl ist ein Terraristik Dashboard für Tierbestand, Pflege, Fütterung, Dokumentation, QR-Tierpass, Abgabenachweis und Cloud-Sicherung.",
-  "version": "1.0.0",
-  "start_url": "./v500.html",
+  "version": "1.0.4-rc.11",
+  "start_url": "./v500.html?v=1.0.4-rc.11",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
@@ -19,7 +19,7 @@
     {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
   ],
   "shortcuts": [
-    {"name": "Tierbestand", "short_name": "Bestand", "description": "Tierbestand öffnen", "url": "./v500.html", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]},
-    {"name": "Cloud & Backup", "short_name": "Backup", "description": "Cloud und Backup öffnen", "url": "./v500.html", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]}
+    {"name": "Tierbestand", "short_name": "Bestand", "description": "Tierbestand öffnen", "url": "./v500.html?v=1.0.4-rc.11", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]},
+    {"name": "Cloud & Backup", "short_name": "Backup", "description": "Cloud und Backup öffnen", "url": "./v500.html?v=1.0.4-rc.11", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]}
   ]
 }
