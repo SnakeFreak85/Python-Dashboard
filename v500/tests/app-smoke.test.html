@@ -68,17 +68,49 @@ async function testAssets(){
    record('Asset erreichbar: '+url,false,error.message);
   }
  }
+
+ const serviceWorkerResponse=await fetch(
+  '../../service-worker.js',
+  {cache:'no-store'}
+ );
+
+ record(
+  'Service Worker erreichbar',
+  serviceWorkerResponse.ok,
+  'HTTP '+serviceWorkerResponse.status
+ );
+
+ if(serviceWorkerResponse.ok){
+  const serviceWorker=await serviceWorkerResponse.text();
+
+  const missingAppShellAssets=urls.filter(function(url){
+   const path=String(url).split('?')[0];
+   return !serviceWorker.includes(path);
+  });
+
+  record(
+   'lokale Start-Assets in App-Shell enthalten',
+   missingAppShellAssets.length===0,
+   missingAppShellAssets.join(', ')
+  );
+ }
 }
 
 function testRuntime(){
  return new Promise(function(resolve){
   const frame=document.getElementById('appFrame');
+  let finished=false;
+
   const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
    record('App-Frame geladen',false,'Timeout');
    resolve();
   },15000);
 
-  frame.addEventListener('load',function(){
+  function inspectFrame(){
+   if(finished)return;
+   finished=true;
    clearTimeout(timeout);
    record('App-Frame geladen',true);
 
@@ -87,6 +119,16 @@ function testRuntime(){
     record('NGT500 verfügbar',!!win.NGT500);
     record('NGTStore verfügbar',!!win.NGTStore);
     record('AnimalEngine verfügbar',!!win.AnimalEngine);
+    record('NGTAnimals verfügbar',!!win.NGTAnimals);
+    record(
+     'Animals-Teilmodule verfügbar',
+     !!(
+      win.NGTAnimalsInternal&&
+      win.NGTAnimalsInternal.food&&
+      win.NGTAnimalsInternal.stock&&
+      win.NGTAnimalsInternal.editor
+     )
+    );
 
     const modules=win.NGT500&&win.NGT500.modules||{};
     expectedModules.forEach(function(name){
@@ -114,7 +156,25 @@ function testRuntime(){
     record('Runtime-Prüfung',false,error.message);
    }
    resolve();
-  },{once:true});
+  }
+
+  frame.addEventListener(
+   'load',
+   inspectFrame,
+   {once:true}
+  );
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'&&
+    /\/v500\.html(?:[?#]|$)/.test(
+     frame.contentWindow.location.href
+    )
+   ){
+    setTimeout(inspectFrame,0);
+   }
+  }catch(error){}
  });
 }
 

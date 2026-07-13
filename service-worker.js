@@ -34,6 +34,10 @@ const APP_SHELL=[
 
   './v500/modules/dashboard.js'+VERSION_QUERY,
   './v500/hkn-import.js'+VERSION_QUERY,
+  './v500/modules/animals-core.js'+VERSION_QUERY,
+  './v500/modules/animals-food.js'+VERSION_QUERY,
+  './v500/modules/animals-stock.js'+VERSION_QUERY,
+  './v500/modules/animals-editor.js'+VERSION_QUERY,
   './v500/modules/animals.js'+VERSION_QUERY,
   './v500/modules/offspring.js'+VERSION_QUERY,
 

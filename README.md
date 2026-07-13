@@ -75,6 +75,20 @@ profile.js
 
 `profile.js` rendert und orchestriert die Seite. Die Fachbereiche Futter, Gesundheit, Tierpass und Fotos liegen in eigenen Modulen. Die öffentliche `NGTProfile`-API bleibt der Integrationspunkt für Inline-Handler und andere Bereiche.
 
+## Tierbestandsmodule
+
+Der Tierbestand wird in dieser Reihenfolge geladen:
+
+```text
+animals-core.js
+animals-food.js
+animals-stock.js
+animals-editor.js
+animals.js
+```
+
+`animals.js` bleibt der Controller und stellt die kompatible öffentliche `NGTAnimals`-API bereit. Gemeinsame Hilfen, Futteranbindung, Bestandsansicht und Editor liegen in getrennten internen Modulen.
+
 ## Weitere Module
 
 Die aktive Anwendung enthält unter anderem:
@@ -121,6 +135,12 @@ App-Smoke-Test:
 
 ```text
 http://localhost:8000/v500/tests/app-smoke.test.html
+```
+
+Tierbestandsmodule:
+
+```text
+http://localhost:8000/v500/tests/animals.test.html
 ```
 
 Zusätzlich betroffene Funktionen manuell prüfen und die Browserkonsole auf rote Fehler kontrollieren.

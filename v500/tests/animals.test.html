@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Animals Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>Animals Browser Tests</h1>
+<p class="muted">Charakterisiert Bestandsfilter, Editor, Legacy-Felder und öffentliche API.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({name:name,passed:!!passed,detail:detail||''});
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=results.map(function(result){
+  return '<li class="'+(result.passed?'pass':'fail')+'">'+
+   (result.passed?'PASS':'FAIL')+' — '+result.name+
+   (result.passed||!result.detail?'':' <span class="muted">('+result.detail+')</span>')+
+   '</li>';
+ }).join('');
+
+ document.title=failed?'FAIL — Animals Tests':'PASS — Animals Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  let finished=false;
+
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener('load',complete,{once:true});
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'&&
+    /\/v500\.html(?:[?#]|$)/.test(
+     frame.contentWindow.location.href
+    )
+   ){
+    setTimeout(complete,0);
+   }
+  }catch(error){}
+ });
+}
+
+async function run(){
+ const frame=document.getElementById('appFrame');
+ let win=null;
+ let localBackup=null;
+ let routeBackup=null;
+ let stackBackup=null;
+  let hknBackup=null;
+
+ try{
+  win=await waitForLoad(frame);
+
+  localBackup=win.localStorage.getItem('spd_v53');
+  routeBackup=win.sessionStorage.getItem('terracontrol_current_route_v1');
+  stackBackup=win.sessionStorage.getItem('terracontrol_route_stack_v1');
+  hknBackup=win.sessionStorage.getItem('terracontrol_hkn_import_v1');
+
+  record('NGTAnimals verfügbar',!!win.NGTAnimals);
+  record('interne Animals-Module verfügbar',!!(
+   win.NGTAnimalsInternal&&
+   win.NGTAnimalsInternal.food&&
+   win.NGTAnimalsInternal.stock&&
+   win.NGTAnimalsInternal.editor
+  ));
+  equal('öffentliche API: openEditor',typeof win.NGTAnimals.openEditor,'function');
+  equal('öffentliche API: save',typeof win.NGTAnimals.save,'function');
+  equal('öffentliche API: remove',typeof win.NGTAnimals.remove,'function');
+  equal('öffentliche API: updateIntervalFields',typeof win.NGTAnimals.updateIntervalFields,'function');
+
+  win.NGTStore.clearLocal();
+
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   name:'Luna',
+   status:'Bestand',
+   feedingInterval:13,
+   customField:'bleibt',
+   photos:[{thumbUrl:'thumb.jpg',url:'full.jpg',cover:true}]
+  });
+
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Boas',
+   genus:'Boa',
+   name:'Archiviert',
+   status:'Archiv'
+  });
+
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Pythons',
+   genus:'Python',
+   name:'Nachzucht',
+   status:'Nachzucht',
+   collection:'offspring'
+  });
+
+  win.NGT500.route('animals',{});
+
+  const inventoryText=win.document.getElementById('app').textContent;
+  record('aktive Tiergruppe wird angezeigt',inventoryText.includes('Pythons'));
+  record('archivierte Tiergruppe wird ausgeblendet',!inventoryText.includes('Boas'));
+
+  win.NGT500.route('animals',{group:'Pythons',genus:'Python'});
+
+  const animalText=win.document.getElementById('app').textContent;
+  record('aktives Tier wird angezeigt',animalText.includes('Luna'));
+  record('Nachzucht wird ausgeblendet',!animalText.includes('Nachzucht'));
+  equal(
+   'Thumbnail wird bevorzugt',
+   win.document.querySelector('.tc2TaxAnimal img').getAttribute('src'),
+   'thumb.jpg'
+  );
+
+  win.NGTStore.data().foodInventory.push({
+   id:'food-1',
+   category:'Nagetiere',
+   condition:'Frost',
+   itemName:'Ratte',
+   variant:'50 g',
+   unit:'Stück',
+   qty:8,
+   label:'Frost Ratte 50 g'
+  });
+  win.NGTStore.save();
+
+  win.NGT500.route('animals',{edit:0});
+
+  equal('Legacy-Fütterungsintervall wird gelesen',win.document.getElementById('edFeedInterval').value,'13');
+  record('Legacy-Fütterungsintervall wird aktiviert',win.document.getElementById('edFeedIntervalEnabled').checked);
+
+  win.document.getElementById('edFeedInterval').value='15';
+  win.document.getElementById('edFeedIntervalEnabled').checked=true;
+  win.document.getElementById('edWeightIntervalEnabled').checked=false;
+  win.document.getElementById('edFoodInventoryId').value='food-1';
+  win.document.getElementById('edOrigin').value='ENZ';
+  win.document.getElementById('edFather').value='Vater';
+  win.document.getElementById('edMother').value='Mutter';
+
+  win.NGTAnimals.save('',0);
+
+  const saved=win.NGTStore.animal('',0);
+  equal('unbekanntes Bestandsfeld bleibt erhalten',saved.customField,'bleibt');
+  equal('Fütterungsintervall: kanonisches Feld',saved.feedIntervalDays,15);
+  equal('Fütterungsintervall: Legacy-Feld 1',saved.feedingInterval,15);
+  equal('Fütterungsintervall: Legacy-Feld 2',saved.feedInterval,15);
+  equal('deaktiviertes Gewichtsintervall bleibt null',saved.weightIntervalDays,null);
+  equal('Herkunfts-Alias bleibt synchron',saved.originType,'ENZ');
+  equal('Vater-Alias bleibt synchron',saved.sire,'Vater');
+  equal('Mutter-Alias bleibt synchron',saved.dam,'Mutter');
+  equal('Futter-ID bleibt synchron',saved.defaultFeederId,'food-1');
+  equal('Futter-Label bleibt synchron',saved.standardFeed,'Frost Ratte 50 g');
+  equal('Bestandszuordnung bleibt erhalten',saved.collection,'stock');
+
+  const current=win.NGT500.current();
+  equal('Speichern führt zurück zum Bestand',current.name,'animals');
+  equal('Speichern erhält Tiergruppe in Route',current.args.group,'Pythons');
+  equal('Speichern erhält Gattung in Route',current.args.genus,'Python');
+
+  win.sessionStorage.setItem(
+   'terracontrol_hkn_import_v1',
+   JSON.stringify({
+    name:'nachweis.png',
+    data:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='
+   })
+  );
+
+  win.NGT500.route('animals',{t:'koenig',hkn:1});
+
+  record(
+   'HKN-Editor wird angezeigt',
+   win.document.getElementById('app').textContent.includes('Herkunftsnachweis übernommen')
+  );
+
+  win.document.getElementById('edAnimalGroup').value='Pythons';
+  win.document.getElementById('edGenus').value='Python';
+  win.document.getElementById('edName').value='HKN Tier';
+  win.document.getElementById('edNote').value='Geprüft';
+
+  win.NGTAnimals.save('koenig',null);
+
+  const imported=win.NGTStore.allAnimals().find(function(row){
+   return row.a.name==='HKN Tier';
+  }).a;
+
+  equal('HKN-Notiz wird angehängt',imported.note,'Geprüft\n\nHKN importiert: nachweis.png');
+  equal('HKN-Foto wird übernommen',imported.photos[0].type,'Herkunftsnachweis');
+  equal('HKN-Dateiname bleibt erhalten',imported.photos[0].note,'nachweis.png');
+  equal('HKN-Zwischenspeicher wird entfernt',win.sessionStorage.getItem('terracontrol_hkn_import_v1'),null);
+
+  const beforeDelete=win.NGTStore.allAnimals().length;
+  const originalConfirm=win.confirm;
+  win.confirm=function(){return false;};
+  win.NGTAnimals.remove('',0);
+  equal('abgebrochenes Löschen verändert Bestand nicht',win.NGTStore.allAnimals().length,beforeDelete);
+  win.confirm=originalConfirm;
+ }catch(error){
+  record('Testlauf ohne Ausnahme',false,error&&error.stack?error.stack:error.message);
+ }finally{
+  if(win){
+   if(localBackup===null){
+    win.localStorage.removeItem('spd_v53');
+   }else{
+    win.localStorage.setItem('spd_v53',localBackup);
+   }
+
+   if(routeBackup===null){
+    win.sessionStorage.removeItem('terracontrol_current_route_v1');
+   }else{
+    win.sessionStorage.setItem('terracontrol_current_route_v1',routeBackup);
+   }
+
+   if(stackBackup===null){
+    win.sessionStorage.removeItem('terracontrol_route_stack_v1');
+   }else{
+    win.sessionStorage.setItem('terracontrol_route_stack_v1',stackBackup);
+   }
+
+   if(hknBackup===null){
+    win.sessionStorage.removeItem('terracontrol_hkn_import_v1');
+   }else{
+    win.sessionStorage.setItem('terracontrol_hkn_import_v1',hknBackup);
+   }
+  }
+
+  render();
+ }
+}
+
+run();
+
+})();
+</script>
+</body>
+</html>

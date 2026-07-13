@@ -4,6 +4,10 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Tierbestand verhaltensneutral in `animals-core`, `animals-food`, `animals-stock`, `animals-editor` und den `animals`-Controller aufgeteilt.
+- Browser-Charakterisierungstests für Bestandsfilter, Editor, Legacy-Felder und öffentliche `NGTAnimals`-API ergänzt.
+- App-Smoke-Test gegen frühes Laden des App-Frames abgesichert und um die Prüfung der Service-Worker-App-Shell erweitert.
+
 - `v500/` als aktive Codebasis konsolidiert.
 - TerraControl-Branding, TC2-Oberfläche und mobile PWA-Nutzung vereinheitlicht.
 - Tierverwaltung, Tierprofil, Taxonomie, Nachzuchten, Futterverwaltung, QR-Tierpass, Backup und Firebase-Synchronisation weiterentwickelt.

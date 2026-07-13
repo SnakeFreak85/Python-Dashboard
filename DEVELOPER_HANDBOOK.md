@@ -87,6 +87,10 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── smart-dashboard.js
     ├── modules/
     │   ├── dashboard.js
+    │   ├── animals-core.js
+    │   ├── animals-food.js
+    │   ├── animals-stock.js
+    │   ├── animals-editor.js
     │   ├── animals.js
     │   ├── offspring.js
     │   ├── profile-core.js
@@ -234,6 +238,28 @@ Bei Profiländerungen müssen mindestens getestet werden:
 - QR-Tierpass,
 - Dokumentencenter,
 - Speichern und Reload.
+
+### 7.4 Tierbestands-Architektur
+
+Der Tierbestandsbereich wird in dieser Reihenfolge geladen:
+
+```text
+animals-core.js
+animals-food.js
+animals-stock.js
+animals-editor.js
+animals.js
+```
+
+| Datei | Verantwortung |
+|---|---|
+| `animals-core.js` | interner Namespace, gemeinsame Hilfen, Bestandsfilter und Gruppierung |
+| `animals-food.js` | Futterbestands-Kompatibilität, Normalisierung und Auswahloptionen |
+| `animals-stock.js` | Bestands-, Gruppen-, Gattungs- und Tierkarten-Rendering |
+| `animals-editor.js` | Editor, Intervalle, HKN-Übernahme sowie Speichern und Löschen |
+| `animals.js` | Controller, öffentliche `NGTAnimals`-API und Modulregistrierung |
+
+Die öffentliche `NGTAnimals`-API bleibt der Integrationspunkt für Inline-Handler und andere Module. Die internen Teilmodule kommunizieren über `window.NGTAnimalsInternal`.
 
 ---
 
@@ -476,16 +502,16 @@ Architektur-, Datenmodell-, Script- oder Workflow-Änderungen müssen in der pas
 - Browser-Smoke-Test ergänzt.
 - bestätigte Profil-Duplikate auf AnimalEngine umgestellt.
 - Tierprofil in fachliche Module aufgeteilt.
+- Tierbestand in Core-, Futter-, Bestands- und Editor-Teilmodule aufgeteilt.
 - Repository-Anweisungen für Coding Agents ergänzt.
 
 ### Nächste Prioritäten
 
-1. `animals.js` analysieren und entlang stabiler Verantwortungsgrenzen modularisieren.
-2. Taxonomie und Taxonomie-UI weiter entkoppeln.
-3. Nachzuchtmodul schrittweise verkleinern.
-4. Store-Migrationen mit zusätzlichen Fixtures absichern.
-5. Service-Worker- und Offline-Tests automatisieren.
-6. Gesundheitsstatus und weitere Fachregeln aus UI-Modulen in testbare Domain-Logik verschieben.
+1. Taxonomie und Taxonomie-UI weiter entkoppeln.
+2. Nachzuchtmodul schrittweise verkleinern.
+3. Store-Migrationen mit zusätzlichen Fixtures absichern.
+4. Service-Worker- und Offline-Tests automatisieren.
+5. Gesundheitsstatus und weitere Fachregeln aus UI-Modulen in testbare Domain-Logik verschieben.
 
 ---
 
