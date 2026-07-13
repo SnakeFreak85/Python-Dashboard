@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TerraControl App Smoke Test</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+h1{margin-bottom:8px}.muted{color:#94a3b8}.summary{font-weight:700;margin:20px 0}.ok{color:#86efac}.fail{color:#fca5a5}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>TerraControl App Smoke Test</h1>
+<p class="muted">Prüft Einstiegspunkt, lokale Assets, globale APIs und Modulregistrierung.</p>
+<div id="summary" class="summary">Test läuft …</div>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html?v=1.0.4-rc.11"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+const expectedModules=[
+ 'dashboard','animals','offspring','profile','food','qr','backup','assistant','chat'
+];
+
+function record(name,passed,detail){
+ results.push({name,passed,detail:detail||''});
+}
+
+function render(){
+ const list=document.getElementById('results');
+ list.innerHTML=results.map(function(result){
+  return '<li class="'+(result.passed?'ok':'fail')+'">'+
+   (result.passed?'PASS':'FAIL')+' — '+result.name+
+   (result.detail?' <span class="muted">('+result.detail+')</span>':'')+
+   '</li>';
+ }).join('');
+
+ const failed=results.filter(function(result){return !result.passed;}).length;
+ const summary=document.getElementById('summary');
+ summary.textContent=failed
+  ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+  :results.length+' Prüfungen erfolgreich.';
+ summary.className='summary '+(failed?'fail':'ok');
+ document.title=failed?'FAIL — TerraControl Smoke Test':'PASS — TerraControl Smoke Test';
+}
+
+async function testAssets(){
+ const response=await fetch('../../v500.html?v=1.0.4-rc.11',{cache:'no-store'});
+ record('v500.html erreichbar',response.ok,'HTTP '+response.status);
+ if(!response.ok)return;
+
+ const html=await response.text();
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const urls=Array.from(doc.querySelectorAll('script[src],link[rel="stylesheet"][href]'))
+  .map(function(node){return node.getAttribute('src')||node.getAttribute('href');})
+  .filter(function(url){return url&& !/^https?:\/\//.test(url);});
+
+ record('lokale Start-Assets gefunden',urls.length>0,String(urls.length));
+
+ for(const url of urls){
+  const assetUrl=new URL(url,response.url).href;
+  try{
+   const assetResponse=await fetch(assetUrl,{cache:'no-store'});
+   record('Asset erreichbar: '+url,assetResponse.ok,'HTTP '+assetResponse.status);
+  }catch(error){
+   record('Asset erreichbar: '+url,false,error.message);
+  }
+ }
+}
+
+function testRuntime(){
+ return new Promise(function(resolve){
+  const frame=document.getElementById('appFrame');
+  const timeout=setTimeout(function(){
+   record('App-Frame geladen',false,'Timeout');
+   resolve();
+  },15000);
+
+  frame.addEventListener('load',function(){
+   clearTimeout(timeout);
+   record('App-Frame geladen',true);
+
+   try{
+    const win=frame.contentWindow;
+    record('NGT500 verfügbar',!!win.NGT500);
+    record('NGTStore verfügbar',!!win.NGTStore);
+    record('AnimalEngine verfügbar',!!win.AnimalEngine);
+
+    const modules=win.NGT500&&win.NGT500.modules||{};
+    expectedModules.forEach(function(name){
+     record('Modul registriert: '+name,!!modules[name]);
+    });
+
+    record(
+     'App-Root gerendert',
+     !!frame.contentDocument.getElementById('app')
+    );
+
+    record(
+     'Store-Daten abrufbar',
+     !!(win.NGTStore&&typeof win.NGTStore.data==='function'&&win.NGTStore.data())
+    );
+
+    record(
+     'AnimalEngine-Basisfunktion ausführbar',
+     !!(
+      win.AnimalEngine&&
+      win.AnimalEngine.getScientificName({genus:'Python',species:'regius'})==='Python regius'
+     )
+    );
+   }catch(error){
+    record('Runtime-Prüfung',false,error.message);
+   }
+   resolve();
+  },{once:true});
+ });
+}
+
+async function run(){
+ try{
+  await testAssets();
+ }catch(error){
+  record('Asset-Prüfung',false,error.message);
+ }
+
+ await testRuntime();
+ render();
+}
+
+run();
+})();
+</script>
+</body>
+</html>
