@@ -158,11 +158,12 @@ P.action=function(
   action+
   '<button '+
    'class="tc2ProfileAction danger" '+
+   'style="grid-column:1/-1;width:100%;min-height:68px;background:linear-gradient(180deg,#d63a3a,#b6222b)!important;border:1px solid rgba(255,125,125,.55)!important;color:#fff!important;box-shadow:0 14px 30px rgba(125,0,12,.28)!important" '+
    'onclick="'+removeAction+'"'+
   '>'+ 
    '<div class="tc2ProfileActionIcon">🗑️</div>'+ 
    '<div class="tc2ProfileActionText">Tier löschen</div>'+ 
-   '<div class="tc2ProfileActionArrow">›</div>'+ 
+   '<div class="tc2ProfileActionArrow" style="color:#fff!important">›</div>'+ 
   '</button>'
  );
 };
