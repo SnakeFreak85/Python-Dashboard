@@ -5,7 +5,9 @@
 > **Produktiver Einstieg:** `index.html` → `v500.html`  
 > **Hauptzweig:** `main`  
 > **Release-Stand:** `1.0.4-rc.11`  
-> **Status:** Living Document
+> **Status:** Living Document  
+> **Letzte Aktualisierung:** 14. Juli 2026  
+> **Operative Übergabe:** `PROJECT_HANDOFF.md`
 
 ---
 
@@ -66,6 +68,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
 ├── AGENTS.md
 ├── CHANGELOG.md
 ├── DEVELOPER_HANDBOOK.md
+├── PROJECT_HANDOFF.md
 ├── README.md
 ├── VERSION
 ├── index.html
@@ -406,6 +409,20 @@ TerraControl ist mobile-first. Neue UI muss:
 
 Barrierearme Beschriftungen, sinnvolle `aria-label`-Werte und Tastaturverhalten sind insbesondere bei Modalen und Viewern zu berücksichtigen.
 
+### 10.1 Verbindlicher TC2-App-Rahmen
+
+Startseite und Smart Dashboard sind die visuellen Referenzen. Ihr kompakter, zentrierter Mobile-First-Rahmen ist auch auf großen Bildschirmen beabsichtigt.
+
+- `v500.html` initialisiert den `tc2RefMode`.
+- Startseite und Smart Dashboard rendern ihre Referenzköpfe selbst.
+- `v500/core.js` fügt über `appTop()` allen übrigen internen Routen zentral denselben kompakten Kopf hinzu.
+- Der Hamburger-Button, die Inhaltsbreite, der TC-Avatar, der dunkle Hintergrund und die Kartenradien müssen visuell konsistent bleiben.
+- Einzelne Module dürfen keinen weiteren konkurrierenden App-Kopf oder eigenen Drawer einführen.
+- Unteransichten und dynamisch geladene Module müssen ebenfalls über das zentrale Routing gerendert werden.
+- Eigenständige öffentliche Seiten verwenden die TC2-Standalone-Klassen, weil dort kein App-Drawer verfügbar ist.
+
+Der frühere breite, über die gesamte Desktopfläche laufende Kopf der Modul-Seiten ist nicht mehr der gewünschte Standard.
+
 ---
 
 ## 11. Lokale Entwicklung
@@ -531,6 +548,7 @@ Fremde lokale Änderungen dürfen nicht verworfen oder überschrieben werden.
 |---|---|
 | `README.md` | schneller Einstieg, Start, Architekturüberblick |
 | `DEVELOPER_HANDBOOK.md` | vollständige technische Regeln und aktueller Architekturstand |
+| `PROJECT_HANDOFF.md` | operativer Projektstand, feste Nutzerentscheidungen, Deployment- und Teststatus |
 | `AGENTS.md` | verbindliche Arbeitsanweisungen für Codex und andere Coding Agents |
 | `CHANGELOG.md` | release-relevante Änderungen |
 | `VERSION` | maschinenlesbare Release-Kennung |
@@ -555,14 +573,18 @@ Architektur-, Datenmodell-, Script- oder Workflow-Änderungen müssen in der pas
 - Tierbestand in Core-, Futter-, Bestands- und Editor-Teilmodule aufgeteilt.
 - Taxonomiedaten in Core-, Store- und Cloud-Teilmodule mit kompatiblem Controller aufgeteilt.
 - Taxonomie-UI in Illustrations-, Dekorations- und Controller-Teilmodule aufgeteilt.
+- aktive und öffentliche Oberflächen auf TC2 vereinheitlicht.
+- zentralen kompakten Modulkopf für alle internen Routen ergänzt; Startseite und Smart Dashboard sind die Referenz.
+- zugängliche gemeinsame TC2-Dialoge anstelle nativer Browserdialoge eingeführt.
 - Repository-Anweisungen für Coding Agents ergänzt.
 
 ### Nächste Prioritäten
 
-1. Nachzuchtmodul schrittweise verkleinern.
-2. Store-Migrationen mit zusätzlichen Fixtures absichern.
-3. Service-Worker- und Offline-Tests automatisieren.
+1. Rückmeldung zur zuletzt veröffentlichten TC2-Vereinheitlichung aus der App abwarten und sichtbare Abweichungen korrigieren.
+2. Nachzuchtmodul schrittweise verkleinern.
+3. Store-Migrationen mit zusätzlichen Fixtures absichern.
 4. Gesundheitsstatus und weitere Fachregeln aus UI-Modulen in testbare Domain-Logik verschieben.
+5. Service-Worker- und Offline-Tests automatisieren; der PWABuilder-Offline-Start bleibt bis zum ausdrücklichen Auftrag zurückgestellt.
 
 ---
 
@@ -597,7 +619,9 @@ Eine Änderung ist abgeschlossen, wenn:
 
 ## 19. Arbeitsweise mit Codex
 
-Codex soll zuerst `AGENTS.md`, anschließend dieses Handbook und danach die betroffenen Dateien lesen.
+Codex soll zuerst `AGENTS.md`, anschließend dieses Handbook, danach `PROJECT_HANDOFF.md` und erst dann die betroffenen Dateien lesen.
+
+Die operative Übergabe ist verbindlich für Entscheidungen, die nicht allein aus dem Code hervorgehen, insbesondere Repository-Pfad, festgehaltene Version, aktueller Teststatus, TC2-Designmaßstab und bewusst vertagte Arbeiten.
 
 Geeignete Aufträge sind klein und überprüfbar, zum Beispiel:
 

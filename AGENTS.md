@@ -12,12 +12,13 @@ Diese Anweisungen gelten für das gesamte Repository `SnakeFreak85/Python-Dashbo
 - Hauptzweig: **`main`**
 - Aktuelle Release-Kennung: **`1.0.4-rc.11`**
 - Technische Hauptdokumentation: **`DEVELOPER_HANDBOOK.md`**
+- Aktuelle Projektübergabe: **`PROJECT_HANDOFF.md`**
 
 Ältere Versionsdateien sind keine Grundlage für neue Funktionen. Änderungen sollen grundsätzlich die aktive `v500`-Architektur weiterentwickeln.
 
 ## Vor jeder Änderung
 
-1. `README.md`, `DEVELOPER_HANDBOOK.md` und die betroffenen Dateien lesen.
+1. `README.md`, `DEVELOPER_HANDBOOK.md`, `PROJECT_HANDOFF.md` und die betroffenen Dateien lesen.
 2. Die Script-Reihenfolge in `v500.html` prüfen.
 3. Store-, AnimalEngine-, Firebase-, Foto- und Service-Worker-Abhängigkeiten klären.
 4. Bestehende globale APIs und Inline-Handler erfassen.
@@ -137,6 +138,8 @@ Im selben Änderungsschritt aktualisieren, wenn betroffen:
 - Vor dem Commit den vollständigen Diff prüfen.
 - Bei riskanten Refactorings einen separaten Branch oder Pull Request verwenden.
 - Keine fremden Änderungen verwerfen oder überschreiben.
+- Änderungen nur im tatsächlich mit `origin` verbundenen Repository veröffentlichen; getrennte Arbeitskopien sind keine Deployment-Quelle.
+- Die Version bis zur ausdrücklichen Freigabe des Projektinhabers auf `1.0.4-rc.11` belassen.
 
 ## Verbotene Abkürzungen
 

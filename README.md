@@ -9,6 +9,7 @@ TerraControl ist eine mobile-first Terraristik-Management-Anwendung für Tierbes
 ## Dokumentation
 
 - [`DEVELOPER_HANDBOOK.md`](./DEVELOPER_HANDBOOK.md) – vollständige Architektur, Datenregeln, Tests und Roadmap
+- [`PROJECT_HANDOFF.md`](./PROJECT_HANDOFF.md) – aktueller Arbeitsstand, feste Entscheidungen und Einstieg für einen neuen Projektchat
 - [`AGENTS.md`](./AGENTS.md) – verbindliche Repository-Anweisungen für Codex und andere Coding Agents
 - [`CHANGELOG.md`](./CHANGELOG.md) – release-relevante Änderungen
 
@@ -17,6 +18,8 @@ TerraControl ist eine mobile-first Terraristik-Management-Anwendung für Tierbes
 Die aktuelle Anwendung basiert auf der v500-Architektur. Ältere Versionsdateien im Repository sind historische Referenzen und keine Grundlage für neue Funktionen.
 
 Die sichtbare Anwendung wird über `index.html` geöffnet. Diese Startseite verweist auf `v500.html`, das die aktive Oberfläche und alle JavaScript-Module in definierter Reihenfolge lädt.
+
+Der aktuelle operative Stand und die nächsten Schritte stehen in `PROJECT_HANDOFF.md`. Startseite und Smart Dashboard sind der verbindliche visuelle Maßstab für den kompakten TC2-App-Rahmen aller internen Seiten.
 
 ## Architektur
 
@@ -211,8 +214,9 @@ Codex soll vor Änderungen in dieser Reihenfolge lesen:
 
 1. `AGENTS.md`
 2. `DEVELOPER_HANDBOOK.md`
-3. die betroffenen Dateien
-4. `v500.html` und gegebenenfalls `service-worker.js`
+3. `PROJECT_HANDOFF.md`
+4. die betroffenen Dateien
+5. `v500.html` und gegebenenfalls `service-worker.js`
 
 Aufträge sollten klein, überprüfbar und fachlich begrenzt sein. Große Module werden schrittweise und verhaltensneutral refaktoriert. Bei neuen produktiven Dateien müssen Script-Reihenfolge, Service-Worker-App-Shell, Tests und Dokumentation gemeinsam berücksichtigt werden.
 

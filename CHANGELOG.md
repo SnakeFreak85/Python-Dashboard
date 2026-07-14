@@ -14,6 +14,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 - Aktive App-Bereiche, öffentliche Einstiegsseiten, Dokumentencenter und Legacy-Einstiege auf den gemeinsamen TC2-Standard umgestellt.
 - Native Browser-Dialoge durch zugängliche TC2-Dialoge ersetzt und einen Browser-Test für TC2-Markup, Dialoge, Versionen und mobile Überläufe ergänzt.
 - Sämtliche internen App-Routen und Unteransichten verwenden nun zentral den kompakten Kopfbereich, Hamburger-Button, Seitenrahmen und die Breite von Startseite und Smart Dashboard.
+- `PROJECT_HANDOFF.md` als verbindliche Übergabe für neue Projektchats ergänzt und README, Handbook sowie Agent-Anweisungen auf den aktuellen Stand gebracht.
 
 - `v500/` als aktive Codebasis konsolidiert.
 - TerraControl-Branding, TC2-Oberfläche und mobile PWA-Nutzung vereinheitlicht.
