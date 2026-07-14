@@ -11,7 +11,8 @@ P.state={
   i:0
  },
  viewerIndex:-1,
- viewerKeyHandler:null
+ viewerKeyHandler:null,
+ viewerPreviousFocus:null
 };
 
 P.esc=function(value){
@@ -202,11 +203,18 @@ P.setTab=function(tab){
  });
 };
 
-P.deleteEntry=function(
+P.deleteEntry=async function(
  kind,
  index
 ){
- if(!confirm('Eintrag löschen?')){
+ if(!await NGT500.confirmAction(
+  'Eintrag löschen?',
+  {
+   title:'Profileintrag löschen',
+   confirmText:'Eintrag löschen',
+   danger:true
+  }
+ )){
   return;
  }
 
@@ -246,8 +254,9 @@ P.addShed=function(){
  const animal=P.current();
 
  if(!animal){
-  alert(
-   'Das Tier wurde nicht gefunden.'
+  NGT500.toast(
+   'Das Tier wurde nicht gefunden.',
+   'danger'
   );
   return;
  }
@@ -281,8 +290,9 @@ P.addWeight=function(){
  const animal=P.current();
 
  if(!animal){
-  alert(
-   'Das Tier wurde nicht gefunden.'
+  NGT500.toast(
+   'Das Tier wurde nicht gefunden.',
+   'danger'
   );
   return;
  }
@@ -299,7 +309,7 @@ P.addWeight=function(){
  );
 
  if(!weight){
-  alert('Gewicht fehlt');
+  NGT500.toast('Gewicht fehlt.','warn');
   return;
  }
 
@@ -332,7 +342,7 @@ P.addWeight=function(){
 
 P.shedForm=function(){
  return (
-  '<div class="subcard tc2SubCard">'+
+  '<div class="tc2SubCard">'+
    '<h3>Häutung eintragen</h3>'+
    '<input '+
     'id="shedDate" '+
@@ -350,7 +360,7 @@ P.shedForm=function(){
 
 P.weightForm=function(){
  return (
-  '<div class="subcard tc2SubCard">'+
+  '<div class="tc2SubCard">'+
    '<h3>Gewicht eintragen</h3>'+
    '<input '+
     'id="weightDate" '+
@@ -373,7 +383,7 @@ P.weightForm=function(){
 
 P.shedList=function(animal){
  return (
-  '<div class="subcard tc2SubCard">'+
+  '<div class="tc2SubCard">'+
    '<h3>Häutungen</h3>'+
    (
     (animal.sheds||[])
@@ -407,7 +417,7 @@ P.shedList=function(animal){
 
 P.weightList=function(animal){
  return (
-  '<div class="subcard tc2SubCard">'+
+  '<div class="tc2SubCard">'+
    '<h3>Gewichte</h3>'+
    (
     (animal.weights||[])
@@ -493,7 +503,7 @@ P.barChart=function(rows){
 
 P.charts=function(animal){
  return (
-  '<div class="subcard tc2SubCard">'+
+  '<div class="tc2SubCard">'+
    '<h3>Gewicht</h3>'+
    P.barChart(
     (animal.weights||[])
@@ -508,7 +518,7 @@ P.charts=function(animal){
      })
    )+
   '</div>'+
-  '<div class="subcard tc2SubCard">'+
+  '<div class="tc2SubCard">'+
    '<h3>Fütterungen</h3>'+
    P.barChart(
     (animal.feeds||[])

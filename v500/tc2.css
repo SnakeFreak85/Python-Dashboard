@@ -12131,3 +12131,759 @@ body.menuOpen #drawer{
   height:175px!important;
  }
 }
+
+/* =========================================================
+   TC2 gemeinsame Dialoge, Hinweise und öffentliche Seiten
+   ========================================================= */
+
+body.tc2ModalOpen{
+ overflow:hidden!important;
+}
+
+.tc2ModalBackdrop{
+ position:fixed!important;
+ inset:0!important;
+ z-index:99990!important;
+ display:grid!important;
+ align-items:center!important;
+ justify-items:center!important;
+ overflow:auto!important;
+ padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom))!important;
+ background:rgba(2,8,14,.82)!important;
+ backdrop-filter:blur(12px)!important;
+}
+
+.tc2ModalBox{
+ position:relative!important;
+ width:min(680px,100%)!important;
+ max-height:min(820px,calc(100dvh - 36px))!important;
+ overflow:auto!important;
+ margin:0!important;
+ padding:22px!important;
+ border:1px solid rgba(124,164,197,.42)!important;
+ border-radius:26px!important;
+ outline:0!important;
+ background:
+  radial-gradient(circle at 94% 0,rgba(139,220,63,.12),transparent 34%),
+  linear-gradient(180deg,#16293a,#0c1925)!important;
+ box-shadow:0 30px 90px rgba(0,0,0,.58)!important;
+ color:#f5f8fb!important;
+}
+
+.tc2ModalBox:focus-visible{
+ box-shadow:
+  0 0 0 3px rgba(139,220,63,.26),
+  0 30px 90px rgba(0,0,0,.58)!important;
+}
+
+.tc2ModalClose{
+ position:sticky!important;
+ top:0!important;
+ z-index:3!important;
+ float:right!important;
+ width:44px!important;
+ min-width:44px!important;
+ height:44px!important;
+ min-height:44px!important;
+ margin:-6px -6px 4px 12px!important;
+ padding:0!important;
+ border:1px solid rgba(140,167,189,.42)!important;
+ border-radius:50%!important;
+ background:#0b1722!important;
+ color:#fff!important;
+ font-size:28px!important;
+ line-height:1!important;
+}
+
+.tc2HelpDialog{
+ clear:both;
+}
+
+.tc2HelpDialog>h2{
+ margin:2px 54px 18px 0!important;
+ color:#f5f8fb!important;
+ font-size:25px!important;
+ line-height:1.12!important;
+}
+
+.tc2HelpDialog>.tc2SubCard{
+ margin:10px 0!important;
+ border-radius:18px!important;
+ background:rgba(8,20,30,.64)!important;
+}
+
+.tc2HelpDialog>.tc2ModalInitial{
+ min-height:48px!important;
+ margin:14px 0 0!important;
+ border-color:rgba(139,220,63,.58)!important;
+ background:linear-gradient(180deg,#31551d,#213b13)!important;
+}
+
+.tc2Dialog{
+ display:grid;
+ grid-template-columns:58px minmax(0,1fr);
+ gap:16px;
+ align-items:start;
+}
+
+.tc2DialogIcon{
+ display:grid;
+ place-items:center;
+ width:58px;
+ height:58px;
+ border:1px solid rgba(255,177,64,.46);
+ border-radius:19px;
+ background:rgba(255,157,27,.12);
+ color:#ffb140;
+ font-size:28px;
+ font-weight:950;
+}
+
+.tc2Dialog.ok .tc2DialogIcon{
+ border-color:rgba(139,220,63,.42);
+ background:rgba(139,220,63,.12);
+ color:#9be651;
+}
+
+.tc2Dialog.danger .tc2DialogIcon{
+ border-color:rgba(255,103,118,.5);
+ background:rgba(255,103,118,.12);
+ color:#ff7c89;
+}
+
+.tc2DialogCopy h2{
+ margin:2px 0 8px!important;
+ font-size:24px!important;
+ line-height:1.1!important;
+}
+
+.tc2DialogCopy p{
+ margin:0!important;
+ color:#b6c3cf!important;
+ font-size:15px!important;
+ line-height:1.55!important;
+}
+
+.tc2DialogActions{
+ grid-column:1/-1;
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;
+ margin-top:8px;
+}
+
+.tc2DialogActions.single{
+ grid-template-columns:1fr;
+}
+
+.tc2DialogActions button{
+ min-height:50px!important;
+ margin:0!important;
+ border-radius:16px!important;
+}
+
+.tc2DialogCancel{
+ background:#0b1722!important;
+ color:#d7e0e8!important;
+}
+
+.tc2DialogConfirm{
+ border-color:rgba(139,220,63,.6)!important;
+ background:linear-gradient(180deg,#31551d,#223d14)!important;
+ color:#f7fff0!important;
+}
+
+.tc2DialogConfirm.danger{
+ border-color:rgba(255,103,118,.7)!important;
+ background:linear-gradient(180deg,#702a36,#4d1c25)!important;
+ color:#fff!important;
+}
+
+.tc2ToastRoot{
+ position:fixed;
+ left:16px;
+ right:16px;
+ bottom:max(18px,env(safe-area-inset-bottom));
+ z-index:99980;
+ display:grid;
+ gap:8px;
+ pointer-events:none;
+}
+
+.tcToast{
+ width:min(520px,100%);
+ margin:auto;
+ padding:13px 15px;
+ border:1px solid rgba(139,220,63,.38);
+ border-radius:17px;
+ background:linear-gradient(180deg,#193224,#10231a);
+ box-shadow:0 16px 44px rgba(0,0,0,.38);
+ color:#f5fff0;
+ font-size:14px;
+ font-weight:800;
+ line-height:1.35;
+ opacity:0;
+ transform:translateY(14px);
+ transition:opacity .22s ease,transform .22s ease;
+ pointer-events:auto;
+}
+
+.tcToast.show{
+ opacity:1;
+ transform:translateY(0);
+}
+
+.tcToast.warn{
+ border-color:rgba(255,177,64,.46);
+ background:linear-gradient(180deg,#4a3517,#30220f);
+ color:#fff1d4;
+}
+
+.tcToast.danger{
+ border-color:rgba(255,103,118,.5);
+ background:linear-gradient(180deg,#55232c,#38171d);
+ color:#ffe8eb;
+}
+
+/* Tiereditor: individuelle Pflegeintervalle */
+
+.tc2AnimalInterval{
+ display:grid;
+ grid-template-columns:minmax(0,1.4fr) minmax(180px,.6fr);
+ gap:12px;
+ align-items:stretch;
+ margin:12px 0 16px;
+}
+
+.tc2AnimalIntervalToggle,
+.tc2AnimalIntervalDays{
+ display:flex!important;
+ align-items:center!important;
+ gap:12px!important;
+ min-height:76px;
+ margin:0!important;
+ padding:13px 15px!important;
+ border:1px solid rgba(93,130,160,.46);
+ border-radius:18px;
+ background:rgba(7,18,28,.58);
+}
+
+.tc2AnimalIntervalToggle input{
+ flex:0 0 auto!important;
+ width:24px!important;
+ height:24px!important;
+ min-height:24px!important;
+ margin:0!important;
+ padding:0!important;
+ accent-color:#8bdc3f;
+}
+
+.tc2AnimalIntervalToggle span{
+ display:grid;
+ gap:4px;
+ min-width:0;
+}
+
+.tc2AnimalIntervalToggle b{
+ color:#f5f8fb;
+ font-size:14px;
+ line-height:1.25;
+}
+
+.tc2AnimalIntervalToggle small{
+ color:#91a0ac!important;
+ font-size:11px!important;
+ line-height:1.35!important;
+}
+
+.tc2AnimalIntervalDays{
+ display:grid!important;
+ grid-template-columns:1fr;
+ gap:7px!important;
+}
+
+.tc2AnimalIntervalDays>span{
+ color:#b8c4ce;
+ font-size:11px;
+ font-weight:850;
+}
+
+.tc2AnimalIntervalDays input{
+ margin:0!important;
+}
+
+.tc2AnimalIntervalDays.is-disabled{
+ opacity:.5;
+}
+
+.tc2QRScannerState{
+ margin-top:12px!important;
+}
+
+.tc2QRScannerVideo{
+ display:block;
+ width:100%;
+ min-height:220px;
+ border-radius:18px;
+ background:#000;
+ object-fit:cover;
+}
+
+/* Profil-Fotoviewer ohne Inline-Layout */
+
+.tc2PhotoViewer{
+ position:fixed;
+ inset:0;
+ z-index:99999;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ box-sizing:border-box;
+ padding:max(16px,env(safe-area-inset-top)) 64px max(16px,env(safe-area-inset-bottom));
+ background:rgba(0,0,0,.94);
+ color:#fff;
+}
+
+.tc2PhotoViewerClose,
+.tc2PhotoViewerNav{
+ position:absolute!important;
+ z-index:3!important;
+ display:grid!important;
+ place-items:center!important;
+ margin:0!important;
+ padding:0!important;
+ border:1px solid rgba(255,255,255,.2)!important;
+ background:rgba(18,31,43,.82)!important;
+ color:#fff!important;
+ backdrop-filter:blur(10px);
+}
+
+.tc2PhotoViewerClose{
+ top:max(16px,env(safe-area-inset-top))!important;
+ right:16px!important;
+ width:46px!important;
+ min-width:46px!important;
+ height:46px!important;
+ min-height:46px!important;
+ border-radius:50%!important;
+ font-size:28px!important;
+}
+
+.tc2PhotoViewerNav{
+ top:50%!important;
+ width:48px!important;
+ min-width:48px!important;
+ height:64px!important;
+ min-height:64px!important;
+ transform:translateY(-50%);
+ border-radius:16px!important;
+ font-size:32px!important;
+}
+
+.tc2PhotoViewerNav.previous{
+ left:12px!important;
+}
+
+.tc2PhotoViewerNav.next{
+ right:12px!important;
+}
+
+.tc2PhotoViewerImage{
+ display:block;
+ max-width:100%;
+ max-height:78vh;
+ object-fit:contain;
+ border-radius:16px;
+ box-shadow:0 18px 56px rgba(0,0,0,.58);
+}
+
+.tc2PhotoViewerCaption{
+ max-width:680px;
+ margin-top:14px;
+ text-align:center;
+ color:#fff;
+}
+
+.tc2PhotoViewerMeta{
+ margin-top:4px;
+ color:#b7c2cc;
+ font-size:12px;
+}
+
+.tc2PhotoViewerNote{
+ margin-top:8px;
+ color:#eef3f7;
+ line-height:1.4;
+}
+
+/* Öffentliche TC2-Seiten */
+
+body.tc2StandaloneBody{
+ min-height:100dvh;
+ margin:0;
+ padding:0 0 max(28px,env(safe-area-inset-bottom));
+ overflow-x:hidden;
+ background:
+  radial-gradient(circle at 15% 0,rgba(36,86,113,.48),transparent 38%),
+  radial-gradient(circle at 88% 8%,rgba(139,220,63,.08),transparent 30%),
+  #06111a;
+ color:#f4f7fb;
+ font-family:Arial,system-ui,sans-serif;
+ color-scheme:dark;
+}
+
+.tc2StandaloneHeader{
+ display:flex;
+ align-items:center;
+ gap:13px;
+ width:min(980px,calc(100% - 28px));
+ margin:0 auto;
+ padding:max(18px,env(safe-area-inset-top)) 0 14px;
+}
+
+.tc2StandaloneLogo{
+ display:grid;
+ place-items:center;
+ width:46px;
+ height:46px;
+ flex:0 0 46px;
+ border:1px solid rgba(139,220,63,.5);
+ border-radius:15px;
+ background:linear-gradient(145deg,#294a1c,#17320e);
+ color:#dfffc7;
+ box-shadow:0 10px 26px rgba(0,0,0,.26);
+ font-size:14px;
+ font-weight:950;
+ letter-spacing:.4px;
+}
+
+.tc2StandaloneBrand{
+ min-width:0;
+}
+
+.tc2StandaloneBrand b{
+ display:block;
+ font-size:18px;
+ line-height:1.1;
+}
+
+.tc2StandaloneBrand small{
+ display:block;
+ margin-top:4px;
+ color:#92a2af;
+ font-size:11px;
+}
+
+.tc2StandaloneShell{
+ display:grid;
+ gap:16px;
+ width:min(980px,calc(100% - 28px));
+ margin:0 auto;
+}
+
+.tc2StandaloneShell.narrow{
+ width:min(720px,calc(100% - 28px));
+}
+
+.tc2StandaloneHero,
+.tc2StandaloneCard{
+ border:1px solid rgba(93,130,160,.42);
+ border-radius:26px;
+ background:linear-gradient(180deg,rgba(20,40,56,.96),rgba(10,24,36,.97));
+ box-shadow:0 20px 52px rgba(0,0,0,.3);
+}
+
+.tc2StandaloneHero{
+ position:relative;
+ overflow:hidden;
+ padding:28px;
+}
+
+.tc2StandaloneHero::after{
+ content:"";
+ position:absolute;
+ top:-70px;
+ right:-60px;
+ width:210px;
+ height:210px;
+ border-radius:50%;
+ background:radial-gradient(circle,rgba(139,220,63,.2),transparent 68%);
+ pointer-events:none;
+}
+
+.tc2StandaloneEyebrow{
+ display:inline-flex;
+ align-items:center;
+ gap:7px;
+ margin-bottom:12px;
+ padding:6px 10px;
+ border:1px solid rgba(139,220,63,.32);
+ border-radius:999px;
+ background:rgba(139,220,63,.08);
+ color:#a8e56b;
+ font-size:10px;
+ font-weight:900;
+ letter-spacing:.08em;
+ text-transform:uppercase;
+}
+
+.tc2StandaloneHero h1{
+ position:relative;
+ z-index:1;
+ max-width:760px;
+ margin:0;
+ color:#f7fafc;
+ font-size:clamp(30px,6vw,48px);
+ line-height:1.02;
+}
+
+.tc2StandaloneHero p{
+ position:relative;
+ z-index:1;
+ max-width:720px;
+ margin:14px 0 0;
+ color:#b5c2cd;
+ font-size:16px;
+ line-height:1.55;
+}
+
+.tc2StandaloneCard{
+ padding:22px;
+}
+
+.tc2StandaloneCard h2,
+.tc2StandaloneCard h3{
+ margin:0 0 12px;
+ color:#f4f8fb;
+}
+
+.tc2StandaloneCard h2{
+ font-size:23px;
+}
+
+.tc2StandaloneCard h3{
+ margin-top:18px;
+ font-size:17px;
+}
+
+.tc2StandaloneCard p,
+.tc2StandaloneCard li{
+ color:#b7c4cf;
+ line-height:1.55;
+}
+
+.tc2StandaloneCard a:not(.tc2StandaloneButton){
+ color:#9ee75b;
+}
+
+.tc2StandaloneButton,
+.tc2StandaloneCard button{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:auto!important;
+ min-width:170px;
+ min-height:50px!important;
+ margin:12px 0 0!important;
+ padding:12px 18px!important;
+ border:1px solid rgba(139,220,63,.62)!important;
+ border-radius:16px!important;
+ background:linear-gradient(180deg,#31551d,#213b13)!important;
+ color:#f6ffef!important;
+ font-size:15px!important;
+ font-weight:900!important;
+ text-align:center;
+ text-decoration:none;
+}
+
+.tc2StandaloneStatus{
+ display:flex;
+ align-items:flex-start;
+ gap:12px;
+ margin-top:18px;
+ padding:13px 15px;
+ border:1px solid rgba(139,220,63,.28);
+ border-radius:17px;
+ background:rgba(139,220,63,.07);
+ color:#cfe8bc;
+ line-height:1.45;
+}
+
+.tc2StandaloneGrid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+}
+
+.tc2StandaloneInfo{
+ padding:15px;
+ border:1px solid rgba(93,130,160,.34);
+ border-radius:18px;
+ background:rgba(6,17,26,.48);
+}
+
+.tc2StandaloneInfo b{
+ display:block;
+ margin-bottom:5px;
+ color:#f3f7fa;
+}
+
+.tc2StandaloneInfo span{
+ color:#9eacb8;
+ font-size:13px;
+ line-height:1.4;
+}
+
+.tc2StandaloneFormGrid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+}
+
+.tc2StandaloneField{
+ display:grid!important;
+ gap:7px!important;
+ margin:0!important;
+ color:#bdc9d3;
+ font-size:11px!important;
+ font-weight:850!important;
+}
+
+.tc2StandaloneField.full{
+ grid-column:1/-1;
+}
+
+.tc2StandaloneField input,
+.tc2StandaloneField select,
+.tc2StandaloneField textarea{
+ width:100%!important;
+ min-height:48px!important;
+ margin:0!important;
+ border-radius:15px!important;
+}
+
+.tc2StandaloneActions{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;
+ margin-top:16px;
+}
+
+.tc2StandaloneActions>*{
+ width:100%!important;
+ margin:0!important;
+}
+
+.tc2StandaloneFooter{
+ padding:4px 2px;
+ color:#7f909d;
+ font-size:11px;
+ text-align:center;
+}
+
+@media(max-width:620px){
+ .tc2ModalBox{
+  padding:18px!important;
+  border-radius:22px!important;
+ }
+
+ .tc2Dialog{
+  grid-template-columns:48px minmax(0,1fr);
+  gap:13px;
+ }
+
+ .tc2DialogIcon{
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  font-size:24px;
+ }
+
+ .tc2DialogCopy h2{
+  font-size:21px!important;
+ }
+
+ .tc2DialogActions{
+  grid-template-columns:1fr;
+ }
+
+ .tc2AnimalInterval,
+ .tc2StandaloneGrid,
+ .tc2StandaloneFormGrid,
+ .tc2StandaloneActions{
+  grid-template-columns:1fr;
+ }
+
+ .tc2StandaloneField.full{
+  grid-column:auto;
+ }
+
+ .tc2StandaloneHero{
+  padding:22px 19px;
+ }
+
+ .tc2StandaloneCard{
+  padding:18px;
+ }
+
+ .tc2StandaloneButton,
+ .tc2StandaloneCard button{
+  width:100%!important;
+ }
+
+ .tc2PhotoViewer{
+  padding-left:14px;
+  padding-right:14px;
+  padding-bottom:84px;
+ }
+
+ .tc2PhotoViewerNav{
+  top:auto!important;
+  bottom:max(16px,env(safe-area-inset-bottom))!important;
+  width:58px!important;
+  height:48px!important;
+  min-height:48px!important;
+  transform:none;
+ }
+
+ .tc2PhotoViewerNav.previous{
+  left:calc(50% - 66px)!important;
+ }
+
+ .tc2PhotoViewerNav.next{
+  right:calc(50% - 66px)!important;
+ }
+}
+
+@media print{
+ body.tc2StandaloneBody{
+  background:#fff!important;
+  color:#111!important;
+ }
+
+ .tc2StandaloneHeader,
+ .tc2StandaloneHero,
+ .tc2StandaloneFooter,
+ .noPrint{
+  display:none!important;
+ }
+}
+
+/* =========================================================
+   TC2 GEMEINSAMER MODUL-KOPF
+   Alle App-Seiten verwenden den kompakten Rahmen der Startseite.
+   ========================================================= */
+
+.tc2ModuleTop{
+ margin:2px 0 14px;
+}
+
+.tc2ModuleTop .tc2Sync>span{
+ color:#8bdc3f;
+ font-size:10px;
+}
+
+.tc2ModuleTop .tc2Sync>b{
+ color:#cffff2;
+}

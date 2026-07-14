@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TerraControl TC2 UI Test</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+h1{margin-bottom:8px}.muted{color:#94a3b8}.summary{font-weight:700;margin:20px 0}.ok{color:#86efac}.fail{color:#fca5a5}li{margin:7px 0}iframe{width:390px;height:844px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>TerraControl TC2 UI Test</h1>
+<p class="muted">Prüft TC2-Seitenrahmen, öffentliche Seiten und Dialogverträge.</p>
+<div id="summary" class="summary">Test läuft …</div>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html?v=1.0.4-rc.11"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+const publicPages=[
+ '../../index.html',
+ '../../install.html',
+ '../../delete-account.html',
+ '../../abgabe.html',
+ '../../ki-assistent.html',
+ '../../timeline2.html'
+];
+const activeSources=[
+ '../hkn-import.js',
+ '../modules/account.js',
+ '../modules/animals-editor.js',
+ '../modules/backup.js',
+ '../modules/dashboard.js',
+ '../modules/food.js',
+ '../modules/offspring.js',
+ '../modules/profile-core.js',
+ '../modules/profile-food.js',
+ '../modules/profile-health.js',
+ '../modules/profile-photos.js',
+ '../modules/release-test.js',
+ '../modules/settings.js'
+];
+
+function record(name,passed,detail){
+ results.push({name:name,passed:!!passed,detail:detail||''});
+}
+
+function render(){
+ const list=document.getElementById('results');
+ list.innerHTML=results.map(function(result){
+  return '<li class="'+(result.passed?'ok':'fail')+'">'+
+   (result.passed?'PASS':'FAIL')+' — '+result.name+
+   (result.detail?' <span class="muted">('+result.detail+')</span>':'')+
+   '</li>';
+ }).join('');
+
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+ const summary=document.getElementById('summary');
+ summary.textContent=failed
+  ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+  :results.length+' Prüfungen erfolgreich.';
+ summary.className='summary '+(failed?'fail':'ok');
+ document.title=failed
+  ?'FAIL — TerraControl TC2 UI Test'
+  :'PASS — TerraControl TC2 UI Test';
+}
+
+async function testPublicPages(){
+ for(const url of publicPages){
+  try{
+   const response=await fetch(url,{cache:'no-store'});
+   const html=await response.text();
+   record('Öffentliche TC2-Seite: '+url,response.ok&&html.includes('tc2StandaloneBody'),'HTTP '+response.status);
+   record('TC2-Stylesheet eingebunden: '+url,html.includes('tc2.css?v=1.0.4-rc.11'));
+  }catch(error){
+   record('Öffentliche TC2-Seite: '+url,false,error.message);
+  }
+ }
+}
+
+async function testActiveSources(){
+ for(const url of activeSources){
+  try{
+   const response=await fetch(url,{cache:'no-store'});
+   const source=await response.text();
+   record('Keine nativen Browserdialoge: '+url,response.ok&&!/\b(?:alert|confirm)\s*\(/.test(source));
+  }catch(error){
+   record('Keine nativen Browserdialoge: '+url,false,error.message);
+  }
+ }
+
+ const cssResponse=await fetch('../tc2.css?v=1.0.4-rc.11',{cache:'no-store'});
+ const css=await cssResponse.text();
+ [
+  '.tc2AnimalInterval',
+  '.tc2ModalBackdrop',
+  '.tc2PhotoViewer',
+  '.tc2StandaloneBody'
+ ].forEach(function(selector){
+  record('TC2-Regel vorhanden: '+selector,css.includes(selector));
+ });
+}
+
+function testRuntime(){
+ return new Promise(function(resolve){
+  const frame=document.getElementById('appFrame');
+  let finished=false;
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   record('TC2-App geladen',false,'Timeout');
+   resolve();
+  },15000);
+
+  async function inspect(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+
+   try{
+    const win=frame.contentWindow;
+    const doc=frame.contentDocument;
+    const app=doc.getElementById('app');
+
+    record('TC2-App geladen',!!(win.NGT500&&app));
+    record('TC2-Bestätigung verfügbar',typeof win.NGT500.confirmAction==='function');
+    record('TC2-Hinweis verfügbar',typeof win.NGT500.notice==='function');
+
+    const routes=[
+     'dashboard','smartDashboard','animals','offspring','profile',
+     'food','qr','backup','assistant','chat'
+    ];
+
+    routes.forEach(function(name){
+     win.NGT500.route(name,{}, {replace:true,noHistory:true});
+     record(
+      'TC2-Inhalt gerendert: '+name,
+      !!app.querySelector('[class*="tc2"]')
+     );
+    });
+
+    const confirmation=win.NGT500.confirmAction(
+     'TC2-Testbestätigung',
+     {title:'TC2-Test'}
+    );
+    const dialog=doc.querySelector('[role="dialog"][aria-modal="true"]');
+    record('Dialogsemantik vorhanden',!!dialog);
+    win.NGT500.closeModal(false);
+    record('Abbrechen liefert false',(await confirmation)===false);
+
+    win.NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+    record(
+     'Mobile Breite ohne horizontales Überlaufen',
+     doc.documentElement.scrollWidth<=doc.documentElement.clientWidth+2,
+     doc.documentElement.scrollWidth+' / '+doc.documentElement.clientWidth
+    );
+   }catch(error){
+    record('TC2-Runtime-Prüfung',false,error.message);
+   }
+
+   resolve();
+  }
+
+  frame.addEventListener('load',inspect,{once:true});
+
+  try{
+   if(frame.contentDocument&&frame.contentDocument.readyState==='complete'){
+    setTimeout(inspect,0);
+   }
+  }catch(error){}
+ });
+}
+
+async function run(){
+ await testPublicPages();
+ await testActiveSources();
+ await testRuntime();
+ render();
+}
+
+run().catch(function(error){
+ record('Testlauf',false,error.message);
+ render();
+});
+})();
+</script>
+</body>
+</html>

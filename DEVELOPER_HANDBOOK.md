@@ -113,7 +113,8 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
         ├── animal-engine.test.html
         ├── animals.test.html
         ├── taxonomy.test.html
-        └── app-smoke.test.html
+        ├── app-smoke.test.html
+        └── tc2-ui.test.html
 ```
 
 Ältere Versionsstände sind keine Grundlage für neue Features. Legacy-Dateien dürfen nur nach belegter Nichtverwendung entfernt werden.
@@ -459,7 +460,15 @@ http://localhost:8000/v500/tests/taxonomy.test.html
 
 Charakterisiert Normalisierung, Schlüssel, lokalen Cache, Import/Export, Bild-Fallbacks sowie Klassifikation, Illustrationen und öffentliche `NGTTaxonomyUI`-Dekoration.
 
-### 12.4 Manuelle Mindestprüfung
+### 12.4 TC2-Oberfläche
+
+```text
+http://localhost:8000/v500/tests/tc2-ui.test.html
+```
+
+Prüft die TC2-Seitenrahmen der aktiven Routen, die öffentlichen HTML-Seiten, die gemeinsame Dialogsemantik, zentrale TC2-CSS-Regeln und das mobile Überlaufverhalten.
+
+### 12.5 Manuelle Mindestprüfung
 
 - App startet ohne rote Konsolenfehler.
 - Drawer und Navigation funktionieren.

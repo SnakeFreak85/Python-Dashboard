@@ -22,13 +22,12 @@ function installRouteGuard(){
 
  NGT500.__tc2RouteGuardInstalled=true;
 
+ tc2(true);
+
  const originalRoute=NGT500.route;
 
  NGT500.route=function(name,args,options){
-  tc2(
-   name==='dashboard'||
-   name==='smartDashboard'
-  );
+  tc2(true);
 
   return originalRoute.call(
    NGT500,
@@ -42,12 +41,7 @@ function installRouteGuard(){
   NGT500.on(
    'route',
    function(event){
-    tc2(
-     event&&(
-      event.name==='dashboard'||
-      event.name==='smartDashboard'
-     )
-    );
+    tc2(true);
    }
   );
  }
@@ -128,12 +122,18 @@ async function firestoreSave(){
 }
 
 async function firestoreLoad(){
- if(
-  !window.NGTFirebaseSync||
-  !confirm(
-   'Daten aus Firestore laden? Lokale Daten können überschrieben werden.'
-  )
- ){
+ if(!window.NGTFirebaseSync){
+  return;
+ }
+
+ if(!await NGT500.confirmAction(
+  'Daten aus Firestore laden? Lokale Daten können überschrieben werden.',
+  {
+   title:'Cloud-Daten laden',
+   confirmText:'Daten laden',
+   danger:true
+  }
+ )){
   return;
  }
 
@@ -145,40 +145,22 @@ function openHknImport(){
  if(window.NGTHknImport){
   NGTHknImport.run();
  }else{
-  alert('HKN-Import lädt noch.');
+  NGT500.toast('HKN-Import lädt noch.','warn');
  }
 }
 
 function manualAnimal(){
  NGT500.route(
   'animals',
-  {}
+  {create:1}
  );
-
- setTimeout(function(){
-  if(
-   window.NGTAnimals&&
-   NGTAnimals.openEditor
-  ){
-   NGTAnimals.openEditor('');
-  }
- },120);
 }
 
 function manualOffspring(){
  NGT500.route(
   'offspring',
-  {}
+  {create:1}
  );
-
- setTimeout(function(){
-  if(
-   window.NGTOffspring&&
-   NGTOffspring.openEditor
-  ){
-   NGTOffspring.openEditor('');
-  }
- },120);
 }
 
 /*
@@ -461,8 +443,9 @@ async function migrateAllPhotos(){
   !window.NGTPhotoStorage||
   !NGTPhotoStorage.migrateAll
  ){
-  alert(
-   'Foto-Migration ist noch nicht geladen.'
+  NGT500.toast(
+   'Foto-Migration ist noch nicht geladen.',
+   'warn'
   );
 
   return;
@@ -471,19 +454,22 @@ async function migrateAllPhotos(){
  const count=legacyPhotoCount();
 
  if(!count){
-  alert(
-   'Keine alten Base64-Fotos zum Migrieren gefunden.'
+  NGT500.toast(
+   'Keine alten Base64-Fotos zum Migrieren gefunden.',
+   'ok'
   );
 
   return;
  }
 
- if(
-  !confirm(
-   count+
-   ' alte Foto(s) in den dauerhaften Foto-Speicher migrieren? Bitte währenddessen nicht schließen.'
-  )
- ){
+ if(!await NGT500.confirmAction(
+  count+
+  ' alte Foto(s) in den dauerhaften Foto-Speicher migrieren? Bitte währenddessen nicht schließen.',
+  {
+   title:'Alte Fotos migrieren',
+   confirmText:'Migration starten'
+  }
+ )){
   return;
  }
 
@@ -528,9 +514,10 @@ async function migrateAllPhotos(){
    await NGTFirebaseSync.saveCloud();
   }
 
-  alert(
+  NGT500.toast(
    (result.count||0)+
-   ' Foto(s) migriert.'
+   ' Foto(s) migriert.',
+   'ok'
   );
 
   NGT500.route('dashboard');
@@ -538,10 +525,11 @@ async function migrateAllPhotos(){
  }catch(error){
   console.error(error);
 
-  alert(
+  NGT500.toast(
    error&&error.message
     ?error.message
-    :'Foto-Migration fehlgeschlagen.'
+    :'Foto-Migration fehlgeschlagen.',
+   'danger'
   );
  }
 }
@@ -871,7 +859,7 @@ function smartDashboardProxy(){
  }
 
  return `
-  <div class="card">
+  <div class="tc2PageCard tc2EmptyState">
    <h2>Smart Dashboard</h2>
 
    <p class="muted">

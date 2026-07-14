@@ -81,7 +81,7 @@ function render(){
           <button onclick="NGTAccount.localBackup()">Backup speichern</button>
           <button onclick="NGTAccount.localRestorePick()">Backup laden</button>
         </div>
-        <input id="accountRestoreFile" type="file" accept="application/json,.json" style="display:none" onchange="NGTAccount.localRestore(this.files[0])">
+        <input id="accountRestoreFile" class="hidden" type="file" accept="application/json,.json" onchange="NGTAccount.localRestore(this.files[0])">
       </section>
 
       <section class="tc2AccountCard">
@@ -117,28 +117,50 @@ function localRestorePick(){
   if(el)el.click();
 }
 
-function localRestore(file){
+async function localRestore(file){
   if(!file)return;
-  if(!confirm('Backup-Datei laden? Aktuelle lokale Daten können überschrieben werden.'))return;
+  if(!await NGT500.confirmAction(
+   'Backup-Datei laden? Aktuelle lokale Daten können überschrieben werden.',
+   {
+    title:'Lokales Backup laden',
+    confirmText:'Backup laden',
+    danger:true
+   }
+  ))return;
 
   const r=new FileReader();
-  r.onload=function(){
+  r.onload=async function(){
     try{
       const obj=JSON.parse(String(r.result||'{}'));
       const data=obj.data||obj;
       NGTStore.importJson(JSON.stringify(data));
-      alert('Backup geladen. App wird neu gestartet.');
+      await NGT500.notice(
+       'Backup geladen. App wird neu gestartet.',
+       {title:'Backup wiederhergestellt'}
+      );
       location.reload();
     }catch(e){
-      alert('Import fehlgeschlagen: '+(e.message||e));
+      NGT500.toast(
+       'Import fehlgeschlagen: '+(e.message||e),
+       'danger'
+      );
     }
   };
-  r.onerror=function(){alert('Datei konnte nicht gelesen werden.')};
+  r.onerror=function(){
+   NGT500.toast('Datei konnte nicht gelesen werden.','danger');
+  };
   r.readAsText(file);
 }
 
 async function clear(){
-  if(!confirm('Konto lokal entfernen? Lokale Tierdaten bleiben erhalten.'))return;
+  if(!await NGT500.confirmAction(
+   'Konto lokal entfernen? Lokale Tierdaten bleiben erhalten.',
+   {
+    title:'Lokales Konto entfernen',
+    confirmText:'Konto entfernen',
+    danger:true
+   }
+  ))return;
   localStorage.removeItem(KEY);
   localStorage.removeItem(GOOGLE_KEY);
   if(window.NGTFirebaseSync){

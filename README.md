@@ -170,6 +170,12 @@ Taxonomie und Taxonomie-UI:
 http://localhost:8000/v500/tests/taxonomy.test.html
 ```
 
+TC2-Oberfläche und öffentliche Seiten:
+
+```text
+http://localhost:8000/v500/tests/tc2-ui.test.html
+```
+
 Zusätzlich betroffene Funktionen manuell prüfen und die Browserkonsole auf rote Fehler kontrollieren.
 
 ## Deployment

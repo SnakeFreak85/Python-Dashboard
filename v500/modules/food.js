@@ -523,7 +523,7 @@ function duplicateFor(data,ignoreId){
  })||null;
 }
 
-function save(){
+async function save(){
  const id=formValue('foodEditId')||editingId;
 
  const data={
@@ -537,15 +537,22 @@ function save(){
  };
 
  if(!data.itemName){
-  alert('Bitte eine Bezeichnung für das Futter eingeben.');
+  NGT500.toast(
+   'Bitte eine Bezeichnung für das Futter eingeben.',
+   'warn'
+  );
   return;
  }
 
  const duplicate=duplicateFor(data,id);
 
  if(duplicate){
-  if(!confirm(
-   'Diese Futterposition existiert bereits. Soll der eingegebene Bestand zum vorhandenen Bestand addiert werden?'
+  if(!await NGT500.confirmAction(
+   'Diese Futterposition existiert bereits. Soll der eingegebene Bestand zum vorhandenen Bestand addiert werden?',
+   {
+    title:'Futterposition zusammenführen',
+    confirmText:'Bestand addieren'
+   }
   )){
    return;
   }
@@ -564,7 +571,10 @@ function save(){
   const existing=findById(id);
 
   if(!existing){
-   alert('Die Futterposition wurde nicht gefunden.');
+   NGT500.toast(
+    'Die Futterposition wurde nicht gefunden.',
+    'danger'
+   );
    return;
   }
 
@@ -615,7 +625,10 @@ function edit(id){
  const item=findById(id);
 
  if(!item){
-  alert('Die Futterposition wurde nicht gefunden.');
+  NGT500.toast(
+   'Die Futterposition wurde nicht gefunden.',
+   'danger'
+  );
   return;
  }
 
@@ -689,7 +702,7 @@ function change(id,amount){
  NGT500.route('food');
 }
 
-function del(id){
+async function del(id){
  const items=inventory();
 
  const index=items.findIndex(function(item){
@@ -700,8 +713,13 @@ function del(id){
 
  const item=normalizeItem(items[index]);
 
- if(!confirm(
-  'Futterbestand „'+itemLabel(item)+'“ wirklich löschen?'
+ if(!await NGT500.confirmAction(
+  'Futterbestand „'+itemLabel(item)+'“ wirklich löschen?',
+  {
+   title:'Futterposition löschen',
+   confirmText:'Futter löschen',
+   danger:true
+  }
  )){
   return;
  }

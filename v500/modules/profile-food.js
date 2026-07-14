@@ -172,7 +172,7 @@ function feedForm(a){
  const items=normalizedFoodInventory();
 
  if(!items.length){
-  return `<div class="subcard tc2SubCard warn">
+  return `<div class="tc2SubCard warn">
    <h3>Fütterung eintragen</h3>
 
    <p class="muted">
@@ -186,7 +186,7 @@ function feedForm(a){
   </div>`;
  }
 
- return `<div class="subcard tc2SubCard">
+ return `<div class="tc2SubCard">
   <h3>Fütterung eintragen</h3>
 
   <input
@@ -213,7 +213,7 @@ function feedForm(a){
 
   <div
    id="feedStockStatus"
-   class="subcard"
+   class="tc2SubCard"
   ></div>
 
   <button onclick="NGTProfile.addFeed()">
@@ -236,7 +236,7 @@ function row(d,txt,del){
 }
 
 function feedList(a){
- return `<div class="subcard tc2SubCard">
+ return `<div class="tc2SubCard">
   <h3>Fütterungen</h3>
 
   ${
@@ -274,7 +274,7 @@ function updateFeedStockStatus(){
  const item=foodById(select.value);
 
  if(!item){
-  box.className='subcard danger';
+  box.className='tc2SubCard danger';
   box.innerHTML='<b>Keine Futterposition ausgewählt.</b>';
   return;
  }
@@ -294,7 +294,7 @@ function updateFeedStockStatus(){
   title='Mindestbestand erreicht';
  }
 
- box.className='subcard '+cls;
+ box.className='tc2SubCard '+cls;
 
  box.innerHTML=`
   <b>${P.esc(title)}</b>
@@ -309,19 +309,25 @@ function updateFeedStockStatus(){
  `;
 }
 
-function addFeed(){
+async function addFeed(){
  const a=P.current();
  const select=document.getElementById('feedInventoryId');
 
  if(!select||!select.value){
-  alert('Bitte eine Futterposition auswählen.');
+  NGT500.toast(
+   'Bitte eine Futterposition auswählen.',
+   'warn'
+  );
   return;
  }
 
  const item=foodById(select.value);
 
  if(!item){
-  alert('Die ausgewählte Futterposition wurde nicht gefunden.');
+  NGT500.toast(
+   'Die ausgewählte Futterposition wurde nicht gefunden.',
+   'danger'
+  );
   return;
  }
 
@@ -331,8 +337,9 @@ function addFeed(){
  const qty=Number(item.qty||0);
 
  if(accepted&&qty<=0){
-  alert(
-   'Dieser Futterbestand ist leer. Die Fütterung kann nicht als gefressen gespeichert werden.'
+  NGT500.toast(
+   'Dieser Futterbestand ist leer. Die Fütterung kann nicht als gefressen gespeichert werden.',
+   'danger'
   );
   return;
  }
@@ -340,8 +347,12 @@ function addFeed(){
  if(
   accepted&&
   qty===1&&
-  !confirm(
-   'Dies ist das letzte verfügbare Futtertier dieser Position. Fütterung trotzdem speichern?'
+  !await NGT500.confirmAction(
+   'Dies ist das letzte verfügbare Futtertier dieser Position. Fütterung trotzdem speichern?',
+   {
+    title:'Letztes Futtertier verwenden',
+    confirmText:'Fütterung speichern'
+   }
   )
  ){
   return;

@@ -238,7 +238,7 @@ function qrView(animal){
   passportPayload(animal);
 
  return `
-  <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
    <h3>Digitaler Tierpass</h3>
 
    <div class="qrBox">
@@ -264,7 +264,7 @@ function docs(animal){
  );
 
  return `
-  <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
    <h3>Dokumentencenter</h3>
 
    <div class="btnRow">

@@ -33,7 +33,7 @@ function render(args){
 
  if(!animal){
   return (
-   '<div class="card tc2PageCard">'+
+   '<div class="tc2PageCard tc2EmptyState">'+
     'Tier nicht gefunden.'+
    '</div>'
   );
@@ -70,7 +70,6 @@ function render(args){
  return `
   <div
    class="
-    card
     tc2PageCard
     tc2ProfilePage
     tc2ProfileV4
@@ -276,7 +275,7 @@ function body(animal){
 
  if(tab==='life'){
   return `
-   <div class="subcard tc2SubCard">
+   <div class="tc2SubCard">
     <h3>Chronik</h3>
 
     ${NGTUI.list(
@@ -383,7 +382,7 @@ function overview(animal){
    </div>
   </div>
 
-  <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
    <h3>Zusammenfassung</h3>
 
    <div class="tc2InfoRows">
@@ -476,7 +475,7 @@ function overview(animal){
    </div>
   </div>
 
-  <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
    <h3>Chronik</h3>
 
    ${
@@ -525,7 +524,7 @@ function analysis(animal){
  }
 
  return `
-  <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
    <h3>Analyse</h3>
 
    <div class="tc2InfoRows">

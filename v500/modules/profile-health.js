@@ -145,7 +145,7 @@ function healthStatus(animal){
 
 function healthForm(){
  return `
-  <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
    <h3>Gesundheits-Eintrag</h3>
 
    <input
@@ -219,7 +219,7 @@ function health(animal){
     .reverse()
     .map(function(item){
      return `
-      <div class="subcard tc2SubCard">
+      <div class="tc2SubCard">
        <b>
         ${P.esc(
          item.entry.date||
@@ -289,8 +289,9 @@ function addHealth(){
  const animal=P.current();
 
  if(!animal){
-  alert(
-   'Das Tier wurde nicht gefunden.'
+  NGT500.toast(
+   'Das Tier wurde nicht gefunden.',
+   'danger'
   );
   return;
  }

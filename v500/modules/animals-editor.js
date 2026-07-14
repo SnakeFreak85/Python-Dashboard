@@ -40,7 +40,7 @@ function hknInfo(){
  }
 
  return `
-  <div class="subcard ok tc2FormCard">
+  <div class="tc2FormCard ok">
    <h3>📄 Herkunftsnachweis übernommen</h3>
 
    <p class="muted">
@@ -410,7 +410,7 @@ function save(t,i){
   if(window.NGT500&&NGT500.toast){
    NGT500.toast(error.message,'danger');
   }else{
-   alert(error.message);
+   console.error(error.message);
   }
 
   return;
@@ -541,8 +541,15 @@ function save(t,i){
  );
 }
 
-function remove(t,i){
- if(!confirm('Tier wirklich löschen?')){
+async function remove(t,i){
+ if(!await NGT500.confirmAction(
+  'Tier wirklich löschen?',
+  {
+   title:'Tier löschen',
+   confirmText:'Tier löschen',
+   danger:true
+  }
+ )){
   return;
  }
 

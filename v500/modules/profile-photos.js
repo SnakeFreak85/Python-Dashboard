@@ -107,7 +107,7 @@ function photos(animal){
 
  return `${
   legacy
-   ?`<div class="subcard tc2SubCard warn">
+   ?`<div class="tc2SubCard warn">
     <h3>Alte Fotos migrieren</h3>
 
     <p class="muted">
@@ -127,7 +127,7 @@ function photos(animal){
    :''
  }
 
- <div class="subcard tc2SubCard">
+ <div class="tc2SubCard">
   <h3>Foto hinzufügen</h3>
 
   <input
@@ -168,7 +168,7 @@ function photos(animal){
      true
     );
 
-   return `<div class="subcard tc2SubCard">
+   return `<div class="tc2SubCard">
     ${
      image
       ?`<img
@@ -240,8 +240,9 @@ async function addPhoto(file){
   !window.NGTPhotoStorage||
   !NGTPhotoStorage.upload
  ){
-  alert(
-   'Foto-Speicher ist noch nicht geladen.'
+  NGT500.toast(
+   'Foto-Speicher ist noch nicht geladen.',
+   'warn'
   );
 
   return;
@@ -337,10 +338,11 @@ async function addPhoto(file){
    true
   );
 
-  alert(
+  NGT500.toast(
    error&&error.message
     ?error.message
-    :'Foto konnte nicht dauerhaft gespeichert werden.'
+    :'Foto konnte nicht dauerhaft gespeichert werden.',
+   'danger'
   );
 
  }finally{
@@ -356,8 +358,9 @@ async function migratePhotos(){
   !window.NGTPhotoStorage||
   !NGTPhotoStorage.migrateAnimal
  ){
-  alert(
-   'Foto-Migration ist noch nicht geladen.'
+  NGT500.toast(
+   'Foto-Migration ist noch nicht geladen.',
+   'warn'
   );
 
   return;
@@ -366,8 +369,9 @@ async function migratePhotos(){
  const animal=P.current();
 
  if(!animal){
-  alert(
-   'Das Tier wurde nicht gefunden.'
+  NGT500.toast(
+   'Das Tier wurde nicht gefunden.',
+   'danger'
   );
 
   return;
@@ -376,8 +380,9 @@ async function migratePhotos(){
  P.ensure(animal);
 
  if(!hasLegacyPhotos(animal)){
-  alert(
-   'Keine alten Fotos zum Migrieren gefunden.'
+  NGT500.toast(
+   'Keine alten Fotos zum Migrieren gefunden.',
+   'ok'
   );
 
   return;
@@ -439,9 +444,10 @@ async function migratePhotos(){
    NGTStore.save();
   }
 
-  alert(
+  NGT500.toast(
    (result.count||0)+
-   ' Foto(s) migriert.'
+   ' Foto(s) migriert.',
+   'ok'
   );
 
   P.setTab('photos');
@@ -449,10 +455,11 @@ async function migratePhotos(){
  }catch(error){
   console.error(error);
 
-  alert(
+  NGT500.toast(
    error&&error.message
     ?error.message
-    :'Fotos konnten nicht migriert werden.'
+    :'Fotos konnten nicht migriert werden.',
+   'danger'
   );
  }
 }
@@ -461,8 +468,9 @@ function setCover(index){
  const animal=P.current();
 
  if(!animal){
-  alert(
-   'Das Tier wurde nicht gefunden.'
+  NGT500.toast(
+   'Das Tier wurde nicht gefunden.',
+   'danger'
   );
 
   return;
@@ -475,8 +483,9 @@ function setCover(index){
   !selected||
   !isUsablePhoto(selected)
  ){
-  alert(
-   'Dieses Foto kann nicht als Titelbild verwendet werden.'
+  NGT500.toast(
+   'Dieses Foto kann nicht als Titelbild verwendet werden.',
+   'warn'
   );
 
   return;
@@ -495,15 +504,23 @@ function setCover(index){
 }
 
 async function deletePhoto(index){
- if(!confirm('Foto löschen?')){
+ if(!await NGT500.confirmAction(
+  'Foto löschen?',
+  {
+   title:'Foto löschen',
+   confirmText:'Foto löschen',
+   danger:true
+  }
+ )){
   return;
  }
 
  const animal=P.current();
 
  if(!animal){
-  alert(
-   'Das Tier wurde nicht gefunden.'
+  NGT500.toast(
+   'Das Tier wurde nicht gefunden.',
+   'danger'
   );
 
   return;
@@ -555,10 +572,11 @@ async function deletePhoto(index){
  }catch(error){
   console.error(error);
 
-  alert(
+  NGT500.toast(
    error&&error.message
     ?error.message
-    :'Foto konnte nicht gelöscht werden.'
+    :'Foto konnte nicht gelöscht werden.',
+   'danger'
   );
  }
 }
@@ -586,8 +604,9 @@ function openPhoto(index){
  const animal=P.current();
 
  if(!animal){
-  alert(
-   'Das Tier wurde nicht gefunden.'
+  NGT500.toast(
+   'Das Tier wurde nicht gefunden.',
+   'danger'
   );
 
   return;
@@ -602,11 +621,16 @@ function openPhoto(index){
   !photo||
   !isUsablePhoto(photo)
  ){
-  alert(
-   'Dieses Foto kann nicht geöffnet werden.'
+  NGT500.toast(
+   'Dieses Foto kann nicht geöffnet werden.',
+   'warn'
   );
 
   return;
+ }
+
+ if(P.state.viewerIndex<0){
+  P.state.viewerPreviousFocus=document.activeElement;
  }
 
  P.state.viewerIndex=index;
@@ -674,36 +698,17 @@ function renderPhotoViewer(){
 
  root.innerHTML=`<div
   id="tc2PhotoViewer"
-  style="
-   position:fixed;
-   inset:0;
-   z-index:99999;
-   background:rgba(0,0,0,.94);
-   display:flex;
-   flex-direction:column;
-   align-items:center;
-   justify-content:center;
-   padding:16px;
-   box-sizing:border-box;
-  "
+  class="tc2PhotoViewer"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Fotoansicht"
+  tabindex="-1"
   onclick="if(event.target===this)NGTProfile.closePhotoViewer()"
  >
   <button
+   class="tc2PhotoViewerClose"
    onclick="NGTProfile.closePhotoViewer()"
    aria-label="Schließen"
-   style="
-    position:absolute;
-    top:max(16px,env(safe-area-inset-top));
-    right:16px;
-    width:46px;
-    height:46px;
-    border-radius:50%;
-    border:0;
-    font-size:28px;
-    background:rgba(255,255,255,.14);
-    color:white;
-    z-index:3;
-   "
   >
    ×
   </button>
@@ -711,22 +716,9 @@ function renderPhotoViewer(){
   ${
    multiple
     ?`<button
+      class="tc2PhotoViewerNav previous"
       onclick="NGTProfile.previousPhoto()"
       aria-label="Vorheriges Foto"
-      style="
-       position:absolute;
-       left:12px;
-       top:50%;
-       transform:translateY(-50%);
-       width:48px;
-       height:64px;
-       border-radius:16px;
-       border:0;
-       font-size:32px;
-       background:rgba(255,255,255,.14);
-       color:white;
-       z-index:3;
-      "
      >
       ‹
      </button>`
@@ -734,37 +726,17 @@ function renderPhotoViewer(){
   }
 
   <img
+   class="tc2PhotoViewerImage"
    src="${P.esc(source)}"
    alt="Tierfoto"
-   style="
-    display:block;
-    max-width:100%;
-    max-height:78vh;
-    object-fit:contain;
-    border-radius:14px;
-    box-shadow:0 16px 48px rgba(0,0,0,.5);
-   "
   >
 
   ${
    multiple
     ?`<button
+      class="tc2PhotoViewerNav next"
       onclick="NGTProfile.nextPhoto()"
       aria-label="Nächstes Foto"
-      style="
-       position:absolute;
-       right:12px;
-       top:50%;
-       transform:translateY(-50%);
-       width:48px;
-       height:64px;
-       border-radius:16px;
-       border:0;
-       font-size:32px;
-       background:rgba(255,255,255,.14);
-       color:white;
-       z-index:3;
-      "
      >
       ›
      </button>`
@@ -772,17 +744,12 @@ function renderPhotoViewer(){
   }
 
   <div
-   style="
-    margin-top:14px;
-    max-width:680px;
-    text-align:center;
-    color:white;
-   "
+   class="tc2PhotoViewerCaption"
   >
    <b>${P.esc(photo.type||'Foto')}</b>
    ${photo.cover?' · Titelbild':''}
 
-   <div style="opacity:.72;margin-top:4px;">
+   <div class="tc2PhotoViewerMeta">
     ${P.esc(photo.date||'')}
     ${
      multiple
@@ -796,7 +763,7 @@ function renderPhotoViewer(){
 
    ${
     photo.note
-     ?`<div style="margin-top:8px;">
+     ?`<div class="tc2PhotoViewerNote">
        ${P.esc(photo.note)}
       </div>`
      :''
@@ -804,8 +771,7 @@ function renderPhotoViewer(){
   </div>
  </div>`;
 
- document.body.style.overflow=
-  'hidden';
+ document.body.classList.add('tc2ModalOpen');
 
  if(P.state.viewerKeyHandler){
   document.removeEventListener(
@@ -827,12 +793,45 @@ function renderPhotoViewer(){
    if(event.key==='ArrowRight'){
     nextPhoto();
    }
+
+   if(event.key==='Tab'){
+    const controls=Array.from(
+     root.querySelectorAll('button')
+    ).filter(function(button){
+     return button.offsetParent!==null;
+    });
+
+    if(!controls.length){
+     event.preventDefault();
+     root.firstElementChild?.focus();
+     return;
+    }
+
+    const first=controls[0];
+    const last=controls[controls.length-1];
+
+    if(event.shiftKey&&document.activeElement===first){
+     event.preventDefault();
+     last.focus();
+    }else if(!event.shiftKey&&document.activeElement===last){
+     event.preventDefault();
+     first.focus();
+    }
+   }
   };
 
  document.addEventListener(
   'keydown',
   P.state.viewerKeyHandler
  );
+
+ requestAnimationFrame(function(){
+  const close=root.querySelector(
+   '.tc2PhotoViewerClose'
+  );
+
+  (close||root.firstElementChild)?.focus();
+ });
 }
 
 function adjacentPhoto(direction){
@@ -884,7 +883,7 @@ function closePhotoViewer(){
   root.innerHTML='';
  }
 
- document.body.style.overflow='';
+ document.body.classList.remove('tc2ModalOpen');
 
  P.state.viewerIndex=-1;
 
@@ -895,6 +894,17 @@ function closePhotoViewer(){
   );
 
   P.state.viewerKeyHandler=null;
+ }
+
+ const previous=P.state.viewerPreviousFocus;
+ P.state.viewerPreviousFocus=null;
+
+ if(previous&&typeof previous.focus==='function'){
+  requestAnimationFrame(function(){
+   if(document.contains(previous)){
+    previous.focus();
+   }
+  });
  }
 }
 

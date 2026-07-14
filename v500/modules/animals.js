@@ -20,27 +20,18 @@ function render(args){
  const t=args.t||'';
  const edit=args.edit;
  const hkn=!!args.hkn;
+ const create=!!args.create;
 
  if(
   hkn||
+  create||
   edit!==undefined
- ){
-  return `
-   <div class="card tc2PageCard tc2AnimalsPage">
-    <div class="tc2PageHead">
-     <div>
-      <h2>
-       ${edit!==undefined?'Tier bearbeiten':'Tier anlegen'}
-      </h2>
-
-      <p class="muted">
-       Tierdaten und individuelle Pflegeintervalle.
-      </p>
-     </div>
-    </div>
-
-    ${hkn?P.editor.hknInfo()+P.editor.render(t,undefined,true):''}
-    ${edit!==undefined?P.editor.render(t,Number(edit)):''}
+  ){
+   return `
+    <div class="tc2PageCard tc2AnimalsPage">
+     ${create?P.editor.render('',undefined,false):''}
+     ${hkn?P.editor.hknInfo()+P.editor.render(t,undefined,true):''}
+     ${edit!==undefined?P.editor.render(t,Number(edit)):''}
    </div>
   `;
  }

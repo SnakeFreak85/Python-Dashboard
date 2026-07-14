@@ -4,11 +4,10 @@
 function esc(v){return NGT500.esc(v||'')}
 
 function commandHelp(){
- return `<div class="modal">
-  <div class="modalBox tc2ModalBox">
+ return `<div class="tc2HelpDialog">
    <h2>TerraControl KI · Mögliche Befehle</h2>
 
-   <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
     <h3>Schnelle Einträge</h3>
     <div class="tc2ExampleList">
      <span>Medusa hat heute eine 200g Ratte gefressen</span>
@@ -18,7 +17,7 @@ function commandHelp(){
     </div>
    </div>
 
-   <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
     <h3>Futterbestand</h3>
     <div class="tc2ExampleList">
      <span>Ich habe 25 Ratten 120g gekauft</span>
@@ -26,7 +25,7 @@ function commandHelp(){
     </div>
    </div>
 
-   <div class="subcard tc2SubCard">
+  <div class="tc2SubCard">
     <h3>Fragen</h3>
     <div class="tc2ExampleList">
      <span>Wie geht es Medusa?</span>
@@ -36,13 +35,12 @@ function commandHelp(){
     </div>
    </div>
 
-   <button onclick="NGTAssistant.closeHelp()">Schließen</button>
-  </div>
+   <button class="tc2ModalInitial" onclick="NGTAssistant.closeHelp()">Schließen</button>
  </div>`;
 }
 
 function render(){
- return `<div class="card tc2PageCard tc2AssistantPage">
+ return `<div class="tc2PageCard tc2AssistantPage">
   <div class="tc2PageHead">
    <div>
     <h2>⚡ Schnelleingabe</h2>
@@ -64,7 +62,7 @@ function render(){
    <button onclick="NGTAssistant.clearContext()">Kontext löschen</button>
   </div>
 
-  <div class="subcard tc2FormCard">
+ <div class="tc2FormCard">
    <h3>Eingabe</h3>
    <textarea id="aiText" placeholder="Beispiel: Medusa hat heute Frost Ratte 200 g gefressen..."></textarea>
    <div class="tc2AssistantActions">
@@ -80,8 +78,19 @@ function render(){
 
 function html(s){return esc(s)}
 function show(s){document.getElementById('aiOut').innerHTML=s}
-function showHelp(){document.getElementById('aiHelp').innerHTML=commandHelp()}
-function closeHelp(){document.getElementById('aiHelp').innerHTML=''}
+function showHelp(){
+ NGT500.modal(
+  commandHelp(),
+  {
+   label:'Mögliche Befehle der Schnelleingabe',
+   className:'tc2HelpModal'
+  }
+ );
+}
+
+function closeHelp(){
+ NGT500.closeModal(false);
+}
 
 function applyStock(p){
  const ft=p.feeder;
@@ -147,7 +156,7 @@ function recommendationAnswer(){
  const q=NGTAIEngine.norm(rawText());
  if(!window.NGTAIRecommendations)return null;
  if(/empfehl|kritisch|warnung|hinweis|problem|auffaellig|auffällig/.test(q)){
-  return '<div class="subcard tc2SubCard ok"><b>Empfehlungen</b></div>'+NGTAIRecommendations.render(NGTAIRecommendations.build());
+  return '<div class="tc2SubCard ok"><b>Empfehlungen</b></div>'+NGTAIRecommendations.render(NGTAIRecommendations.build());
  }
  return null;
 }
@@ -156,11 +165,11 @@ function managerQuestion(){
  const q=NGTAIEngine.norm(rawText());
  if(!window.NGTAIManager)return null;
  if(/heute|tagesuebersicht|tagesübersicht|manager/.test(q)&&/was|zeige|übersicht|uebersicht|steht|an/.test(q)){
-  return '<div class="subcard tc2SubCard ok"><b>Heute</b></div>'+NGTAIManager.renderToday();
+  return '<div class="tc2SubCard ok"><b>Heute</b></div>'+NGTAIManager.renderToday();
  }
  const hit=NGTAIEngine.findAnimal(rawText());
  if(hit&&/(wie geht|status|zusammenfassung|ueberblick|überblick)/.test(q)){
-  return '<div class="subcard tc2SubCard ok"><b>Tier-Zusammenfassung</b><br>'+html(NGTAIManager.animalSummary(hit.a)).replace(/\n/g,'<br>')+'</div>';
+  return '<div class="tc2SubCard ok"><b>Tier-Zusammenfassung</b><br>'+html(NGTAIManager.animalSummary(hit.a)).replace(/\n/g,'<br>')+'</div>';
  }
  return null;
 }
@@ -181,11 +190,11 @@ function preview(){
  const ps=parsed();
  const ctx=window.NGTAIContext?NGTAIContext.get():{};
 
- show(`<div class="subcard tc2SubCard">
+ show(`<div class="tc2SubCard">
    <h3>Analyse</h3>
    <p class="muted">Aktueller Kontext: ${html(ctx.lastAnimal||'-')}</p>
   </div>`+
-  ps.map(p=>`<div class="subcard tc2SubCard">
+ ps.map(p=>`<div class="tc2SubCard">
    <h3>${html(p.intent)}</h3>
    <div class="tc2InfoRows">
     <div><b>Text</b><span>${html(p.raw)}</span></div>
@@ -214,19 +223,19 @@ function run(){
  });
 
  show(
-  (ok.length?`<div class="subcard tc2SubCard ok">✅ ${ok.length} Eintrag/Einträge gespeichert.</div>`:'')+
-  ok.map(x=>`<div class="subcard tc2SubCard">${html(x)}</div>`).join('')+
-  err.map(x=>`<div class="subcard tc2SubCard danger">❌ ${html(x)}</div>`).join('')
+  (ok.length?`<div class="tc2SubCard ok">✅ ${ok.length} Eintrag/Einträge gespeichert.</div>`:'')+
+  ok.map(x=>`<div class="tc2SubCard">${html(x)}</div>`).join('')+
+  err.map(x=>`<div class="tc2SubCard danger">❌ ${html(x)}</div>`).join('')
  );
 }
 
 function today(){
- show(window.NGTAIManager?'<div class="subcard tc2SubCard ok"><b>Heute</b></div>'+NGTAIManager.renderToday():'<p>KI-Manager nicht geladen.</p>');
+ show(window.NGTAIManager?'<div class="tc2SubCard ok"><b>Heute</b></div>'+NGTAIManager.renderToday():'<p>KI-Manager nicht geladen.</p>');
 }
 
 function clearContext(){
  if(window.NGTAIContext)NGTAIContext.clear();
- show('<div class="subcard tc2SubCard ok">Kontext gelöscht.</div>');
+ show('<div class="tc2SubCard ok">Kontext gelöscht.</div>');
 }
 
 window.NGTAssistant={preview,run,today,clearContext,showHelp,closeHelp};

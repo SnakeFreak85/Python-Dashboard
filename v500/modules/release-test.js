@@ -401,12 +401,15 @@ function toggleGroup(groupId,value){
  NGT500.route('releaseTest');
 }
 
-function reset(){
- if(
-  !confirm(
-   'Den vollständigen Release-Test wirklich zurücksetzen?'
-  )
- ){
+async function reset(){
+ if(!await NGT500.confirmAction(
+  'Den vollständigen Release-Test wirklich zurücksetzen?',
+  {
+   title:'Release-Test zurücksetzen',
+   confirmText:'Test zurücksetzen',
+   danger:true
+  }
+ )){
   return;
  }
 
@@ -414,12 +417,14 @@ function reset(){
  NGT500.route('releaseTest');
 }
 
-function markAll(){
- if(
-  !confirm(
-   'Alle Prüfpunkte als erledigt markieren?'
-  )
- ){
+async function markAll(){
+ if(!await NGT500.confirmAction(
+  'Alle Prüfpunkte als erledigt markieren?',
+  {
+   title:'Alle Prüfpunkte abschließen',
+   confirmText:'Alle markieren'
+  }
+ )){
   return;
  }
 

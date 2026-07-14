@@ -3,46 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111b">
 <title>TerraControl Abgabe PDF</title>
-<link rel="stylesheet" href="./v500/styles.css?v=500.2">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./v500/styles.css?v=1.0.4-rc.11">
+<link rel="stylesheet" href="./v500/tc2.css?v=1.0.4-rc.11">
 <style>
 .printPage{background:#fff;color:#111;border-radius:18px;padding:24px;margin:18px 0;font-family:Arial,sans-serif;box-shadow:0 12px 28px rgba(0,0,0,.18);font-size:14px}.pdfTop{display:flex;justify-content:space-between;gap:16px;border-bottom:4px solid #172331;padding-bottom:10px;margin-bottom:12px}.brand{font-size:28px;font-weight:900;line-height:1}.sub{color:#445}.docBadge{background:#172331;color:#fff;border-radius:20px;padding:8px 12px;height:max-content;text-align:right;font-size:11px;min-width:125px}.docBadge b{display:block;font-size:13px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hero{display:grid;grid-template-columns:1.9fr .58fr;gap:12px;align-items:stretch}.animalPhoto{width:100%;height:235px;object-fit:cover;border-radius:16px;background:#e8edf2;border:1px solid #d9e0e7}.qrPanel{text-align:center}.qrPanel canvas,.qrPanel img{margin:auto}.qrPanel h3{font-size:17px;line-height:1.05}.badges{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0}.miniBadge{background:#172331;color:#fff;border-radius:999px;padding:4px 8px;font-weight:700;font-size:11px}.box{border:1px solid #d9e0e7;border-radius:13px;padding:11px;background:#f7f9fb;margin:10px 0}.box h3{margin:0 0 7px;font-size:17px}.kv{display:flex;justify-content:space-between;border-bottom:1px solid #e2e7ec;padding:4px 0;gap:12px}.kv span{color:#566}.kv b{text-align:right}.history{display:grid;gap:7px}.histItem{border:1px solid #e2e7ec;border-radius:12px;padding:9px;background:#fff}.histItem b{display:block}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #d9e0e7;text-align:left;padding:8px;font-size:13px}.empty{color:#667}.signs>div>div{height:42px;border-bottom:1px solid #111;margin-top:14px}.pageBreak{page-break-before:always}.noPrint{display:block}.tiny{font-size:10px;color:#667;line-height:1.15}.compactText{font-size:13px;line-height:1.25}@media print{body{background:#fff;color:#000}.appHeader,.noPrint{display:none!important}.wrap{max-width:none;padding:0}.printPage{box-shadow:none;border-radius:0;margin:0;min-height:auto;page-break-after:always}.pageBreak{page-break-before:always}.box,.histItem{break-inside:avoid}.animalPhoto{height:205px}.qrPanel canvas{width:104px!important;height:104px!important}.hero{grid-template-columns:1.95fr .55fr}.printPage{padding:18px;font-size:12.5px}.brand{font-size:25px}.box{margin:7px 0;padding:9px}.box h3{font-size:15px}.kv{padding:3px 0}.signs>div>div{height:34px;margin-top:10px}.tiny{font-size:9px}.docBadge{font-size:10px}.docBadge b{font-size:12px}.miniBadge{font-size:10px;padding:3px 7px}}
 </style>
 </head>
-<body>
-<header class="appHeader"><h1>TerraControl</h1><div class="version">Terraristik Dashboard</div></header>
-<main class="wrap">
-<div class="card noPrint">
-<h2>Abgabe & PDF</h2>
-<p class="muted">Verkäuferdaten speichern, Käufer eintragen, Vorschau prüfen und als PDF speichern.</p>
-<div id="msg"></div>
-<h3>Verkäuferdaten</h3>
-<input id="sName" placeholder="Name Verkäufer">
-<input id="sStreet" placeholder="Straße / Hausnummer">
-<input id="sCity" placeholder="PLZ / Ort">
-<input id="sPhone" placeholder="Telefon Verkäufer">
-<input id="sEmail" placeholder="E-Mail Verkäufer">
-<input id="sContact" class="hidden" aria-hidden="true">
-<button id="saveSeller">Verkäufer speichern</button>
-<h3>Käuferdaten</h3>
-<input id="bName" placeholder="Name Käufer">
-<input id="bStreet" placeholder="Straße / Hausnummer Käufer">
-<input id="bCity" placeholder="PLZ / Ort Käufer">
-<input id="bPhone" placeholder="Telefon Käufer">
-<input id="bEmail" placeholder="E-Mail Käufer">
-<input id="bContact" class="hidden" aria-hidden="true">
-<h3>Tier</h3>
-<select id="animalSel"></select>
-<textarea id="remarks" placeholder="Sonstige Bemerkungen"></textarea>
-<div class="btnRow"><button id="previewBtn">Vorschau erstellen</button><button id="printBtn">PDF / Drucken</button></div>
-<a class="btn" href="./v500.html">Zurück zur App</a>
-</div>
-<div id="doc"></div>
+<body class="tc2StandaloneBody">
+<header class="tc2StandaloneHeader noPrint">
+ <div class="tc2StandaloneLogo" aria-hidden="true">TC</div>
+ <div class="tc2StandaloneBrand">
+  <b>TerraControl</b>
+  <small>Abgabenachweis · Version 1.0.4 RC11</small>
+ </div>
+</header>
+
+<main class="tc2StandaloneShell">
+ <section class="tc2StandaloneHero noPrint">
+  <span class="tc2StandaloneEyebrow">Dokumentencenter</span>
+  <h1>Abgabe & PDF</h1>
+  <p>
+   Verkäufer- und Käuferdaten erfassen, Tier auswählen,
+   Vorschau prüfen und den fertigen Abgabenachweis drucken.
+  </p>
+ </section>
+
+ <section class="tc2StandaloneCard noPrint">
+  <div id="msg" aria-live="polite"></div>
+
+  <h2>Verkäuferdaten</h2>
+  <div class="tc2StandaloneFormGrid">
+   <label class="tc2StandaloneField">
+    <span>Name</span>
+    <input id="sName" autocomplete="name" placeholder="Name Verkäufer">
+   </label>
+   <label class="tc2StandaloneField">
+    <span>Straße / Hausnummer</span>
+    <input id="sStreet" autocomplete="street-address" placeholder="Straße / Hausnummer">
+   </label>
+   <label class="tc2StandaloneField">
+    <span>PLZ / Ort</span>
+    <input id="sCity" autocomplete="postal-code" placeholder="PLZ / Ort">
+   </label>
+   <label class="tc2StandaloneField">
+    <span>Telefon</span>
+    <input id="sPhone" type="tel" autocomplete="tel" placeholder="Telefon Verkäufer">
+   </label>
+   <label class="tc2StandaloneField full">
+    <span>E-Mail</span>
+    <input id="sEmail" type="email" autocomplete="email" placeholder="E-Mail Verkäufer">
+   </label>
+  </div>
+  <input id="sContact" class="hidden" aria-hidden="true" tabindex="-1">
+  <button id="saveSeller" type="button">Verkäufer speichern</button>
+
+  <h2>Käuferdaten</h2>
+  <div class="tc2StandaloneFormGrid">
+   <label class="tc2StandaloneField">
+    <span>Name</span>
+    <input id="bName" autocomplete="name" placeholder="Name Käufer">
+   </label>
+   <label class="tc2StandaloneField">
+    <span>Straße / Hausnummer</span>
+    <input id="bStreet" autocomplete="street-address" placeholder="Straße / Hausnummer Käufer">
+   </label>
+   <label class="tc2StandaloneField">
+    <span>PLZ / Ort</span>
+    <input id="bCity" autocomplete="postal-code" placeholder="PLZ / Ort Käufer">
+   </label>
+   <label class="tc2StandaloneField">
+    <span>Telefon</span>
+    <input id="bPhone" type="tel" autocomplete="tel" placeholder="Telefon Käufer">
+   </label>
+   <label class="tc2StandaloneField full">
+    <span>E-Mail</span>
+    <input id="bEmail" type="email" autocomplete="email" placeholder="E-Mail Käufer">
+   </label>
+  </div>
+  <input id="bContact" class="hidden" aria-hidden="true" tabindex="-1">
+
+  <h2>Tier und Dokument</h2>
+  <div class="tc2StandaloneFormGrid">
+   <label class="tc2StandaloneField full">
+    <span>Tier</span>
+    <select id="animalSel"></select>
+   </label>
+   <label class="tc2StandaloneField full">
+    <span>Sonstige Bemerkungen</span>
+    <textarea id="remarks" placeholder="Sonstige Bemerkungen"></textarea>
+   </label>
+  </div>
+
+  <div class="tc2StandaloneActions">
+   <button id="previewBtn" type="button">Vorschau erstellen</button>
+   <button id="printBtn" type="button">PDF / Drucken</button>
+  </div>
+  <a class="tc2StandaloneButton" href="./v500.html?v=1.0.4-rc.11">
+   Zurück zur App
+  </a>
+ </section>
+
+ <div id="doc"></div>
+
+ <footer class="tc2StandaloneFooter noPrint">
+  TerraControl · Dokumentencenter · Version 1.0.4 RC11
+ </footer>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="./v500/core.js?v=500.1"></script>
-<script src="./v500/store.js?v=500.1"></script>
-<script src="./v500/pdf-v2.js?v=500.6"></script>
-<script src="./v500/pdf-contact-fix.js?v=500.1"></script>
+<script src="./v500/core.js?v=1.0.4-rc.11"></script>
+<script src="./v500/store.js?v=1.0.4-rc.11"></script>
+<script src="./v500/pdf-v2.js?v=1.0.4-rc.11"></script>
+<script src="./v500/pdf-contact-fix.js?v=1.0.4-rc.11"></script>
 </body>
 </html>

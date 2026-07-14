@@ -3,19 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d1722">
-<title>NG Terrarium Timeline 2.0</title>
-<link rel="stylesheet" href="./v500/styles.css?v=500.2">
+<meta name="theme-color" content="#07111b">
+<meta name="description" content="TerraControl Tierchronik öffnen.">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./v500/styles.css?v=1.0.4-rc.11">
+<link rel="stylesheet" href="./v500/tc2.css?v=1.0.4-rc.11">
+<title>TerraControl Tierchronik</title>
 </head>
-<body>
-<header class="appHeader"><h1>NG Terrarium</h1><div class="version">Timeline 2.0</div></header>
-<main id="app" class="wrap"></main>
-<script src="./v500/core.js?v=500.1"></script>
-<script src="./v500/store.js?v=500.1"></script>
-<script src="./v500/ui.js?v=500.1"></script>
-<script src="./v500/modules/timeline2.js?v=500.1"></script>
+<body class="tc2StandaloneBody">
+<header class="tc2StandaloneHeader">
+ <div class="tc2StandaloneLogo" aria-hidden="true">TC</div>
+ <div class="tc2StandaloneBrand">
+  <b>TerraControl</b>
+  <small>Tierchronik</small>
+ </div>
+</header>
+<main class="tc2StandaloneShell narrow">
+ <section class="tc2StandaloneHero">
+  <span class="tc2StandaloneEyebrow">TC2 Tierprofil</span>
+  <h1>Die Tierchronik ist jetzt Teil des Tierprofils</h1>
+  <p>
+   Öffne ein Tier aus deinem Bestand und wähle dort die Chronik.
+   Die frühere Timeline-Einzelseite wird nicht mehr separat gepflegt.
+  </p>
+  <div class="tc2StandaloneStatus" role="status">
+   <span aria-hidden="true">●</span>
+   <span>Weiterleitung zur aktuellen TerraControl-Startseite …</span>
+  </div>
+  <a class="tc2StandaloneButton" href="./v500.html?v=1.0.4-rc.11">
+   TerraControl öffnen
+  </a>
+ </section>
+</main>
 <script>
-document.addEventListener('DOMContentLoaded',function(){NGT500.route('timeline2')});
+(function(){
+ 'use strict';
+ try{
+  sessionStorage.setItem(
+   'terracontrol_current_route_v1',
+   JSON.stringify({name:'dashboard',args:{}})
+  );
+ }catch(error){}
+
+ window.setTimeout(function(){
+  window.location.replace('./v500.html?v=1.0.4-rc.11');
+ },350);
+})();
 </script>
 </body>
 </html>

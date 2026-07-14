@@ -21,11 +21,10 @@ function add(role,html){
 }
 
 function commandHelp(){
- return `<div class="modal">
-  <div class="modalBox tc2ModalBox">
+ return `<div class="tc2HelpDialog">
    <h2>TerraControl KI · Mögliche Befehle</h2>
 
-   <div class="subcard tc2SubCard">
+   <div class="tc2SubCard">
     <h3>Tiere</h3>
     <div class="tc2ExampleList">
      <span>Wie geht es Medusa?</span>
@@ -34,7 +33,7 @@ function commandHelp(){
     </div>
    </div>
 
-   <div class="subcard tc2SubCard">
+   <div class="tc2SubCard">
     <h3>Fütterung</h3>
     <div class="tc2ExampleList">
      <span>Medusa hat heute gefressen</span>
@@ -43,7 +42,7 @@ function commandHelp(){
     </div>
    </div>
 
-   <div class="subcard tc2SubCard">
+   <div class="tc2SubCard">
     <h3>Gewicht</h3>
     <div class="tc2ExampleList">
      <span>Medusa wiegt 2536 Gramm</span>
@@ -52,7 +51,7 @@ function commandHelp(){
     </div>
    </div>
 
-   <div class="subcard tc2SubCard">
+   <div class="tc2SubCard">
     <h3>Häutung</h3>
     <div class="tc2ExampleList">
      <span>Medusa hat sich heute gehäutet</span>
@@ -60,7 +59,7 @@ function commandHelp(){
     </div>
    </div>
 
-   <div class="subcard tc2SubCard">
+   <div class="tc2SubCard">
     <h3>Futterbestand</h3>
     <div class="tc2ExampleList">
      <span>Ich habe 25 Ratten 120g gekauft</span>
@@ -69,8 +68,7 @@ function commandHelp(){
     </div>
    </div>
 
-   <button onclick="NGTChat.closeHelp()">Schließen</button>
-  </div>
+   <button class="tc2ModalInitial" onclick="NGTChat.closeHelp()">Schließen</button>
  </div>`;
 }
 
@@ -81,7 +79,7 @@ function render(){
   add('ai','Hallo, ich bin deine TerraControl KI. Ich helfe dir beim Eintragen, Auswerten und Planen deiner Tierdaten.');
  }
 
- return `<div class="card tc2PageCard tc2ChatPage">
+ return `<div class="tc2PageCard tc2ChatPage">
   <div class="tc2PageHead">
    <div>
     <h2>💬 TerraControl KI</h2>
@@ -131,11 +129,17 @@ function scroll(){
 }
 
 function showHelp(){
- document.getElementById('chatHelp').innerHTML=commandHelp();
+ NGT500.modal(
+  commandHelp(),
+  {
+   label:'Mögliche Befehle der TerraControl KI',
+   className:'tc2HelpModal'
+  }
+ );
 }
 
 function closeHelp(){
- document.getElementById('chatHelp').innerHTML='';
+ NGT500.closeModal(false);
 }
 
 function answerQuestion(text){

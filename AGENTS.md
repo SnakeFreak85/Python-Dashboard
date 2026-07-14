@@ -107,6 +107,7 @@ Dann prüfen:
 - `http://localhost:8000/v500/tests/animal-engine.test.html`
 - `http://localhost:8000/v500/tests/taxonomy.test.html`
 - `http://localhost:8000/v500/tests/app-smoke.test.html`
+- `http://localhost:8000/v500/tests/tc2-ui.test.html`
 - `http://localhost:8000/v500.html`
 
 Manuelle Mindestprüfung bei UI-Änderungen:

@@ -128,12 +128,20 @@ async function run(){
      at:new Date().toISOString()
     }));
    }catch(e){
-    alert('HKN konnte nicht zwischengespeichert werden: '+(e.message||e));
+    NGT500.toast(
+     'HKN konnte nicht zwischengespeichert werden: '+(e.message||e),
+     'danger'
+    );
     return;
    }
    NGT500.route('animals',{t:'koenig',hkn:1});
   };
-  reader.onerror=function(){alert('HKN-Datei konnte nicht gelesen werden.')};
+  reader.onerror=function(){
+   NGT500.toast(
+    'HKN-Datei konnte nicht gelesen werden.',
+    'danger'
+   );
+  };
   reader.readAsDataURL(file);
  };
  input.click();
@@ -143,11 +151,14 @@ function applyManual(){
  const box=document.getElementById('hknOcrText');
  const text=box?box.value:'';
  if(!text.trim()){
-  alert('Bitte erkannten Text einfügen.');
+  NGT500.toast('Bitte erkannten Text einfügen.','warn');
   return;
  }
  apply(parse(text));
- alert('HKN-Text wurde ausgewertet. Bitte Felder prüfen.');
+ NGT500.toast(
+  'HKN-Text wurde ausgewertet. Bitte Felder prüfen.',
+  'ok'
+ );
 }
 
 window.NGTHknImport={run,parse,apply,applyManual};

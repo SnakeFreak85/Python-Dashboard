@@ -21,7 +21,7 @@ function row2(k,v){return '<div class="kv"><span>'+esc(k)+'</span><b>'+esc(v||'-
 function cleanNote(v){v=String(v||'').trim();if(/^KI Phase/i.test(v))return '';if(/^KI Chat/i.test(v))return '';if(/^Manuell$/i.test(v))return '';return v}
 function sorted(list){return (Array.isArray(list)?list:[]).slice().sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))})}
 function cards(rows,render){if(!rows||!rows.length)return '<p class="empty">Keine Daten vorhanden.</p>';var h='<div class="history">';for(var i=0;i<rows.length;i++)h+='<div class="histItem">'+render(rows[i])+'</div>';return h+'</div>'}
-function msg(t){var m=id('msg');if(m)m.innerHTML=t?'<div class="subcard ok">'+esc(t)+'</div>':''}
+function msg(t){var m=id('msg');if(m)m.innerHTML=t?'<div class="tc2StandaloneStatus"><span aria-hidden="true">●</span><span>'+esc(t)+'</span></div>':''}
 function firstPhoto(a){return a&&Array.isArray(a.photos)&&a.photos.length&&a.photos[0].data?a.photos[0].data:''}
 function docNo(a){var y=new Date().getFullYear();var u=animalId(a).replace(/[^a-zA-Z0-9]/g,'').slice(-6).toUpperCase()||'000001';return 'TC-'+y+'-'+u}
 function qrText(a){var p=parents(a);var birth=a.birth||a.hatchDate||a.schlupf||'';var full=['TC1',docNo(a),animalId(a),a.name||'',a.morph||'',a.sex||'',birth,origin(a),p.father,p.mother,a.defaultFeeder||a.futterStandard||''].map(safe).join('|');if(full.length>900)return ['TC1',docNo(a),animalId(a),a.name||'',a.morph||'',a.sex||'',birth].map(safe).join('|');return full}

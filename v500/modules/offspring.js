@@ -502,18 +502,16 @@ function render(args){
  const group=args.group||'';
  const genus=args.genus||'';
  const edit=args.edit;
+ const create=!!args.create;
+
+ if(create){
+  return `<section class="tc2PageCard tc2AnimalsPage tc2OffspringPage">
+   ${editor('',undefined)}
+  </section>`;
+ }
 
  if(edit!==undefined){
   return `<section class="tc2PageCard tc2AnimalsPage tc2OffspringPage">
-   ${pageHeader(
-    'Nachzucht bearbeiten',
-    'Stammdaten, Zuchtinformationen und Standardfutter.',
-    backButton({
-     group:group,
-     genus:genus
-    })
-   )}
-
    ${editor(
     t,
     Number(edit)
@@ -1111,12 +1109,15 @@ function save(t,index){
  });
 }
 
-function remove(t,index){
- if(
-  !confirm(
-   'Nachzucht wirklich löschen?'
-  )
- ){
+async function remove(t,index){
+ if(!await NGT500.confirmAction(
+  'Nachzucht wirklich löschen?',
+  {
+   title:'Nachzucht löschen',
+   confirmText:'Nachzucht löschen',
+   danger:true
+  }
+ )){
   return;
  }
 

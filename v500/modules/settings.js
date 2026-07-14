@@ -105,7 +105,7 @@ function message(
   return;
  }
 
- alert(text);
+ console.warn(text);
 }
 
 function mailto(subject){

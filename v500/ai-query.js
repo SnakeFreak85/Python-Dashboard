@@ -19,6 +19,6 @@ if(/verweigert|verweigerung|nicht gefressen/.test(q))return {title:'Verweigerung
 if(/abgenommen|gewicht verloren|gewichtsverlust|verloren/.test(q))return {title:'Gewichtsverlust',rows:weightLoss()};
 return {title:'Frage nicht erkannt',rows:[{d:'',txt:'Ich kann aktuell Fragen zu Fütterung, Gewicht, Verweigerungen, Gewichtsverlust, Futterbestand und Tierstatus beantworten.'}]}
 }
-function renderAnswer(ans){if(!ans)return '';return '<div class="subcard ok"><b>'+NGT500.esc(ans.title)+'</b></div>'+((ans.rows&&ans.rows.length)?NGTUI.list(ans.rows):'<p class="muted">Keine Treffer.</p>')}
+function renderAnswer(ans){if(!ans)return '';return '<div class="tc2SubCard ok"><b>'+NGT500.esc(ans.title)+'</b></div>'+((ans.rows&&ans.rows.length)?NGTUI.list(ans.rows):'<p class="muted">Keine Treffer.</p>')}
 window.NGTAIQuery={query,renderAnswer,needsFeeding,needsWeight,refusals,weightLoss,foodStock,animalStatus};
 })();

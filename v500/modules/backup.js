@@ -61,7 +61,7 @@ function backupSize(){
 function statusBox(){
  if(!statusMessage)return '';
 
- return `<div class="subcard tc2SubCard ${esc(statusType)}">
+ return `<div class="tc2SubCard ${esc(statusType)}">
   <b>${esc(statusMessage)}</b>
  </div>`;
 }
@@ -145,7 +145,7 @@ function render(){
     </div>
    </div>
 
-   <div class="subcard tc2SubCard warn">
+   <div class="tc2SubCard warn">
     <b>Wichtig</b>
     <p>
      Beim Import können die aktuell lokal gespeicherten Daten
@@ -299,25 +299,33 @@ function importSelected(){
  const file=window.NGTBackup.selectedFile;
 
  if(!file){
-  alert('Bitte zuerst eine Backup-Datei auswählen.');
+  NGT500.toast(
+   'Bitte zuerst eine Backup-Datei auswählen.',
+   'warn'
+  );
   return;
  }
 
  importData(file);
 }
 
-function importData(file){
+async function importData(file){
  if(!file)return;
 
- if(!confirm(
-  'Backup wirklich laden? Die aktuellen lokalen Daten können überschrieben werden.'
+ if(!await NGT500.confirmAction(
+  'Backup wirklich laden? Die aktuellen lokalen Daten können überschrieben werden.',
+  {
+   title:'Backup wiederherstellen',
+   confirmText:'Backup laden',
+   danger:true
+  }
  )){
   return;
  }
 
  const reader=new FileReader();
 
- reader.onload=function(){
+ reader.onload=async function(){
   try{
    const parsed=JSON.parse(
     String(reader.result||'{}')
@@ -336,8 +344,9 @@ function importData(file){
    statusMessage='Backup erfolgreich wiederhergestellt.';
    statusType='ok';
 
-   alert(
-    'Backup erfolgreich geladen. TerraControl wird neu gestartet.'
+   await NGT500.notice(
+    'Backup erfolgreich geladen. TerraControl wird neu gestartet.',
+    {title:'Backup wiederhergestellt'}
    );
 
    location.reload();

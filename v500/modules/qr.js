@@ -221,8 +221,8 @@ async function startScan(){
   const box=document.getElementById('scanBox');
 
   box.innerHTML=`
-    <div class="tc2QREmpty" style="margin-top:12px">
-      <video id="qrVideo" autoplay playsinline style="width:100%;border-radius:18px;background:#000"></video>
+   <div class="tc2QREmpty tc2QRScannerState">
+    <video id="qrVideo" class="tc2QRScannerVideo" autoplay playsinline></video>
       <p>Kamera wird gestartet...</p>
     </div>
   `;

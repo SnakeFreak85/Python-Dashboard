@@ -31,7 +31,7 @@ function backButton(args){
 function folderGrid(items,onclick){
  if(!items.length){
   return `
-   <div class="subcard tc2EmptyState">
+   <div class="tc2EmptyState">
     <h3>Noch keine Einträge</h3>
 
     <p class="muted">
@@ -66,7 +66,7 @@ function folderGrid(items,onclick){
 function animalIconGrid(rows){
  if(!rows.length){
   return `
-   <div class="subcard tc2EmptyState">
+   <div class="tc2EmptyState">
     <h3>Noch keine Tiere</h3>
 
     <p class="muted">
@@ -128,7 +128,7 @@ function render(args){
   );
 
   return `
-   <div class="card tc2PageCard tc2AnimalsPage">
+   <div class="tc2PageCard tc2AnimalsPage">
     <div class="tc2PageHead">
      <div>
       <h2>Bestand</h2>
@@ -172,7 +172,7 @@ function render(args){
   );
 
   return `
-   <div class="card tc2PageCard tc2AnimalsPage">
+   <div class="tc2PageCard tc2AnimalsPage">
     <div class="tc2PageHead">
      <div>
       ${backButton({group:group})}
@@ -205,7 +205,7 @@ function render(args){
  });
 
  return `
-  <div class="card tc2PageCard tc2AnimalsPage">
+  <div class="tc2PageCard tc2AnimalsPage">
    <div class="tc2PageHead">
     <div>
      ${backButton({
