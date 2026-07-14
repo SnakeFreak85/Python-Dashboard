@@ -14,6 +14,30 @@ if(
  );
 }
 
+function editorView(t,i,fromHkn){
+ const html=P.editor.render(t,i,fromHkn);
+
+ if(i===undefined){
+  return html;
+ }
+
+ const deleteButton=`
+     <button
+      class="danger"
+      style="grid-column:1/-1"
+      onclick="NGTAnimals.remove('${P.jsArg(t)}',${Number(i)})"
+     >
+      🗑️ Tier löschen
+     </button>
+`;
+
+ return html.replace(
+  '    </div>\n   </section>',
+  deleteButton+
+  '    </div>\n   </section>'
+ );
+}
+
 function render(args){
  args=args||{};
 
@@ -26,12 +50,12 @@ function render(args){
   hkn||
   create||
   edit!==undefined
-  ){
-   return `
-    <div class="tc2PageCard tc2AnimalsPage">
-     ${create?P.editor.render('',undefined,false):''}
-     ${hkn?P.editor.hknInfo()+P.editor.render(t,undefined,true):''}
-     ${edit!==undefined?P.editor.render(t,Number(edit)):''}
+ ){
+  return `
+   <div class="tc2PageCard tc2AnimalsPage">
+    ${create?editorView('',undefined,false):''}
+    ${hkn?P.editor.hknInfo()+editorView(t,undefined,true):''}
+    ${edit!==undefined?editorView(t,Number(edit),false):''}
    </div>
   `;
  }
