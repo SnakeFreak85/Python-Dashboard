@@ -68,11 +68,11 @@ P.opt=function(list,currentValue){
 
    return (
     '<option '+
-    'value="'+P.esc(value)+'" '+
-    (selected?'selected':'')+
-    '>'+
-    P.esc(value)+
-    '</option>'
+     'value="'+P.esc(value)+'" '+
+     (selected?'selected':'')+
+     '>'+ 
+     P.esc(value)+
+     '</option>'
    );
   })
   .join('');
@@ -125,20 +125,44 @@ P.action=function(
  label,
  onclick
 ){
- return (
+ const action=(
   '<button '+
    'class="tc2ProfileAction" '+
    'onclick="'+onclick+'"'+
-  '>'+
+  '>'+ 
    '<div class="tc2ProfileActionIcon">'+
     icon+
-   '</div>'+
+   '</div>'+ 
    '<div class="tc2ProfileActionText">'+
     P.esc(label)+
-   '</div>'+
+   '</div>'+ 
    '<div class="tc2ProfileActionArrow">'+
     '›'+
-   '</div>'+
+   '</div>'+ 
+  '</button>'
+ );
+
+ if(label!=='Gesundheit'){
+  return action;
+ }
+
+ const context=P.state.ctx||{};
+ const removeAction=
+  "NGTAnimals.remove('"+
+  P.jsArg(context.t)+
+  "',"+
+  Number(context.i||0)+
+  ")";
+
+ return (
+  action+
+  '<button '+
+   'class="tc2ProfileAction danger" '+
+   'onclick="'+removeAction+'"'+
+  '>'+ 
+   '<div class="tc2ProfileActionIcon">🗑️</div>'+ 
+   '<div class="tc2ProfileActionText">Tier löschen</div>'+ 
+   '<div class="tc2ProfileActionArrow">›</div>'+ 
   '</button>'
  );
 };
@@ -150,20 +174,20 @@ P.row=function(
 ){
  return (
   '<div class="tc2ListRowFull">'+
-   '<div>'+
-    '<b>'+
+   '<div>'+ 
+    '<b>'+ 
      P.esc(date||'-')+
-    '</b>'+
-    '<small>'+
+    '</b>'+ 
+    '<small>'+ 
      P.esc(label||'')+
-    '</small>'+
-   '</div>'+
+    '</small>'+ 
+   '</div>'+ 
    '<button '+
     'class="danger" '+
     'onclick="'+deleteAction+'"'+
-   '>'+
+   '>'+ 
     'Löschen'+
-   '</button>'+
+   '</button>'+ 
   '</div>'
  );
 };
@@ -181,359 +205,13 @@ P.getTab=function(){
  return P.state.tab;
 };
 
+P.setTab=function(tab){
+ P.state.tab=tab;
+ NGT500.rerender();
+};
+
 P.getContext=function(){
  return P.state.ctx;
-};
-
-P.setTab=function(tab){
- if(
-  window.NGTProfile&&
-  typeof NGTProfile.closePhotoViewer===
-   'function'
- ){
-  NGTProfile.closePhotoViewer();
- }
-
- P.state.tab=tab;
-
- NGT500.route('profile',{
-  t:P.state.ctx.t,
-  i:P.state.ctx.i,
-  tab:tab
- });
-};
-
-P.deleteEntry=async function(
- kind,
- index
-){
- if(!await NGT500.confirmAction(
-  'Eintrag löschen?',
-  {
-   title:'Profileintrag löschen',
-   confirmText:'Eintrag löschen',
-   danger:true
-  }
- )){
-  return;
- }
-
- const animal=P.current();
-
- if(
-  !animal||
-  !Array.isArray(animal[kind])
- ){
-  return;
- }
-
- animal[kind].splice(
-  index,
-  1
- );
-
- if(kind==='weights'){
-  const last=
-   (animal.weights||[])
-    .slice(-1)[0];
-
-  animal.weight=
-   last
-    ?last.weight
-    :'';
- }
-
- NGTStore.save();
-
- P.setTab(
-  P.state.tab
- );
-};
-
-P.addShed=function(){
- const animal=P.current();
-
- if(!animal){
-  NGT500.toast(
-   'Das Tier wurde nicht gefunden.',
-   'danger'
-  );
-  return;
- }
-
- animal.sheds=
-  Array.isArray(animal.sheds)
-   ?animal.sheds
-   :[];
-
- const dateInput=
-  document.getElementById(
-   'shedDate'
-  );
-
- animal.sheds.push({
-  date:
-   (
-    dateInput&&
-    dateInput.value
-   )||
-   NGT500.today(),
-
-  complete:true
- });
-
- NGTStore.save();
- P.setTab('sheds');
-};
-
-P.addWeight=function(){
- const animal=P.current();
-
- if(!animal){
-  NGT500.toast(
-   'Das Tier wurde nicht gefunden.',
-   'danger'
-  );
-  return;
- }
-
- const valueInput=
-  document.getElementById(
-   'weightValue'
-  );
-
- const weight=Number(
-  valueInput
-   ?valueInput.value
-   :0
- );
-
- if(!weight){
-  NGT500.toast('Gewicht fehlt.','warn');
-  return;
- }
-
- animal.weights=
-  Array.isArray(animal.weights)
-   ?animal.weights
-   :[];
-
- const dateInput=
-  document.getElementById(
-   'weightDate'
-  );
-
- animal.weights.push({
-  date:
-   (
-    dateInput&&
-    dateInput.value
-   )||
-   NGT500.today(),
-
-  weight:weight
- });
-
- animal.weight=weight;
-
- NGTStore.save();
- P.setTab('weights');
-};
-
-P.shedForm=function(){
- return (
-  '<div class="tc2SubCard">'+
-   '<h3>Häutung eintragen</h3>'+
-   '<input '+
-    'id="shedDate" '+
-    'type="date" '+
-    'value="'+NGT500.today()+'"'+
-   '>'+
-   '<button '+
-    'onclick="NGTProfile.addShed()"'+
-   '>'+
-    'Häutung speichern'+
-   '</button>'+
-  '</div>'
- );
-};
-
-P.weightForm=function(){
- return (
-  '<div class="tc2SubCard">'+
-   '<h3>Gewicht eintragen</h3>'+
-   '<input '+
-    'id="weightDate" '+
-    'type="date" '+
-    'value="'+NGT500.today()+'"'+
-   '>'+
-   '<input '+
-    'id="weightValue" '+
-    'type="number" '+
-    'placeholder="Gewicht in g"'+
-   '>'+
-   '<button '+
-    'onclick="NGTProfile.addWeight()"'+
-   '>'+
-    'Gewicht speichern'+
-   '</button>'+
-  '</div>'
- );
-};
-
-P.shedList=function(animal){
- return (
-  '<div class="tc2SubCard">'+
-   '<h3>Häutungen</h3>'+
-   (
-    (animal.sheds||[])
-     .map(function(entry,index){
-      return {
-       entry:entry,
-       index:index
-      };
-     })
-     .reverse()
-     .map(function(item){
-      return P.row(
-       item.entry.date,
-       'Häutung',
-       (
-        "NGTProfile.deleteEntry("+
-        "'sheds',"+
-        item.index+
-        ")"
-       )
-      );
-     })
-     .join('')||
-    '<p class="muted">'+
-     'Keine Häutungen.'+
-    '</p>'
-   )+
-  '</div>'
- );
-};
-
-P.weightList=function(animal){
- return (
-  '<div class="tc2SubCard">'+
-   '<h3>Gewichte</h3>'+
-   (
-    (animal.weights||[])
-     .map(function(entry,index){
-      return {
-       entry:entry,
-       index:index
-      };
-     })
-     .reverse()
-     .map(function(item){
-      return P.row(
-       item.entry.date,
-       item.entry.weight+'g',
-       (
-        "NGTProfile.deleteEntry("+
-        "'weights',"+
-        item.index+
-        ")"
-       )
-      );
-     })
-     .join('')||
-    '<p class="muted">'+
-     'Keine Gewichte.'+
-    '</p>'
-   )+
-  '</div>'
- );
-};
-
-P.barChart=function(rows){
- if(!rows.length){
-  return (
-   '<p class="muted">'+
-    'Keine Daten.'+
-   '</p>'
-  );
- }
-
- const max=Math.max(
-  ...rows.map(function(row){
-   return Number(
-    row.value||
-    0
-   );
-  }),
-  1
- );
-
- return rows
-  .map(function(row){
-   const width=Math.max(
-    4,
-    Math.round(
-     (
-      Number(row.value||0)/
-      max
-     )*
-     100
-    )
-   );
-
-   return (
-    '<div class="tc2Bar">'+
-     '<small>'+
-      P.esc(row.label||'-')+
-     '</small>'+
-     '<span>'+
-      '<i style="width:'+
-       width+
-       '%">'+
-      '</i>'+
-     '</span>'+
-     '<b>'+
-      P.esc(row.value)+
-     '</b>'+
-    '</div>'
-   );
-  })
-  .join('');
-};
-
-P.charts=function(animal){
- return (
-  '<div class="tc2SubCard">'+
-   '<h3>Gewicht</h3>'+
-   P.barChart(
-    (animal.weights||[])
-     .map(function(weight){
-      return {
-       label:weight.date,
-       value:Number(
-        weight.weight||
-        0
-       )
-      };
-     })
-   )+
-  '</div>'+
-  '<div class="tc2SubCard">'+
-   '<h3>Fütterungen</h3>'+
-   P.barChart(
-    (animal.feeds||[])
-     .map(function(feed){
-      return {
-       label:feed.date,
-       value:
-        feed.accepted===false
-         ?0
-         :1
-      };
-     })
-   )+
-  '</div>'
- );
 };
 
 })();
