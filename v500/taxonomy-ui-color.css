@@ -2,7 +2,7 @@
 .tc2TaxSilhouetteHost {
   border-color: rgba(83, 210, 150, .46) !important;
   background:
-    radial-gradient(circle at 42% 36%, rgba(57, 158, 98, .22), transparent 58%),
+    radial-gradient(circle at 42% 36%, rgba(57, 158, 98, .24), transparent 58%),
     linear-gradient(145deg, rgba(11, 43, 48, .98), rgba(3, 17, 27, .99)) !important;
 }
 
@@ -10,21 +10,51 @@
   overflow: visible;
 }
 
+/* Die SVG-Verläufe werden direkt eingefärbt. Ein CSS-Hue-Filter reicht hier nicht,
+   weil die ursprünglichen hellblauen Verlaufspunkte innerhalb des SVG dominieren. */
+.tc2TaxSilhouetteSvg linearGradient[id="tc2TaxBody"] stop:nth-child(1) {
+  stop-color: #d9ff79 !important;
+}
+
+.tc2TaxSilhouetteSvg linearGradient[id="tc2TaxBody"] stop:nth-child(2) {
+  stop-color: #68d65f !important;
+}
+
+.tc2TaxSilhouetteSvg linearGradient[id="tc2TaxBody"] stop:nth-child(3) {
+  stop-color: #21864d !important;
+}
+
+.tc2TaxSilhouetteSvg radialGradient[id="tc2TaxBackground"] stop:nth-child(1) {
+  stop-color: #236a48 !important;
+  stop-opacity: .58 !important;
+}
+
+.tc2TaxSilhouetteSvg radialGradient[id="tc2TaxBackground"] stop:nth-child(2) {
+  stop-color: #123c35 !important;
+  stop-opacity: .38 !important;
+}
+
+.tc2TaxSilhouetteSvg radialGradient[id="tc2TaxBackground"] stop:nth-child(3) {
+  stop-color: #06121d !important;
+  stop-opacity: 0 !important;
+}
+
 .tc2TaxSilhouetteCreature {
-  filter:
-    hue-rotate(58deg)
-    saturate(1.95)
-    brightness(1.08)
-    contrast(1.05)
-    drop-shadow(0 5px 7px rgba(77, 210, 91, .24)) !important;
+  filter: drop-shadow(0 5px 7px rgba(77, 210, 91, .30)) !important;
+}
+
+.tc2TaxSilhouetteCreature circle[fill="#08141c"],
+.tc2TaxSilhouetteCreature circle[fill="#07131b"],
+.tc2TaxSilhouetteCreature g[fill="#10252d"] {
+  fill: #10251b !important;
 }
 
 .tc2TaxSilhouetteSvg > ellipse {
-  fill: rgba(35, 110, 72, .20) !important;
+  fill: rgba(35, 110, 72, .22) !important;
 }
 
 .tc2TaxSilhouetteSvg > path:last-child {
-  stroke: rgba(115, 220, 117, .28) !important;
+  stroke: rgba(139, 220, 63, .34) !important;
 }
 
 .tc2TaxFolder::after {
@@ -33,10 +63,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tc2TaxSilhouetteCreature {
-    filter:
-      hue-rotate(58deg)
-      saturate(1.95)
-      brightness(1.08)
-      contrast(1.05) !important;
+    filter: none !important;
   }
 }
