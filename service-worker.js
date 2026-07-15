@@ -25,6 +25,7 @@ const APP_SHELL=[
   './v500/taxonomy-cloud.js'+VERSION_QUERY,
   './v500/taxonomy.js'+VERSION_QUERY,
   './v500/taxonomy-ui-illustrations.js'+VERSION_QUERY,
+  './v500/taxonomy-ui-animal-icons.js'+VERSION_QUERY,
   './v500/taxonomy-ui-decoration.js'+VERSION_QUERY,
   './v500/taxonomy-ui.js'+VERSION_QUERY,
   './v500/animal-engine.js'+VERSION_QUERY,
@@ -118,6 +119,7 @@ self.addEventListener('fetch',event=>{
           return response;
         })
         .catch(()=>
+
           caches.match(event.request)
         )
     );
@@ -141,8 +143,10 @@ self.addEventListener('fetch',event=>{
         return response;
       })
       .catch(()=>
+
         caches.match(event.request)
           .then(cached=>
+
             cached||
             caches.match(
               './v500.html'+VERSION_QUERY
