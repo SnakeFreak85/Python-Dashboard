@@ -70,9 +70,9 @@ P.opt=function(list,currentValue){
     '<option '+
      'value="'+P.esc(value)+'" '+
      (selected?'selected':'')+
-     '>'+ 
+    '>'+ 
      P.esc(value)+
-     '</option>'
+    '</option>'
    );
   })
   .join('');
@@ -194,12 +194,19 @@ P.row=function(
 };
 
 P.setContext=function(args){
- P.state.ctx=args||P.state.ctx;
+ const next=args||P.state.ctx||{};
+ const current=P.state.ctx||{};
+ const changed=
+  String(next.t||'')!==String(current.t||'')||
+  Number(next.i||0)!==Number(current.i||0);
 
- P.state.tab=
-  args&&args.tab
-   ?args.tab
-   :'overview';
+ P.state.ctx=next;
+
+ if(args&&args.tab){
+  P.state.tab=args.tab;
+ }else if(changed){
+  P.state.tab='overview';
+ }
 };
 
 P.getTab=function(){
