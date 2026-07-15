@@ -6,12 +6,18 @@
     linear-gradient(145deg, rgba(11, 43, 48, .98), rgba(3, 17, 27, .99)) !important;
 }
 
+.tc2TaxReferenceIcon {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: inherit !important;
+}
+
 .tc2TaxSilhouetteSvg {
   overflow: visible;
 }
 
-/* Die SVG-Verläufe werden direkt eingefärbt. Ein CSS-Hue-Filter reicht hier nicht,
-   weil die ursprünglichen hellblauen Verlaufspunkte innerhalb des SVG dominieren. */
 .tc2TaxSilhouetteSvg linearGradient[id="tc2TaxBody"] stop:nth-child(1) {
   stop-color: #d9ff79 !important;
 }
