@@ -13,6 +13,7 @@ const APP_SHELL=[
 
   './v500/styles.css'+VERSION_QUERY,
   './v500/tc2.css'+VERSION_QUERY,
+  './v500/taxonomy-ui-color.css'+VERSION_QUERY,
 
   './v500/core.js'+VERSION_QUERY,
   './v500/id-manager.js'+VERSION_QUERY,
