@@ -13,6 +13,7 @@ if(!base){
 const clean=base.clean;
 const classify=base.classify;
 const fallback=base.illustrationFor;
+const ICON_VERSION='ref-2';
 
 function esc(value){
  return String(value||'')
@@ -23,14 +24,25 @@ function esc(value){
   .replace(/'/g,'&#39;');
 }
 
-function image(path,label){
+function iconUrl(name){
+ return (
+  new URL(
+   'v500/assets/taxonomy/'+name+'.png',
+   document.baseURI
+  ).href+
+  '?v='+ICON_VERSION
+ );
+}
+
+function image(name,label){
  return (
   '<img '+
    'class="tc2TaxReferenceIcon" '+
-   'src="'+path+'" '+
+   'src="'+esc(iconUrl(name))+'" '+
    'alt="'+esc(label)+'" '+
-   'loading="lazy" '+
-   'decoding="async"'+
+   'loading="eager" '+
+   'decoding="sync" '+
+   'onerror="this.hidden=true"'+
   '>'
  );
 }
@@ -40,28 +52,16 @@ function illustrationFor(value){
 
  switch(classify(label)){
   case 'chameleon':
-   return image(
-    './v500/assets/taxonomy/chameleon.png',
-    label
-   );
+   return image('chameleon',label);
 
   case 'gecko':
-   return image(
-    './v500/assets/taxonomy/gecko.png',
-    label
-   );
+   return image('gecko',label);
 
   case 'snake':
-   return image(
-    './v500/assets/taxonomy/python.png',
-    label
-   );
+   return image('python',label);
 
   case 'generic':
-   return image(
-    './v500/assets/taxonomy/generic.png',
-    label
-   );
+   return image('generic',label);
 
   default:
    return fallback(label);
