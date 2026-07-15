@@ -19,79 +19,36 @@
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
 
-<link
- rel="stylesheet"
- href="./v500/styles.css?v=1.0.4-rc.11"
->
+<link rel="stylesheet" href="./v500/styles.css?v=1.0.4-rc.11">
+<link rel="stylesheet" href="./v500/tc2.css?v=1.0.4-rc.11">
+<link rel="stylesheet" href="./v500/taxonomy-ui-color.css?v=1.0.4-rc.11">
 
-<link
- rel="stylesheet"
- href="./v500/tc2.css?v=1.0.4-rc.11"
->
-
-<link
- rel="stylesheet"
- href="./v500/taxonomy-ui-color.css?v=1.0.4-rc.11"
->
-
-<script
- src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body class="tc2RefMode">
 <header class="appHeader tc2GlobalHeader">
- <button
-  id="menuBtn"
-  class="menuBtn tc2HeaderMenu"
-  aria-label="Menü öffnen"
- >
-  ☰
- </button>
-
+ <button id="menuBtn" class="menuBtn tc2HeaderMenu" aria-label="Menü öffnen">☰</button>
  <div class="tc2GlobalTitle">
   <h1>TerraControl</h1>
-
-  <div class="version">
-   Version 1.0.4 RC11
-  </div>
+  <div class="version">Version 1.0.4 RC11</div>
  </div>
 </header>
 
-<div
- id="overlay"
- class="overlay"
-></div>
-
-<nav
- id="drawer"
- class="drawer"
-></nav>
-
-<main
- id="app"
- class="wrap"
-></main>
-
+<div id="overlay" class="overlay"></div>
+<nav id="drawer" class="drawer"></nav>
+<main id="app" class="wrap"></main>
 <div id="modalRoot"></div>
 
 <script>
 if('serviceWorker' in navigator){
- window.addEventListener(
-  'load',
-  function(){
-   navigator.serviceWorker
-    .register(
-     './service-worker.js?v=1.0.4-rc.11'
-    )
-    .catch(function(error){
-     console.warn(
-      'Service Worker registration failed',
-      error
-     );
-    });
-  }
- );
+ window.addEventListener('load',function(){
+  navigator.serviceWorker
+   .register('./service-worker.js?v=1.0.4-rc.11')
+   .catch(function(error){
+    console.warn('Service Worker registration failed',error);
+   });
+ });
 }
 </script>
 
@@ -106,6 +63,7 @@ if('serviceWorker' in navigator){
 <script src="./v500/taxonomy.js?v=1.0.4-rc.11"></script>
 <script src="./v500/taxonomy-ui-illustrations.js?v=1.0.4-rc.11"></script>
 <script src="./v500/taxonomy-ui-animal-icons.js?v=1.0.4-rc.11"></script>
+<script src="./v500/taxonomy-ui-icon-policy.js?v=1.0.4-rc.11"></script>
 <script src="./v500/taxonomy-ui-decoration.js?v=1.0.4-rc.11"></script>
 <script src="./v500/taxonomy-ui.js?v=1.0.4-rc.11"></script>
 <script src="./v500/animal-engine.js?v=1.0.4-rc.11"></script>
