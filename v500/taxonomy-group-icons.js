@@ -11,6 +11,7 @@ if(!P||!P.editor||!illustrations){
 
 let pendingImage=null;
 let pendingRemove=false;
+let refreshTimer=null;
 
 function esc(value){
  return String(value||'')
@@ -22,29 +23,19 @@ function esc(value){
 }
 
 function activeRows(){
- try{
-  return typeof P.allActive==='function'?P.allActive():[];
- }catch(error){
-  return [];
- }
+ try{return typeof P.allActive==='function'?P.allActive():[];}catch(error){return [];}
 }
 
-function rowAnimal(row){
- return row&&row.a?row.a:row||{};
-}
+function rowAnimal(row){return row&&row.a?row.a:row||{};}
 
 function matchingAnimals(label){
  const key=String(label||'').trim().toLowerCase();
  if(!key){return [];}
-
- return activeRows()
-  .map(rowAnimal)
-  .filter(function(animal){
-   return [animal.animalGroup,animal.genus]
-    .some(function(value){
-     return String(value||'').trim().toLowerCase()===key;
-    });
+ return activeRows().map(rowAnimal).filter(function(animal){
+  return [animal.animalGroup,animal.genus].some(function(value){
+   return String(value||'').trim().toLowerCase()===key;
   });
+ });
 }
 
 function storedImage(label){
@@ -55,38 +46,24 @@ function storedImage(label){
 }
 
 function contextText(label){
- const animals=matchingAnimals(label);
  const parts=[label];
-
- animals.slice(0,12).forEach(function(animal){
-  parts.push(
-   animal.animalGroup||'',
-   animal.genus||'',
-   animal.species||'',
-   animal.scientificName||'',
-   animal.commonName||''
-  );
+ matchingAnimals(label).slice(0,12).forEach(function(animal){
+  parts.push(animal.animalGroup||'',animal.genus||'',animal.species||'',animal.scientificName||'',animal.commonName||'');
  });
-
  return parts.filter(Boolean).join(' ');
 }
 
 const previousIllustration=illustrations.illustrationFor;
 illustrations.illustrationFor=function(label){
  const custom=storedImage(label);
-
  if(custom){
   return '<img class="tc2TaxReferenceIcon" src="'+esc(custom)+'" alt="'+esc(label)+'">';
  }
-
  return previousIllustration(contextText(label));
 };
 
 function previewHtml(data){
- if(!data){
-  return '<span class="muted">Noch kein eigenes Gruppenbild gewählt.</span>';
- }
-
+ if(!data){return '<span class="muted">Noch kein eigenes Gruppenbild gewählt.</span>';}
  return '<img src="'+esc(data)+'" alt="Gruppenbild Vorschau" style="width:88px;height:88px;object-fit:cover;border-radius:20px">';
 }
 
@@ -94,23 +71,16 @@ function imageBlock(animal){
  const current=animal&&animal.groupIcon||'';
  pendingImage=null;
  pendingRemove=false;
-
  return `
   <div class="tc2AnimalEditorBlock" id="tc2GroupIconBlock">
    <h4>Gruppenbild</h4>
-   <p class="muted">
-    TerraControl erkennt bekannte Tierarten automatisch. Für neue oder ungewöhnliche Gruppen kannst du hier einmalig ein eigenes Bild wählen. Es wird anschließend automatisch für die gesamte Tiergruppe verwendet.
-   </p>
+   <p class="muted">TerraControl erkennt bekannte Tierarten automatisch. Für neue oder ungewöhnliche Gruppen kannst du hier einmalig ein eigenes Bild wählen. Es wird anschließend automatisch für die gesamte Tiergruppe verwendet.</p>
    <div id="tc2GroupIconPreview">${previewHtml(current)}</div>
    <div class="tc2AnimalEditorActions" style="margin-top:12px">
-    <label class="button" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">
-     Bild auswählen
-     <input type="file" accept="image/*" hidden onchange="NGTGroupIcons.pick(event)">
-    </label>
+    <label class="button" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">Bild auswählen<input type="file" accept="image/*" hidden onchange="NGTGroupIcons.pick(event)"></label>
     <button type="button" onclick="NGTGroupIcons.clear()">Kein Bild</button>
    </div>
-  </div>
- `;
+  </div>`;
 }
 
 const originalRender=P.editor.render;
@@ -131,8 +101,7 @@ function resizeImage(file){
    image.onload=function(){
     const size=256;
     const canvas=document.createElement('canvas');
-    canvas.width=size;
-    canvas.height=size;
+    canvas.width=size;canvas.height=size;
     const ctx=canvas.getContext('2d');
     const scale=Math.max(size/image.width,size/image.height);
     const width=image.width*scale;
@@ -149,7 +118,6 @@ function resizeImage(file){
 async function pick(event){
  const file=event&&event.target&&event.target.files&&event.target.files[0];
  if(!file){return;}
-
  try{
   pendingImage=await resizeImage(file);
   pendingRemove=false;
@@ -161,8 +129,7 @@ async function pick(event){
 }
 
 function clear(){
- pendingImage=null;
- pendingRemove=true;
+ pendingImage=null;pendingRemove=true;
  const preview=document.getElementById('tc2GroupIconPreview');
  if(preview){preview.innerHTML=previewHtml('');}
 }
@@ -170,8 +137,7 @@ function clear(){
 function inheritedImage(group){
  const key=String(group||'').trim().toLowerCase();
  const match=activeRows().map(rowAnimal).find(function(animal){
-  return String(animal.animalGroup||'').trim().toLowerCase()===key&&
-   String(animal.groupIcon||'').startsWith('data:image/');
+  return String(animal.animalGroup||'').trim().toLowerCase()===key&&String(animal.groupIcon||'').startsWith('data:image/');
  });
  return match?match.groupIcon:'';
 }
@@ -180,36 +146,54 @@ const originalSave=P.editor.save;
 P.editor.save=function(t,i){
  const add=NGTStore.addAnimal;
  const update=NGTStore.updateAnimal;
-
  function applyIcon(animal){
   const result={...animal};
-  if(pendingRemove){
-   result.groupIcon='';
-  }else if(pendingImage){
-   result.groupIcon=pendingImage;
-  }else if(!result.groupIcon){
-   result.groupIcon=inheritedImage(result.animalGroup);
-  }
+  if(pendingRemove){result.groupIcon='';}
+  else if(pendingImage){result.groupIcon=pendingImage;}
+  else if(!result.groupIcon){result.groupIcon=inheritedImage(result.animalGroup);}
   return result;
  }
-
- NGTStore.addAnimal=function(type,animal){
-  return add.call(NGTStore,type,applyIcon(animal));
- };
- NGTStore.updateAnimal=function(type,index,animal){
-  return update.call(NGTStore,type,index,applyIcon(animal));
- };
-
- try{
-  return originalSave(t,i);
- }finally{
-  NGTStore.addAnimal=add;
-  NGTStore.updateAnimal=update;
-  pendingImage=null;
-  pendingRemove=false;
+ NGTStore.addAnimal=function(type,animal){return add.call(NGTStore,type,applyIcon(animal));};
+ NGTStore.updateAnimal=function(type,index,animal){return update.call(NGTStore,type,index,applyIcon(animal));};
+ try{return originalSave(t,i);}finally{
+  NGTStore.addAnimal=add;NGTStore.updateAnimal=update;
+  pendingImage=null;pendingRemove=false;
  }
 };
 
-window.NGTGroupIcons={pick:pick,clear:clear};
+function folderLabel(button){
+ const title=button&&button.querySelector(':scope > b');
+ return String(title&&title.textContent||'').trim();
+}
+
+function refresh(){
+ document.querySelectorAll('.tc2TaxFolder').forEach(function(button){
+  const label=folderLabel(button);
+  const target=button.querySelector(':scope > span');
+  if(!label||!target){return;}
+  target.className='tc2TaxSilhouetteHost';
+  target.innerHTML=illustrations.illustrationFor(label);
+  button.dataset.tc2Silhouette='1';
+ });
+}
+
+function scheduleRefresh(){
+ clearTimeout(refreshTimer);
+ refreshTimer=setTimeout(refresh,80);
+}
+
+if(window.NGT500&&typeof NGT500.on==='function'){
+ NGT500.on('route',scheduleRefresh);
+ NGT500.on('store:changed',scheduleRefresh);
+}
+
+const app=document.getElementById('app');
+if(app){
+ new MutationObserver(scheduleRefresh).observe(app,{childList:true,subtree:true});
+}
+window.addEventListener('load',scheduleRefresh);
+setTimeout(scheduleRefresh,0);
+
+window.NGTGroupIcons={pick:pick,clear:clear,refresh:refresh};
 
 })();
