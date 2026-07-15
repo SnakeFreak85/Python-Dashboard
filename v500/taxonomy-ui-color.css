@@ -1,0 +1,42 @@
+/* Farbige TC2-Tierillustrationen */
+.tc2TaxSilhouetteHost {
+  border-color: rgba(83, 210, 150, .46) !important;
+  background:
+    radial-gradient(circle at 42% 36%, rgba(57, 158, 98, .22), transparent 58%),
+    linear-gradient(145deg, rgba(11, 43, 48, .98), rgba(3, 17, 27, .99)) !important;
+}
+
+.tc2TaxSilhouetteSvg {
+  overflow: visible;
+}
+
+.tc2TaxSilhouetteCreature {
+  filter:
+    hue-rotate(58deg)
+    saturate(1.95)
+    brightness(1.08)
+    contrast(1.05)
+    drop-shadow(0 5px 7px rgba(77, 210, 91, .24)) !important;
+}
+
+.tc2TaxSilhouetteSvg > ellipse {
+  fill: rgba(35, 110, 72, .20) !important;
+}
+
+.tc2TaxSilhouetteSvg > path:last-child {
+  stroke: rgba(115, 220, 117, .28) !important;
+}
+
+.tc2TaxFolder::after {
+  color: #8bdc3f !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tc2TaxSilhouetteCreature {
+    filter:
+      hue-rotate(58deg)
+      saturate(1.95)
+      brightness(1.08)
+      contrast(1.05) !important;
+  }
+}
