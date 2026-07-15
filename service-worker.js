@@ -1,4 +1,4 @@
-const TC_VERSION='1.0.4-rc.12';
+const TC_VERSION='1.0.4-rc.13';
 const TC_CACHE='terracontrol-'+TC_VERSION;
 const VERSION_QUERY='?v='+TC_VERSION;
 
@@ -7,7 +7,7 @@ const APP_SHELL=[
   './v500/styles.css'+VERSION_QUERY,'./v500/tc2.css'+VERSION_QUERY,'./v500/taxonomy-ui-color.css'+VERSION_QUERY,
   './v500/core.js'+VERSION_QUERY,'./v500/id-manager.js'+VERSION_QUERY,'./v500/store.js'+VERSION_QUERY,'./v500/ui.js'+VERSION_QUERY,
   './v500/taxonomy-core.js'+VERSION_QUERY,'./v500/taxonomy-store.js'+VERSION_QUERY,'./v500/taxonomy-cloud.js'+VERSION_QUERY,'./v500/taxonomy.js'+VERSION_QUERY,
-  './v500/taxonomy-ui-illustrations.js'+VERSION_QUERY,'./v500/taxonomy-ui-animal-icons.js'+VERSION_QUERY,'./v500/taxonomy-ui-spider-icon.js'+VERSION_QUERY,'./v500/taxonomy-ui-icon-policy.js'+VERSION_QUERY,'./v500/taxonomy-ui-spider-final.js'+VERSION_QUERY,'./v500/taxonomy-ui-decoration.js'+VERSION_QUERY,'./v500/taxonomy-ui.js'+VERSION_QUERY,'./v500/animal-engine.js'+VERSION_QUERY,
+  './v500/taxonomy-ui-illustrations.js'+VERSION_QUERY,'./v500/taxonomy-ui-animal-icons.js'+VERSION_QUERY,'./v500/taxonomy-ui-spider-icon.js'+VERSION_QUERY,'./v500/taxonomy-ui-icon-policy.js'+VERSION_QUERY,'./v500/taxonomy-ui-spider-final.js'+VERSION_QUERY,'./v500/taxonomy-ui-tortoise-final.js'+VERSION_QUERY,'./v500/taxonomy-ui-decoration.js'+VERSION_QUERY,'./v500/taxonomy-ui.js'+VERSION_QUERY,'./v500/animal-engine.js'+VERSION_QUERY,
   './v500/assets/taxonomy/chameleon.png','./v500/assets/taxonomy/gecko.png','./v500/assets/taxonomy/python.png','./v500/assets/taxonomy/spider.png',
   './v500/ai-engine.js'+VERSION_QUERY,'./v500/ai-context.js'+VERSION_QUERY,'./v500/ai-query.js'+VERSION_QUERY,'./v500/ai-recommendations.js'+VERSION_QUERY,'./v500/ai-manager.js'+VERSION_QUERY,
   './v500/smart-dashboard.js'+VERSION_QUERY,'./v500/photo-storage.js'+VERSION_QUERY,
