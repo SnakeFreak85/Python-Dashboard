@@ -1,4 +1,4 @@
-const TC_VERSION='1.0.4-rc.11';
+const TC_VERSION='1.0.4-rc.12';
 const TC_CACHE='terracontrol-'+TC_VERSION;
 const VERSION_QUERY='?v='+TC_VERSION;
 
