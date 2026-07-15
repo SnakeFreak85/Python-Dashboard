@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 
-const V='1.0.4-rc.13';
+const V='1.0.4-rc.11';
 
 function loadScriptOnce(moduleName,path,routeName,args,options){
  if(NGT500.modules[moduleName]){
@@ -69,7 +69,7 @@ function nav(){
  d.innerHTML=`
   <div class="tc2DrawerHead">
    <div class="tc2DrawerLogo">TC</div>
-   <div><h2>TerraControl</h2><p>Version 1.0.4 RC13</p></div>
+   <div><h2>TerraControl</h2><p>Version 1.0.4 RC11</p></div>
   </div>
   ${navGroup('Start',[
    navButton('🏠','Startseite',"NGT500.route('dashboard')"),
