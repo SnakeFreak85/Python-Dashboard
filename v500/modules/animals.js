@@ -21,20 +21,35 @@ function editorView(t,i,fromHkn){
   return html;
  }
 
- const deleteButton=`
-     <button
-      class="danger"
-      style="grid-column:1/-1"
-      onclick="NGTAnimals.remove('${P.jsArg(t)}',${Number(i)})"
-     >
-      🗑️ Tier löschen
-     </button>
-`;
+ const index=Number(i);
+ const animal=NGTStore.animal(t,index);
 
- return html.replace(
-  '    </div>\n   </section>',
-  deleteButton+
-  '    </div>\n   </section>'
+ if(!animal){
+  return html;
+ }
+
+ const deleteButton=`
+    <button
+     class="danger"
+     style="grid-column:1/-1"
+     onclick="NGTAnimals.remove('${P.jsArg(t)}',${index})"
+    >
+     🗑️ Tier löschen
+    </button>
+ `;
+
+ if(/<\/section>\s*$/.test(html)){
+  return html.replace(
+   /<\/section>\s*$/,
+   deleteButton+'   </section>'
+  );
+ }
+
+ return (
+  html+
+  '<div class="tc2AnimalEditorActions">'+
+   deleteButton+
+  '</div>'
  );
 }
 
