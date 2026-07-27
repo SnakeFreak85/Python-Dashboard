@@ -5,7 +5,7 @@ function build(a){
  const rows=[];
  if(a.birth)rows.push(item(a.birth,'birth','Geburt','Geburtsdatum'));
  if(a.purchaseDate)rows.push(item(a.purchaseDate,'purchase','Kauf','Kaufwert: '+(a.buyPrice||0)+' EUR'));
- (a.feeds||[]).forEach(f=>rows.push(item(f.date,'feed',f.accepted===false?'Fütterung verweigert':'Fütterung',((f.amount||'')+'g '+(f.prey||'')).trim())));
+ (a.feeds||[]).forEach(f=>rows.push(item(f.date,'feed',f.accepted===false?'Fütterung verweigert':'Fütterung',AnimalEngine.formatFeedEvent(f,{includeStatus:false}))));
  (a.sheds||[]).forEach(s=>rows.push(item(s.date,'shed','Häutung',s.complete===false?'unvollständig':'vollständig')));
  (a.weights||[]).forEach(w=>rows.push(item(w.date,'weight','Gewicht',w.weight+'g')));
  (a.health||[]).forEach(h=>rows.push(item(h.date,'health',h.type||'Gesundheit',(h.title||'')+' '+(h.status||'')+' '+(h.note||''))));

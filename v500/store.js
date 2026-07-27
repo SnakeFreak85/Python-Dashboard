@@ -616,6 +616,99 @@ function deleteAnimalById(id){
   return deleteAnimal(row.t,row.i);
 }
 
+function feedInventoryItem(input,event){
+  input=input||{};
+  event=event||{};
+
+  const id=
+    input.foodInventoryId||
+    event.foodInventoryId||
+    '';
+
+  if(id){
+    const byId=db.foodInventory.find(function(item){
+      return String(item.id||'')===String(id);
+    });
+
+    if(byId){
+      return byId;
+    }
+  }
+
+  const label=
+    input.inventoryLabel||
+    event.displayLabel||
+    event.label||
+    '';
+
+  if(!label){
+    return null;
+  }
+
+  const key=foodKey(label);
+
+  return db.foodInventory.find(function(item){
+    return (
+      item.key===key||
+      foodKey(item.label||item.name)===key
+    );
+  })||null;
+}
+
+function recordFeed(ref,input){
+  const row=resolveAnimal(ref);
+
+  if(
+    !row||
+    !window.AnimalEngine||
+    typeof AnimalEngine.createFeedEvent!=='function'
+  ){
+    return null;
+  }
+
+  input=input||{};
+
+  const event=AnimalEngine.createFeedEvent({
+    ...input,
+    id:input.id||NGT500.uid()
+  });
+
+  const inventoryItem=feedInventoryItem(
+    input,
+    event
+  );
+
+  if(inventoryItem){
+    event.foodInventoryId=inventoryItem.id||'';
+  }
+
+  if(!Array.isArray(row.a.feeds)){
+    row.a.feeds=[];
+  }
+
+  row.a.feeds.push(event);
+
+  if(
+    event.accepted&&
+    input.deductStock===true&&
+    inventoryItem
+  ){
+    inventoryItem.qty=Math.max(
+      0,
+      Number(inventoryItem.qty||0)-
+      event.quantity
+    );
+  }
+
+  save();
+
+  return {
+    animal:row.a,
+    event:event,
+    inventoryItem:inventoryItem
+  };
+}
+
 function addFood(name,qty){
   const key=foodKey(name);
   const item=db.foodInventory.find(x=>foodKey(x.name)===key||x.key===key);
@@ -702,6 +795,7 @@ window.NGTStore={
   updateAnimalById,
   deleteAnimal,
   deleteAnimalById,
+  recordFeed,
 
   addFood,
   reduceFood,

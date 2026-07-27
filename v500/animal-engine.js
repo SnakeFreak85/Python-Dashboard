@@ -153,6 +153,179 @@ function ensureHistories(animal){
     return animal;
 }
 
+function positiveNumber(value){
+    const result=number(value);
+
+    return result!==null&&result>0
+        ?result
+        :null;
+}
+
+function gramsFromText(value){
+    const match=text(value).match(
+        /(\d+(?:[,.]\d+)?)\s*(?:g|gramm|gr)\b/i
+    );
+
+    return match
+        ?Number(match[1].replace(",","."))
+        :null;
+}
+
+function normalizeFeedEvent(entry){
+    const source=entry||{};
+    const condition=text(
+        source.condition||
+        source.state
+    );
+    const prey=text(
+        source.prey||
+        source.itemName||
+        source.type
+    );
+    const unit=text(source.unit)||"Stück";
+    const storedVariant=text(
+        source.variantLabel||
+        source.variant||
+        source.size
+    );
+    const storedLabel=text(
+        source.displayLabel||
+        source.label
+    );
+    const legacyAmount=positiveNumber(
+        source.amount
+    );
+    const variantWeight=
+        gramsFromText(storedVariant)||
+        gramsFromText(storedLabel);
+
+    let preyWeightGrams=positiveNumber(
+        source.preyWeightGrams ??
+        source.weightGrams ??
+        source.grams
+    );
+
+    if(preyWeightGrams===null){
+        preyWeightGrams=variantWeight;
+    }
+
+    const amountLooksLikeQuantity=
+        /st(ü|ue)ck/i.test(unit)&&
+        legacyAmount!==null&&
+        (
+            (
+                !!storedVariant&&
+                legacyAmount<=20
+            )||
+            (
+                !storedVariant&&
+                /heimchen|schabe|insekt|grille/i.test(prey)&&
+                legacyAmount<=50
+            )
+        );
+
+    let quantity=positiveNumber(
+        source.quantity
+    );
+
+    if(quantity===null){
+        quantity=amountLooksLikeQuantity
+            ?legacyAmount
+            :1;
+    }
+
+    if(
+        preyWeightGrams===null&&
+        legacyAmount!==null&&
+        !amountLooksLikeQuantity
+    ){
+        preyWeightGrams=legacyAmount;
+    }
+
+    const variantLabel=
+        storedVariant||
+        (
+            preyWeightGrams!==null
+                ?preyWeightGrams+" g"
+                :""
+        );
+
+    const displayLabel=
+        storedLabel||
+        [
+            condition,
+            prey,
+            variantLabel
+        ].filter(Boolean).join(" ");
+
+    return {
+        ...source,
+        id:text(source.id),
+        date:text(source.date),
+        accepted:source.accepted!==false,
+        foodInventoryId:text(
+            source.foodInventoryId
+        ),
+        prey:prey,
+        condition:condition,
+        state:condition,
+        variantLabel:variantLabel,
+        variant:variantLabel,
+        size:variantLabel,
+        preyWeightGrams:preyWeightGrams,
+        quantity:quantity,
+        unit:unit,
+        displayLabel:displayLabel,
+        label:displayLabel,
+        source:text(source.source),
+        note:text(source.note),
+
+        /*
+         * Kompatibilitätsfeld für ältere Leser. `amount` bezeichnet
+         * künftig niemals mehr die Stückzahl.
+         */
+        amount:preyWeightGrams||0
+    };
+}
+
+function createFeedEvent(input){
+    const event=normalizeFeedEvent(input);
+
+    delete event.deductStock;
+    delete event.inventoryLabel;
+
+    return event;
+}
+
+function feedLabel(entry){
+    return normalizeFeedEvent(entry).displayLabel;
+}
+
+function formatFeedEvent(entry,options){
+    const event=normalizeFeedEvent(entry);
+    const settings=options||{};
+    const quantity=
+        event.quantity>1
+            ?event.quantity+" × "
+            :"";
+    const label=
+        quantity+
+        (
+            event.displayLabel||
+            "Futtertier"
+        );
+
+    if(settings.includeStatus===false){
+        return label;
+    }
+
+    return (
+        event.accepted
+            ?"Gefressen "
+            :"Verweigert "
+    )+label;
+}
+
 function getFeedInterval(animal){
     animal=animal||{};
 
@@ -215,6 +388,14 @@ window.AnimalEngine={
     daysSinceOr,
 
     ensureHistories,
+
+    normalizeFeedEvent,
+
+    createFeedEvent,
+
+    feedLabel,
+
+    formatFeedEvent,
 
     getFeedInterval,
 

@@ -4,6 +4,9 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Fütterungseinträge aus Tierprofil, Schnelleingabe und Chat auf einen zentralen Store-Pfad sowie ein gemeinsames Datenmodell umgestellt.
+- Futtergewicht und Stückzahl getrennt, Legacy-Einträge kompatibel normalisiert und die Anzeige in Profil, Chronik, Timeline, Tierpass und PDF vereinheitlicht.
+- Regressionstests für 150-g-Fütterungen, Bestandsabzug und verweigertes Futter ergänzt.
 - Tier-, Profil-, Editor- und Smart-Dashboard-Verweise auf stabile UUIDs umgestellt; alte Index-Routen bleiben als kompatibler Fallback lesbar.
 - UUID-basierte Store-Operationen zum Auflösen, Aktualisieren und Löschen ergänzt und gegen veränderte Array-Reihenfolgen getestet.
 - `animals[]` als führenden Tierbestand abgesichert: Legacy-Listen werden nur noch beim Laden oder Import eingelesen und können gelöschte Tiere beim Speichern nicht wiederherstellen.

@@ -359,7 +359,44 @@ Schreib- und Löschoperationen müssen deshalb über `NGTStore` auf
 `animals[]` erfolgen. UI-Module dürfen die Legacy-Listen nicht parallel
 manipulieren.
 
-### 8.5 Taxonomie
+### 8.5 Fütterungseinträge
+
+Neue Fütterungen werden ausschließlich über
+`NGTStore.recordFeed()` gespeichert. `AnimalEngine.createFeedEvent()`
+erzeugt daraus einen kanonischen Eintrag; alle Anzeigen verwenden
+`AnimalEngine.formatFeedEvent()`.
+
+Die wichtigsten Felder sind:
+
+```text
+id
+date
+accepted
+foodInventoryId
+condition
+prey
+variantLabel
+preyWeightGrams
+quantity
+unit
+displayLabel
+source
+note
+```
+
+`preyWeightGrams` bezeichnet das Gewicht eines Futtertiers,
+`quantity` dessen Stückzahl. Das ältere Feld `amount` bleibt lesbar,
+wird bei neuen Einträgen aber ausschließlich als kompatible Kopie von
+`preyWeightGrams` geschrieben. Es darf nicht mehr als Stückzahl
+interpretiert werden.
+
+Der zentrale Store-Pfad speichert Tierhistorie und optionalen
+Futterbestandsabzug in einem Vorgang. Verweigertes Futter reduziert den
+Bestand nicht. Ältere Feldvarianten werden beim Lesen durch
+`AnimalEngine.normalizeFeedEvent()` normalisiert, ohne bestehende
+Nutzerdaten umzuschreiben.
+
+### 8.6 Taxonomie
 
 Die Abhängigkeit lautet:
 
@@ -372,7 +409,7 @@ Tiergruppe
 
 Auswahlfelder müssen abhängige Werte nach Änderungen einer übergeordneten Ebene neu validieren.
 
-### 8.6 Fotos
+### 8.7 Fotos
 
 Fotos können URL-, Thumbnail-, Storage- oder Legacy-Base64-Daten enthalten. Änderungen müssen beachten:
 

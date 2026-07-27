@@ -68,6 +68,7 @@ vm.createContext(context);
 
 [
  'v500/id-manager.js',
+ 'v500/animal-engine.js',
  'v500/store.js'
 ].forEach(function(file){
  vm.runInContext(
@@ -78,6 +79,33 @@ vm.createContext(context);
 });
 
 const store=context.NGTStore;
+const engine=context.AnimalEngine;
+
+const legacyProfileFeed=engine.normalizeFeedEvent({
+ accepted:true,
+ prey:'Ratte',
+ amount:1,
+ size:'150 g',
+ unit:'Stück'
+});
+
+assert.equal(
+ legacyProfileFeed.preyWeightGrams,
+ 150,
+ 'Legacy-Profilfütterungen müssen ihr Variantengewicht behalten.'
+);
+
+assert.equal(
+ legacyProfileFeed.quantity,
+ 1,
+ 'Legacy-Profilfütterungen müssen die Stückzahl getrennt normalisieren.'
+);
+
+assert.equal(
+ engine.formatFeedEvent(legacyProfileFeed),
+ 'Gefressen Ratte 150 g',
+ 'Legacy-Profilfütterungen dürfen nicht als 1 g angezeigt werden.'
+);
 
 assert.equal(
  store.allAnimals().length,
@@ -234,6 +262,86 @@ assert.equal(
  store.getAnimalById('mixed-2').name,
  'Zweites Tier',
  'Das Tier an einer anderen Array-Position muss erhalten bleiben.'
+);
+
+store.data().foodInventory.push({
+ id:'food-150',
+ category:'Nagetiere',
+ condition:'Frost',
+ itemName:'Ratte',
+ variant:'150 g',
+ unit:'Stück',
+ qty:2,
+ label:'Frost Ratte 150 g'
+});
+store.save();
+
+const recordedFeed=store.recordFeed(
+ {animalId:'mixed-2'},
+ {
+  date:'2026-07-27',
+  accepted:true,
+  foodInventoryId:'food-150',
+  condition:'Frost',
+  prey:'Ratte',
+  variantLabel:'150 g',
+  preyWeightGrams:150,
+  quantity:1,
+  source:'test',
+  deductStock:true
+ }
+);
+
+assert.equal(
+ recordedFeed.event.preyWeightGrams,
+ 150,
+ 'Der zentrale Fütterungspfad muss das Futtergewicht speichern.'
+);
+
+assert.equal(
+ recordedFeed.event.amount,
+ 150,
+ 'Das Legacy-Feld amount muss ebenfalls das Gewicht enthalten.'
+);
+
+assert.equal(
+ recordedFeed.event.quantity,
+ 1,
+ 'Die Stückzahl muss getrennt vom Gewicht gespeichert werden.'
+);
+
+assert.equal(
+ context.AnimalEngine.formatFeedEvent(recordedFeed.event),
+ 'Gefressen Frost Ratte 150 g',
+ 'Die zentrale Anzeige darf aus 150 g nicht 1 g machen.'
+);
+
+assert.equal(
+ store.data().foodInventory[0].qty,
+ 1,
+ 'Eine gefressene Portion muss den Futterbestand reduzieren.'
+);
+
+store.recordFeed(
+ {animalId:'mixed-2'},
+ {
+  date:'2026-07-27',
+  accepted:false,
+  foodInventoryId:'food-150',
+  condition:'Frost',
+  prey:'Ratte',
+  variantLabel:'150 g',
+  preyWeightGrams:150,
+  quantity:1,
+  source:'test',
+  deductStock:true
+ }
+);
+
+assert.equal(
+ store.data().foodInventory[0].qty,
+ 1,
+ 'Verweigertes Futter darf den Bestand nicht reduzieren.'
 );
 
 vm.runInContext(

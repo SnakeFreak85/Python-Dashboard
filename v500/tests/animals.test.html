@@ -239,6 +239,27 @@ async function run(){
   });
   win.NGTStore.save();
 
+  win.NGT500.route('profile',{
+   animalId:lunaId,
+   tab:'feeds'
+  });
+
+  win.document.getElementById('feedInventoryId').value='food-1';
+  win.document.getElementById('feedStatus').value='ok';
+
+  await win.NGTProfile.addFeed();
+
+  const savedFeed=win.NGTStore.getAnimalById(lunaId).feeds.slice(-1)[0];
+
+  equal('Profilfütterung speichert das Gewicht',savedFeed.preyWeightGrams,50);
+  equal('Profilfütterung speichert die Stückzahl getrennt',savedFeed.quantity,1);
+  equal('Profilfütterung verwendet amount nur als Gewicht',savedFeed.amount,50);
+  equal('Profilfütterung reduziert den Futterbestand',win.NGTStore.data().foodInventory[0].qty,7);
+  record(
+   'Profil zeigt die kanonische Fütterungsangabe',
+   win.document.getElementById('app').textContent.includes('Gefressen Frost Ratte 50 g')
+  );
+
   win.NGT500.route('animals',{edit:0});
 
   equal('Legacy-Fütterungsintervall wird gelesen',win.document.getElementById('edFeedInterval').value,'13');

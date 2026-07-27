@@ -65,6 +65,53 @@ equal('Fütterungsintervall',AnimalEngine.getFeedInterval(fullAnimal),14);
 equal('Gewichtsintervall',AnimalEngine.getWeightInterval(fullAnimal),30);
 equal('Deaktiviertes Fütterungsintervall',AnimalEngine.getFeedInterval({feedIntervalEnabled:false,feedIntervalDays:14}),null);
 
+const legacyProfileFeed=AnimalEngine.normalizeFeedEvent({
+ date:'2026-07-27',
+ accepted:true,
+ prey:'Ratte',
+ amount:1,
+ size:'150 g',
+ unit:'Stück'
+});
+
+equal('Legacy-Profilfütterung behält 150 g',legacyProfileFeed.preyWeightGrams,150);
+equal('Legacy-Profilfütterung hat Menge 1',legacyProfileFeed.quantity,1);
+equal('Legacy-Profilfütterung wird korrekt formatiert',AnimalEngine.formatFeedEvent(legacyProfileFeed),'Gefressen Ratte 150 g');
+
+const legacyQuickFeed=AnimalEngine.normalizeFeedEvent({
+ accepted:true,
+ prey:'Ratte',
+ amount:150
+});
+
+equal('Legacy-Schnelleingabe übernimmt Gewicht',legacyQuickFeed.preyWeightGrams,150);
+equal('Legacy-Schnelleingabe erhält Standardmenge',legacyQuickFeed.quantity,1);
+
+const canonicalFeed=AnimalEngine.createFeedEvent({
+ accepted:true,
+ condition:'Frost',
+ prey:'Ratte',
+ variantLabel:'150 g',
+ preyWeightGrams:150,
+ quantity:1,
+ deductStock:true,
+ inventoryLabel:'Frost Ratte 150 g'
+});
+
+equal('Kanonisches Kompatibilitätsfeld ist Gewicht',canonicalFeed.amount,150);
+equal('Technische Speicheroption wird nicht persistiert',canonicalFeed.deductStock,undefined);
+equal('Kanonische Anzeige ist einheitlich',AnimalEngine.formatFeedEvent(canonicalFeed),'Gefressen Frost Ratte 150 g');
+equal(
+ 'Mehrere Futtertiere werden als Menge formatiert',
+ AnimalEngine.formatFeedEvent({...canonicalFeed,quantity:2}),
+ 'Gefressen 2 × Frost Ratte 150 g'
+);
+equal(
+ 'Futterverweigerung wird eindeutig formatiert',
+ AnimalEngine.formatFeedEvent({...canonicalFeed,accepted:false}),
+ 'Verweigert Frost Ratte 150 g'
+);
+
 const legacyAnimal={name:'Altbestand'};
 const normalized=AnimalEngine.ensureHistories(legacyAnimal);
 assert(

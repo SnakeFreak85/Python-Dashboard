@@ -172,7 +172,8 @@ function testRuntime(){
       typeof win.NGTStore.resolveAnimal==='function'&&
       typeof win.NGTStore.getAnimalById==='function'&&
       typeof win.NGTStore.updateAnimalById==='function'&&
-      typeof win.NGTStore.deleteAnimalById==='function'
+      typeof win.NGTStore.deleteAnimalById==='function'&&
+      typeof win.NGTStore.recordFeed==='function'
      )
     );
 
@@ -180,7 +181,9 @@ function testRuntime(){
      'AnimalEngine-Basisfunktion ausführbar',
      !!(
       win.AnimalEngine&&
-      win.AnimalEngine.getScientificName({genus:'Python',species:'regius'})==='Python regius'
+      win.AnimalEngine.getScientificName({genus:'Python',species:'regius'})==='Python regius'&&
+      typeof win.AnimalEngine.normalizeFeedEvent==='function'&&
+      typeof win.AnimalEngine.formatFeedEvent==='function'
      )
     );
 

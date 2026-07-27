@@ -23,20 +23,28 @@ function smallHistory(animal){
   feeds:(animal.feeds||[])
    .slice(-5)
    .map(function(entry){
+    const feed=
+     AnimalEngine.normalizeFeedEvent(entry);
+
     return {
-     d:P.s(entry.date,10),
-     p:P.s(entry.prey,24),
-     g:Number(entry.amount||0),
-     ok:entry.accepted!==false,
+     d:P.s(feed.date,10),
+     p:P.s(feed.prey,24),
+     g:Number(feed.preyWeightGrams||0),
+     qty:Number(feed.quantity||1),
+     ok:feed.accepted,
      state:P.s(
-      entry.state||
+      feed.condition||
       '',
       10
      ),
      size:P.s(
-      entry.size||
+      feed.variantLabel||
       '',
       12
+     ),
+     label:P.s(
+      feed.displayLabel,
+      50
      )
     };
    }),

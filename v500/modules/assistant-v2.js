@@ -138,11 +138,31 @@ function applyParsed(p){
  }else if(p.intent==='feed'||p.intent==='feed_refused'){
   const ft=p.feeder||a.defaultFeeder||a.futterStandard||'';
   const f=NGTStore.parseFeeder(ft);
-  a.feeds=a.feeds||[];
-  a.feeds.push({date:p.date,prey:f.prey,amount:f.amount,accepted:p.intent!=='feed_refused',note:'TerraControl KI'});
-  if(f.label)NGTStore.reduceFood(f.label,1);
-  else NGTStore.save();
-  txt=a.name+': '+p.date+' '+(p.intent==='feed_refused'?'verweigert':'gefressen')+' '+(f.label||'');
+  const result=NGTStore.recordFeed(
+   {animalId:NGTStore.animalId(a)},
+   {
+    date:p.date,
+    condition:f.state,
+    prey:f.prey,
+    variantLabel:f.size,
+    preyWeightGrams:f.amount,
+    quantity:1,
+    unit:'Stück',
+    displayLabel:f.label,
+    inventoryLabel:f.label,
+    accepted:p.intent!=='feed_refused',
+    source:'assistant',
+    note:'TerraControl KI',
+    deductStock:true
+   }
+  );
+
+  if(!result)return null;
+
+  txt=
+   a.name+': '+
+   p.date+' '+
+   AnimalEngine.formatFeedEvent(result.event);
  }else return null;
 
  const feedback=window.NGTAIManager?NGTAIManager.afterSave(p,a):'';

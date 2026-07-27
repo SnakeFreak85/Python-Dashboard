@@ -147,7 +147,10 @@ function timeline(a){
  if(a.acquiredDate)rows.push({d:a.acquiredDate,txt:'Erworben'});
 
  (a.feeds||[]).forEach(function(f){
-  rows.push({d:f.date,txt:(f.accepted===false?'Verweigert':'Gefressen')+' '+(f.amount?f.amount+'g ':'')+(f.prey||'')});
+  rows.push({
+   d:f.date,
+   txt:AnimalEngine.formatFeedEvent(f)
+  });
  });
 
  (a.sheds||[]).forEach(function(s){

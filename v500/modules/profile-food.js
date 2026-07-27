@@ -245,18 +245,7 @@ function feedList(a){
     .reverse()
     .map(x=>row(
      x.f.date,
-     `${
-      x.f.accepted===false
-       ?'Verweigert'
-       :'Gefressen'
-     } ${
-      x.f.label||
-      [
-       x.f.state,
-       x.f.prey,
-       x.f.size
-      ].filter(Boolean).join(' ')
-     }`,
+     AnimalEngine.formatFeedEvent(x.f),
      `NGTProfile.deleteEntry('feeds',${x.i})`
     ))
     .join('')||
@@ -358,34 +347,36 @@ async function addFeed(){
   return;
  }
 
- a.feeds=a.feeds||[];
+ const result=NGTStore.recordFeed(
+  {
+   animalId:NGTStore.animalId(a)
+  },
+  {
+   date:
+    document.getElementById('feedDate').value||
+    NGT500.today(),
+   foodInventoryId:item.id,
+   category:item.category,
+   condition:item.condition,
+   prey:item.itemName,
+   variantLabel:item.variant,
+   unit:item.unit,
+   quantity:1,
+   displayLabel:foodLabel(item),
+   accepted:accepted,
+   source:'profile',
+   deductStock:true
+  }
+ );
 
- a.feeds.push({
-  id:NGT500.uid(),
-  date:
-   document.getElementById('feedDate').value||
-   NGT500.today(),
-  foodInventoryId:item.id,
-  category:item.category,
-  state:item.condition,
-  condition:item.condition,
-  prey:item.itemName,
-  size:item.variant,
-  variant:item.variant,
-  unit:item.unit,
-  amount:1,
-  label:foodLabel(item),
-  accepted:accepted
- });
-
- if(accepted){
-  item.qty=Math.max(
-   0,
-   Number(item.qty||0)-1
+ if(!result){
+  NGT500.toast(
+   'Die Fütterung konnte nicht gespeichert werden.',
+   'danger'
   );
+  return;
  }
 
- NGTStore.save();
  P.setTab('feeds');
 }
 

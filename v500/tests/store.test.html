@@ -47,6 +47,7 @@ localStorage.setItem('spd_v53',JSON.stringify({
 
 <script src="../core.js"></script>
 <script src="../id-manager.js"></script>
+<script src="../animal-engine.js"></script>
 <script src="../store.js"></script>
 
 <script>
@@ -246,6 +247,78 @@ try{
   'Anderes Tier bleibt nach UUID-Löschung erhalten',
   NGTStore.getAnimalById('mixed-2').name,
   'Zweites Tier'
+ );
+
+ NGTStore.data().foodInventory.push({
+  id:'food-150',
+  category:'Nagetiere',
+  condition:'Frost',
+  itemName:'Ratte',
+  variant:'150 g',
+  unit:'Stück',
+  qty:2,
+  label:'Frost Ratte 150 g'
+ });
+ NGTStore.save();
+
+ const recordedFeed=NGTStore.recordFeed(
+  {animalId:'mixed-2'},
+  {
+   date:'2026-07-27',
+   accepted:true,
+   foodInventoryId:'food-150',
+   condition:'Frost',
+   prey:'Ratte',
+   variantLabel:'150 g',
+   preyWeightGrams:150,
+   quantity:1,
+   source:'test',
+   deductStock:true
+  }
+ );
+
+ equal(
+  'Zentraler Fütterungspfad speichert 150 g',
+  recordedFeed.event.preyWeightGrams,
+  150
+ );
+
+ equal(
+  'Stückzahl wird getrennt vom Gewicht gespeichert',
+  recordedFeed.event.quantity,
+  1
+ );
+
+ equal(
+  'Fütterung wird überall gleich formatiert',
+  AnimalEngine.formatFeedEvent(recordedFeed.event),
+  'Gefressen Frost Ratte 150 g'
+ );
+
+ equal(
+  'Gefressene Portion reduziert den Futterbestand',
+  NGTStore.data().foodInventory[0].qty,
+  1
+ );
+
+ NGTStore.recordFeed(
+  {animalId:'mixed-2'},
+  {
+   accepted:false,
+   foodInventoryId:'food-150',
+   condition:'Frost',
+   prey:'Ratte',
+   variantLabel:'150 g',
+   preyWeightGrams:150,
+   quantity:1,
+   deductStock:true
+  }
+ );
+
+ equal(
+  'Verweigertes Futter reduziert den Bestand nicht',
+  NGTStore.data().foodInventory[0].qty,
+  1
  );
 
  equal(
