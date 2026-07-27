@@ -167,6 +167,18 @@ Tierbestandsmodule:
 http://localhost:8000/v500/tests/animals.test.html
 ```
 
+Store, Migration und persistente Löschung:
+
+```text
+http://localhost:8000/v500/tests/store.test.html
+```
+
+Der Store-Kerntest kann zusätzlich direkt ausgeführt werden:
+
+```bash
+node tools/test-store.mjs
+```
+
 Taxonomie und Taxonomie-UI:
 
 ```text

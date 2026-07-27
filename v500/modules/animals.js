@@ -53,44 +53,6 @@ function editorView(t,i,fromHkn){
  );
 }
 
-function sameAnimal(candidate,animal){
- if(!candidate||!animal){
-  return false;
- }
-
- if(candidate===animal){
-  return true;
- }
-
- const candidateUuid=String(
-  candidate.uuid||candidate.uid||''
- ).trim();
- const animalUuid=String(
-  animal.uuid||animal.uid||''
- ).trim();
-
- if(
-  candidateUuid&&
-  animalUuid&&
-  candidateUuid===animalUuid
- ){
-  return true;
- }
-
- const candidateId=String(
-  candidate.publicId||candidate.displayId||''
- ).trim();
- const animalId=String(
-  animal.publicId||animal.displayId||''
- ).trim();
-
- return !!(
-  candidateId&&
-  animalId&&
-  candidateId===animalId
- );
-}
-
 async function remove(t,i){
  if(!await NGT500.confirmAction(
   'Tier wirklich löschen?',
@@ -103,9 +65,8 @@ async function remove(t,i){
   return;
  }
 
- const db=NGTStore.data();
  const index=Number(i);
- const animal=(db.animals||[])[index];
+ const animal=NGTStore.animal(t,index);
 
  if(!animal){
   if(NGT500.toast){
@@ -120,19 +81,7 @@ async function remove(t,i){
  const group=animal.animalGroup||'Unsortiert';
  const genus=animal.genus||'Ohne Gattung';
 
- db.animals.splice(index,1);
-
- (NGTStore.TYPES||[]).forEach(function(type){
-  if(!Array.isArray(db[type])){
-   return;
-  }
-
-  db[type]=db[type].filter(function(candidate){
-   return !sameAnimal(candidate,animal);
-  });
- });
-
- NGTStore.save();
+ NGTStore.deleteAnimal(t,index);
 
  if(NGT500.toast){
   NGT500.toast('Tier wurde gelöscht.','success');

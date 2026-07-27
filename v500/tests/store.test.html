@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Store Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}
+</style>
+</head>
+<body>
+<h1>Store Browser Tests</h1>
+<p class="muted">Prüft Legacy-Import, kanonischen Tierbestand und zuverlässiges Löschen.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+
+<script>
+(function(){
+'use strict';
+
+window.__storeTestOriginal=localStorage.getItem('spd_v53');
+
+localStorage.setItem('spd_v53',JSON.stringify({
+ schemaVersion:2,
+ animals:[],
+ koenig:[{
+  uuid:'legacy-1',
+  uid:'legacy-1',
+  name:'Legacy-Tier',
+  animalGroup:'Königspythons',
+  genus:'Python',
+  species:'regius',
+  status:'Bestand'
+ }],
+ boas:[],
+ geckos:[],
+ spinnen:[],
+ foodInventory:[],
+ clutches:[],
+ sales:[],
+ archive:[],
+ settings:{}
+}));
+})();
+</script>
+
+<script src="../core.js"></script>
+<script src="../id-manager.js"></script>
+<script src="../store.js"></script>
+
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({name:name,passed:!!passed,detail:detail||''});
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=results.map(function(result){
+  return '<li class="'+(result.passed?'pass':'fail')+'">'+
+   (result.passed?'PASS':'FAIL')+' — '+result.name+
+   (result.passed||!result.detail?'':' <span class="muted">('+result.detail+')</span>')+
+   '</li>';
+ }).join('');
+
+ document.title=failed?'FAIL — Store Tests':'PASS — Store Tests';
+}
+
+try{
+ equal(
+  'Legacy-only Bestand wird beim Laden übernommen',
+  NGTStore.allAnimals().length,
+  1
+ );
+
+ equal(
+  'Legacy-Tier behält seine UUID',
+  NGTStore.allAnimals()[0].a.uuid,
+  'legacy-1'
+ );
+
+ NGTStore.deleteAnimal('',0);
+
+ equal(
+  'Zentrale Löschung entfernt das Tier',
+  NGTStore.allAnimals().length,
+  0
+ );
+
+ equal(
+  'Legacy-Liste wird nach Löschung neu aufgebaut',
+  NGTStore.data().koenig.length,
+  0
+ );
+
+ equal(
+  'Löschung steht im persistierten kanonischen Bestand',
+  JSON.parse(localStorage.getItem('spd_v53')).animals.length,
+  0
+ );
+
+ NGTStore.save();
+
+ equal(
+  'Weiteres Speichern stellt das Tier nicht wieder her',
+  NGTStore.allAnimals().length,
+  0
+ );
+
+ NGTStore.addAnimal('',{
+  uuid:'offspring-1',
+  uid:'offspring-1',
+  name:'Nachzucht',
+  animalGroup:'Königspythons',
+  genus:'Python',
+  species:'regius',
+  status:'Nachzucht',
+  collection:'offspring'
+ });
+
+ equal(
+  'Nachzucht wurde angelegt',
+  NGTStore.allOffspring().length,
+  1
+ );
+
+ NGTStore.deleteAnimal('',0);
+
+ equal(
+  'Nachzucht bleibt nach zentraler Löschung entfernt',
+  NGTStore.allOffspring().length,
+  0
+ );
+
+ NGTStore.importJson(JSON.stringify({
+  schemaVersion:2,
+  animals:[{
+   uuid:'mixed-1',
+   uid:'mixed-1',
+   name:'Kanonisch',
+   animalGroup:'Boas',
+   status:'Bestand'
+  }],
+  boas:[{
+   uuid:'mixed-1',
+   uid:'mixed-1',
+   name:'Legacy-Duplikat',
+   animalGroup:'Boas',
+   status:'Bestand'
+  }],
+  koenig:[],
+  geckos:[],
+  spinnen:[]
+ }));
+
+ equal(
+  'Gemischter Import dupliziert gleiche UUID nicht',
+  NGTStore.allAnimals().length,
+  1
+ );
+
+ equal(
+  'Kanonischer Datensatz hat beim gemischten Import Vorrang',
+  NGTStore.allAnimals()[0].a.name,
+  'Kanonisch'
+ );
+
+ equal(
+  'Legacy-Kompatibilitätsliste wird aus animals[] erzeugt',
+  NGTStore.data().boas.length,
+  1
+ );
+
+ equal(
+  'Ungültiger Index löst keine Löschung aus',
+  NGTStore.deleteAnimal('',-1),
+  false
+ );
+
+ equal(
+  'Ungültiger Index verändert den Bestand nicht',
+  NGTStore.allAnimals().length,
+  1
+ );
+
+}catch(error){
+ record(
+  'Testlauf ohne Ausnahme',
+  false,
+  error&&error.stack?error.stack:error.message
+ );
+}finally{
+ if(window.__storeTestOriginal===null){
+  localStorage.removeItem('spd_v53');
+ }else{
+  localStorage.setItem(
+   'spd_v53',
+   window.__storeTestOriginal
+  );
+ }
+
+ render();
+}
+
+})();
+</script>
+</body>
+</html>

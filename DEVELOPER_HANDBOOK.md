@@ -115,6 +115,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     └── tests/
         ├── animal-engine.test.html
         ├── animals.test.html
+        ├── store.test.html
         ├── taxonomy.test.html
         ├── app-smoke.test.html
         └── tc2-ui.test.html
@@ -340,7 +341,19 @@ photos[]
 - **Public-ID:** sichtbare Kennung für Suche, Anzeige und QR-Abläufe.
 - **Array-Index:** nur aktuelle Position; niemals dauerhafte Identität.
 
-### 8.4 Taxonomie
+### 8.4 Kanonischer Tierbestand und Legacy-Kompatibilität
+
+`animals[]` ist die einzige führende Tierliste während des normalen
+Speicherns. Die älteren Listen `koenig[]`, `boas[]`, `geckos[]` und
+`spinnen[]` werden nur beim Laden oder Import als Migrationsquelle gelesen.
+Danach werden sie ausschließlich aus `animals[]` als
+Kompatibilitätsdarstellung neu aufgebaut.
+
+Schreib- und Löschoperationen müssen deshalb über `NGTStore` auf
+`animals[]` erfolgen. UI-Module dürfen die Legacy-Listen nicht parallel
+manipulieren.
+
+### 8.5 Taxonomie
 
 Die Abhängigkeit lautet:
 
@@ -353,7 +366,7 @@ Tiergruppe
 
 Auswahlfelder müssen abhängige Werte nach Änderungen einer übergeordneten Ebene neu validieren.
 
-### 8.5 Fotos
+### 8.6 Fotos
 
 Fotos können URL-, Thumbnail-, Storage- oder Legacy-Base64-Daten enthalten. Änderungen müssen beachten:
 
@@ -485,7 +498,22 @@ http://localhost:8000/v500/tests/tc2-ui.test.html
 
 Prüft die TC2-Seitenrahmen der aktiven Routen, die öffentlichen HTML-Seiten, die gemeinsame Dialogsemantik, zentrale TC2-CSS-Regeln und das mobile Überlaufverhalten.
 
-### 12.5 Manuelle Mindestprüfung
+### 12.5 Store und Migration
+
+```text
+http://localhost:8000/v500/tests/store.test.html
+```
+
+Prüft den Legacy-Import, den Vorrang von `animals[]`, persistente
+Löschungen, Nachzuchten und den Schutz vor ungültigen Löschindizes.
+
+Der gleiche Kernpfad kann ohne Browser ausgeführt werden:
+
+```bash
+node tools/test-store.mjs
+```
+
+### 12.6 Manuelle Mindestprüfung
 
 - App startet ohne rote Konsolenfehler.
 - Drawer und Navigation funktionieren.

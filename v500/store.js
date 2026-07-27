@@ -335,7 +335,8 @@ function migrateLegacyAnimals(d){
   });
 }
 
-function normalize(d){
+function normalize(d,options){
+  options=options||{};
   d=d||base();
 
   if(!Array.isArray(d.animals))d.animals=[];
@@ -353,7 +354,15 @@ function normalize(d){
   d.settings=d.settings||{};
   d.schemaVersion=3;
 
-  migrateLegacyAnimals(d);
+  /*
+   * Legacy-Bestände werden ausschließlich beim Laden oder Importieren
+   * eingelesen. Während eines normalen Speichervorgangs ist animals[]
+   * die einzige führende Quelle. Andernfalls könnte ein zuvor gelöschtes
+   * Tier aus einer noch nicht neu aufgebauten Legacy-Liste zurückkehren.
+   */
+  if(options.importLegacy){
+    migrateLegacyAnimals(d);
+  }
 
   d.animals=d.animals.map((a,i)=>normalizeAnimal(a,a.legacyType||a.type,i));
   d.foodInventory=d.foodInventory.map(normalizeFoodItem);
@@ -378,7 +387,7 @@ function readJson(k){
 
 function load(){
   const d=readJson(KEY);
-  if(d)return normalize(d);
+  if(d)return normalize(d,{importLegacy:true});
 
   return base();
 }
@@ -386,7 +395,7 @@ function load(){
 let db=load();
 
 function save(){
-  normalize(db);
+  normalize(db,{importLegacy:false});
   cleanAllPhotoData(db);
 
   const txt=JSON.stringify(db);
@@ -512,8 +521,15 @@ function updateAnimal(t,i,a){
 }
 
 function deleteAnimal(t,i){
-  db.animals.splice(Number(i),1);
+  const index=Number(i);
+
+  if(!Number.isInteger(index)||index<0||index>=db.animals.length){
+    return false;
+  }
+
+  db.animals.splice(index,1);
   save();
+  return true;
 }
 
 function addFood(name,qty){
@@ -570,7 +586,7 @@ function exportJson(){
 }
 
 function importJson(txt){
-  db=normalize(JSON.parse(txt));
+  db=normalize(JSON.parse(txt),{importLegacy:true});
   cleanAllPhotoData(db);
   save();
 }
