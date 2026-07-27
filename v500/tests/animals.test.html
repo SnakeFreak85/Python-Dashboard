@@ -112,6 +112,7 @@ async function run(){
   equal('öffentliche API: openEditor',typeof win.NGTAnimals.openEditor,'function');
   equal('öffentliche API: save',typeof win.NGTAnimals.save,'function');
   equal('öffentliche API: remove',typeof win.NGTAnimals.remove,'function');
+  equal('öffentliche API: removeById',typeof win.NGTAnimals.removeById,'function');
   equal('öffentliche API: updateIntervalFields',typeof win.NGTAnimals.updateIntervalFields,'function');
 
   win.NGTStore.clearLocal();
@@ -141,6 +142,73 @@ async function run(){
    status:'Nachzucht',
    collection:'offspring'
   });
+
+  const luna=win.NGTStore.findAnimal('Luna');
+  const lunaId=win.NGTStore.animalId(luna.a);
+  const offspring=win.NGTStore.findAnimal('Nachzucht');
+  const offspringId=win.NGTStore.animalId(offspring.a);
+
+  win.NGT500.route('profile',{animalId:offspringId});
+
+  record(
+   'Nachzucht-Profil verweist auf den Nachzucht-Editor',
+   win.document
+    .querySelector('.tc2ProfileActionGrid .tc2ProfileAction')
+    .getAttribute('onclick')
+    .includes("NGT500.route('offspring'")
+  );
+
+  win.NGT500.route('offspring',{editId:offspringId});
+
+  equal(
+   'UUID-Nachzuchteditor öffnet den richtigen Datensatz',
+   win.document.getElementById('edName').value,
+   'Nachzucht'
+  );
+
+  win.NGTStore.data().animals.reverse();
+  win.NGTStore.save();
+
+  win.NGT500.route('profile',{animalId:lunaId});
+
+  record(
+   'UUID-Profilroute bleibt nach Umsortierung beim richtigen Tier',
+   win.document.getElementById('app').textContent.includes('Luna')
+  );
+
+  win.NGTProfile.setTab('feeds');
+
+  equal(
+   'Profil-Tab erhält die UUID in der Route',
+   win.NGT500.current().args.animalId,
+   lunaId
+  );
+
+  win.NGT500.route('animals',{editId:lunaId});
+
+  equal(
+   'UUID-Editorroute öffnet das richtige Tier',
+   win.document.getElementById('edName').value,
+   'Luna'
+  );
+
+  win.NGTStore.data().animals.reverse();
+  win.NGTStore.save();
+
+  win.document.getElementById('edNote').value='UUID-Speichertest';
+  win.NGTAnimals.save('',2,lunaId);
+
+  equal(
+   'UUID-Speichern aktualisiert trotz geänderter Position das richtige Tier',
+   win.NGTStore.getAnimalById(lunaId).note,
+   'UUID-Speichertest'
+  );
+
+  equal(
+   'UUID-Speichern verändert nicht das Tier am alten Index',
+   win.NGTStore.animal('',2).name,
+   'Nachzucht'
+  );
 
   win.NGT500.route('animals',{});
 

@@ -28,11 +28,13 @@ function editorView(t,i,fromHkn){
   return html;
  }
 
+ const animalId=NGTStore.animalId(animal);
+
  const deleteButton=`
     <button
      class="danger"
      style="grid-column:1/-1"
-     onclick="NGTAnimals.remove('${P.jsArg(t)}',${index})"
+     onclick="NGTAnimals.removeById('${P.jsArg(animalId)}')"
     >
      🗑️ Tier löschen
     </button>
@@ -53,7 +55,7 @@ function editorView(t,i,fromHkn){
  );
 }
 
-async function remove(t,i){
+async function removeResolved(row){
  if(!await NGT500.confirmAction(
   'Tier wirklich löschen?',
   {
@@ -65,8 +67,7 @@ async function remove(t,i){
   return;
  }
 
- const index=Number(i);
- const animal=NGTStore.animal(t,index);
+ const animal=row&&row.a;
 
  if(!animal){
   if(NGT500.toast){
@@ -81,7 +82,15 @@ async function remove(t,i){
  const group=animal.animalGroup||'Unsortiert';
  const genus=animal.genus||'Ohne Gattung';
 
- NGTStore.deleteAnimal(t,index);
+ if(!NGTStore.deleteAnimalById(NGTStore.animalId(animal))){
+  if(NGT500.toast){
+   NGT500.toast(
+    'Das Tier konnte nicht gelöscht werden.',
+    'danger'
+   );
+  }
+  return;
+ }
 
  if(NGT500.toast){
   NGT500.toast('Tier wurde gelöscht.','success');
@@ -96,24 +105,49 @@ async function remove(t,i){
  );
 }
 
+function remove(t,i){
+ return removeResolved(
+  NGTStore.resolveAnimal({
+   t:t,
+   i:i
+  })
+ );
+}
+
+function removeById(animalId){
+ return removeResolved(
+  NGTStore.resolveAnimal({
+   animalId:animalId
+  })
+ );
+}
+
 function render(args){
  args=args||{};
 
  const t=args.t||'';
  const edit=args.edit;
+ const editId=args.editId;
  const hkn=!!args.hkn;
  const create=!!args.create;
+ const editRow=editId
+  ?NGTStore.resolveAnimal({animalId:editId})
+  :edit!==undefined
+   ?NGTStore.resolveAnimal({t:t,i:edit})
+   :null;
 
  if(
   hkn||
   create||
-  edit!==undefined
+  edit!==undefined||
+  editId
  ){
   return `
    <div class="tc2PageCard tc2AnimalsPage">
     ${create?editorView('',undefined,false):''}
     ${hkn?P.editor.hknInfo()+editorView(t,undefined,true):''}
-    ${edit!==undefined?editorView(t,Number(edit),false):''}
+    ${editRow?editorView(editRow.t,editRow.i,false):''}
+    ${(edit!==undefined||editId)&&!editRow?'<div class="tc2EmptyState">Tier nicht gefunden.</div>':''}
    </div>
   `;
  }
@@ -125,6 +159,7 @@ window.NGTAnimals={
  openEditor:P.editor.openEditor,
  save:P.editor.save,
  remove:remove,
+ removeById:removeById,
  updateIntervalFields:
   P.editor.updateIntervalFields
 };

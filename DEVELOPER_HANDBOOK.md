@@ -341,6 +341,12 @@ photos[]
 - **Public-ID:** sichtbare Kennung für Suche, Anzeige und QR-Abläufe.
 - **Array-Index:** nur aktuelle Position; niemals dauerhafte Identität.
 
+Neue Tier-, Profil-, Editor- und Dashboard-Routen transportieren
+`animalId` mit der UUID. `NGTStore.resolveAnimal()` akzeptiert während der
+Migration weiterhin ältere `{t, i}`-Referenzen, löst sie aber auf den
+aktuellen kanonischen Datensatz auf. Schreib- und Löschvorgänge verwenden
+`updateAnimalById()` beziehungsweise `deleteAnimalById()`.
+
 ### 8.4 Kanonischer Tierbestand und Legacy-Kompatibilität
 
 `animals[]` ist die einzige führende Tierliste während des normalen
@@ -505,7 +511,8 @@ http://localhost:8000/v500/tests/store.test.html
 ```
 
 Prüft den Legacy-Import, den Vorrang von `animals[]`, persistente
-Löschungen, Nachzuchten und den Schutz vor ungültigen Löschindizes.
+Löschungen, Nachzuchten, UUID-Auflösung unabhängig von Array-Positionen
+und den Schutz vor ungültigen Löschindizes.
 
 Der gleiche Kernpfad kann ohne Browser ausgeführt werden:
 

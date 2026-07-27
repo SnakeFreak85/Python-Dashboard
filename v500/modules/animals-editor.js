@@ -154,6 +154,10 @@ function editor(t,i,fromHkn){
   i!==undefined
    ?NGTStore.animal(t,i)
    :{};
+ const animalId=
+  i!==undefined
+   ?NGTStore.animalId(animal)
+   :'';
 
  const feedEnabled=existingEnabled(
   animal,
@@ -303,7 +307,7 @@ function editor(t,i,fromHkn){
 
    <div class="tc2AnimalEditorActions">
     <button onclick="NGT500.route('dashboard')">Abbrechen</button>
-    <button onclick="NGTAnimals.save('${jsArg(t)}',${i===undefined?'null':i})">Speichern</button>
+    <button onclick="NGTAnimals.save('${jsArg(t)}',${i===undefined?'null':i},'${jsArg(animalId)}')">Speichern</button>
    </div>
   </section>
  `;
@@ -388,8 +392,13 @@ function openEditor(t){
  updateIntervalFields();
 }
 
-function save(t,i){
- const old=i===null?{}:NGTStore.animal(t,i);
+function save(t,i,animalId){
+ const existing=i===null
+  ?{}
+  :animalId
+   ?NGTStore.getAnimalById(animalId)
+   :NGTStore.animal(t,i);
+ const old=existing||{};
 
  let feedCare;
  let weightCare;
@@ -532,7 +541,14 @@ function save(t,i){
    );
   }
  }else{
-  NGTStore.updateAnimal(t,i,animal);
+  if(animalId){
+   NGTStore.updateAnimalById(
+    animalId,
+    animal
+   );
+  }else{
+   NGTStore.updateAnimal(t,i,animal);
+  }
  }
 
  NGT500.route(
@@ -555,7 +571,9 @@ async function remove(t,i){
 
  const animal=NGTStore.animal(t,i)||{};
 
- NGTStore.deleteAnimal(t,i);
+ NGTStore.deleteAnimalById(
+  NGTStore.animalId(animal)
+ );
 
  NGT500.route(
   'animals',

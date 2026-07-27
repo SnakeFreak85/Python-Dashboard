@@ -4,6 +4,7 @@ import vm from 'node:vm';
 
 const storage=new Map();
 let uidCounter=0;
+let lastRoute=null;
 
 const localStorage={
  getItem(key){
@@ -49,7 +50,16 @@ const context={
    uidCounter++;
    return 'test-uid-'+uidCounter;
   },
-  emit(){}
+  emit(){},
+  esc(value){
+   return String(value||'');
+  },
+  today(){
+   return '2026-07-27';
+  },
+  route(name,args,options){
+   lastRoute={name,args,options};
+  }
  }
 };
 
@@ -171,6 +181,93 @@ assert.equal(
  store.data().boas.length,
  1,
  'Legacy-Kompatibilitätsliste muss aus animals[] erzeugt werden.'
+);
+
+store.addAnimal('',{
+ uuid:'mixed-2',
+ uid:'mixed-2',
+ name:'Zweites Tier',
+ animalGroup:'Boas',
+ status:'Bestand'
+});
+
+store.data().animals.reverse();
+store.save();
+
+assert.equal(
+ store.getAnimalById('mixed-1').name,
+ 'Kanonisch',
+ 'UUID-Auflösung muss unabhängig von der Array-Position sein.'
+);
+
+assert.equal(
+ store.resolveAnimal({animalId:'mixed-1'}).a.name,
+ 'Kanonisch',
+ 'Eine UUID-Route muss zum richtigen Tier aufgelöst werden.'
+);
+
+assert.equal(
+ store.resolveAnimal({i:0}).a.name,
+ 'Zweites Tier',
+ 'Alte Index-Referenzen müssen während der Migration weiter funktionieren.'
+);
+
+assert.equal(
+ store.updateAnimalById('mixed-1',{name:'Über UUID aktualisiert'}).name,
+ 'Über UUID aktualisiert',
+ 'Aktualisieren über UUID muss unterstützt werden.'
+);
+
+assert.equal(
+ store.deleteAnimalById('mixed-1'),
+ true,
+ 'Löschen über UUID muss erfolgreich sein.'
+);
+
+assert.equal(
+ store.getAnimalById('mixed-1'),
+ null,
+ 'Über UUID gelöschtes Tier darf nicht mehr auflösbar sein.'
+);
+
+assert.equal(
+ store.getAnimalById('mixed-2').name,
+ 'Zweites Tier',
+ 'Das Tier an einer anderen Array-Position muss erhalten bleiben.'
+);
+
+vm.runInContext(
+ fs.readFileSync('v500/modules/profile-core.js','utf8'),
+ context,
+ {filename:'v500/modules/profile-core.js'}
+);
+
+context.NGTProfileInternal.setContext({
+ animalId:'mixed-2'
+});
+
+assert.equal(
+ context.NGTProfileInternal.current().name,
+ 'Zweites Tier',
+ 'Das Profil muss ein Tier über seine UUID auflösen.'
+);
+
+context.NGTProfileInternal.setTab('feeds');
+
+assert.deepEqual(
+ JSON.parse(JSON.stringify(lastRoute)),
+ {
+  name:'profile',
+  args:{
+   animalId:'mixed-2',
+   tab:'feeds'
+  },
+  options:{
+   replace:true,
+   noHistory:true
+  }
+ },
+ 'Ein Profil-Tabwechsel muss die UUID in der Route beibehalten.'
 );
 
 assert.equal(

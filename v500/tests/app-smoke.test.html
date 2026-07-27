@@ -165,6 +165,18 @@ function testRuntime(){
     );
 
     record(
+     'UUID-basierte Store-API verfügbar',
+     !!(
+      win.NGTStore&&
+      typeof win.NGTStore.animalId==='function'&&
+      typeof win.NGTStore.resolveAnimal==='function'&&
+      typeof win.NGTStore.getAnimalById==='function'&&
+      typeof win.NGTStore.updateAnimalById==='function'&&
+      typeof win.NGTStore.deleteAnimalById==='function'
+     )
+    );
+
+    record(
      'AnimalEngine-Basisfunktion ausführbar',
      !!(
       win.AnimalEngine&&

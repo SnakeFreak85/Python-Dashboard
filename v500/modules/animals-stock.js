@@ -101,7 +101,7 @@ function animalIconGrid(rows){
     return `
      <button
       class="tc2TaxAnimal"
-      onclick="NGT500.route('profile',{t:'${P.jsArg(row.t)}',i:${row.i}})"
+      onclick="NGT500.route('profile',{animalId:'${P.jsArg(NGTStore.animalId(animal))}'})"
      >
       <div>${image}</div>
       <b>${P.esc(animal.publicId||animal.displayId||'')}</b>

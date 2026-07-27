@@ -4,9 +4,10 @@
 const P=window.NGTProfileInternal=
  window.NGTProfileInternal||{};
 
-P.state={tab:'overview',ctx:{t:'',i:0},viewerIndex:-1,viewerKeyHandler:null,viewerPreviousFocus:null};
+P.state={tab:'overview',ctx:{animalId:'',t:'',i:null},viewerIndex:-1,viewerKeyHandler:null,viewerPreviousFocus:null};
 P.esc=function(value){return NGT500.esc(value||'');};
-P.current=function(){return NGTStore.animal(P.state.ctx.t,P.state.ctx.i);};
+P.currentRow=function(){return NGTStore.resolveAnimal(P.state.ctx);};
+P.current=function(){const row=P.currentRow();return row?row.a:null;};
 P.ensure=function(animal){return AnimalEngine.ensureHistories(animal);};
 P.latest=function(list){return AnimalEngine.latest(list);};
 P.daysSince=function(date){return AnimalEngine.daysSinceOr(date,9999);};
@@ -17,7 +18,7 @@ P.jsArg=function(value){return String(value||'').replace(/\\/g,'\\\\').replace(/
 P.text=function(value){return String(value==null?'':value).trim();};
 P.sexCode=function(value){value=String(value||'').toLowerCase();if(value.includes('weib'))return '0.1';if(value.includes('männ')||value.includes('maenn'))return '1.0';return '0.0';};
 P.scientificName=function(animal){return AnimalEngine.getScientificName(animal)||'-';};
-P.action=function(icon,label,onclick){const action='<button class="tc2ProfileAction" onclick="'+onclick+'"><div class="tc2ProfileActionIcon">'+icon+'</div><div class="tc2ProfileActionText">'+P.esc(label)+'</div><div class="tc2ProfileActionArrow">›</div></button>';if(label!=='Gesundheit')return action;const context=P.state.ctx||{};const removeAction="NGTAnimals.remove('"+P.jsArg(context.t)+"',"+Number(context.i||0)+")";return action+'<button class="tc2ProfileAction danger" style="grid-column:1/-1;width:100%;min-height:68px;background:linear-gradient(180deg,#d63a3a,#b6222b)!important;border:1px solid rgba(255,125,125,.55)!important;color:#fff!important;box-shadow:0 14px 30px rgba(125,0,12,.28)!important" onclick="'+removeAction+'"><div class="tc2ProfileActionIcon">🗑️</div><div class="tc2ProfileActionText">Tier löschen</div><div class="tc2ProfileActionArrow" style="color:#fff!important">›</div></button>';};
+P.action=function(icon,label,onclick){const action='<button class="tc2ProfileAction" onclick="'+onclick+'"><div class="tc2ProfileActionIcon">'+icon+'</div><div class="tc2ProfileActionText">'+P.esc(label)+'</div><div class="tc2ProfileActionArrow">›</div></button>';if(label!=='Gesundheit')return action;const context=P.state.ctx||{};const removeAction=context.animalId?"NGTAnimals.removeById('"+P.jsArg(context.animalId)+"')":"NGTAnimals.remove('"+P.jsArg(context.t)+"',"+Number(context.i||0)+")";return action+'<button class="tc2ProfileAction danger" style="grid-column:1/-1;width:100%;min-height:68px;background:linear-gradient(180deg,#d63a3a,#b6222b)!important;border:1px solid rgba(255,125,125,.55)!important;color:#fff!important;box-shadow:0 14px 30px rgba(125,0,12,.28)!important" onclick="'+removeAction+'"><div class="tc2ProfileActionIcon">🗑️</div><div class="tc2ProfileActionText">Tier löschen</div><div class="tc2ProfileActionArrow" style="color:#fff!important">›</div></button>';};
 P.row=function(date,label,deleteAction){return '<div class="tc2ListRowFull"><div><b>'+P.esc(date||'-')+'</b><small>'+P.esc(label||'')+'</small></div><button class="danger" onclick="'+deleteAction+'">Löschen</button></div>';};
 
 P.shedForm=function(){return '<div class="subcard tc2SubCard"><h3>Häutung eintragen</h3><input id="shedDate" type="date" value="'+NGT500.today()+'"><button onclick="NGTProfile.addShed()">Häutung speichern</button></div>';};
@@ -31,9 +32,9 @@ P.addWeight=function(){const animal=P.current();const value=document.getElementB
 P.deleteEntry=function(kind,index){const animal=P.current();if(!animal||!Array.isArray(animal[kind])||index<0||index>=animal[kind].length)return;animal[kind].splice(index,1);if(kind==='weights'){const latest=P.latest(animal.weights);animal.weight=latest?latest.weight:'';}NGTStore.save();P.setTab(P.getTab());};
 P.charts=function(animal){return '<div class="subcard tc2SubCard"><h3>Gewicht</h3><p class="muted">'+(animal.weights||[]).length+' Einträge</p></div><div class="subcard tc2SubCard"><h3>Fütterungen</h3><p class="muted">'+(animal.feeds||[]).length+' Einträge</p></div>';};
 
-P.setContext=function(args){const next=args||P.state.ctx||{};const current=P.state.ctx||{};const changed=String(next.t||'')!==String(current.t||'')||Number(next.i||0)!==Number(current.i||0);P.state.ctx=next;if(args&&args.tab)P.state.tab=args.tab;else if(changed)P.state.tab='overview';};
+P.setContext=function(args){const next=args||P.state.ctx||{};const current=P.state.ctx||{};const row=NGTStore.resolveAnimal(next);const resolved=row?{...next,animalId:NGTStore.animalId(row.a),t:row.t,i:row.i}:next;const changed=String(resolved.animalId||'')!==String(current.animalId||'')||(!resolved.animalId&&(String(resolved.t||'')!==String(current.t||'')||Number(resolved.i||0)!==Number(current.i||0)));P.state.ctx=resolved;if(args&&args.tab)P.state.tab=args.tab;else if(changed)P.state.tab='overview';};
 P.getTab=function(){return P.state.tab;};
-P.setTab=function(tab){const context=P.state.ctx||{};P.state.tab=tab;NGT500.route('profile',{t:context.t,i:Number(context.i||0),tab:tab},{replace:true,noHistory:true});};
+P.setTab=function(tab){const context=P.state.ctx||{};P.state.tab=tab;const args=context.animalId?{animalId:context.animalId,tab:tab}:{t:context.t,i:Number(context.i||0),tab:tab};NGT500.route('profile',args,{replace:true,noHistory:true});};
 P.getContext=function(){return P.state.ctx;};
 
 })();

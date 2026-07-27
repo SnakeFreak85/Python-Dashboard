@@ -5,6 +5,12 @@ function esc(v){
  return NGT500.esc(v||'');
 }
 
+function jsArg(value){
+ return String(value||'')
+  .replace(/\\/g,'\\\\')
+  .replace(/'/g,"\\'");
+}
+
 function latest(list){
  return (list||[])
   .slice()
@@ -74,7 +80,9 @@ function animalCard(x){
  const ls=latest(a.sheds);
  const photo=(a.photos||[]).find(function(p){return p.cover;})||(a.photos||[])[0];
  const hs=healthStatus(a);
- const uid=encodeURIComponent(a.uuid||a.id||a.uid||'');
+ const animalId=NGTStore.animalId(a);
+ const jsAnimalId=jsArg(animalId);
+ const uid=encodeURIComponent(animalId);
  const weight=lw?esc(lw.weight)+' g':(a.weight?esc(a.weight)+' g':'-');
 
  const img=photo
@@ -111,15 +119,15 @@ function animalCard(x){
    </div>
 
    <div class="tc2AnimalActions">
-    <button onclick="NGT500.route('profile',{t:'${x.t}',i:${x.i}})">Tierpass</button>
-    <button onclick="NGT500.route('profile',{t:'${x.t}',i:${x.i},tab:'photos'})">Foto</button>
-    <button onclick="NGT500.route('profile',{t:'${x.t}',i:${x.i},tab:'feeds'})">Fütterung</button>
-    <button onclick="NGT500.route('profile',{t:'${x.t}',i:${x.i},tab:'sheds'})">Häutung</button>
-    <button onclick="NGT500.route('profile',{t:'${x.t}',i:${x.i},tab:'weights'})">Gewicht</button>
+    <button onclick="NGT500.route('profile',{animalId:'${jsAnimalId}'})">Tierpass</button>
+    <button onclick="NGT500.route('profile',{animalId:'${jsAnimalId}',tab:'photos'})">Foto</button>
+    <button onclick="NGT500.route('profile',{animalId:'${jsAnimalId}',tab:'feeds'})">Fütterung</button>
+    <button onclick="NGT500.route('profile',{animalId:'${jsAnimalId}',tab:'sheds'})">Häutung</button>
+    <button onclick="NGT500.route('profile',{animalId:'${jsAnimalId}',tab:'weights'})">Gewicht</button>
     <button onclick="location.href='./abgabe.html?id=${uid}'">PDF</button>
-    <button onclick="NGT500.route('animals',{t:'${x.t}',edit:${x.i}})">Bearbeiten</button>
-    <button onclick="NGT500.route('profile',{t:'${x.t}',i:${x.i},tab:'qr'})">QR</button>
-    <button class="danger" onclick="NGTAnimals.remove('${x.t}',${x.i})">Löschen</button>
+    <button onclick="NGT500.route('animals',{editId:'${jsAnimalId}'})">Bearbeiten</button>
+    <button onclick="NGT500.route('profile',{animalId:'${jsAnimalId}',tab:'qr'})">QR</button>
+    <button class="danger" onclick="NGTAnimals.removeById('${jsAnimalId}')">Löschen</button>
    </div>
   </div>
  </article>`;

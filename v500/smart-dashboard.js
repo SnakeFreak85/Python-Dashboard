@@ -7,6 +7,23 @@ function esc(value){
  return NGT500.esc(value||'');
 }
 
+function jsArg(value){
+ return String(value||'')
+  .replace(/\\/g,'\\\\')
+  .replace(/'/g,"\\'");
+}
+
+function profileRouteArgs(row){
+ if(row&&row.animalId){
+  return `{animalId:'${jsArg(row.animalId)}'}`;
+ }
+
+ return (
+  `{t:'${jsArg(row&&row.t)}',`+
+  `i:${Number((row&&row.i)||0)}}`
+ );
+}
+
 function today0(){
  const date=new Date();
 
@@ -310,6 +327,9 @@ function plannedFeeds(offset){
     type:
      'Fütterung',
 
+    animalId:
+     NGTStore.animalId(row.a),
+
     t:
      row.t,
 
@@ -335,6 +355,9 @@ function plannedWeights(offset){
 
     type:
      'Gewicht',
+
+    animalId:
+     NGTStore.animalId(row.a),
 
     t:
      row.t,
@@ -538,7 +561,7 @@ function taskRow(
  return `
   <button
    class="tc2SDtask"
-   onclick="NGT500.route('profile',{t:'${String(row.t||'').replace(/'/g,"\\'")}',i:${Number(row.i||0)}})"
+   onclick="NGT500.route('profile',${profileRouteArgs(row)})"
   >
    <span>
     ${

@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Tier-, Profil-, Editor- und Smart-Dashboard-Verweise auf stabile UUIDs umgestellt; alte Index-Routen bleiben als kompatibler Fallback lesbar.
+- UUID-basierte Store-Operationen zum Auflösen, Aktualisieren und Löschen ergänzt und gegen veränderte Array-Reihenfolgen getestet.
 - `animals[]` als führenden Tierbestand abgesichert: Legacy-Listen werden nur noch beim Laden oder Import eingelesen und können gelöschte Tiere beim Speichern nicht wiederherstellen.
 - Tierlöschung zentral über `NGTStore.deleteAnimal()` vereinheitlicht und mit Regressionstests für Migration, Persistenz, Nachzuchten und ungültige Indizes abgesichert.
 - Löschschaltfläche im Tiereditor robust eingebunden, sodass sie bei allen vorhandenen Tieren unabhängig von kleinen Markup-Abweichungen angezeigt wird.

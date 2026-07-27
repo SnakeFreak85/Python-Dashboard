@@ -192,6 +192,62 @@ try{
   1
  );
 
+ NGTStore.addAnimal('',{
+  uuid:'mixed-2',
+  uid:'mixed-2',
+  name:'Zweites Tier',
+  animalGroup:'Boas',
+  status:'Bestand'
+ });
+
+ NGTStore.data().animals.reverse();
+ NGTStore.save();
+
+ equal(
+  'UUID-Auflösung ist unabhängig von der Array-Position',
+  NGTStore.getAnimalById('mixed-1').name,
+  'Kanonisch'
+ );
+
+ equal(
+  'UUID-Route wird zum richtigen Tier aufgelöst',
+  NGTStore.resolveAnimal({animalId:'mixed-1'}).a.name,
+  'Kanonisch'
+ );
+
+ equal(
+  'Legacy-Index bleibt als Fallback funktionsfähig',
+  NGTStore.resolveAnimal({i:0}).a.name,
+  'Zweites Tier'
+ );
+
+ equal(
+  'Aktualisieren über UUID funktioniert',
+  NGTStore.updateAnimalById(
+   'mixed-1',
+   {name:'Über UUID aktualisiert'}
+  ).name,
+  'Über UUID aktualisiert'
+ );
+
+ equal(
+  'Löschen über UUID ist erfolgreich',
+  NGTStore.deleteAnimalById('mixed-1'),
+  true
+ );
+
+ equal(
+  'Gelöschte UUID ist nicht mehr auflösbar',
+  NGTStore.getAnimalById('mixed-1'),
+  null
+ );
+
+ equal(
+  'Anderes Tier bleibt nach UUID-Löschung erhalten',
+  NGTStore.getAnimalById('mixed-2').name,
+  'Zweites Tier'
+ );
+
  equal(
   'Ungültiger Index löst keine Löschung aus',
   NGTStore.deleteAnimal('',-1),

@@ -457,7 +457,7 @@ function animalIconGrid(rows){
 
    return `<button
     class="tc2TaxAnimal tc2OffspringAnimal"
-    onclick="NGT500.route('profile',{t:'${jsArg(row.t)}',i:${row.i}})"
+    onclick="NGT500.route('profile',{animalId:'${jsArg(NGTStore.animalId(animal))}'})"
    >
     <div>${image}</div>
 
@@ -502,6 +502,7 @@ function render(args){
  const group=args.group||'';
  const genus=args.genus||'';
  const edit=args.edit;
+ const editId=args.editId;
  const create=!!args.create;
 
  if(create){
@@ -510,12 +511,20 @@ function render(args){
   </section>`;
  }
 
- if(edit!==undefined){
+ if(edit!==undefined||editId){
+  const editRow=editId
+   ?NGTStore.resolveAnimal({animalId:editId})
+   :NGTStore.resolveAnimal({t:t,i:edit});
+
   return `<section class="tc2PageCard tc2AnimalsPage tc2OffspringPage">
-   ${editor(
-    t,
-    Number(edit)
-   )}
+   ${
+    editRow
+     ?editor(editRow.t,editRow.i)
+     :emptyState(
+      'Nachzucht nicht gefunden',
+      'Der Datensatz ist nicht mehr vorhanden.'
+     )
+   }
   </section>`;
  }
 
@@ -625,6 +634,9 @@ function editor(t,index){
  const animal=index!==undefined
   ?NGTStore.animal(t,index)
   :{};
+ const animalId=index!==undefined
+  ?NGTStore.animalId(animal)
+  :'';
 
  const feedInterval=
   animal.feedIntervalDays||
@@ -885,7 +897,7 @@ function editor(t,index){
 
    <button
     type="button"
-    onclick="NGTOffspring.save('${jsArg(t)}',${index===undefined?'null':index})"
+    onclick="NGTOffspring.save('${jsArg(t)}',${index===undefined?'null':index},'${jsArg(animalId)}')"
    >
     Speichern
    </button>
@@ -919,10 +931,13 @@ function inputValue(id){
   :'';
 }
 
-function save(t,index){
- const old=index===null
+function save(t,index,animalId){
+ const existing=index===null
   ?{}
-  :NGTStore.animal(t,index);
+  :animalId
+   ?NGTStore.getAnimalById(animalId)
+   :NGTStore.animal(t,index);
+ const old=existing||{};
 
  const interval=Math.max(
   1,
@@ -1096,11 +1111,18 @@ function save(t,index){
    animal
   );
  }else{
-  NGTStore.updateAnimal(
-   t,
-   index,
-   animal
-  );
+  if(animalId){
+   NGTStore.updateAnimalById(
+    animalId,
+    animal
+   );
+  }else{
+   NGTStore.updateAnimal(
+    t,
+    index,
+    animal
+   );
+  }
  }
 
  NGT500.route('offspring',{
@@ -1123,9 +1145,8 @@ async function remove(t,index){
 
  const animal=NGTStore.animal(t,index)||{};
 
- NGTStore.deleteAnimal(
-  t,
-  index
+ NGTStore.deleteAnimalById(
+  NGTStore.animalId(animal)
  );
 
  NGT500.route('offspring',{

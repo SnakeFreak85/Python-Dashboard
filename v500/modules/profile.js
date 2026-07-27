@@ -42,6 +42,12 @@ function render(args){
  P.ensure(animal);
 
  const context=P.getContext();
+ const editRoute=
+  window.NGTIdManager&&
+  NGTIdManager.isOffspring&&
+  NGTIdManager.isOffspring(animal)
+   ?'offspring'
+   :'animals';
 
  const cover=
   P.photos.profilePhoto(animal);
@@ -166,7 +172,9 @@ function render(args){
     ${P.action(
      '✏️',
      'Bearbeiten',
-     `NGT500.route('animals',{edit:${context.i}})`
+     context.animalId
+      ?`NGT500.route('${editRoute}',{editId:'${P.jsArg(context.animalId)}'})`
+      :`NGT500.route('${editRoute}',{edit:${context.i}})`
     )}
 
     ${P.action(

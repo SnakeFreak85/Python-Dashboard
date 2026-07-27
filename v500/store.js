@@ -482,6 +482,70 @@ function findAnimal(q){
   );
 }
 
+function animalId(a){
+  return String(
+    (a&&a.uuid)||
+    (a&&a.uid)||
+    ''
+  ).trim();
+}
+
+function findAnimalById(id){
+  id=String(id||'').trim();
+
+  if(!id){
+    return null;
+  }
+
+  return allAnimals().find(function(row){
+    return animalId(row.a)===id;
+  })||null;
+}
+
+function resolveAnimal(ref){
+  ref=ref||{};
+
+  const id=
+    typeof ref==='string'
+      ?ref
+      :ref.animalId||ref.uuid||ref.uid||'';
+
+  if(id){
+    return findAnimalById(id);
+  }
+
+  const index=Number(
+    ref.i!==undefined
+      ?ref.i
+      :ref.index
+  );
+
+  if(
+    !Number.isInteger(index)||
+    index<0||
+    index>=db.animals.length
+  ){
+    return null;
+  }
+
+  const a=db.animals[index];
+
+  return {
+    t:
+      a.legacyType||
+      a.type||
+      inferLegacyTypeFromGroup(a.animalGroup)||
+      '',
+    i:index,
+    a:a
+  };
+}
+
+function getAnimalById(id){
+  const row=findAnimalById(id);
+  return row?row.a:null;
+}
+
 function animal(t,i){
   return (db.animals||[])[Number(i)];
 }
@@ -520,6 +584,16 @@ function updateAnimal(t,i,a){
   return db.animals[Number(i)];
 }
 
+function updateAnimalById(id,a){
+  const row=findAnimalById(id);
+
+  if(!row){
+    return null;
+  }
+
+  return updateAnimal(row.t,row.i,a);
+}
+
 function deleteAnimal(t,i){
   const index=Number(i);
 
@@ -530,6 +604,16 @@ function deleteAnimal(t,i){
   db.animals.splice(index,1);
   save();
   return true;
+}
+
+function deleteAnimalById(id){
+  const row=findAnimalById(id);
+
+  if(!row){
+    return false;
+  }
+
+  return deleteAnimal(row.t,row.i);
 }
 
 function addFood(name,qty){
@@ -608,10 +692,16 @@ window.NGTStore={
   allOffspring,
   animalsByGroup,
   findAnimal,
+  animalId,
+  findAnimalById,
+  resolveAnimal,
+  getAnimalById,
   animal,
   addAnimal,
   updateAnimal,
+  updateAnimalById,
   deleteAnimal,
+  deleteAnimalById,
 
   addFood,
   reduceFood,
