@@ -51,6 +51,11 @@ const context={
    return 'test-uid-'+uidCounter;
   },
   emit(){},
+  register(){},
+  toast(){},
+  confirmAction(){
+   return Promise.resolve(true);
+  },
   esc(value){
    return String(value||'');
   },
@@ -68,6 +73,7 @@ vm.createContext(context);
 
 [
  'v500/id-manager.js',
+ 'v500/food-inventory-engine.js',
  'v500/animal-engine.js',
  'v500/store.js'
 ].forEach(function(file){
@@ -80,6 +86,66 @@ vm.createContext(context);
 
 const store=context.NGTStore;
 const engine=context.AnimalEngine;
+const foodEngine=context.FoodInventoryEngine;
+
+const foodSource={
+ label:'Frost Ratte 150 g',
+ qty:5
+};
+const normalizedFood=
+ foodEngine.normalizeItem(foodSource);
+
+assert.equal(
+ normalizedFood.minimum,
+ 5,
+ 'Fehlender Mindestbestand muss zentral auf 5 normalisiert werden.'
+);
+
+assert.equal(
+ Object.hasOwn(foodSource,'minimum'),
+ false,
+ 'Lesende Futter-Normalisierung darf den Quelldatensatz nicht verändern.'
+);
+
+assert.equal(
+ foodEngine.needsRestock({
+  label:'Heimchen',
+  qty:0,
+  minimum:0
+ }),
+ true,
+ 'Ein leerer Bestand muss auch bei Mindestbestand 0 nachgekauft werden.'
+);
+
+assert.equal(
+ foodEngine.needsRestock({
+  label:'Heimchen',
+  qty:1,
+  minimum:0
+ }),
+ false,
+ 'Ein positiver Bestand darf bei Mindestbestand 0 nicht als niedrig gelten.'
+);
+
+assert.equal(
+ foodEngine.needsRestock({
+  label:'Frost Maus 20 g',
+  qty:7,
+  minimum:7
+ }),
+ true,
+ 'Ein benutzerdefinierter Mindestbestand muss verbindlich gelten.'
+);
+
+assert.equal(
+ foodEngine.needsRestock({
+  label:'Frost Maus 20 g',
+  qty:8,
+  minimum:7
+ }),
+ false,
+ 'Bestand oberhalb des benutzerdefinierten Minimums muss ausreichend sein.'
+);
 
 const legacyProfileFeed=engine.normalizeFeedEvent({
  accepted:true,
@@ -342,6 +408,87 @@ assert.equal(
  store.data().foodInventory[0].qty,
  1,
  'Verweigertes Futter darf den Bestand nicht reduzieren.'
+);
+
+vm.runInContext(
+ fs.readFileSync('v500/smart-dashboard.js','utf8'),
+ context,
+ {filename:'v500/smart-dashboard.js'}
+);
+
+const restockDashboard=
+ context.NGTSmartDashboard.render();
+
+assert.match(
+ restockDashboard,
+ /Futter nachkaufen/,
+ 'Das Smart Dashboard muss den Nachkaufbedarf statt des Gesamtbestands zeigen.'
+);
+
+assert.match(
+ restockDashboard,
+ /Frost Ratte 150 g/,
+ 'Eine Position am Mindestbestand muss im Smart Dashboard erscheinen.'
+);
+
+store.data().foodInventory[0].qty=10;
+store.save();
+
+assert.match(
+ context.NGTSmartDashboard.render(),
+ /Alle Futterbestände sind ausreichend\./,
+ 'Ohne Nachkaufbedarf muss das Smart Dashboard einen eindeutigen Leerzustand zeigen.'
+);
+
+vm.runInContext(
+ fs.readFileSync('v500/modules/food.js','utf8'),
+ context,
+ {filename:'v500/modules/food.js'}
+);
+
+context.NGTFood.change(
+ 'food-150',
+ -3
+);
+
+assert.equal(
+ store.data().foodInventory[0].qty,
+ 7,
+ 'Eine bewusste Bestandsänderung muss trotz reiner View-Modelle gespeichert werden.'
+);
+
+const foodForm={
+ foodEditId:{value:'food-150'},
+ foodCategory:{value:'Nagetiere'},
+ foodName:{value:'Ratte'},
+ foodVariant:{value:'150 g'},
+ foodCondition:{value:'Frost'},
+ foodUnit:{value:'Stück'},
+ foodQty:{value:'12'},
+ foodMinimum:{value:'9'}
+};
+
+context.document={
+ getElementById(id){
+  return foodForm[id]||null;
+ },
+ querySelector(){
+  return null;
+ }
+};
+
+await context.NGTFood.save();
+
+assert.equal(
+ store.data().foodInventory[0].qty,
+ 12,
+ 'Bearbeiten muss den kanonischen Futterbestand aktualisieren.'
+);
+
+assert.equal(
+ store.data().foodInventory[0].minimum,
+ 9,
+ 'Ein benutzerdefinierter Mindestbestand muss beim Bearbeiten erhalten bleiben.'
 );
 
 vm.runInContext(

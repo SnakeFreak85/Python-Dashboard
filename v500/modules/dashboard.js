@@ -265,35 +265,10 @@ function foodInventory(){
  }
 }
 
-function foodItemQuantity(item){
- const quantity=Number(item&&item.qty);
-
- return Number.isFinite(quantity)
-  ?quantity
-  :0;
-}
-
-function foodItemMinimum(item){
- const minimum=Number(
-  item&&(
-   item.minimum!==undefined
-    ?item.minimum
-    :item.minQty
-  )
- );
-
- return Number.isFinite(minimum)
-  ?minimum
-  :5;
-}
-
 function lowFoodCount(){
  return foodInventory().filter(function(item){
-  return foodItemQuantity(item)<=
-   Math.max(
-    0,
-    foodItemMinimum(item)
-   );
+  return FoodInventoryEngine
+   .needsRestock(item);
  }).length;
 }
 

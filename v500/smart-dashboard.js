@@ -119,17 +119,13 @@ function animals(){
 
 function inventory(){
  try{
-  return (
-   NGTStore
-    .data()
-    .foodInventory||
-   []
-  ).filter(function(item){
-   return Number(
-    item.qty||
-    0
-   )>0;
-  });
+  return FoodInventoryEngine
+   .sortInventory(
+    NGTStore
+     .data()
+     .foodInventory||
+    []
+   );
 
  }catch(error){
   return [];
@@ -403,10 +399,8 @@ function groupRows(){
 function lowFood(){
  return inventory()
   .filter(function(item){
-   return Number(
-    item.qty||
-    0
-   )<=5;
+   return FoodInventoryEngine
+    .needsRestock(item);
   });
 }
 
@@ -585,10 +579,15 @@ function taskRow(
 }
 
 function foodRow(item){
- const quantity=Number(
-  item.qty||
-  0
- );
+ const normalized=
+  FoodInventoryEngine
+   .normalizeItem(item);
+ const quantity=
+  FoodInventoryEngine
+   .quantity(normalized);
+ const stockStatus=
+  FoodInventoryEngine
+   .status(normalized);
 
  return `
   <button
@@ -608,12 +607,12 @@ function foodRow(item){
     </b>
 
     <small>
-     Bestand: ${quantity}
+     Bestand: ${quantity} ${esc(normalized.unit)}
     </small>
    </div>
 
-   <em class="${quantity<=5?'warn':''}">
-    ${quantity<=5?'NIEDRIG':'OK'}
+   <em class="${stockStatus.needsRestock?'warn':''}">
+    ${stockStatus.text.toUpperCase()}
    </em>
 
    <i>›</i>
@@ -772,7 +771,7 @@ function render(){
 
    <section class="tc2SDcard">
     <div class="tc2SDcardHead">
-     <h3>Futterbestand</h3>
+     <h3>Futter nachkaufen</h3>
 
      <button onclick="NGT500.route('food')">
       Alle anzeigen ›
@@ -780,14 +779,14 @@ function render(){
     </div>
 
     ${
-     stock.length
-      ?stock
+     low.length
+      ?low
        .slice(0,3)
        .map(foodRow)
        .join('')
       :`
        <div class="tc2SDempty">
-        Kein Futterbestand erfasst.
+        Alle Futterbestände sind ausreichend.
        </div>
       `
     }

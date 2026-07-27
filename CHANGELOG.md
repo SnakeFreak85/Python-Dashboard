@@ -4,6 +4,9 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Futterbestands-Normalisierung und Nachkaufentscheidung in einer reinen `FoodInventoryEngine` vereinheitlicht.
+- Lesende Futteransichten verändern Store-Datensätze nicht mehr; fehlende Mindestbestände verwenden verbindlich den Wert `5`, explizite Werte einschließlich `0` bleiben erhalten.
+- Startseite, Smart Dashboard und KI verwenden dieselbe Mindestbestandsregel; das Smart Dashboard zeigt nur noch tatsächlich nachzukaufende Positionen.
 - Fütterungseinträge aus Tierprofil, Schnelleingabe und Chat auf einen zentralen Store-Pfad sowie ein gemeinsames Datenmodell umgestellt.
 - Futtergewicht und Stückzahl getrennt, Legacy-Einträge kompatibel normalisiert und die Anzeige in Profil, Chronik, Timeline, Tierpass und PDF vereinheitlicht.
 - Regressionstests für 150-g-Fütterungen, Bestandsabzug und verweigertes Futter ergänzt.

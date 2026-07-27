@@ -12,171 +12,57 @@ function uid(){
 }
 
 function text(value){
- return String(value==null?'':value).trim();
+ return FoodInventoryEngine.text(value);
 }
 
 function number(value,fallback){
- const parsed=Number(value);
- return Number.isFinite(parsed)?parsed:Number(fallback||0);
+ return FoodInventoryEngine.number(
+  value,
+  fallback
+ );
 }
 
 function slug(value){
- return text(value)
-  .toLowerCase()
-  .normalize('NFD')
-  .replace(/[\u0300-\u036f]/g,'')
-  .replace(/[^a-z0-9]+/g,'_')
-  .replace(/^_+|_+$/g,'');
+ return FoodInventoryEngine.slug(value);
 }
 
 function inventory(){
  const data=NGTStore.data();
 
- if(!Array.isArray(data.foodInventory)){
-  data.foodInventory=[];
- }
-
- return data.foodInventory;
+ return Array.isArray(data.foodInventory)
+  ?data.foodInventory
+  :[];
 }
 
 function normalizeItem(item){
- item=item||{};
-
- const parsed=window.NGTStore&&NGTStore.parseFeeder
-  ?NGTStore.parseFeeder(item.label||item.name||'')
-  :{};
-
- const category=text(
-  item.category||
-  item.group||
-  item.foodCategory||
-  'Futtertiere'
+ return FoodInventoryEngine.normalizeItem(
+  item
  );
-
- const name=text(
-  item.itemName||
-  item.prey||
-  item.type||
-  parsed.prey||
-  item.name||
-  item.label||
-  'Unbenannt'
- );
-
- const variant=text(
-  item.variant||
-  item.size||
-  parsed.size||
-  ''
- );
-
- const condition=text(
-  item.condition||
-  item.state||
-  parsed.state||
-  ''
- );
-
- const unit=text(
-  item.unit||
-  'Stück'
- );
-
- const label=text(
-  item.label||
-  [condition,name,variant].filter(Boolean).join(' ')
- );
-
- item.id=item.id||uid();
- item.category=category;
- item.itemName=name;
- item.variant=variant;
- item.condition=condition;
- item.unit=unit;
- item.qty=number(item.qty,0);
- item.minimum=number(
-  item.minimum!==undefined
-   ?item.minimum
-   :item.minQty,
-  5
- );
- item.label=label||name;
- item.name=item.label;
- item.key=item.key||slug([
-  category,
-  condition,
-  name,
-  variant,
-  unit
- ].join('_'));
-
- return item;
 }
 
 function normalizeInventory(){
- const items=inventory();
-
- for(let index=0;index<items.length;index++){
-  items[index]=normalizeItem(items[index]);
- }
-
- return items;
+ return FoodInventoryEngine.sortInventory(
+  inventory()
+ );
 }
 
 function itemLabel(item){
- return [
-  item.condition,
-  item.itemName,
-  item.variant
- ].filter(Boolean).join(' ')||
- item.label||
- item.name||
- 'Unbenannt';
+ return FoodInventoryEngine.itemLabel(
+  item
+ );
 }
 
 function itemMeta(item){
- return [
-  item.category,
-  item.unit
- ].filter(Boolean).join(' · ');
+ return FoodInventoryEngine.meta(
+  item,
+  false
+ );
 }
 
 function status(item){
- const qty=number(item.qty,0);
- const minimum=Math.max(0,number(item.minimum,5));
-
- if(qty<=0){
-  return {
-   text:'Leer',
-   cls:'danger',
-   percent:0
-  };
- }
-
- if(minimum>0&&qty<=minimum){
-  return {
-   text:'Nachbestellen',
-   cls:'warn',
-   percent:Math.max(
-    8,
-    Math.min(35,Math.round(qty/minimum*35))
-   )
-  };
- }
-
- const target=Math.max(
-  minimum*3,
-  10
+ return FoodInventoryEngine.status(
+  item
  );
-
- return {
-  text:'Ausreichend',
-  cls:'ok',
-  percent:Math.max(
-   40,
-   Math.min(100,Math.round(qty/target*100))
-  )
- };
 }
 
 function uniqueValues(field){
@@ -498,9 +384,18 @@ function formValue(id){
 }
 
 function findById(id){
- return normalizeInventory().find(function(item){
-  return String(item.id)===String(id);
- })||null;
+ return FoodInventoryEngine.findById(
+  inventory(),
+  id
+ );
+}
+
+function storedIndexById(id){
+ return inventory().findIndex(function(item){
+  return String(
+   normalizeItem(item).id
+  )===String(id);
+ });
 }
 
 function duplicateFor(data,ignoreId){
@@ -557,10 +452,30 @@ async function save(){
    return;
   }
 
-  duplicate.qty=number(duplicate.qty,0)+data.qty;
-  duplicate.minimum=data.minimum;
-  duplicate.label=itemLabel(data);
-  duplicate.name=duplicate.label;
+  const duplicateIndex=
+   storedIndexById(duplicate.id);
+
+  if(duplicateIndex<0){
+   NGT500.toast(
+    'Die vorhandene Futterposition wurde nicht gefunden.',
+    'danger'
+   );
+   return;
+  }
+
+  const duplicateItem=
+   inventory()[duplicateIndex];
+
+  inventory()[duplicateIndex]=
+   normalizeItem({
+    ...duplicateItem,
+    qty:
+     number(duplicate.qty,0)+
+     data.qty,
+    minimum:data.minimum,
+    label:itemLabel(data),
+    name:itemLabel(data)
+   });
 
   NGTStore.save();
   NGT500.route('food');
@@ -568,9 +483,10 @@ async function save(){
  }
 
  if(id){
-  const existing=findById(id);
+  const existingIndex=
+   storedIndexById(id);
 
-  if(!existing){
+  if(existingIndex<0){
    NGT500.toast(
     'Die Futterposition wurde nicht gefunden.',
     'danger'
@@ -578,22 +494,21 @@ async function save(){
    return;
   }
 
-  existing.category=data.category;
-  existing.itemName=data.itemName;
-  existing.variant=data.variant;
-  existing.condition=data.condition;
-  existing.unit=data.unit;
-  existing.qty=data.qty;
-  existing.minimum=data.minimum;
-  existing.label=itemLabel(data);
-  existing.name=existing.label;
-  existing.key=slug([
-   data.category,
-   data.condition,
-   data.itemName,
-   data.variant,
-   data.unit
-  ].join('_'));
+  inventory()[existingIndex]=
+   normalizeItem({
+    ...inventory()[existingIndex],
+    ...data,
+    id:id,
+    label:itemLabel(data),
+    name:itemLabel(data),
+    key:slug([
+     data.category,
+     data.condition,
+     data.itemName,
+     data.variant,
+     data.unit
+    ].join('_'))
+   });
 
  }else{
   inventory().push(normalizeItem({
@@ -689,14 +604,22 @@ function cancelEdit(){
 }
 
 function change(id,amount){
- const item=findById(id);
+ const index=storedIndexById(id);
 
- if(!item)return;
+ if(index<0)return;
 
- item.qty=Math.max(
-  0,
-  number(item.qty,0)+number(amount,0)
+ const item=normalizeItem(
+  inventory()[index]
  );
+
+ inventory()[index]=normalizeItem({
+  ...item,
+  qty:Math.max(
+   0,
+   number(item.qty,0)+
+   number(amount,0)
+  )
+ });
 
  NGTStore.save();
  NGT500.route('food');

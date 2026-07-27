@@ -119,6 +119,7 @@ function testRuntime(){
     record('NGT500 verfügbar',!!win.NGT500);
     record('NGTStore verfügbar',!!win.NGTStore);
     record('AnimalEngine verfügbar',!!win.AnimalEngine);
+    record('FoodInventoryEngine verfügbar',!!win.FoodInventoryEngine);
     record('NGTTaxonomy verfügbar',!!win.NGTTaxonomy);
     record(
      'Taxonomie-Teilmodule verfügbar',
@@ -184,6 +185,21 @@ function testRuntime(){
       win.AnimalEngine.getScientificName({genus:'Python',species:'regius'})==='Python regius'&&
       typeof win.AnimalEngine.normalizeFeedEvent==='function'&&
       typeof win.AnimalEngine.formatFeedEvent==='function'
+     )
+    );
+
+    record(
+     'Futterbestandsregeln ausführbar',
+     !!(
+      win.FoodInventoryEngine&&
+      win.FoodInventoryEngine.needsRestock({
+       qty:5,
+       minimum:5
+      })===true&&
+      win.FoodInventoryEngine.needsRestock({
+       qty:6,
+       minimum:5
+      })===false
      )
     );
 

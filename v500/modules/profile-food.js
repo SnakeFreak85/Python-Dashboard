@@ -12,114 +12,40 @@ if(!P){
 function foodInventory(){
  const data=NGTStore.data();
 
- if(!Array.isArray(data.foodInventory)){
-  data.foodInventory=[];
- }
-
- return data.foodInventory;
+ return Array.isArray(data.foodInventory)
+  ?data.foodInventory
+  :[];
 }
 
 function normalizeFoodItem(item){
- item=item||{};
-
- const parsed=window.NGTStore&&NGTStore.parseFeeder
-  ?NGTStore.parseFeeder(item.label||item.name||'')
-  :{};
-
- item.id=item.id||
-  item.key||
-  'food_'+Math.random().toString(36).slice(2,10);
-
- item.category=P.text(
-  item.category||
-  item.group||
-  item.foodCategory||
-  'Futtertiere'
+ return FoodInventoryEngine.normalizeItem(
+  item
  );
-
- item.condition=P.text(
-  item.condition||
-  item.state||
-  parsed.state||
-  ''
- );
-
- item.itemName=P.text(
-  item.itemName||
-  item.prey||
-  item.type||
-  parsed.prey||
-  item.label||
-  item.name||
-  'Unbenannt'
- );
-
- item.variant=P.text(
-  item.variant||
-  item.size||
-  parsed.size||
-  ''
- );
-
- item.unit=P.text(item.unit||'Stück');
- item.qty=Number(item.qty||0);
- item.minimum=Number(
-  item.minimum!==undefined
-   ?item.minimum
-   :(item.minQty||0)
- );
-
- item.label=P.text(item.label)||
-  [
-   item.condition,
-   item.itemName,
-   item.variant
-  ].filter(Boolean).join(' ');
-
- item.name=item.label;
-
- return item;
 }
 
 function normalizedFoodInventory(){
- return foodInventory()
-  .map(normalizeFoodItem)
-  .sort(function(a,b){
-   const categoryCompare=String(a.category||'')
-    .localeCompare(String(b.category||''),'de');
-
-   if(categoryCompare!==0)return categoryCompare;
-
-   return foodLabel(a).localeCompare(foodLabel(b),'de');
-  });
+ return FoodInventoryEngine.sortInventory(
+  foodInventory()
+ );
 }
 
 function foodLabel(item){
- if(!item)return '';
-
- return [
-  item.condition,
-  item.itemName,
-  item.variant
- ].filter(Boolean).join(' ')||
- item.label||
- item.name||
- 'Unbenannt';
+ return item
+  ?FoodInventoryEngine.itemLabel(item)
+  :'';
 }
 
 function foodMeta(item){
- if(!item)return '';
-
- return [
-  item.category,
-  Number(item.qty||0)+' '+(item.unit||'Stück')
- ].filter(Boolean).join(' · ');
+ return item
+  ?FoodInventoryEngine.meta(item)
+  :'';
 }
 
 function foodById(id){
- return normalizedFoodInventory().find(function(item){
-  return String(item.id)===String(id);
- })||null;
+ return FoodInventoryEngine.findById(
+  foodInventory(),
+  id
+ );
 }
 
 function defaultFoodId(a){
@@ -268,20 +194,19 @@ function updateFeedStockStatus(){
   return;
  }
 
- const qty=Number(item.qty||0);
- const minimum=Number(item.minimum||0);
+ const qty=FoodInventoryEngine.quantity(item);
+ const minimum=FoodInventoryEngine.minimum(item);
  const unit=item.unit||'Stück';
 
- let cls='ok';
- let title='Bestand ausreichend';
-
- if(qty<=0){
-  cls='danger';
-  title='Bestand leer';
- }else if(minimum>0&&qty<=minimum){
-  cls='warn';
-  title='Mindestbestand erreicht';
- }
+ const stockStatus=
+  FoodInventoryEngine.status(item);
+ const cls=stockStatus.cls;
+ const title=
+  stockStatus.text==='Leer'
+   ?'Bestand leer'
+   :stockStatus.needsRestock
+    ?'Mindestbestand erreicht'
+    :'Bestand ausreichend';
 
  box.className='tc2SubCard '+cls;
 

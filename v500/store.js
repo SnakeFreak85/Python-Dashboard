@@ -107,13 +107,9 @@ function foodLabel(s){
 }
 
 function normalizeFoodItem(f){
-  f=f||{};
-  f.name=f.name||f.label||'';
-  f.key=f.key||foodKey(f.name);
-  f.id=f.id||('food_'+f.key);
-  f.label=f.label||foodLabel(f.name);
-  f.qty=Number(f.qty||0);
-  return f;
+  return FoodInventoryEngine.normalizeItem(
+    f||{}
+  );
 }
 
 function inferLegacyTypeFromGroup(group){

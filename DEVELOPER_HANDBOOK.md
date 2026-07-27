@@ -82,6 +82,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── store.js
     ├── ui.js
     ├── animal-engine.js
+    ├── food-inventory-engine.js
     ├── taxonomy-core.js
     ├── taxonomy-store.js
     ├── taxonomy-cloud.js
@@ -163,6 +164,19 @@ Die zentrale vorhandene Domänenkomponente ist `v500/animal-engine.js`. Sie bün
 
 Engines erzeugen keine DOM-Ausgabe und enthalten keine UI-spezifischen Dialogabläufe.
 
+`v500/food-inventory-engine.js` enthält die verbindliche reine Logik für:
+
+- Normalisierung von Futterpositionen,
+- Label, Schlüssel und sortierte View-Modelle,
+- Menge und Mindestbestand,
+- Status und Nachkaufentscheidung.
+
+Der Standard-Mindestbestand beträgt `5`, wenn weder `minimum` noch
+`minQty` vorhanden ist. Ein ausdrücklich gespeicherter Wert `0` bleibt
+erhalten. Leere Positionen gelten unabhängig davon immer als
+nachzukaufen. Lesende Aufrufe liefern neue Objekte und dürfen den Store
+nicht verändern.
+
 ### 5.3 Store
 
 `v500/store.js` ist die zentrale Quelle lokal verfügbarer Anwendungsdaten. Typische Aufgaben:
@@ -189,7 +203,7 @@ Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 
 `index.html` verweist auf die aktive Anwendung in `v500.html`. Dort werden die Scripts in definierter Reihenfolge geladen:
 
-1. Kernsystem: `core.js`, `id-manager.js`, `store.js`, `ui.js`
+1. Kernsystem: `core.js`, `id-manager.js`, `food-inventory-engine.js`, `store.js`, `ui.js`
 2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui-illustrations.js`, `taxonomy-ui-decoration.js`, `taxonomy-ui.js`; danach AnimalEngine
 3. AI-, Dashboard- und Foto-Services
 4. Fachmodule
@@ -201,6 +215,7 @@ Die Anwendung verwendet globale Browser-Namespaces wie:
 - `NGT500`
 - `NGTStore`
 - `AnimalEngine`
+- `FoodInventoryEngine`
 - `NGTProfile`
 - weitere modulbezogene APIs
 

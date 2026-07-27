@@ -47,6 +47,7 @@ localStorage.setItem('spd_v53',JSON.stringify({
 
 <script src="../core.js"></script>
 <script src="../id-manager.js"></script>
+<script src="../food-inventory-engine.js"></script>
 <script src="../animal-engine.js"></script>
 <script src="../store.js"></script>
 
@@ -89,6 +90,55 @@ function render(){
 }
 
 try{
+ const foodSource={
+  label:'Frost Ratte 150 g',
+  qty:5
+ };
+ const normalizedFood=
+  FoodInventoryEngine.normalizeItem(foodSource);
+
+ equal(
+  'Fehlender Mindestbestand wird zentral auf 5 gesetzt',
+  normalizedFood.minimum,
+  5
+ );
+
+ equal(
+  'Lesende Normalisierung verändert Quelldaten nicht',
+  Object.hasOwn(foodSource,'minimum'),
+  false
+ );
+
+ equal(
+  'Leerer Bestand gilt auch bei Minimum 0 als Nachkauf',
+  FoodInventoryEngine.needsRestock({
+   label:'Heimchen',
+   qty:0,
+   minimum:0
+  }),
+  true
+ );
+
+ equal(
+  'Positiver Bestand ist bei Minimum 0 ausreichend',
+  FoodInventoryEngine.needsRestock({
+   label:'Heimchen',
+   qty:1,
+   minimum:0
+  }),
+  false
+ );
+
+ equal(
+  'Benutzerdefinierter Mindestbestand wird berücksichtigt',
+  FoodInventoryEngine.needsRestock({
+   label:'Frost Maus 20 g',
+   qty:7,
+   minimum:7
+  }),
+  true
+ );
+
  equal(
   'Legacy-only Bestand wird beim Laden übernommen',
   NGTStore.allAnimals().length,
