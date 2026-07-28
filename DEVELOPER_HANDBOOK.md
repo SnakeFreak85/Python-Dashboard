@@ -581,7 +581,10 @@ Prüft:
 http://localhost:8000/v500/tests/taxonomy.test.html
 ```
 
-Charakterisiert Normalisierung, Schlüssel, lokalen Cache, Import/Export, Bild-Fallbacks sowie Klassifikation, Illustrationen und öffentliche `NGTTaxonomyUI`-Dekoration.
+Charakterisiert Normalisierung, Schlüssel, lokalen Cache, Import/Export,
+Bild-Fallbacks sowie Klassifikation, Illustrationen, öffentliche
+`NGTTaxonomyUI`-Dekoration und die automatische Dekoration neu eingefügter
+Elemente durch den DOM-Beobachter.
 
 ### 12.4 TC2-Oberfläche
 

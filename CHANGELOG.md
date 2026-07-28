@@ -4,6 +4,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Automatische Taxonomie-Dekoration durch den DOM-Beobachter mit einem eigenen Browser-Regressionstest abgesichert.
 - Automatische Firebase-Synchronisation gegen das Überschreiben lokaler Bestände durch fehlende, leere oder zeitlich nicht eindeutig einordenbare Cloud-Daten abgesichert.
 - Konfliktentscheidung zwischen lokalem Stand und Firestore in einer reinen `NGTSyncPolicyEngine` zentralisiert; bewusstes manuelles Laden aus der Cloud bleibt nach Bestätigung möglich.
 - Änderungen während eines laufenden Firestore-Speichervorgangs lösen zuverlässig einen weiteren Speicherlauf aus, statt unbemerkt verloren zu gehen.

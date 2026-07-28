@@ -250,7 +250,37 @@ try{
   NGTTaxonomyUI.decorate();
   const styles=document.querySelectorAll('#tc2TaxonomySilhouetteStyles');
   equal(styles.length,1);
-  assert(styles[0].textContent.includes('prefers-reduced-motion'),'Reduced-Motion-Regel fehlt');
+ assert(styles[0].textContent.includes('prefers-reduced-motion'),'Reduced-Motion-Regel fehlt');
+ });
+
+ await test('DOM-Beobachter dekoriert neue Taxonomie-Elemente automatisch',async function(){
+  const app=document.getElementById('app');
+
+  app.innerHTML='';
+
+  NGTTaxonomyUIInternal
+   .decoration
+   .observe();
+
+  app.innerHTML=
+   '<button class="tc2TaxFolder">'+
+    '<span>...</span>'+
+    '<b>Geckos</b>'+
+    '<small>1 Tier</small>'+
+   '</button>';
+
+  await new Promise(function(resolve){
+   setTimeout(resolve,120);
+  });
+
+  const button=app.querySelector(
+   '.tc2TaxFolder'
+  );
+
+  equal(
+   button.dataset.tc2Silhouette,
+   '1'
+  );
  });
 
  await test('Taxonomie-Ordner wird dekoriert',function(){
