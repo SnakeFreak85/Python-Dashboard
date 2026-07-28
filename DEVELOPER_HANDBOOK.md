@@ -335,6 +335,7 @@ taxonomy-store.js
 taxonomy-cloud.js
 taxonomy.js
 taxonomy-ui-illustrations.js
+taxonomy-ui-animal-icons.js
 taxonomy-ui-decoration.js
 taxonomy-ui.js
 ```
@@ -345,7 +346,8 @@ taxonomy-ui.js
 | `taxonomy-store.js` | lokaler Cache, Aliase, Suche, Bild-Fallbacks sowie Import und Export |
 | `taxonomy-cloud.js` | Firestore-Zugriff, Cloud-Synchronisation und Bildstatus-Operationen |
 | `taxonomy.js` | Controller, Auth-Ereignis und kompatible öffentliche `NGTTaxonomy`-API |
-| `taxonomy-ui-illustrations.js` | Textnormalisierung, Klassifikation und SVG-Illustrationen |
+| `taxonomy-ui-illustrations.js` | Textnormalisierung, Klassifikation und generische SVG-Fallbacks |
+| `taxonomy-ui-animal-icons.js` | verbindliche Auswahl der finalen Referenzbilder, Schildkrötendarstellung und leere Darstellung unbekannter Gruppen |
 | `taxonomy-ui-decoration.js` | Stile, Karten-Dekoration, MutationObserver und UI-Ereignisse |
 | `taxonomy-ui.js` | Controller, Initialisierung und kompatible öffentliche `NGTTaxonomyUI`-API |
 

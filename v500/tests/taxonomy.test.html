@@ -36,6 +36,7 @@ window.NGT500={
 <script src="../taxonomy-cloud.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy-ui-illustrations.js?v=1.0.4-rc.11"></script>
+<script src="../taxonomy-ui-animal-icons.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy-ui-decoration.js?v=1.0.4-rc.11"></script>
 <script src="../taxonomy-ui.js?v=1.0.4-rc.11"></script>
 <script>
@@ -57,6 +58,22 @@ function equal(actual,expected,message){
  if(actual!==expected){
   throw new Error((message||'Werte weichen ab')+': '+JSON.stringify(actual)+' !== '+JSON.stringify(expected));
  }
+}
+
+async function waitFor(check,timeout){
+ const end=Date.now()+(timeout||1000);
+
+ while(Date.now()<end){
+  if(check()){
+   return true;
+  }
+
+  await new Promise(function(resolve){
+   setTimeout(resolve,25);
+  });
+ }
+
+ return false;
 }
 
 async function test(name,run){
@@ -237,12 +254,19 @@ try{
   });
  });
 
- await test('Illustration liefert zugängliches SVG und escaped Labels',function(){
-  const svg=NGTTaxonomyUI.illustrationFor('<Python>');
+ await test('Produktive Tierbilder und Labels bleiben kompatibel',function(){
+  const python=NGTTaxonomyUI.illustrationFor('<Python>');
   const fallback=NGTTaxonomyUI.illustrationFor('   ');
-  assert(svg.includes('<svg'),'SVG fehlt');
-  assert(svg.includes('aria-label="&lt;Python&gt;"'),'Label ist nicht escaped');
-  assert(fallback.includes('aria-label="Tier"'),'Leeres Label verwendet nicht den Tier-Fallback');
+  const spider=NGTTaxonomyUI.illustrationFor('Vogelspinne');
+  const tortoise=NGTTaxonomyUI.illustrationFor('Testudo');
+
+  assert(python.includes('<img'),'Python-Referenzbild fehlt');
+  assert(python.includes('alt="&lt;Python&gt;"'),'Bildlabel ist nicht escaped');
+  assert(fallback.includes('class="tc2TaxNoIcon"'),'Unbekannte Gruppe zeigt ein falsches Tierbild');
+  assert(fallback.includes('data-label="Tier"'),'Leeres Label verwendet nicht den Tier-Fallback');
+  assert(spider.includes('assets/taxonomy/spider.png?v=spider-3'),'Vogelspinnenbild fehlt');
+  assert(tortoise.includes('id="tc2TortoiseShell"'),'Schildkrötendarstellung fehlt');
+  assert(tortoise.includes('aria-label="Testudo"'),'SVG-Label fehlt');
  });
 
  await test('Dekorationsstile werden genau einmal installiert',function(){
@@ -269,17 +293,18 @@ try{
     '<small>1 Tier</small>'+
    '</button>';
 
-  await new Promise(function(resolve){
-   setTimeout(resolve,120);
-  });
-
   const button=app.querySelector(
    '.tc2TaxFolder'
   );
 
-  equal(
-   button.dataset.tc2Silhouette,
-   '1'
+  assert(
+   await waitFor(function(){
+    return (
+     button.dataset.tc2Silhouette===
+     '1'
+    );
+   }),
+   'Neue Taxonomie-Elemente wurden nicht dekoriert.'
   );
  });
 
@@ -291,7 +316,7 @@ try{
   const target=button.querySelector('span');
   equal(button.dataset.tc2Silhouette,'1');
   equal(target.className,'tc2TaxSilhouetteHost');
-  assert(target.innerHTML.includes('<svg'),'Ordner-Silhouette fehlt');
+  assert(target.innerHTML.includes('<img'),'Ordner-Tierbild fehlt');
  });
 
  await test('unvollständiger Taxonomie-Ordner bleibt unverändert',function(){
@@ -304,13 +329,13 @@ try{
   equal(button.innerHTML,before);
  });
 
- await test('Tierkarte ohne Foto erhält eine Silhouette',function(){
+ await test('Tierkarte ohne Foto erhält ein Tierbild',function(){
   const app=document.getElementById('app');
   app.innerHTML='<button class="tc2TaxAnimal"><div><span>Foto</span></div><b>KP-1</b><strong>Luna</strong><small>Python regius</small></button>';
   NGTTaxonomyUI.decorate();
   const target=app.querySelector('.tc2TaxAnimal>div');
   equal(target.className,'tc2TaxSilhouetteHost');
-  assert(target.innerHTML.includes('<svg'),'Tier-Silhouette fehlt');
+  assert(target.innerHTML.includes('<img'),'Tierbild fehlt');
  });
 
  await test('Tierkarten-Label priorisiert wissenschaftlichen Namen, Namen und Kennung',function(){
@@ -321,8 +346,14 @@ try{
    <button class="tc2TaxAnimal"><div></div><b>KP-3</b></button>
   `;
   NGTTaxonomyUI.decorate();
-  const labels=Array.from(app.querySelectorAll('.tc2TaxSilhouetteSvg')).map(function(svg){
-   return svg.getAttribute('aria-label');
+  const labels=Array.from(app.querySelectorAll(
+   '.tc2TaxReferenceIcon, .tc2TaxSilhouetteSvg, .tc2TaxNoIcon'
+  )).map(function(icon){
+   return (
+    icon.getAttribute('alt')||
+    icon.getAttribute('aria-label')||
+    icon.getAttribute('data-label')
+   );
   });
   equal(labels.join('|'),'Python regius|Nova|KP-3');
  });

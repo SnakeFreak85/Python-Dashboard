@@ -4,6 +4,9 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Die fünfstufige Überschreibungskette für Tiergruppenbilder in eine einzige verbindliche Icon-Implementierung zusammengeführt.
+- Veraltete Spinnen-, Icon-Policy- und Schildkröten-Patchdateien aus App-Einstieg und Service-Worker entfernt; das sichtbare Ergebnis bleibt erhalten.
+- Browsertests bilden nun die tatsächlich produktiv geladenen Tierbilder, leere unbekannte Gruppen und die finalen Spinnen- und Schildkrötendarstellungen ab.
 - Gewichts-, Häutungs- und Gesundheitseinträge aus Profil, Schnelleingabe und Chat auf zentrale Store-Pfade sowie gemeinsame Ereignismodelle umgestellt.
 - Das zuvor ungenutzte `profile-history`-Modul aktiviert und doppelte Verlaufslogik aus `profile-core` entfernt.
 - Gesundheitshistorien werden beim Laden defensiv initialisiert, chronologisch sortiert und in der gemeinsamen Tierchronik berücksichtigt.
