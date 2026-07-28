@@ -174,18 +174,8 @@ function applyStock(p){
 
  if(!ft||!info.qty)return null;
 
- const data=NGTStore.data();
- let item=data.foodInventory.find(x=>NGTAIEngine.norm(x.name)===NGTAIEngine.norm(ft));
-
- if(!item){
-  item={name:ft,qty:0};
-  data.foodInventory.push(item);
- }
-
- if(info.mode==='set')item.qty=Math.max(0,Math.abs(info.qty));
- else item.qty=Math.max(0,Number(item.qty||0)+info.qty);
-
- NGTStore.save();
+ const item=NGTStore.updateFoodStock(ft,info);
+ if(!item)return null;
  return 'Bestand '+ft+': '+item.qty;
 }
 

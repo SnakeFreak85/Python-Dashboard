@@ -461,6 +461,13 @@ Bestand nicht. Ältere Feldvarianten werden beim Lesen durch
 `AnimalEngine.normalizeFeedEvent()` normalisiert, ohne bestehende
 Nutzerdaten umzuschreiben.
 
+Bestandskorrekturen aus Schnelleingabe und Chat werden ausschließlich
+über `NGTStore.updateFoodStock()` gespeichert. Der Store validiert den
+Modus (`set` oder `add`), gleicht bestehende Positionen über ihren
+kanonischen Futterschlüssel ab, normalisiert neue Positionen und verhindert
+negative Bestände. Die Eingabemodule dürfen `foodInventory[]` dafür nicht
+direkt verändern.
+
 ### 8.6 Taxonomie
 
 Die Abhängigkeit lautet:

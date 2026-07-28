@@ -854,6 +854,88 @@ assert.equal(
  'Ein benutzerdefinierter Mindestbestand muss beim Bearbeiten erhalten bleiben.'
 );
 
+const stockCountBefore=store.data().foodInventory.length;
+const stockSet=store.updateFoodStock(
+ 'Frost Ratte 150 g',
+ {mode:'set',qty:8}
+);
+
+assert.equal(
+ stockSet.id,
+ 'food-150',
+ 'Eine Bestandskorrektur muss die vorhandene Position statt eines Duplikats verwenden.'
+);
+assert.equal(
+ stockSet.qty,
+ 8,
+ 'Der Modus set muss den Bestand absolut setzen.'
+);
+assert.equal(
+ stockSet.minimum,
+ 9,
+ 'Bestandskorrekturen duerfen Metadaten der Position nicht verlieren.'
+);
+assert.equal(
+ store.data().foodInventory.length,
+ stockCountBefore,
+ 'Eine bekannte Futterposition darf nicht doppelt angelegt werden.'
+);
+
+assert.equal(
+ store.updateFoodStock(
+  'Frost Ratte 150 g',
+  {mode:'add',qty:-3}
+ ).qty,
+ 5,
+ 'Der Modus add muss relative Bestandsaenderungen anwenden.'
+);
+assert.equal(
+ store.updateFoodStock(
+  'Frost Ratte 150 g',
+  {mode:'add',qty:-99}
+ ).qty,
+ 0,
+ 'Relative Bestandsaenderungen duerfen keinen negativen Bestand erzeugen.'
+);
+
+const createdStock=store.updateFoodStock(
+ 'Lebend Maus 20 g',
+ {mode:'add',qty:4}
+);
+
+assert.equal(
+ createdStock.qty,
+ 4,
+ 'Eine neue erkannte Futterposition muss mit dem angeforderten Bestand entstehen.'
+);
+assert.ok(
+ createdStock.id&&createdStock.label&&createdStock.key,
+ 'Neue Futterpositionen muessen kanonisch normalisiert werden.'
+);
+
+const stockCountAfterCreate=store.data().foodInventory.length;
+
+assert.equal(
+ store.updateFoodStock('',{mode:'set',qty:3}),
+ null,
+ 'Leere Futterbezeichnungen duerfen nicht gespeichert werden.'
+);
+assert.equal(
+ store.updateFoodStock('Frost Ratte 150 g',{mode:'replace',qty:3}),
+ null,
+ 'Unbekannte Bestandsmodi duerfen nicht gespeichert werden.'
+);
+assert.equal(
+ store.updateFoodStock('Frost Ratte 150 g',{mode:'set',qty:'ungueltig'}),
+ null,
+ 'Ungueltige Mengen duerfen nicht gespeichert werden.'
+);
+assert.equal(
+ store.data().foodInventory.length,
+ stockCountAfterCreate,
+ 'Ungueltige Bestandsaenderungen duerfen den Bestand nicht veraendern.'
+);
+
 vm.runInContext(
  fs.readFileSync('v500/modules/profile-core.js','utf8'),
  context,

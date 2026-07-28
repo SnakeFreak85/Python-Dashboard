@@ -906,6 +906,47 @@ function addFood(name,qty){
   save();
 }
 
+function updateFoodStock(name,change){
+  const label=String(name||'').trim();
+  const mode=String(change&&change.mode||'');
+  const qty=Number(change&&change.qty);
+
+  if(
+    !label||
+    (mode!=='set'&&mode!=='add')||
+    !Number.isFinite(qty)
+  ){
+    return null;
+  }
+
+  const key=foodKey(label);
+  let item=db.foodInventory.find(function(candidate){
+    return (
+      foodKey(candidate.name||candidate.label)===key||
+      candidate.key===key
+    );
+  });
+
+  if(!item){
+    item=normalizeFoodItem({
+      name:label,
+      qty:0
+    });
+    db.foodInventory.push(item);
+  }
+
+  const current=Number(item.qty||0);
+
+  item.qty=
+    mode==='set'
+      ?Math.max(0,Math.abs(qty))
+      :Math.max(0,current+qty);
+
+  save();
+
+  return item;
+}
+
 function reduceFood(name,n){
   const key=foodKey(name);
   const item=db.foodInventory.find(x=>foodKey(x.name)===key||x.key===key);
@@ -982,6 +1023,7 @@ window.NGTStore={
   deleteHistoryEntry,
 
   addFood,
+  updateFoodStock,
   reduceFood,
 
   market,
