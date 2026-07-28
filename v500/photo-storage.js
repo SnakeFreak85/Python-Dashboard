@@ -530,9 +530,17 @@ async function migrateAnimal(animal,onProgress){
 
   let changed=false;
   let count=0;
+  const photos=animal.photos.map(function(photo){
+    return (
+      photo&&
+      typeof photo==='object'
+        ?{...photo}
+        :photo
+    );
+  });
 
-  for(let index=0;index<animal.photos.length;index++){
-    const oldPhoto=animal.photos[index];
+  for(let index=0;index<photos.length;index++){
+    const oldPhoto=photos[index];
 
     if(!isLegacyPhoto(oldPhoto))continue;
 
@@ -544,7 +552,7 @@ async function migrateAnimal(animal,onProgress){
       cover:!!oldPhoto.cover
     });
 
-    animal.photos[index]=migrated;
+    photos[index]=migrated;
     changed=true;
     count++;
 
@@ -561,7 +569,8 @@ async function migrateAnimal(animal,onProgress){
   return {
     changed:changed,
     count:count,
-    total:total
+    total:total,
+    photos:photos
   };
 }
 
@@ -611,9 +620,23 @@ async function migrateAll(onProgress){
       });
 
       if(result.changed){
+        const ref=NGTStore.animalId(animal)
+          ?{animalId:NGTStore.animalId(animal)}
+          :{t:row.t,i:row.i};
+
+        if(
+          !NGTStore.replaceAnimalPhotos(
+            ref,
+            result.photos
+          )
+        ){
+          throw new Error(
+            'Migrierte Fotos konnten dem Tier nicht zugeordnet werden.'
+          );
+        }
+
         changed=true;
         count+=result.count;
-        NGTStore.save();
       }
     }
 

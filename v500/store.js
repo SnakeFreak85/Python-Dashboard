@@ -807,6 +807,27 @@ function deleteAnimalPhoto(ref,photoRef){
   };
 }
 
+function replaceAnimalPhotos(ref,photos){
+  const row=resolveAnimal(ref);
+
+  if(!row||!Array.isArray(photos)){
+    return null;
+  }
+
+  row.a.photos=photos.map(function(photo){
+    return (
+      photo&&
+      typeof photo==='object'
+        ?{...photo}
+        :photo
+    );
+  });
+
+  save();
+
+  return row.a.photos;
+}
+
 function setAnimalDefaultFeeder(ref,feeder){
   const row=resolveAnimal(ref);
   const label=String(feeder||'').trim();
@@ -1352,6 +1373,7 @@ window.NGTStore={
   addAnimalPhoto,
   setAnimalCoverPhoto,
   deleteAnimalPhoto,
+  replaceAnimalPhotos,
   setAnimalDefaultFeeder,
   recordFeed,
   recordWeight,

@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Legacy-Fotomigration auf Arbeitskopien umgestellt; ein Tier übernimmt migrierte Metadaten erst nach vollständig erfolgreicher Verarbeitung.
+- Einzel- und Gesamtmigration schreiben Fotolisten über eine gemeinsame Store-Operation; redundante zusätzliche Speicheraufrufe entfernt.
 - Verkäuferdaten werden über eine zentrale Store-Operation gespeichert; das Einstellungsmodul verändert `settings` nicht mehr direkt.
 - Andere Einstellungen bleiben beim Speichern erhalten, während veraltete globale Pflegeintervalle weiterhin gezielt entfernt werden.
 - Anlegen, Bearbeiten, Bestandsänderung und Löschen von Futterpositionen auf zentrale ID-basierte Store-Operationen umgestellt.

@@ -519,6 +519,13 @@ auch einen Foto-Index und bevorzugen eine vorhandene Foto-ID. Das eigentliche
 Entfernen einer Cloud-Datei bleibt vor dem Löschen ihrer Metadaten Aufgabe
 von `NGTPhotoStorage`.
 
+Die Legacy-Migration arbeitet pro Tier auf einer Kopie der Fotoliste.
+Erst wenn alle vorgesehenen Uploads dieses Tiers erfolgreich waren, ersetzt
+`NGTStore.replaceAnimalPhotos()` die gesamte Liste in einem Speichervorgang.
+Dadurch hinterlässt ein abgebrochener Upload keine teilweise migrierten
+Fotometadaten im aktiven Tierdatensatz. Die globale Migration speichert jedes
+erfolgreich abgeschlossene Tier einzeln über denselben Store-Pfad.
+
 ---
 
 ## 9. Zustandsänderungen

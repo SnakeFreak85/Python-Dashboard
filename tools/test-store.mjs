@@ -856,6 +856,45 @@ assert.equal(
  'Eine unbekannte Foto-ID darf die Galerie nicht veraendern.'
 );
 
+const migratedPhotoList=[{
+ id:'photo-migrated',
+ url:'https://example.test/migrated.jpg',
+ type:'Migration',
+ cover:true
+}];
+const replacedPhotos=
+ store.replaceAnimalPhotos(
+  {animalId:'mixed-2'},
+  migratedPhotoList
+ );
+
+assert.equal(
+ replacedPhotos.length,
+ 1,
+ 'Eine vollstaendige Foto-Migration muss die Galerie gemeinsam ersetzen.'
+);
+assert.equal(
+ replacedPhotos[0].id,
+ 'photo-migrated',
+ 'Migrierte Fotometadaten muessen erhalten bleiben.'
+);
+
+migratedPhotoList[0].type='Nachtraeglich veraendert';
+
+assert.equal(
+ store.getAnimalById('mixed-2').photos[0].type,
+ 'Migration',
+ 'Der Store muss die uebergebene Migrationsliste defensiv kopieren.'
+);
+assert.equal(
+ store.replaceAnimalPhotos(
+  {animalId:'mixed-2'},
+  null
+ ),
+ null,
+ 'Ungueltige Migrationsdaten duerfen die Galerie nicht ersetzen.'
+);
+
 vm.runInContext(
  fs.readFileSync('v500/smart-dashboard.js','utf8'),
  context,

@@ -399,8 +399,6 @@ async function migrateAllPhotos(){
    }
   );
 
-  NGTStore.save();
-
   if(
    window.NGTFirebaseSync&&
    NGTFirebaseSync.saveCloud

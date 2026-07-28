@@ -419,12 +419,16 @@ async function migratePhotos(){
     );
 
   if(result.changed){
+   const migratedPhotos=
+    result.photos||[];
    const selected=
-    profilePhoto(animal);
+    profilePhoto({
+     photos:migratedPhotos
+    });
 
    if(
     selected&&
-    !animal.photos.some(
+    !migratedPhotos.some(
      function(photo){
       return (
        photo&&
@@ -437,7 +441,16 @@ async function migratePhotos(){
     selected.cover=true;
    }
 
-   NGTStore.save();
+   if(
+    !NGTStore.replaceAnimalPhotos(
+     P.getContext(),
+     migratedPhotos
+    )
+   ){
+    throw new Error(
+     'Migrierte Fotos konnten dem Tier nicht zugeordnet werden.'
+    );
+   }
   }
 
   NGT500.toast(
