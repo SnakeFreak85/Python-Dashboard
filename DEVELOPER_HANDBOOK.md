@@ -468,6 +468,12 @@ kanonischen Futterschlüssel ab, normalisiert neue Positionen und verhindert
 negative Bestände. Die Eingabemodule dürfen `foodInventory[]` dafür nicht
 direkt verändern.
 
+Änderungen des Standardfutters aus diesen Eingabemodulen verwenden
+`NGTStore.setAnimalDefaultFeeder()`. Dabei werden die kanonischen Felder,
+die beiden Legacy-Aliasse, der Futterschlüssel und eine passende
+Futterbestands-ID gemeinsam aktualisiert. Dadurch dürfen Schnelleingabe und
+Chat den Tierdatensatz nicht mehr direkt verändern.
+
 ### 8.6 Taxonomie
 
 Die Abhängigkeit lautet:

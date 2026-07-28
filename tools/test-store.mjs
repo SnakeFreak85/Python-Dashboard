@@ -1019,6 +1019,66 @@ assert.equal(
  'Ungueltige Bestandsaenderungen duerfen den Bestand nicht veraendern.'
 );
 
+const animalWithDefaultFeeder=
+ store.setAnimalDefaultFeeder(
+  {animalId:'mixed-2'},
+  'Frost Ratte 150 g'
+ );
+
+assert.equal(
+ animalWithDefaultFeeder.defaultFeeder,
+ 'Frost Ratte 150 g',
+ 'Das Standardfutter muss im kanonischen Feld gespeichert werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.futterStandard,
+ 'Frost Ratte 150 g',
+ 'Das deutsche Legacy-Feld muss synchron gehalten werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.standardFeed,
+ 'Frost Ratte 150 g',
+ 'Das englische Legacy-Feld muss synchron gehalten werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.defaultFeederId,
+ 'food-150',
+ 'Eine passende Bestandsposition muss mit dem Tier verknuepft werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.foodInventoryId,
+ 'food-150',
+ 'Die kompatible Bestands-ID muss synchron gehalten werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.defaultFeederCondition,
+ 'Frost',
+ 'Der Futterzustand muss aus der Bezeichnung abgeleitet werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.defaultFeederType,
+ 'Ratte',
+ 'Der Futtertyp muss aus der Bezeichnung abgeleitet werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.defaultFeederSize,
+ '150 g',
+ 'Die Futtergroesse muss aus der Bezeichnung abgeleitet werden.'
+);
+assert.equal(
+ animalWithDefaultFeeder.defaultFeederKey,
+ store.foodKey('Frost Ratte 150 g'),
+ 'Der kanonische Futterschluessel muss aktualisiert werden.'
+);
+assert.equal(
+ store.setAnimalDefaultFeeder(
+  {animalId:'mixed-2'},
+  ''
+ ),
+ null,
+ 'Ein leeres Standardfutter darf nicht gespeichert werden.'
+);
+
 vm.runInContext(
  fs.readFileSync('v500/modules/profile-core.js','utf8'),
  context,

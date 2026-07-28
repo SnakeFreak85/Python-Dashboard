@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Standardfutter-Änderungen aus Schnelleingabe und Chat auf einen gemeinsamen Store-Pfad umgestellt.
+- Kanonischer Futterschlüssel, Typ, Größe, Zustand und verknüpfte Bestands-ID bleiben bei Standardfutter-Änderungen synchron.
 - Hinzufügen, Titelbildwechsel und Löschen von Tierfotos auf stabile, zentrale Store-Operationen umgestellt.
 - Fotoaktionen verwenden die Tier-UUID und unterstützen stabile Foto-IDs; nach dem Löschen eines Titelbilds wird ein verbleibendes Foto kontrolliert übernommen.
 - Bestandsänderungen aus Schnelleingabe und Chat auf einen gemeinsamen, validierten Store-Pfad umgestellt.

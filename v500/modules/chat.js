@@ -189,10 +189,14 @@ function applyParsed(p){
 
  if(p.intent==='defaultFeeder'){
   if(!p.feeder)return null;
-  a.defaultFeeder=p.feeder;
-  a.futterStandard=p.feeder;
-  a.standardFeed=p.feeder;
-  NGTStore.save();
+  if(
+   !NGTStore.setAnimalDefaultFeeder(
+    {animalId:NGTStore.animalId(a)},
+    p.feeder
+   )
+  ){
+   return null;
+  }
   txt=a.name+': Standardfutter '+p.feeder;
  }else if(p.intent==='shed'){
   const result=NGTStore.recordShed(

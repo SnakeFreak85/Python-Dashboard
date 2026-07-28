@@ -782,6 +782,43 @@ function deleteAnimalPhoto(ref,photoRef){
   };
 }
 
+function setAnimalDefaultFeeder(ref,feeder){
+  const row=resolveAnimal(ref);
+  const label=String(feeder||'').trim();
+
+  if(!row||!label){
+    return null;
+  }
+
+  const parsed=parseFeeder(label);
+  const inventoryItem=feedInventoryItem(
+    {inventoryLabel:label},
+    {}
+  );
+
+  row.a.defaultFeeder=label;
+  row.a.futterStandard=label;
+  row.a.standardFeed=label;
+  row.a.defaultFeederKey=foodKey(label);
+  row.a.defaultFeederId=
+    inventoryItem&&inventoryItem.id||'';
+  row.a.foodInventoryId=
+    inventoryItem&&inventoryItem.id||'';
+  row.a.defaultFeederCategory=
+    inventoryItem&&inventoryItem.category||'';
+  row.a.defaultFeederCondition=parsed.state;
+  row.a.defaultFeederState=parsed.state;
+  row.a.defaultFeederType=parsed.prey;
+  row.a.defaultFeederSize=parsed.size;
+  row.a.defaultFeederUnit=
+    inventoryItem&&inventoryItem.unit||
+    'Stück';
+
+  save();
+
+  return row.a;
+}
+
 function feedInventoryItem(input,event){
   input=input||{};
   event=event||{};
@@ -1187,6 +1224,7 @@ window.NGTStore={
   addAnimalPhoto,
   setAnimalCoverPhoto,
   deleteAnimalPhoto,
+  setAnimalDefaultFeeder,
   recordFeed,
   recordWeight,
   recordShed,
