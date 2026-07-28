@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Hinzufügen, Titelbildwechsel und Löschen von Tierfotos auf stabile, zentrale Store-Operationen umgestellt.
+- Fotoaktionen verwenden die Tier-UUID und unterstützen stabile Foto-IDs; nach dem Löschen eines Titelbilds wird ein verbleibendes Foto kontrolliert übernommen.
 - Bestandsänderungen aus Schnelleingabe und Chat auf einen gemeinsamen, validierten Store-Pfad umgestellt.
 - Neue Futterpositionen aus Spracheingaben werden kanonisch normalisiert; negative Bestände und doppelte Positionen werden verhindert.
 - Nachweislich ungenutzte Parallelimplementierungen für Google-Drive-Sync, Schnelleingabe und die frühere Timeline aus `v500/` entfernt.

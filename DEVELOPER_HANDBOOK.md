@@ -491,6 +491,14 @@ Fotos können URL-, Thumbnail-, Storage- oder Legacy-Base64-Daten enthalten. Än
 - Löschen aus Firebase Storage,
 - Offline- und Fehlerverhalten.
 
+Normale Profilaktionen speichern Fotometadaten ausschließlich über
+`NGTStore.addAnimalPhoto()`, `NGTStore.setAnimalCoverPhoto()` und
+`NGTStore.deleteAnimalPhoto()`. Die Store-Operationen lösen das Tier über
+seine stabile UUID auf, akzeptieren für bestehende Oberflächen vorübergehend
+auch einen Foto-Index und bevorzugen eine vorhandene Foto-ID. Das eigentliche
+Entfernen einer Cloud-Datei bleibt vor dem Löschen ihrer Metadaten Aufgabe
+von `NGTPhotoStorage`.
+
 ---
 
 ## 9. Zustandsänderungen

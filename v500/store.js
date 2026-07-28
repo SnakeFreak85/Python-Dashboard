@@ -614,6 +614,174 @@ function deleteAnimalById(id){
   return deleteAnimal(row.t,row.i);
 }
 
+function storedPhotoSource(photo){
+  return (
+    photo&&
+    (
+      photo.thumbUrl||
+      photo.thumbnailUrl||
+      photo.url||
+      photo.data
+    )
+  )||'';
+}
+
+function animalPhotoIndex(photos,photoRef){
+  if(
+    typeof photoRef==='number'&&
+    Number.isInteger(photoRef)
+  ){
+    return photoRef;
+  }
+
+  const id=String(
+    photoRef&&photoRef.id||
+    photoRef||
+    ''
+  );
+
+  if(!id){
+    return -1;
+  }
+
+  return photos.findIndex(function(photo){
+    return String(photo&&photo.id||'')===id;
+  });
+}
+
+function addAnimalPhoto(ref,photo){
+  const row=resolveAnimal(ref);
+
+  if(!row||!photo||!storedPhotoSource(photo)){
+    return null;
+  }
+
+  if(!Array.isArray(row.a.photos)){
+    row.a.photos=[];
+  }
+
+  const entry={
+    ...photo,
+    id:photo.id||NGT500.uid()
+  };
+
+  if(entry.cover){
+    row.a.photos.forEach(function(existing){
+      if(existing){
+        existing.cover=false;
+      }
+    });
+  }
+
+  row.a.photos.push(entry);
+
+  if(
+    !row.a.photos.some(function(existing){
+      return (
+        existing&&
+        existing.cover&&
+        storedPhotoSource(existing)
+      );
+    })
+  ){
+    entry.cover=true;
+  }
+
+  save();
+
+  return {
+    animal:row.a,
+    photo:entry
+  };
+}
+
+function setAnimalCoverPhoto(ref,photoRef){
+  const row=resolveAnimal(ref);
+  const photos=
+    row&&
+    Array.isArray(row.a.photos)
+      ?row.a.photos
+      :null;
+
+  if(!photos){
+    return false;
+  }
+
+  const index=animalPhotoIndex(
+    photos,
+    photoRef
+  );
+  const selected=photos[index];
+
+  if(
+    index<0||
+    !selected||
+    !storedPhotoSource(selected)
+  ){
+    return false;
+  }
+
+  photos.forEach(function(photo,itemIndex){
+    if(photo){
+      photo.cover=itemIndex===index;
+    }
+  });
+
+  save();
+
+  return true;
+}
+
+function deleteAnimalPhoto(ref,photoRef){
+  const row=resolveAnimal(ref);
+  const photos=
+    row&&
+    Array.isArray(row.a.photos)
+      ?row.a.photos
+      :null;
+
+  if(!photos){
+    return null;
+  }
+
+  const index=animalPhotoIndex(
+    photos,
+    photoRef
+  );
+
+  if(index<0||index>=photos.length){
+    return null;
+  }
+
+  const removed=photos.splice(index,1)[0];
+
+  if(
+    photos.length&&
+    !photos.some(function(photo){
+      return (
+        photo&&
+        photo.cover&&
+        storedPhotoSource(photo)
+      );
+    })
+  ){
+    const next=photos.find(function(photo){
+      return storedPhotoSource(photo);
+    });
+
+    if(next){
+      next.cover=true;
+    }
+  }
+
+  save();
+
+  return {
+    animal:row.a,
+    photo:removed
+  };
+}
+
 function feedInventoryItem(input,event){
   input=input||{};
   event=event||{};
@@ -1016,6 +1184,9 @@ window.NGTStore={
   updateAnimalById,
   deleteAnimal,
   deleteAnimalById,
+  addAnimalPhoto,
+  setAnimalCoverPhoto,
+  deleteAnimalPhoto,
   recordFeed,
   recordWeight,
   recordShed,

@@ -773,6 +773,89 @@ assert.ok(
  'Zentrale Historieneinträge müssen eine stabile ID erhalten.'
 );
 
+const firstPhoto=store.addAnimalPhoto(
+ {animalId:'mixed-2'},
+ {
+  id:'photo-first',
+  url:'https://example.test/first.jpg',
+  type:'Profil',
+  cover:false
+ }
+);
+
+assert.equal(
+ firstPhoto.photo.cover,
+ true,
+ 'Das erste verwendbare Foto muss automatisch zum Titelbild werden.'
+);
+
+const secondPhoto=store.addAnimalPhoto(
+ {animalId:'mixed-2'},
+ {
+  id:'photo-second',
+  thumbUrl:'https://example.test/second-thumb.jpg',
+  url:'https://example.test/second.jpg',
+  type:'Sonstige',
+  cover:false
+ }
+);
+
+assert.equal(
+ secondPhoto.photo.cover,
+ false,
+ 'Ein weiteres Foto darf ein vorhandenes Titelbild nicht ungefragt ersetzen.'
+);
+assert.equal(
+ store.setAnimalCoverPhoto(
+  {animalId:'mixed-2'},
+  'photo-second'
+ ),
+ true,
+ 'Das Titelbild muss stabil ueber die Foto-ID gesetzt werden koennen.'
+);
+assert.equal(
+ store.getAnimalById('mixed-2').photos[0].cover,
+ false,
+ 'Beim Titelbildwechsel muss das bisherige Titelbild abgewaehlt werden.'
+);
+assert.equal(
+ store.getAnimalById('mixed-2').photos[1].cover,
+ true,
+ 'Beim Titelbildwechsel muss das gewaehlte Foto markiert werden.'
+);
+
+const removedPhoto=store.deleteAnimalPhoto(
+ {animalId:'mixed-2'},
+ 'photo-second'
+);
+
+assert.equal(
+ removedPhoto.photo.id,
+ 'photo-second',
+ 'Fotos muessen stabil ueber ihre ID geloescht werden koennen.'
+);
+assert.equal(
+ store.getAnimalById('mixed-2').photos[0].cover,
+ true,
+ 'Nach dem Loeschen des Titelbilds muss ein verbleibendes Foto nachruecken.'
+);
+assert.equal(
+ store.addAnimalPhoto(
+  {animalId:'mixed-2'},
+  {id:'photo-empty'}
+ ),
+ null,
+ 'Fotos ohne verwendbare Bildquelle duerfen nicht gespeichert werden.'
+);
+assert.equal(
+ store.deleteAnimalPhoto(
+  {animalId:'mixed-2'},
+  'photo-missing'
+ ),
+ null,
+ 'Eine unbekannte Foto-ID darf die Galerie nicht veraendern.'
+);
+
 vm.runInContext(
  fs.readFileSync('v500/smart-dashboard.js','utf8'),
  context,

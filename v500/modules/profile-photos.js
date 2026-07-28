@@ -311,21 +311,17 @@ async function addPhoto(file){
     meta
    );
 
-  animal.photos.push(saved);
-
   if(
-   !animal.photos.some(function(photo){
-    return (
-     photo&&
-     photo.cover&&
-     isUsablePhoto(photo)
-    );
-   })
+   !NGTStore.addAnimalPhoto(
+    P.getContext(),
+    saved
+   )
   ){
-   saved.cover=true;
+   throw new Error(
+    'Foto konnte dem Tier nicht zugeordnet werden.'
+   );
   }
 
-  NGTStore.save();
   P.setTab('photos');
 
  }catch(error){
@@ -491,15 +487,20 @@ function setCover(index){
   return;
  }
 
- (animal.photos||[])
-  .forEach(function(photo,itemIndex){
-   if(photo){
-    photo.cover=
-     itemIndex===index;
-   }
-  });
+ if(
+  !NGTStore.setAnimalCoverPhoto(
+   P.getContext(),
+   index
+  )
+ ){
+  NGT500.toast(
+   'Titelbild konnte nicht gespeichert werden.',
+   'danger'
+  );
 
- NGTStore.save();
+  return;
+ }
+
  P.setTab('photos');
 }
 
@@ -540,32 +541,17 @@ async function deletePhoto(index){
    );
   }
 
-  animal.photos.splice(
-   index,
-   1
-  );
-
   if(
-   animal.photos.length&&
-   !animal.photos.some(
-    function(entry){
-     return (
-      entry&&
-      entry.cover&&
-      isUsablePhoto(entry)
-     );
-    }
+   !NGTStore.deleteAnimalPhoto(
+    P.getContext(),
+    index
    )
   ){
-   const next=
-    profilePhoto(animal);
-
-   if(next){
-    next.cover=true;
-   }
+   throw new Error(
+    'Foto konnte nicht aus dem Tierprofil entfernt werden.'
+   );
   }
 
-  NGTStore.save();
   closePhotoViewer();
   P.setTab('photos');
 
