@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Verkäuferdaten werden über eine zentrale Store-Operation gespeichert; das Einstellungsmodul verändert `settings` nicht mehr direkt.
+- Andere Einstellungen bleiben beim Speichern erhalten, während veraltete globale Pflegeintervalle weiterhin gezielt entfernt werden.
 - Anlegen, Bearbeiten, Bestandsänderung und Löschen von Futterpositionen auf zentrale ID-basierte Store-Operationen umgestellt.
 - Duplikaterkennung und Bestätigungsdialoge bleiben als Bedienlogik im Futtermodul; direkte Änderungen an `foodInventory[]` wurden dort entfernt.
 - Standardfutter-Änderungen aus Schnelleingabe und Chat auf einen gemeinsamen Store-Pfad umgestellt.

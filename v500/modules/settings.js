@@ -18,9 +18,7 @@ function storeSettings(){
    return {};
   }
 
-  data.settings=data.settings||{};
-
-  return data.settings;
+  return data.settings||{};
 
  }catch(error){
   return {};
@@ -75,18 +73,9 @@ function cloud(){
 function saveSettingsToStore(
  sellerData
 ){
- const data=NGTStore.data();
-
- data.settings=data.settings||{};
- data.settings.seller=sellerData;
-
- /*
-  * Alte globale Intervallwerte werden bewusst entfernt.
-  * Pflegeintervalle gehören ausschließlich zum jeweiligen Tier.
-  */
- delete data.settings.defaults;
-
- NGTStore.save();
+ return NGTStore.saveSellerProfile(
+  sellerData
+ );
 }
 
 function message(

@@ -426,6 +426,31 @@ function data(){
   return db;
 }
 
+function saveSellerProfile(profile){
+  if(
+    !profile||
+    typeof profile!=='object'||
+    Array.isArray(profile)
+  ){
+    return null;
+  }
+
+  db.settings=db.settings||{};
+  db.settings.seller={
+    ...profile
+  };
+
+  /*
+   * Globale Pflegeintervalle sind veraltet.
+   * Intervalle gehören ausschließlich zum jeweiligen Tier.
+   */
+  delete db.settings.defaults;
+
+  save();
+
+  return db.settings.seller;
+}
+
 function allAnimals(){
   return (db.animals||[]).map((a,i)=>({
     t:a.legacyType||a.type||inferLegacyTypeFromGroup(a.animalGroup)||'',
@@ -1308,6 +1333,7 @@ window.NGTStore={
   data,
   save,
   clearLocal,
+  saveSellerProfile,
 
   allAnimals,
   allOffspring,

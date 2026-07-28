@@ -1159,6 +1159,50 @@ assert.equal(
  'Ein leeres Standardfutter darf nicht gespeichert werden.'
 );
 
+store.data().settings.theme='dark';
+store.data().settings.defaults={
+ feedIntervalDays:7
+};
+
+const sellerProfile=store.saveSellerProfile({
+ name:'TerraControl Test',
+ street:'Testweg 1',
+ address:'Testweg 1',
+ city:'12345 Teststadt',
+ phone:'0123456789',
+ email:'test@example.test',
+ mail:'test@example.test'
+});
+
+assert.equal(
+ sellerProfile.name,
+ 'TerraControl Test',
+ 'Verkaeuferdaten muessen zentral gespeichert werden.'
+);
+assert.equal(
+ store.data().settings.seller.email,
+ 'test@example.test',
+ 'Kompatible Kontaktdaten muessen im Store erhalten bleiben.'
+);
+assert.equal(
+ store.data().settings.theme,
+ 'dark',
+ 'Andere Einstellungen duerfen beim Speichern des Verkaeufers nicht verloren gehen.'
+);
+assert.equal(
+ Object.hasOwn(
+  store.data().settings,
+  'defaults'
+ ),
+ false,
+ 'Veraltete globale Pflegeintervalle muessen beim Speichern entfernt werden.'
+);
+assert.equal(
+ store.saveSellerProfile(null),
+ null,
+ 'Ungueltige Verkaeuferdaten duerfen nicht gespeichert werden.'
+);
+
 vm.runInContext(
  fs.readFileSync('v500/modules/profile-core.js','utf8'),
  context,

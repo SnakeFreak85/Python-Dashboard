@@ -481,6 +481,13 @@ Die Futterverwaltung speichert Positionen über
 Formularvalidierung, Duplikaterkennung und Benutzerbestätigung, verändert
 `foodInventory[]` aber nicht direkt.
 
+Verkäuferdaten aus den Einstellungen werden mit
+`NGTStore.saveSellerProfile()` gespeichert. Die Operation ersetzt nur das
+Verkäuferprofil, erhält andere Einstellungen und entfernt die veralteten
+globalen Pflegeintervalle. Das Einstellungsmodul spiegelt die Daten aus
+Kompatibilitätsgründen zusätzlich in die bisherigen Local-Storage-Schlüssel,
+verändert `NGTStore.data().settings` aber nicht direkt.
+
 ### 8.6 Taxonomie
 
 Die Abhängigkeit lautet:
