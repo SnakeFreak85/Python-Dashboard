@@ -97,7 +97,7 @@ function render(){
 
 async function googleSignIn(){if(window.NGTFirebaseSync)return NGTFirebaseSync.signIn()}
 async function firestoreSave(){if(window.NGTFirebaseSync)return NGTFirebaseSync.saveCloud()}
-async function firestoreLoad(){if(window.NGTFirebaseSync)return NGTFirebaseSync.loadCloud()}
+async function firestoreLoad(){if(window.NGTFirebaseSync)return NGTFirebaseSync.loadCloud({force:true})}
 
 function localBackup(){
   const payload={app:'TerraControl',type:'local-backup',version:'1.0.4-rc4',createdAt:new Date().toISOString(),data:NGTStore.data()};

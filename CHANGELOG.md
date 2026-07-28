@@ -4,6 +4,9 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Automatische Firebase-Synchronisation gegen das Überschreiben lokaler Bestände durch fehlende, leere oder zeitlich nicht eindeutig einordenbare Cloud-Daten abgesichert.
+- Konfliktentscheidung zwischen lokalem Stand und Firestore in einer reinen `NGTSyncPolicyEngine` zentralisiert; bewusstes manuelles Laden aus der Cloud bleibt nach Bestätigung möglich.
+- Änderungen während eines laufenden Firestore-Speichervorgangs lösen zuverlässig einen weiteren Speicherlauf aus, statt unbemerkt verloren zu gehen.
 - Fütterungs- und Gewichtsfälligkeiten sowie Gesundheitsstatus in einer gemeinsamen `CareRulesEngine` vereinheitlicht.
 - Deaktivierte Intervalle werden in Startseite, Smart Dashboard, Profil und KI einheitlich respektiert; aktive Intervalle ohne bisherigen Eintrag gelten nachvollziehbar als fällig.
 - Doppelte Fälligkeits- und Gesundheitslogik aus Dashboard, Smart Dashboard, Profil und Tierkarten entfernt und mit deterministischen Regressionstests abgesichert.

@@ -76,6 +76,7 @@ vm.createContext(context);
  'v500/food-inventory-engine.js',
  'v500/animal-engine.js',
  'v500/care-rules-engine.js',
+ 'v500/sync-policy-engine.js',
  'v500/store.js'
 ].forEach(function(file){
  vm.runInContext(
@@ -89,6 +90,138 @@ const store=context.NGTStore;
 const engine=context.AnimalEngine;
 const foodEngine=context.FoodInventoryEngine;
 const careEngine=context.CareRulesEngine;
+const syncPolicy=context.NGTSyncPolicyEngine;
+
+const localSyncData={
+ animals:[{
+  uuid:'local-animal',
+  name:'Lokal'
+ }]
+};
+const cloudSyncData={
+ animals:[{
+  uuid:'cloud-animal',
+  name:'Cloud'
+ }]
+};
+
+assert.equal(
+ syncPolicy.decide({
+  localData:localSyncData,
+  cloudData:{},
+  cloudExists:false
+ }).action,
+ 'keep-local',
+ 'Fehlende Cloud-Daten dürfen einen lokalen Bestand nicht leeren.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:localSyncData,
+  cloudData:{},
+  cloudExists:true,
+  forceCloud:true
+ }).action,
+ 'keep-local',
+ 'Auch manuelles Laden darf einen lokalen Bestand nicht durch leere Cloud-Daten ersetzen.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:{},
+  cloudData:cloudSyncData,
+  cloudExists:true
+ }).action,
+ 'load-cloud',
+ 'Ein leerer lokaler Bestand darf vorhandene Cloud-Daten laden.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:localSyncData,
+  cloudData:cloudSyncData,
+  cloudExists:true,
+  localUpdatedAt:'2026-07-28T12:00:00.000Z',
+  cloudUpdatedAt:'2026-07-28T11:00:00.000Z'
+ }).action,
+ 'keep-local',
+ 'Neuere lokale Daten müssen erhalten und wieder hochgeladen werden.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:localSyncData,
+  cloudData:cloudSyncData,
+  cloudExists:true,
+  localUpdatedAt:'2026-07-28T11:00:00.000Z',
+  cloudUpdatedAt:'2026-07-28T12:00:00.000Z'
+ }).action,
+ 'load-cloud',
+ 'Neuere Cloud-Daten dürfen den älteren lokalen Stand ersetzen.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:localSyncData,
+  cloudData:cloudSyncData,
+  cloudExists:true
+ }).action,
+ 'conflict',
+ 'Unterschiedliche Daten ohne verlässliche Zeitstempel müssen als Konflikt gelten.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:localSyncData,
+  cloudData:cloudSyncData,
+  cloudExists:true,
+  forceCloud:true
+ }).action,
+ 'load-cloud',
+ 'Eine bestätigte manuelle Cloud-Wiederherstellung muss möglich bleiben.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:localSyncData,
+  cloudData:localSyncData,
+  cloudExists:true
+ }).action,
+ 'unchanged',
+ 'Identische lokale und Cloud-Daten dürfen keinen Konflikt erzeugen.'
+);
+
+assert.equal(
+ syncPolicy.signature({
+  settings:{theme:'dark'},
+  animals:[]
+ }),
+ syncPolicy.signature({
+  animals:[],
+  settings:{theme:'dark'}
+ }),
+ 'Die Inhaltsprüfung muss unabhängig von der Reihenfolge der Objektfelder sein.'
+);
+
+assert.equal(
+ syncPolicy.needsFollowupSave({
+  requested:false,
+  startedRevision:4,
+  currentRevision:5
+ }),
+ true,
+ 'Eine Änderung während des Speicherns muss einen weiteren Cloud-Lauf auslösen.'
+);
+
+assert.equal(
+ syncPolicy.needsFollowupSave({
+  requested:false,
+  startedRevision:5,
+  currentRevision:5
+ }),
+ false,
+ 'Ohne weitere Änderung darf kein unnötiger Cloud-Lauf entstehen.'
+);
 
 assert.equal(
  careEngine.isFeedDue({

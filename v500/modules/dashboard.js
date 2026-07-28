@@ -135,7 +135,9 @@ async function firestoreLoad(){
   return;
  }
 
- await NGTFirebaseSync.loadCloud();
+ await NGTFirebaseSync.loadCloud({
+  force:true
+ });
  location.reload();
 }
 

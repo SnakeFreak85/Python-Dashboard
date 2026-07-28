@@ -121,6 +121,7 @@ function testRuntime(){
     record('AnimalEngine verfügbar',!!win.AnimalEngine);
     record('FoodInventoryEngine verfügbar',!!win.FoodInventoryEngine);
     record('CareRulesEngine verfügbar',!!win.CareRulesEngine);
+    record('NGTSyncPolicyEngine verfügbar',!!win.NGTSyncPolicyEngine);
     record('NGTTaxonomy verfügbar',!!win.NGTTaxonomy);
     record(
      'Taxonomie-Teilmodule verfügbar',
@@ -217,6 +218,27 @@ function testRuntime(){
        feedIntervalDays:14,
        feeds:[]
       })===true
+     )
+    );
+
+    record(
+     'Synchronisationsregeln schützen lokale Daten',
+     !!(
+      win.NGTSyncPolicyEngine&&
+      win.NGTSyncPolicyEngine.decide({
+       localData:{
+        animals:[{uuid:'local'}]
+       },
+       cloudData:{},
+       cloudExists:false
+      }).action==='keep-local'&&
+      win.NGTSyncPolicyEngine.decide({
+       localData:{},
+       cloudData:{
+        animals:[{uuid:'cloud'}]
+       },
+       cloudExists:true
+      }).action==='load-cloud'
      )
     );
 

@@ -28,6 +28,8 @@ let loading=false;
 let saving=false;
 let timer=null;
 let autoSaveReady=false;
+let changeRevision=0;
+let saveRequested=false;
 
 function read(key){
  try{
@@ -100,20 +102,6 @@ function setStatus(status,message){
    message:message||''
   }
  );
-}
-
-function emptyStoreObject(){
- return {
-  koenig:[],
-  boas:[],
-  geckos:[],
-  spinnen:[],
-  clutches:[],
-  sales:[],
-  archive:[],
-  foodInventory:[],
-  settings:{}
- };
 }
 
 function stripLegacyPhotoData(value){
@@ -321,57 +309,56 @@ function docRef(){
  );
 }
 
-function hasCloudData(cloud){
- if(
-  !cloud||
-  !cloud.data
- ){
-  return false;
+function localUpdatedAt(){
+ const localState=read(
+  'terracontrol_last_local_save_v1'
+ );
+
+ return localState.at||0;
+}
+
+function cloudUpdatedAt(cloud){
+ if(!cloud){
+  return 0;
  }
 
- const data=cloud.data;
-
- const animalTotal=[
-  "koenig",
-  "boas",
-  "geckos",
-  "spinnen"
- ].reduce(function(total,key){
-  return total+(
-   Array.isArray(data[key])
-    ?data[key].length
-    :0
-  );
- },0);
-
- const dynamicTotal=
-  Array.isArray(data.animals)
-   ?data.animals.length
-   :0;
-
- const foodTotal=
-  Array.isArray(data.foodInventory)
-   ?data.foodInventory.length
-   :0;
-
- const hasSettings=
-  data.settings&&
-  Object.keys(
-   data.settings||{}
-  ).length>0;
-
  return (
-  animalTotal>0||
-  dynamicTotal>0||
-  foodTotal>0||
-  hasSettings
+  cloud.updatedAt||
+  cloud.updatedAtMs||
+  0
  );
 }
 
-async function loadCloud(){
+function syncDecision(
+ cloud,
+ cloudExists,
+ options
+){
+ return NGTSyncPolicyEngine.decide({
+  localData:NGTStore.data(),
+  cloudData:
+   cloud&&cloud.data
+    ?cloud.data
+    :{},
+  cloudExists:cloudExists,
+  localUpdatedAt:localUpdatedAt(),
+  cloudUpdatedAt:
+   cloudUpdatedAt(cloud),
+  forceCloud:
+   options&&
+   options.force===true
+ });
+}
+
+async function loadCloud(options){
  if(!user){
   return false;
  }
+
+ options=options||{};
+
+ clearTimeout(timer);
+ timer=null;
 
  loading=true;
  autoSaveReady=false;
@@ -387,48 +374,55 @@ async function loadCloud(){
     docRef()
    );
 
-  if(snapshot.exists()){
-   const cloud=
-    snapshot.data()||{};
+  const exists=snapshot.exists();
+  const cloud=
+   exists
+    ?snapshot.data()||{}
+    :{};
+  const decision=syncDecision(
+   cloud,
+   exists,
+   options
+  );
 
-   if(hasCloudData(cloud)){
-    NGTStore.importJson(
-     JSON.stringify(
-      cloud.data
-     )
-    );
-
-    setStatus(
-     "ok",
-     "Firestore geladen"
-    );
-
-    return true;
-   }
-
+  if(decision.loadCloud){
    NGTStore.importJson(
     JSON.stringify(
-     emptyStoreObject()
+     cloud.data
     )
    );
 
    setStatus(
     "ok",
-    "Leerer Cloud-Bestand geladen"
+    "Firestore geladen"
+   );
+
+   return true;
+  }
+
+  if(decision.conflict){
+   setStatus(
+    "conflict",
+    "Lokale und Cloud-Daten unterscheiden sich"
    );
 
    return false;
   }
 
-  NGTStore.importJson(
-   JSON.stringify(
-    emptyStoreObject()
-   )
-  );
+  if(decision.uploadLocal){
+   setStatus(
+    "pending",
+    "Lokale Daten bleiben erhalten"
+   );
+
+   return false;
+  }
 
   setStatus(
    "ok",
-   "Neuer leerer Cloud-Bestand"
+   decision.action==="unchanged"
+    ?"Lokale Daten und Firestore sind aktuell"
+    :"Keine Cloud-Daten vorhanden"
   );
 
   return false;
@@ -446,20 +440,38 @@ async function loadCloud(){
  }finally{
   loading=false;
   autoSaveReady=true;
+
+  const currentState=state();
+
+  if(
+   currentState.status==="pending"&&
+   currentState.message===
+    "Lokale Daten bleiben erhalten"
+  ){
+   scheduleSave(
+    "Lokale Daten sind neuer als Firestore"
+   );
+  }
  }
 }
 
 async function saveCloud(){
+ if(saving){
+  saveRequested=true;
+  return false;
+ }
+
  if(
   !user||
   loading||
-  saving||
   !autoSaveReady
  ){
   return false;
  }
 
  saving=true;
+ const revisionAtStart=
+  changeRevision;
 
  setStatus(
   "saving",
@@ -507,10 +519,34 @@ async function saveCloud(){
 
  }finally{
   saving=false;
+
+  if(NGTSyncPolicyEngine.needsFollowupSave({
+   requested:saveRequested,
+   currentRevision:changeRevision,
+   startedRevision:revisionAtStart
+  })){
+   saveRequested=false;
+
+   setStatus(
+    "pending",
+    "Weitere Änderungen werden gespeichert..."
+   );
+
+   armSave();
+  }
  }
 }
 
-function scheduleSave(){
+function armSave(){
+ clearTimeout(timer);
+
+ timer=setTimeout(
+  saveCloud,
+  1200
+ );
+}
+
+function scheduleSave(reason){
  if(
   !user||
   loading||
@@ -519,17 +555,21 @@ function scheduleSave(){
   return;
  }
 
- clearTimeout(timer);
+ changeRevision++;
+
+ if(saving){
+  saveRequested=true;
+  return;
+ }
 
  setStatus(
   "pending",
-  "Änderungen werden gespeichert..."
+  typeof reason==="string"
+   ?reason
+   :"Änderungen werden gespeichert..."
  );
 
- timer=setTimeout(
-  saveCloud,
-  1200
- );
+ armSave();
 }
 
 async function syncTaxonomy(){
@@ -590,7 +630,9 @@ async function signIn(){
   }
  );
 
- await loadCloud();
+ await loadCloud({
+  automatic:true
+ });
  await syncTaxonomy();
 
  if(window.NGT500){
@@ -668,7 +710,9 @@ async function start(){
      }
     );
 
-    await loadCloud();
+    await loadCloud({
+     automatic:true
+    });
     await syncTaxonomy();
 
    }else{
@@ -741,6 +785,12 @@ function label(){
   currentState.status==="error"
  ){
   return "Firestore Fehler";
+ }
+
+ if(
+  currentState.status==="conflict"
+ ){
+  return "Datenkonflikt: Speichern oder Laden wählen";
  }
 
  return (

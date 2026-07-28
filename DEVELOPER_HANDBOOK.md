@@ -83,6 +83,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── ui.js
     ├── animal-engine.js
     ├── care-rules-engine.js
+    ├── sync-policy-engine.js
     ├── food-inventory-engine.js
     ├── taxonomy-core.js
     ├── taxonomy-store.js
@@ -204,7 +205,26 @@ Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 
 ### 5.4 Firebase
 
-`v500/firebase-sync.js` und die zugehörigen Services kapseln Cloud-Funktionen wie Authentifizierung, Firestore, Storage und Synchronisation. UI-Code soll nicht verteilt direkt auf Firebase zugreifen.
+`v500/firebase-sync.js` ist der aktive Adapter für Authentifizierung und
+Firestore-Synchronisation. `v500/photo-storage.js` kapselt Firebase Storage.
+UI-Code soll nicht verteilt direkt auf Firebase zugreifen.
+
+`v500/sync-policy-engine.js` entscheidet vor jedem automatischen Cloud-Laden,
+welcher Datenstand verwendet werden darf:
+
+- ein leerer oder fehlender Cloud-Stand darf lokale Daten niemals löschen,
+- ein leerer lokaler Stand darf vorhandene Cloud-Daten übernehmen,
+- bei zwei unterschiedlichen Ständen entscheidet nur eine verlässliche
+  zeitliche Reihenfolge automatisch,
+- ohne eindeutige Reihenfolge wird ein Konflikt angezeigt,
+- bewusstes manuelles Laden bleibt nach einer Bestätigung möglich.
+
+Änderungen, die während eines laufenden Firestore-Speichervorgangs eintreffen,
+müssen anschließend einen weiteren Speicherlauf auslösen.
+
+Die Dateien `cloud-sync.js`, `cloud-sync-rc2.js` und `cloud-backup.js` sind
+Legacy-Implementierungen für Google Drive und werden von `v500.html` nicht
+geladen. Sie sind keine zweite aktive Synchronisationsquelle.
 
 ### 5.5 PWA
 
@@ -217,7 +237,7 @@ Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 `index.html` verweist auf die aktive Anwendung in `v500.html`. Dort werden die Scripts in definierter Reihenfolge geladen:
 
 1. Kernsystem: `core.js`, `id-manager.js`, `food-inventory-engine.js`, `store.js`, `ui.js`
-2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui-illustrations.js`, `taxonomy-ui-decoration.js`, `taxonomy-ui.js`; danach AnimalEngine und CareRulesEngine
+2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui-illustrations.js`, `taxonomy-ui-decoration.js`, `taxonomy-ui.js`; danach AnimalEngine, CareRulesEngine und SyncPolicyEngine
 3. AI-, Dashboard- und Foto-Services
 4. Fachmodule
 5. Firebase-Synchronisation
@@ -229,6 +249,7 @@ Die Anwendung verwendet globale Browser-Namespaces wie:
 - `NGTStore`
 - `AnimalEngine`
 - `CareRulesEngine`
+- `NGTSyncPolicyEngine`
 - `FoodInventoryEngine`
 - `NGTProfile`
 - weitere modulbezogene APIs
