@@ -330,20 +330,42 @@ function getFeedInterval(animal){
     animal=animal||{};
 
     if(
+        window.CareRulesEngine&&
+        CareRulesEngine.feedInterval
+    ){
+        return CareRulesEngine.feedInterval(
+            animal
+        );
+    }
+
+    if(
         animal.feedIntervalEnabled===false
     ){
         return null;
     }
 
-    return number(
+    const interval=number(
         animal.feedIntervalDays ??
         animal.feedInterval ??
         animal.feedingInterval
     );
+
+    return interval!==null&&interval>=1
+        ?Math.round(interval)
+        :null;
 }
 
 function getWeightInterval(animal){
     animal=animal||{};
+
+    if(
+        window.CareRulesEngine&&
+        CareRulesEngine.weightInterval
+    ){
+        return CareRulesEngine.weightInterval(
+            animal
+        );
+    }
 
     if(
         animal.weightIntervalEnabled===false
@@ -351,10 +373,14 @@ function getWeightInterval(animal){
         return null;
     }
 
-    return number(
+    const interval=number(
         animal.weightIntervalDays ??
         animal.weightInterval
     );
+
+    return interval!==null&&interval>=1
+        ?Math.round(interval)
+        :null;
 }
 
 function feedEnabled(animal){

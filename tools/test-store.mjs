@@ -75,6 +75,7 @@ vm.createContext(context);
  'v500/id-manager.js',
  'v500/food-inventory-engine.js',
  'v500/animal-engine.js',
+ 'v500/care-rules-engine.js',
  'v500/store.js'
 ].forEach(function(file){
  vm.runInContext(
@@ -87,6 +88,123 @@ vm.createContext(context);
 const store=context.NGTStore;
 const engine=context.AnimalEngine;
 const foodEngine=context.FoodInventoryEngine;
+const careEngine=context.CareRulesEngine;
+
+assert.equal(
+ careEngine.isFeedDue({
+  feedIntervalEnabled:false,
+  feedIntervalDays:14,
+  feeds:[{date:'2026-01-01'}]
+ },{now:'2026-07-28'}),
+ false,
+ 'Ein deaktiviertes Fütterungsintervall darf nirgends eine Aufgabe erzeugen.'
+);
+
+const missingFeedState=
+ careEngine.feedDueState({
+  feedIntervalDays:14,
+  feeds:[]
+ },{now:'2026-07-28'});
+
+assert.equal(
+ missingFeedState.due,
+ true,
+ 'Ein Tier mit aktivem Intervall und ohne Fütterung muss als fällig gelten.'
+);
+
+assert.equal(
+ missingFeedState.missing,
+ true,
+ 'Fehlende Historie muss als eigener Fälligkeitsgrund erkennbar sein.'
+);
+
+assert.equal(
+ careEngine.isFeedDue({
+  feedIntervalDays:14,
+  feeds:[{date:'2026-07-14'}]
+ },{now:'2026-07-28'}),
+ true,
+ 'Ein erreichtes Fütterungsintervall muss als fällig gelten.'
+);
+
+assert.equal(
+ careEngine.isFeedDue({
+  feedIntervalDays:14,
+  feeds:[{date:'2026-07-15'}]
+ },{now:'2026-07-28'}),
+ false,
+ 'Ein noch nicht erreichtes Fütterungsintervall darf nicht fällig sein.'
+);
+
+assert.equal(
+ careEngine.isWeightDue({
+  weightIntervalEnabled:false,
+  weightIntervalDays:30,
+  weights:[]
+ },{now:'2026-07-28'}),
+ false,
+ 'Ein deaktiviertes Gewichtsintervall darf keine Aufgabe erzeugen.'
+);
+
+assert.equal(
+ careEngine.healthStatus({
+  feedIntervalEnabled:false,
+  feeds:[{date:'2026-01-01',accepted:true}],
+  weightIntervalEnabled:false,
+  weights:[],
+  health:[]
+ },{now:'2026-07-28'}).score,
+ 0,
+ 'Deaktivierte Intervalle dürfen den Gesundheitsstatus nicht verschlechtern.'
+);
+
+const refusalHealthStatus=
+ careEngine.healthStatus({
+  feedIntervalEnabled:false,
+  feeds:[
+   {date:'2026-07-20',accepted:false},
+   {date:'2026-07-27',accepted:false}
+  ],
+  weightIntervalEnabled:false,
+  weights:[],
+  health:[]
+ },{now:'2026-07-28'});
+
+assert.equal(
+ refusalHealthStatus.score,
+ 2,
+ 'Zwei aufeinanderfolgende Verweigerungen müssen einheitlich als Beobachtung gelten.'
+);
+
+assert.equal(
+ refusalHealthStatus.txt,
+ 'Beobachten',
+ 'Der einheitliche Statustext für zwei Verweigerungen muss Beobachten sein.'
+);
+
+assert.equal(
+ refusalHealthStatus.reasons[0],
+ 'wiederholte Futterverweigerung',
+ 'Der Grund für die Beobachtung muss erhalten bleiben.'
+);
+
+assert.equal(
+ careEngine.healthStatus({
+  feedIntervalEnabled:false,
+  feeds:[
+   {date:'2026-07-20',accepted:false},
+   {date:'2026-07-27',accepted:false}
+  ],
+  weightIntervalEnabled:false,
+  weights:[
+   {date:'2026-07-01',weight:150},
+   {date:'2026-07-28',weight:140}
+  ],
+  health:[]
+ },{now:'2026-07-28'}).txt,
+ 'Handlungsbedarf',
+ 'Verweigerungen und Gewichtsverlust müssen einheitlich Handlungsbedarf auslösen.'
+);
 
 const foodSource={
  label:'Frost Ratte 150 g',

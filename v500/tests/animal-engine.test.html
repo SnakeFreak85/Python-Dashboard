@@ -13,6 +13,7 @@ body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:0 16p
 <h1>AnimalEngine Browser Tests</h1>
 <div id="results"></div>
 <script src="../animal-engine.js"></script>
+<script src="../care-rules-engine.js"></script>
 <script>
 (function(){
 'use strict';
@@ -64,6 +65,91 @@ equal('Profil-Fallback wird bei gültigem Datum ignoriert',AnimalEngine.daysSinc
 equal('Fütterungsintervall',AnimalEngine.getFeedInterval(fullAnimal),14);
 equal('Gewichtsintervall',AnimalEngine.getWeightInterval(fullAnimal),30);
 equal('Deaktiviertes Fütterungsintervall',AnimalEngine.getFeedInterval({feedIntervalEnabled:false,feedIntervalDays:14}),null);
+
+equal(
+ 'Deaktiviertes Intervall erzeugt keine Fütterungsaufgabe',
+ CareRulesEngine.isFeedDue({
+  feedIntervalEnabled:false,
+  feedIntervalDays:14,
+  feeds:[{date:'2026-01-01'}]
+ },{now:'2026-07-28'}),
+ false
+);
+
+const missingFeedState=CareRulesEngine.feedDueState({
+ feedIntervalDays:14,
+ feeds:[]
+},{now:'2026-07-28'});
+
+equal('Aktives Intervall ohne Historie ist fällig',missingFeedState.due,true);
+equal('Fehlende Historie wird gekennzeichnet',missingFeedState.missing,true);
+equal(
+ 'Erreichtes Fütterungsintervall ist fällig',
+ CareRulesEngine.isFeedDue({
+  feedIntervalDays:14,
+  feeds:[{date:'2026-07-14'}]
+ },{now:'2026-07-28'}),
+ true
+);
+equal(
+ 'Nicht erreichtes Fütterungsintervall ist nicht fällig',
+ CareRulesEngine.isFeedDue({
+  feedIntervalDays:14,
+  feeds:[{date:'2026-07-15'}]
+ },{now:'2026-07-28'}),
+ false
+);
+equal(
+ 'Deaktiviertes Gewichtsintervall erzeugt keine Aufgabe',
+ CareRulesEngine.isWeightDue({
+  weightIntervalEnabled:false,
+  weightIntervalDays:30,
+  weights:[]
+ },{now:'2026-07-28'}),
+ false
+);
+equal(
+ 'Deaktivierte Intervalle belasten Gesundheitsstatus nicht',
+ CareRulesEngine.healthStatus({
+  feedIntervalEnabled:false,
+  feeds:[{date:'2026-01-01',accepted:true}],
+  weightIntervalEnabled:false,
+  weights:[],
+  health:[]
+ },{now:'2026-07-28'}).score,
+ 0
+);
+equal(
+ 'Zwei Verweigerungen ergeben Beobachten',
+ CareRulesEngine.healthStatus({
+  feedIntervalEnabled:false,
+  feeds:[
+   {date:'2026-07-20',accepted:false},
+   {date:'2026-07-27',accepted:false}
+  ],
+  weightIntervalEnabled:false,
+  weights:[],
+  health:[]
+ },{now:'2026-07-28'}).txt,
+ 'Beobachten'
+);
+equal(
+ 'Verweigerungen plus Gewichtsverlust ergeben Handlungsbedarf',
+ CareRulesEngine.healthStatus({
+  feedIntervalEnabled:false,
+  feeds:[
+   {date:'2026-07-20',accepted:false},
+   {date:'2026-07-27',accepted:false}
+  ],
+  weightIntervalEnabled:false,
+  weights:[
+   {date:'2026-07-01',weight:150},
+   {date:'2026-07-28',weight:140}
+  ],
+  health:[]
+ },{now:'2026-07-28'}).txt,
+ 'Handlungsbedarf'
+);
 
 const legacyProfileFeed=AnimalEngine.normalizeFeedEvent({
  date:'2026-07-27',

@@ -143,16 +143,15 @@ function passportObject(
     60
    ),
 
-   feedDays:Number(
-    animal.feedIntervalDays||
-    animal.feedingInterval||
-    14
-   ),
+   feedDays:
+    CareRulesEngine.feedInterval(
+     animal
+    ),
 
-   weightDays:Number(
-    animal.weightIntervalDays||
-    30
-   )
+   weightDays:
+    CareRulesEngine.weightInterval(
+     animal
+    )
   },
 
   history:

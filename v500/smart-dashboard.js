@@ -1,8 +1,6 @@
 (function(){
 'use strict';
 
-const DAY=86400000;
-
 function esc(value){
  return NGT500.esc(value||'');
 }
@@ -22,79 +20,6 @@ function profileRouteArgs(row){
   `{t:'${jsArg(row&&row.t)}',`+
   `i:${Number((row&&row.i)||0)}}`
  );
-}
-
-function today0(){
- const date=new Date();
-
- date.setHours(
-  0,
-  0,
-  0,
-  0
- );
-
- return date;
-}
-
-function daysSince(value){
- const time=Date.parse(
-  value||''
- );
-
- if(!time){
-  return null;
- }
-
- const date=new Date(time);
-
- date.setHours(
-  0,
-  0,
-  0,
-  0
- );
-
- return Math.floor(
-  (
-   today0()-
-   date
-  )/
-  DAY
- );
-}
-
-function latest(list){
- return (
-  list||
-  []
- )
-  .slice()
-  .sort(function(a,b){
-   return String(
-    b.date||
-    ''
-   ).localeCompare(
-    String(
-     a.date||
-     ''
-    )
-   );
-  })[0]||
-  null;
-}
-
-function positiveInteger(value){
- const number=Number(value);
-
- if(
-  Number.isFinite(number)&&
-  number>=1
- ){
-  return Math.round(number);
- }
-
- return null;
 }
 
 function animals(){
@@ -166,72 +91,26 @@ function feedName(animal){
 }
 
 function feedEnabled(animal){
- if(
-  animal.feedIntervalEnabled===
-  false
- ){
-  return false;
- }
-
- if(
-  animal.feedIntervalEnabled===
-  true
- ){
-  return true;
- }
-
- return (
-  positiveInteger(
-   animal.feedIntervalDays||
-   animal.feedingInterval||
-   animal.feedInterval
-  )!==null
+ return CareRulesEngine.feedEnabled(
+  animal
  );
 }
 
 function weightEnabled(animal){
- if(
-  animal.weightIntervalEnabled===
-  false
- ){
-  return false;
- }
-
- if(
-  animal.weightIntervalEnabled===
-  true
- ){
-  return true;
- }
-
- return (
-  positiveInteger(
-   animal.weightIntervalDays||
-   animal.weightInterval
-  )!==null
+ return CareRulesEngine.weightEnabled(
+  animal
  );
 }
 
 function feedInterval(animal){
- if(!feedEnabled(animal)){
-  return null;
- }
-
- return positiveInteger(
-  animal.feedIntervalDays||
-  animal.feedingInterval||
-  animal.feedInterval
+ return CareRulesEngine.feedInterval(
+  animal
  );
 }
 
 function weightInterval(animal){
- if(!weightEnabled(animal)){
-  return null;
- }
-
- return positiveInteger(
-  animal.weightIntervalDays||
-  animal.weightInterval
+ return CareRulesEngine.weightInterval(
+  animal
  );
 }
 
@@ -239,32 +118,11 @@ function dueFeed(
  animal,
  offset
 ){
- const interval=
-  feedInterval(animal);
-
- if(interval===null){
-  return false;
- }
-
- const lastFeed=
-  latest(
-   animal.feeds
-  );
-
- const days=
-  daysSince(
-   lastFeed&&
-   lastFeed.date
-  );
-
- if(days===null){
-  return false;
- }
-
- return (
-  days>=
-  interval-
-  offset
+ return CareRulesEngine.isFeedDue(
+  animal,
+  {
+   offsetDays:offset
+  }
  );
 }
 
@@ -272,32 +130,11 @@ function dueWeight(
  animal,
  offset
 ){
- const interval=
-  weightInterval(animal);
-
- if(interval===null){
-  return false;
- }
-
- const lastWeight=
-  latest(
-   animal.weights
-  );
-
- const days=
-  daysSince(
-   lastWeight&&
-   lastWeight.date
-  );
-
- if(days===null){
-  return false;
- }
-
- return (
-  days>=
-  interval-
-  offset
+ return CareRulesEngine.isWeightDue(
+  animal,
+  {
+   offsetDays:offset
+  }
  );
 }
 

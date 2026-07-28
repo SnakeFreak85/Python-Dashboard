@@ -3,8 +3,6 @@
 
 let statusTimer=null;
 
-const DAY=86400000;
-
 function tc2(on){
  document.body.classList.toggle(
   'tc2RefMode',
@@ -272,71 +270,6 @@ function lowFoodCount(){
  }).length;
 }
 
-function latest(list){
- return (
-  Array.isArray(list)
-   ?list
-   :[]
- )
-  .slice()
-  .sort(function(a,b){
-   return String(b.date||'')
-    .localeCompare(
-     String(a.date||'')
-    );
-  })[0]||null;
-}
-
-function todayStart(){
- const date=new Date();
-
- date.setHours(0,0,0,0);
-
- return date;
-}
-
-function daysSince(value){
- const timestamp=Date.parse(value||'');
-
- if(!timestamp){
-  return null;
- }
-
- const date=new Date(timestamp);
-
- date.setHours(0,0,0,0);
-
- return Math.floor(
-  (
-   todayStart().getTime()-
-   date.getTime()
-  )/DAY
- );
-}
-
-function feedInterval(animal){
- return Math.max(
-  1,
-  Number(
-   animal.feedIntervalDays||
-   animal.feedingInterval||
-   animal.feedInterval||
-   14
-  )
- );
-}
-
-function weightInterval(animal){
- return Math.max(
-  1,
-  Number(
-   animal.weightIntervalDays||
-   animal.weightInterval||
-   30
-  )
- );
-}
-
 function dueTaskCount(){
  let count=0;
 
@@ -345,27 +278,11 @@ function dueTaskCount(){
   .forEach(function(row){
    const animal=row.a||{};
 
-   const lastFeed=latest(animal.feeds);
-   const feedDays=daysSince(
-    lastFeed&&lastFeed.date
-   );
-
-   if(
-    feedDays!==null&&
-    feedDays>=feedInterval(animal)
-   ){
+   if(CareRulesEngine.isFeedDue(animal)){
     count++;
    }
 
-   const lastWeight=latest(animal.weights);
-   const weightDays=daysSince(
-    lastWeight&&lastWeight.date
-   );
-
-   if(
-    weightDays!==null&&
-    weightDays>=weightInterval(animal)
-   ){
+   if(CareRulesEngine.isWeightDue(animal)){
     count++;
    }
   });

@@ -1,13 +1,327 @@
 (function(){
 'use strict';
-function daysSince(date){const t=Date.parse(date||'');return t?Math.floor((Date.now()-t)/86400000):9999}
-function latest(list){return (list||[]).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null}
-function animals(){return NGTStore.allAnimals().filter(x=>x.a.status!=='Archiv')}
-function rec(type,level,title,text,animal){return {type,level,title,text,animal:animal||'',d:''}}
-function build(){const out=[];animals().forEach(x=>{const a=x.a;const lf=latest(a.feeds);const lw=latest(a.weights);const lh=latest(a.health);const feedDays=daysSince(lf&&lf.date);const weightDays=daysSince(lw&&lw.date);if(!lf)out.push(rec('feeding','warn',a.name,'Noch keine Fütterung dokumentiert.',a.name));else if(feedDays>=28)out.push(rec('feeding','danger',a.name,'Seit '+feedDays+' Tagen keine Fütterung dokumentiert.',a.name));else if(feedDays>=14)out.push(rec('feeding','warn',a.name,'Fütterung prüfen: letzte Fütterung vor '+feedDays+' Tagen.',a.name));const feeds=(a.feeds||[]).slice().sort((p,q)=>String(q.date||'').localeCompare(String(p.date||'')));const last3=feeds.slice(0,3);if(last3.length>=3&&last3.every(f=>f.accepted===false))out.push(rec('refusal','danger',a.name,'Drei Verweigerungen in Folge.',a.name));else if(last3.length>=2&&last3.slice(0,2).every(f=>f.accepted===false))out.push(rec('refusal','warn',a.name,'Zwei Verweigerungen in Folge.',a.name));const weights=(a.weights||[]).slice().sort((p,q)=>String(p.date||'').localeCompare(String(q.date||'')));if(!lw)out.push(rec('weight','warn',a.name,'Noch kein Gewicht dokumentiert.',a.name));else if(weightDays>=60)out.push(rec('weight','warn',a.name,'Gewicht seit '+weightDays+' Tagen nicht aktualisiert.',a.name));if(weights.length>=2){const prev=Number(weights[weights.length-2].weight||0);const now=Number(weights[weights.length-1].weight||0);if(prev&&now<prev){const diff=now-prev;out.push(rec('weight','danger',a.name,'Gewichtsverlust: '+diff+'g seit letzter Messung.',a.name));}}
-const health=(a.health||[]).slice().sort((p,q)=>String(q.date||'').localeCompare(String(p.date||'')));const open=health.filter(h=>String(h.status||'').toLowerCase()!=='abgeschlossen');if(open.length)out.push(rec('health','warn',a.name,'Offene Gesundheits-/Kontroll-Einträge: '+open.length+'.',a.name));if(lh&&String(lh.type||'').toLowerCase().includes('kontrolle')&&daysSince(lh.date)>=30)out.push(rec('health','warn',a.name,'Letzte Kontrolle vor '+daysSince(lh.date)+' Tagen.',a.name));});FoodInventoryEngine.sortInventory(NGTStore.data().foodInventory||[]).filter(f=>FoodInventoryEngine.needsRestock(f)).forEach(f=>{const qty=FoodInventoryEngine.quantity(f);if(qty<=0)out.push(rec('food','danger','Futterbestand',f.name+' ist leer.'));else out.push(rec('food','warn','Futterbestand',f.name+' ist niedrig ('+qty+').'));});return out.sort((a,b)=>levelRank(b.level)-levelRank(a.level));}
-function levelRank(l){return l==='danger'?2:l==='warn'?1:0}
-function render(items){items=items||build();if(!items.length)return '<p class="muted">Keine Empfehlungen.</p>';return items.map(r=>`<div class="tc2SubCard ${r.level==='danger'?'danger':'ok'}"><b>${NGT500.esc(r.title)}</b><br>${NGT500.esc(r.text)}</div>`).join('')}
-function textSummary(){const items=build();if(!items.length)return 'Keine aktuellen Empfehlungen.';return items.map(r=>r.title+': '+r.text).join('\n')}
-window.NGTAIRecommendations={build,render,textSummary};
+
+function daysSince(date){
+ return AnimalEngine.daysSinceOr(
+  date,
+  9999
+ );
+}
+
+function latest(list){
+ return AnimalEngine.latest(list);
+}
+
+function animals(){
+ return NGTStore
+  .allAnimals()
+  .filter(function(row){
+   return row.a.status!=='Archiv';
+  });
+}
+
+function rec(
+ type,
+ level,
+ title,
+ text,
+ animal
+){
+ return {
+  type:type,
+  level:level,
+  title:title,
+  text:text,
+  animal:animal||'',
+  d:''
+ };
+}
+
+function animalRecommendations(
+ animal,
+ out
+){
+ const latestHealth=latest(
+  animal.health
+ );
+ const feedState=
+  CareRulesEngine.feedDueState(
+   animal
+  );
+ const weightState=
+  CareRulesEngine.weightDueState(
+   animal
+  );
+
+ if(feedState.due){
+  if(feedState.missing){
+   out.push(
+    rec(
+     'feeding',
+     'warn',
+     animal.name,
+     'Noch keine Fütterung dokumentiert.',
+     animal.name
+    )
+   );
+  }else{
+   out.push(
+    rec(
+     'feeding',
+     feedState.overdueDays>=14
+      ?'danger'
+      :'warn',
+     animal.name,
+     'Fütterung prüfen: letzte Fütterung vor '+
+      feedState.days+
+      ' Tagen.',
+     animal.name
+    )
+   );
+  }
+ }
+
+ const feeds=(animal.feeds||[])
+  .slice()
+  .sort(function(a,b){
+   return String(b.date||'')
+    .localeCompare(
+     String(a.date||'')
+    );
+  });
+ const lastThree=feeds.slice(0,3);
+
+ if(
+  lastThree.length>=3&&
+  lastThree.every(function(feed){
+   return feed.accepted===false;
+  })
+ ){
+  out.push(
+   rec(
+    'refusal',
+    'danger',
+    animal.name,
+    'Drei Verweigerungen in Folge.',
+    animal.name
+   )
+  );
+ }else if(
+  lastThree.length>=2&&
+  lastThree
+   .slice(0,2)
+   .every(function(feed){
+    return feed.accepted===false;
+   })
+ ){
+  out.push(
+   rec(
+    'refusal',
+    'warn',
+    animal.name,
+    'Zwei Verweigerungen in Folge.',
+    animal.name
+   )
+  );
+ }
+
+ const weights=(animal.weights||[])
+  .slice()
+  .sort(function(a,b){
+   return String(a.date||'')
+    .localeCompare(
+     String(b.date||'')
+    );
+  });
+
+ if(weightState.due){
+  out.push(
+   rec(
+    'weight',
+    'warn',
+    animal.name,
+    weightState.missing
+     ?'Noch kein Gewicht dokumentiert.'
+     :'Gewicht seit '+
+       weightState.days+
+       ' Tagen nicht aktualisiert.',
+    animal.name
+   )
+  );
+ }
+
+ if(weights.length>=2){
+  const previous=Number(
+   weights[weights.length-2].weight||
+   0
+  );
+  const current=Number(
+   weights[weights.length-1].weight||
+   0
+  );
+
+  if(previous&&current<previous){
+   const difference=current-previous;
+
+   out.push(
+    rec(
+     'weight',
+     'danger',
+     animal.name,
+     'Gewichtsverlust: '+
+      difference+
+      'g seit letzter Messung.',
+     animal.name
+    )
+   );
+  }
+ }
+
+ const health=(animal.health||[])
+  .slice()
+  .sort(function(a,b){
+   return String(b.date||'')
+    .localeCompare(
+     String(a.date||'')
+    );
+  });
+ const open=health.filter(function(entry){
+  return String(
+   entry.status||
+   ''
+  ).toLowerCase()!=='abgeschlossen';
+ });
+
+ if(open.length){
+  out.push(
+   rec(
+    'health',
+    'warn',
+    animal.name,
+    'Offene Gesundheits-/Kontroll-Einträge: '+
+     open.length+
+     '.',
+    animal.name
+   )
+  );
+ }
+
+ if(
+  latestHealth&&
+  String(
+   latestHealth.type||
+   ''
+  ).toLowerCase().includes('kontrolle')&&
+  daysSince(latestHealth.date)>=30
+ ){
+  out.push(
+   rec(
+    'health',
+    'warn',
+    animal.name,
+    'Letzte Kontrolle vor '+
+     daysSince(latestHealth.date)+
+     ' Tagen.',
+    animal.name
+   )
+  );
+ }
+}
+
+function foodRecommendations(out){
+ FoodInventoryEngine
+  .sortInventory(
+   NGTStore.data().foodInventory||
+   []
+  )
+  .filter(function(item){
+   return FoodInventoryEngine
+    .needsRestock(item);
+  })
+  .forEach(function(item){
+   const quantity=
+    FoodInventoryEngine.quantity(item);
+
+   out.push(
+    rec(
+     'food',
+     quantity<=0
+      ?'danger'
+      :'warn',
+     'Futterbestand',
+     quantity<=0
+      ?item.name+' ist leer.'
+      :item.name+
+       ' ist niedrig ('+
+       quantity+
+       ').'
+    )
+   );
+  });
+}
+
+function build(){
+ const out=[];
+
+ animals().forEach(function(row){
+  animalRecommendations(
+   row.a,
+   out
+  );
+ });
+
+ foodRecommendations(out);
+
+ return out.sort(function(a,b){
+  return levelRank(b.level)-
+   levelRank(a.level);
+ });
+}
+
+function levelRank(level){
+ return level==='danger'
+  ?2
+  :level==='warn'
+   ?1
+   :0;
+}
+
+function render(items){
+ items=items||build();
+
+ if(!items.length){
+  return '<p class="muted">Keine Empfehlungen.</p>';
+ }
+
+ return items.map(function(item){
+  return `<div class="tc2SubCard ${
+   item.level==='danger'
+    ?'danger'
+    :'ok'
+  }">
+   <b>${NGT500.esc(item.title)}</b>
+   <br>
+   ${NGT500.esc(item.text)}
+  </div>`;
+ }).join('');
+}
+
+function textSummary(){
+ const items=build();
+
+ if(!items.length){
+  return 'Keine aktuellen Empfehlungen.';
+ }
+
+ return items.map(function(item){
+  return item.title+': '+item.text;
+ }).join('\n');
+}
+
+window.NGTAIRecommendations={
+ build:build,
+ render:render,
+ textSummary:textSummary
+};
+
 })();

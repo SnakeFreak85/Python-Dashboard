@@ -64,6 +64,9 @@ function render(args){
  const latestWeight=
   P.latest(animal.weights);
 
+ const feedInterval=
+  CareRulesEngine.feedInterval(animal);
+
  const id=
   animal.publicId||
   animal.displayId||
@@ -258,11 +261,10 @@ function render(args){
 
      <b>
       ${P.esc(
-       animal.feedIntervalDays||
-       animal.feedingInterval||
-       '-'
+       feedInterval===null
+        ?'Deaktiviert'
+        :feedInterval+' Tage'
       )}
-      Tage
      </b>
     </div>
    </div>

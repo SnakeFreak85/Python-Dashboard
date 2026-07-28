@@ -120,6 +120,7 @@ function testRuntime(){
     record('NGTStore verfügbar',!!win.NGTStore);
     record('AnimalEngine verfügbar',!!win.AnimalEngine);
     record('FoodInventoryEngine verfügbar',!!win.FoodInventoryEngine);
+    record('CareRulesEngine verfügbar',!!win.CareRulesEngine);
     record('NGTTaxonomy verfügbar',!!win.NGTTaxonomy);
     record(
      'Taxonomie-Teilmodule verfügbar',
@@ -200,6 +201,22 @@ function testRuntime(){
        qty:6,
        minimum:5
       })===false
+     )
+    );
+
+    record(
+     'Pflege- und Fälligkeitsregeln ausführbar',
+     !!(
+      win.CareRulesEngine&&
+      win.CareRulesEngine.isFeedDue({
+       feedIntervalEnabled:false,
+       feedIntervalDays:14,
+       feeds:[]
+      })===false&&
+      win.CareRulesEngine.isFeedDue({
+       feedIntervalDays:14,
+       feeds:[]
+      })===true
      )
     );
 

@@ -4,6 +4,9 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Fütterungs- und Gewichtsfälligkeiten sowie Gesundheitsstatus in einer gemeinsamen `CareRulesEngine` vereinheitlicht.
+- Deaktivierte Intervalle werden in Startseite, Smart Dashboard, Profil und KI einheitlich respektiert; aktive Intervalle ohne bisherigen Eintrag gelten nachvollziehbar als fällig.
+- Doppelte Fälligkeits- und Gesundheitslogik aus Dashboard, Smart Dashboard, Profil und Tierkarten entfernt und mit deterministischen Regressionstests abgesichert.
 - Futterbestands-Normalisierung und Nachkaufentscheidung in einer reinen `FoodInventoryEngine` vereinheitlicht.
 - Lesende Futteransichten verändern Store-Datensätze nicht mehr; fehlende Mindestbestände verwenden verbindlich den Wert `5`, explizite Werte einschließlich `0` bleiben erhalten.
 - Startseite, Smart Dashboard und KI verwenden dieselbe Mindestbestandsregel; das Smart Dashboard zeigt nur noch tatsächlich nachzukaufende Positionen.

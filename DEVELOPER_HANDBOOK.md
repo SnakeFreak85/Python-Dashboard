@@ -82,6 +82,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── store.js
     ├── ui.js
     ├── animal-engine.js
+    ├── care-rules-engine.js
     ├── food-inventory-engine.js
     ├── taxonomy-core.js
     ├── taxonomy-store.js
@@ -177,6 +178,18 @@ erhalten. Leere Positionen gelten unabhängig davon immer als
 nachzukaufen. Lesende Aufrufe liefern neue Objekte und dürfen den Store
 nicht verändern.
 
+`v500/care-rules-engine.js` ist die einzige Quelle für:
+
+- Aktivierung und Werte von Fütterungs- und Gewichtsintervallen,
+- fällige und bevorstehende Pflegeaufgaben,
+- den gemeinsamen Gesundheitsstatus.
+
+Ein ausdrücklich deaktiviertes Intervall erzeugt weder Dashboard-Aufgaben
+noch KI-Hinweise oder Gesundheitsabzüge. Ist ein gültiges Intervall aktiv,
+aber noch kein entsprechender Historieneintrag vorhanden, gilt die Aufgabe
+als fällig. Startseite, Smart Dashboard, Profil, Tierkarten und KI müssen
+diese Selektoren verwenden.
+
 ### 5.3 Store
 
 `v500/store.js` ist die zentrale Quelle lokal verfügbarer Anwendungsdaten. Typische Aufgaben:
@@ -204,7 +217,7 @@ Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 `index.html` verweist auf die aktive Anwendung in `v500.html`. Dort werden die Scripts in definierter Reihenfolge geladen:
 
 1. Kernsystem: `core.js`, `id-manager.js`, `food-inventory-engine.js`, `store.js`, `ui.js`
-2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui-illustrations.js`, `taxonomy-ui-decoration.js`, `taxonomy-ui.js`; danach AnimalEngine
+2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui-illustrations.js`, `taxonomy-ui-decoration.js`, `taxonomy-ui.js`; danach AnimalEngine und CareRulesEngine
 3. AI-, Dashboard- und Foto-Services
 4. Fachmodule
 5. Firebase-Synchronisation
@@ -215,6 +228,7 @@ Die Anwendung verwendet globale Browser-Namespaces wie:
 - `NGT500`
 - `NGTStore`
 - `AnimalEngine`
+- `CareRulesEngine`
 - `FoodInventoryEngine`
 - `NGTProfile`
 - weitere modulbezogene APIs

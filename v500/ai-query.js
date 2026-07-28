@@ -5,8 +5,8 @@ function daysSince(date){const t=Date.parse(date||'');return t?Math.floor((Date.
 function latest(list){return (list||[]).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||null}
 function animals(){return NGTStore.allAnimals().filter(x=>x.a.status!=='Archiv')}
 function line(x,txt){return {d:'',txt:x.a.name+(txt?': '+txt:'')}}
-function needsFeeding(){return animals().filter(x=>daysSince(latest(x.a.feeds)&&latest(x.a.feeds).date)>=14).map(x=>line(x,'Fütterung prüfen'))}
-function needsWeight(){return animals().filter(x=>daysSince(latest(x.a.weights)&&latest(x.a.weights).date)>=42).map(x=>line(x,'Gewicht aktualisieren'))}
+function needsFeeding(){return animals().filter(x=>CareRulesEngine.isFeedDue(x.a)).map(x=>line(x,'Fütterung prüfen'))}
+function needsWeight(){return animals().filter(x=>CareRulesEngine.isWeightDue(x.a)).map(x=>line(x,'Gewicht aktualisieren'))}
 function refusals(){return animals().filter(x=>{const r=(x.a.feeds||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,3);return r.length>=3&&r.every(f=>f.accepted===false)}).map(x=>line(x,'3 Verweigerungen in Folge'))}
 function weightLoss(){return animals().filter(x=>{const w=(x.a.weights||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));return w.length>=2&&Number(w[w.length-1].weight)<Number(w[w.length-2].weight)}).map(x=>{const w=(x.a.weights||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));const diff=Number(w[w.length-1].weight)-Number(w[w.length-2].weight);return line(x,'Gewicht '+diff+'g')})}
 function foodStock(q){const food=NGTStore.data().foodInventory||[];const ft=NGTAIEngine.feeder(q);if(ft){const item=food.find(x=>norm(x.name)===norm(ft));return [{d:'',txt:ft+': '+(item?item.qty:0)}]}return food.map(x=>({d:'',txt:x.name+': '+Number(x.qty||0)}))}

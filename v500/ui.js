@@ -12,16 +12,14 @@ function jsArg(value){
 }
 
 function latest(list){
- return (list||[])
-  .slice()
-  .sort(function(a,b){
-   return String(b.date||'').localeCompare(String(a.date||''));
-  })[0]||null;
+ return AnimalEngine.latest(list);
 }
 
 function daysSince(d){
- const t=Date.parse(d||'');
- return t?Math.floor((Date.now()-t)/86400000):9999;
+ return AnimalEngine.daysSinceOr(
+  d,
+  9999
+ );
 }
 
 function age(birth){
@@ -31,38 +29,10 @@ function age(birth){
  return y>0?y+' J.':'<1 J.';
 }
 
-function healthStatus(a){
- let score=0;
- const lf=latest(a.feeds);
- const lw=latest(a.weights);
- const lh=latest(a.health);
-
- const recent=(a.feeds||[])
-  .slice()
-  .sort(function(p,q){
-   return String(q.date||'').localeCompare(String(p.date||''));
-  })
-  .slice(0,3);
-
- if(recent.length>=2&&recent.slice(0,2).every(function(f){return f.accepted===false;}))score+=2;
-
- if(lw){
-  const w=(a.weights||[])
-   .slice()
-   .sort(function(p,q){
-    return String(p.date||'').localeCompare(String(q.date||''));
-   });
-
-  if(w.length>=2&&Number(w[w.length-1].weight)<Number(w[w.length-2].weight))score+=2;
- }
-
- if(lf&&daysSince(lf.date)>=(Number(a.feedIntervalDays||a.feedingInterval||14)+7))score+=1;
- if(lw&&daysSince(lw.date)>=45)score+=1;
- if(lh&&String(lh.status||'').toLowerCase()!=='abgeschlossen')score+=1;
-
- if(score>=3)return {txt:'Handlung',icon:'🔴',cls:'danger'};
- if(score>=1)return {txt:'Beobachten',icon:'🟡',cls:'warn'};
- return {txt:'Gesund',icon:'🟢',cls:'ok'};
+function healthStatus(animal){
+ return CareRulesEngine.healthStatus(
+  animal
+ );
 }
 
 function rel(date){
