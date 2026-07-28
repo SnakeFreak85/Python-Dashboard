@@ -152,6 +152,16 @@ function testRuntime(){
      )
     );
 
+    record(
+     'Keine veralteten Parallelmodule aktiv',
+     !(
+      win.NGTCloudBackup||
+      win.NGTCloudSync||
+      win.NGTTimeline||
+      win.NGTTimeline2
+     )
+    );
+
     const modules=win.NGT500&&win.NGT500.modules||{};
 
     record(

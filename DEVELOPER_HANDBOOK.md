@@ -222,9 +222,9 @@ welcher Datenstand verwendet werden darf:
 Änderungen, die während eines laufenden Firestore-Speichervorgangs eintreffen,
 müssen anschließend einen weiteren Speicherlauf auslösen.
 
-Die Dateien `cloud-sync.js`, `cloud-sync-rc2.js` und `cloud-backup.js` sind
-Legacy-Implementierungen für Google Drive und werden von `v500.html` nicht
-geladen. Sie sind keine zweite aktive Synchronisationsquelle.
+Frühere Google-Drive-Implementierungen wurden aus der aktiven Codebasis
+entfernt. Neue Sync-Funktionen dürfen keinen zweiten, konkurrierenden
+Speicherpfad neben `firebase-sync.js` und `photo-storage.js` einführen.
 
 ### 5.5 PWA
 

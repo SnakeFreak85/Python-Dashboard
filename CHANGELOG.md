@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Nachweislich ungenutzte Parallelimplementierungen für Google-Drive-Sync, Schnelleingabe und die frühere Timeline aus `v500/` entfernt.
+- Veralteten Firebase-Platzhalter entfernt; Firestore-Synchronisation, aktive Schnelleingabe und Profilchronik behalten jeweils einen eindeutigen produktiven Einstiegspfad.
 - Die fünfstufige Überschreibungskette für Tiergruppenbilder in eine einzige verbindliche Icon-Implementierung zusammengeführt.
 - Veraltete Spinnen-, Icon-Policy- und Schildkröten-Patchdateien aus App-Einstieg und Service-Worker entfernt; das sichtbare Ergebnis bleibt erhalten.
 - Browsertests bilden nun die tatsächlich produktiv geladenen Tierbilder, leere unbekannte Gruppen und die finalen Spinnen- und Schildkrötendarstellungen ab.
