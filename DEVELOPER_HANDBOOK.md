@@ -266,6 +266,7 @@ Der frühere Profil-Monolith wurde in fachliche Module aufgeteilt.
 
 ```text
 profile-core.js
+profile-history.js
 profile-food.js
 profile-health.js
 profile-passport.js
@@ -277,7 +278,8 @@ profile.js
 
 | Datei | Verantwortung |
 |---|---|
-| `profile-core.js` | gemeinsamer Zustand, Hilfen, Verlaufseinträge, Diagramme, Gewichts- und Häutungsaktionen |
+| `profile-core.js` | gemeinsamer Zustand und Profil-Hilfen |
+| `profile-history.js` | Gewichts- und Häutungsformulare, Listen, Diagramme und gemeinsames Löschen von Historieneinträgen |
 | `profile-food.js` | Futterbestand im Profil, Fütterungsformular, Bestandsprüfung und Speichern |
 | `profile-health.js` | Gesundheitsstatus, Gesundheitsformular, Historie und Speichern |
 | `profile-passport.js` | QR-Payload, Tierpass, Dokumentencenter und QR-Rendering |
@@ -384,6 +386,17 @@ photos[]
 ```
 
 `AnimalEngine.ensureHistories()` initialisiert diese defensiv.
+
+Neue Gewichts-, Häutungs- und Gesundheitseinträge werden ausschließlich
+über `NGTStore.recordWeight()`, `NGTStore.recordShed()` und
+`NGTStore.recordHealth()` gespeichert. Die zugehörigen
+`AnimalEngine.create*Event()`-Funktionen erzeugen einheitliche Ereignisse
+mit stabiler `id`, Datum, Quelle und den fachlichen Feldern. Profil,
+Schnelleingabe und Chat dürfen diese Listen nicht direkt verändern.
+
+Historieneinträge werden über `NGTStore.deleteHistoryEntry()` entfernt.
+Bei Gewichtseinträgen berechnet der Store danach das kompatible Feld
+`animal.weight` aus dem zeitlich neuesten verbleibenden Eintrag neu.
 
 ### 8.3 Identitäten
 

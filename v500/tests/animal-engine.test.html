@@ -198,6 +198,38 @@ equal(
  'Verweigert Frost Ratte 150 g'
 );
 
+const weightEvent=AnimalEngine.createWeightEvent({
+ id:'weight-1',
+ date:'2026-07-28',
+ weight:'150.5',
+ source:'profile',
+ note:'Kontrolle'
+});
+
+equal('Gewichtseintrag normalisiert Zahlen',weightEvent.weight,150.5);
+equal('Gewichtseintrag erhält Quelle',weightEvent.source,'profile');
+equal('Ungültiges Gewicht wird abgelehnt',AnimalEngine.createWeightEvent({weight:0}),null);
+
+const shedEvent=AnimalEngine.createShedEvent({
+ id:'shed-1',
+ date:'2026-07-27',
+ note:'Vollständig'
+});
+
+equal('Häutung ist standardmäßig vollständig',shedEvent.complete,true);
+equal('Häutungsnotiz bleibt erhalten',shedEvent.note,'Vollständig');
+
+const healthEvent=AnimalEngine.createHealthEvent({
+ id:'health-1',
+ date:'2026-07-26',
+ title:'Kontrolle',
+ medication:'Medikament A'
+});
+
+equal('Gesundheit erhält Standardtyp',healthEvent.type,'Gesundheit');
+equal('Gesundheit erhält Standardstatus',healthEvent.status,'offen');
+equal('Gesundheitsfelder bleiben erhalten',healthEvent.medication,'Medikament A');
+
 const legacyAnimal={name:'Altbestand'};
 const normalized=AnimalEngine.ensureHistories(legacyAnimal);
 assert(

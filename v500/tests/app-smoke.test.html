@@ -153,6 +153,15 @@ function testRuntime(){
     );
 
     const modules=win.NGT500&&win.NGT500.modules||{};
+
+    record(
+     'Profil-Historienmodul verfügbar',
+     !!(
+      win.NGTProfileInternal&&
+      win.NGTProfileInternal.history
+     )
+    );
+
     expectedModules.forEach(function(name){
      record('Modul registriert: '+name,!!modules[name]);
     });
@@ -176,7 +185,11 @@ function testRuntime(){
       typeof win.NGTStore.getAnimalById==='function'&&
       typeof win.NGTStore.updateAnimalById==='function'&&
       typeof win.NGTStore.deleteAnimalById==='function'&&
-      typeof win.NGTStore.recordFeed==='function'
+      typeof win.NGTStore.recordFeed==='function'&&
+      typeof win.NGTStore.recordWeight==='function'&&
+      typeof win.NGTStore.recordShed==='function'&&
+      typeof win.NGTStore.recordHealth==='function'&&
+      typeof win.NGTStore.deleteHistoryEntry==='function'
      )
     );
 

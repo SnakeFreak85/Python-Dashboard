@@ -661,6 +661,118 @@ assert.equal(
  'Verweigertes Futter darf den Bestand nicht reduzieren.'
 );
 
+const firstWeight=store.recordWeight(
+ {animalId:'mixed-2'},
+ {date:'2026-07-20',weight:150,source:'profile'}
+);
+const latestWeight=store.recordWeight(
+ {animalId:'mixed-2'},
+ {date:'2026-07-25',weight:160,source:'chat'}
+);
+
+store.recordWeight(
+ {animalId:'mixed-2'},
+ {date:'2026-07-10',weight:140,source:'assistant'}
+);
+
+assert.equal(
+ latestWeight.event.source,
+ 'chat',
+ 'Der zentrale Gewichtspfad muss die Herkunft speichern.'
+);
+assert.equal(
+ store.getAnimalById('mixed-2').weight,
+ 160,
+ 'Das Kompatibilitätsgewicht muss dem zeitlich neuesten Eintrag entsprechen.'
+);
+
+const weightCount=store.getAnimalById('mixed-2').weights.length;
+
+assert.equal(
+ store.recordWeight({animalId:'mixed-2'},{weight:0}),
+ null,
+ 'Ungültige Gewichte dürfen nicht gespeichert werden.'
+);
+assert.equal(
+ store.getAnimalById('mixed-2').weights.length,
+ weightCount,
+ 'Ein ungültiges Gewicht darf die Historie nicht verändern.'
+);
+
+const recordedShed=store.recordShed(
+ {animalId:'mixed-2'},
+ {
+  date:'2026-07-21',
+  note:'Vollständig',
+  source:'profile'
+ }
+);
+
+assert.equal(
+ recordedShed.event.complete,
+ true,
+ 'Eine neue Häutung muss standardmäßig als vollständig gespeichert werden.'
+);
+assert.equal(
+ recordedShed.event.note,
+ 'Vollständig',
+ 'Häutungsnotizen müssen erhalten bleiben.'
+);
+
+const recordedHealth=store.recordHealth(
+ {animalId:'mixed-2'},
+ {
+  date:'2026-07-22',
+  type:'Kontrolle',
+  title:'Nachkontrolle',
+  status:'abgeschlossen',
+  source:'profile'
+ }
+);
+
+assert.equal(
+ recordedHealth.event.title,
+ 'Nachkontrolle',
+ 'Gesundheitsfelder müssen über den zentralen Speicherpfad erhalten bleiben.'
+);
+assert.equal(
+ Array.isArray(store.getAnimalById('mixed-2').health),
+ true,
+ 'Die Gesundheitshistorie muss defensiv initialisiert werden.'
+);
+assert.equal(
+ store.deleteHistoryEntry({animalId:'mixed-2'},'documents',0),
+ false,
+ 'Unbekannte Historientypen dürfen nicht gelöscht werden.'
+);
+assert.equal(
+ store.deleteHistoryEntry(
+  {animalId:'mixed-2'},
+  'weights',
+  latestWeight.event.id
+ ),
+ true,
+ 'Historieneinträge müssen stabil über ihre ID gelöscht werden können.'
+);
+assert.equal(
+ store.getAnimalById('mixed-2').weight,
+ 150,
+ 'Nach dem Löschen muss das Kompatibilitätsgewicht neu berechnet werden.'
+);
+assert.equal(
+ store.deleteHistoryEntry(
+  {animalId:'mixed-2'},
+  'health',
+  recordedHealth.event.id
+ ),
+ true,
+ 'Gesundheitseinträge müssen über den gemeinsamen Löschpfad entfernt werden.'
+);
+assert.ok(
+ firstWeight.event.id,
+ 'Zentrale Historieneinträge müssen eine stabile ID erhalten.'
+);
+
 vm.runInContext(
  fs.readFileSync('v500/smart-dashboard.js','utf8'),
  context,

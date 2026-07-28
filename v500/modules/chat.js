@@ -205,16 +205,29 @@ function applyParsed(p){
   NGTStore.save();
   txt=a.name+': Standardfutter '+p.feeder;
  }else if(p.intent==='shed'){
-  a.sheds=a.sheds||[];
-  a.sheds.push({date:p.date,complete:true,note:'TerraControl KI'});
-  NGTStore.save();
+  const result=NGTStore.recordShed(
+   {animalId:NGTStore.animalId(a)},
+   {
+    date:p.date,
+    complete:true,
+    source:'chat',
+    note:'TerraControl KI'
+   }
+  );
+  if(!result)return null;
   txt=a.name+': Häutung '+p.date;
  }else if(p.intent==='weight'){
   if(!p.grams)return null;
-  a.weights=a.weights||[];
-  a.weights.push({date:p.date,weight:p.grams,note:'TerraControl KI'});
-  a.weight=p.grams;
-  NGTStore.save();
+  const result=NGTStore.recordWeight(
+   {animalId:NGTStore.animalId(a)},
+   {
+    date:p.date,
+    weight:p.grams,
+    source:'chat',
+    note:'TerraControl KI'
+   }
+  );
+  if(!result)return null;
   txt=a.name+': Gewicht '+p.date+' '+p.grams+'g';
  }else if(p.intent==='feed'||p.intent==='feed_refused'){
   const ft=p.feeder||a.defaultFeeder||a.futterStandard||'';

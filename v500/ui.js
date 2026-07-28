@@ -131,6 +131,19 @@ function timeline(a){
   rows.push({d:w.date,txt:'Gewicht '+w.weight+'g'});
  });
 
+ (a.health||[]).forEach(function(h){
+  rows.push({
+   d:h.date,
+   txt:
+    'Gesundheit '+
+    [
+     h.type,
+     h.title,
+     h.status
+    ].filter(Boolean).join(' ')
+  });
+ });
+
  (a.photos||[]).forEach(function(p){
   rows.push({d:p.date,txt:'Foto '+(p.type||'')+' '+(p.note||'')});
  });

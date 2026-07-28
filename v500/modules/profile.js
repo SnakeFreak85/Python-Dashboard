@@ -11,6 +11,7 @@ if(!P){
 }
 
 const requiredModules=[
+ 'history',
  'food',
  'health',
  'passport',
@@ -308,15 +309,15 @@ function body(animal){
 
  if(tab==='sheds'){
   return (
-   P.shedForm()+
-   P.shedList(animal)
+   P.history.shedForm()+
+   P.history.shedList(animal)
   );
  }
 
  if(tab==='weights'){
   return (
-   P.weightForm()+
-   P.weightList(animal)
+   P.history.weightForm()+
+   P.history.weightList(animal)
   );
  }
 
@@ -329,7 +330,7 @@ function body(animal){
  }
 
  if(tab==='charts'){
-  return P.charts(animal);
+  return P.history.charts(animal);
  }
 
  if(tab==='analysis'){
@@ -621,16 +622,16 @@ window.NGTProfile={
   P.food.addFeed,
 
  addShed:
-  P.addShed,
+  P.history.addShed,
 
  addWeight:
-  P.addWeight,
+  P.history.addWeight,
 
  addHealth:
   P.health.addHealth,
 
  deleteEntry:
-  P.deleteEntry,
+  P.history.deleteEntry,
 
  updateFeedStockStatus:
   P.food.updateFeedStockStatus

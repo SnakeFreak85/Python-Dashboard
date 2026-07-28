@@ -168,11 +168,6 @@ function addHealth(){
   return;
  }
 
- animal.health=
-  Array.isArray(animal.health)
-   ?animal.health
-   :[];
-
  const dateElement=
   document.getElementById(
    'healthDate'
@@ -213,9 +208,9 @@ function addHealth(){
    'healthNote'
   );
 
- animal.health.push({
-  id:NGT500.uid(),
-
+ const result=NGTStore.recordHealth(
+  P.getContext(),
+  {
   date:
    (
     dateElement&&
@@ -256,11 +251,15 @@ function addHealth(){
   note:
    noteElement
     ?noteElement.value
-    :''
- });
+    :'',
 
- NGTStore.save();
- P.setTab('health');
+  source:'profile'
+  }
+ );
+
+ if(result){
+  P.setTab('health');
+ }
 }
 
 P.health={

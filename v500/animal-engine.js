@@ -297,6 +297,59 @@ function createFeedEvent(input){
     return event;
 }
 
+function createWeightEvent(input){
+    const source=input||{};
+    const weight=positiveNumber(
+        source.weight ??
+        source.grams ??
+        source.value
+    );
+
+    if(weight===null){
+        return null;
+    }
+
+    return {
+        ...source,
+        id:text(source.id),
+        date:text(source.date),
+        weight:weight,
+        source:text(source.source),
+        note:text(source.note)
+    };
+}
+
+function createShedEvent(input){
+    const source=input||{};
+
+    return {
+        ...source,
+        id:text(source.id),
+        date:text(source.date),
+        complete:source.complete!==false,
+        source:text(source.source),
+        note:text(source.note)
+    };
+}
+
+function createHealthEvent(input){
+    const source=input||{};
+
+    return {
+        ...source,
+        id:text(source.id),
+        date:text(source.date),
+        type:text(source.type)||"Gesundheit",
+        title:text(source.title),
+        medication:text(source.medication),
+        dose:text(source.dose),
+        duration:text(source.duration),
+        status:text(source.status)||"offen",
+        source:text(source.source),
+        note:text(source.note)
+    };
+}
+
 function feedLabel(entry){
     return normalizeFeedEvent(entry).displayLabel;
 }
@@ -418,6 +471,12 @@ window.AnimalEngine={
     normalizeFeedEvent,
 
     createFeedEvent,
+
+    createWeightEvent,
+
+    createShedEvent,
+
+    createHealthEvent,
 
     feedLabel,
 

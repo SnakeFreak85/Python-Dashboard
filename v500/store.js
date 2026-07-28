@@ -223,6 +223,7 @@ function normalizeAnimal(a,t,i){
   a.feeds=Array.isArray(a.feeds)?a.feeds:[];
   a.sheds=Array.isArray(a.sheds)?a.sheds:[];
   a.weights=Array.isArray(a.weights)?a.weights:[];
+  a.health=Array.isArray(a.health)?a.health:[];
   a.photos=Array.isArray(a.photos)?a.photos:[];
 
   cleanPhotoData(a);
@@ -230,6 +231,7 @@ function normalizeAnimal(a,t,i){
   a.feeds.sort(byDate);
   a.sheds.sort(byDate);
   a.weights.sort(byDate);
+  a.health.sort(byDate);
 
   a.defaultFeeder=a.defaultFeeder||a.futterStandard||a.standardFeed||'';
 
@@ -705,6 +707,188 @@ function recordFeed(ref,input){
   };
 }
 
+function recordWeight(ref,input){
+  const row=resolveAnimal(ref);
+
+  if(
+    !row||
+    !window.AnimalEngine||
+    typeof AnimalEngine.createWeightEvent!=='function'
+  ){
+    return null;
+  }
+
+  input=input||{};
+
+  const event=AnimalEngine.createWeightEvent({
+    ...input,
+    id:input.id||NGT500.uid(),
+    date:input.date||NGT500.today()
+  });
+
+  if(!event){
+    return null;
+  }
+
+  if(!Array.isArray(row.a.weights)){
+    row.a.weights=[];
+  }
+
+  row.a.weights.push(event);
+  row.a.weights.sort(byDate);
+
+  const current=AnimalEngine.latest(
+    row.a.weights
+  );
+
+  row.a.weight=current
+    ?current.weight
+    :'';
+
+  save();
+
+  return {
+    animal:row.a,
+    event:event
+  };
+}
+
+function recordShed(ref,input){
+  const row=resolveAnimal(ref);
+
+  if(
+    !row||
+    !window.AnimalEngine||
+    typeof AnimalEngine.createShedEvent!=='function'
+  ){
+    return null;
+  }
+
+  input=input||{};
+
+  const event=AnimalEngine.createShedEvent({
+    ...input,
+    id:input.id||NGT500.uid(),
+    date:input.date||NGT500.today()
+  });
+
+  if(!Array.isArray(row.a.sheds)){
+    row.a.sheds=[];
+  }
+
+  row.a.sheds.push(event);
+  row.a.sheds.sort(byDate);
+
+  save();
+
+  return {
+    animal:row.a,
+    event:event
+  };
+}
+
+function recordHealth(ref,input){
+  const row=resolveAnimal(ref);
+
+  if(
+    !row||
+    !window.AnimalEngine||
+    typeof AnimalEngine.createHealthEvent!=='function'
+  ){
+    return null;
+  }
+
+  input=input||{};
+
+  const event=AnimalEngine.createHealthEvent({
+    ...input,
+    id:input.id||NGT500.uid(),
+    date:input.date||NGT500.today()
+  });
+
+  if(!Array.isArray(row.a.health)){
+    row.a.health=[];
+  }
+
+  row.a.health.push(event);
+  row.a.health.sort(byDate);
+
+  save();
+
+  return {
+    animal:row.a,
+    event:event
+  };
+}
+
+function deleteHistoryEntry(
+  ref,
+  kind,
+  entryRef
+){
+  const allowed=[
+    'feeds',
+    'sheds',
+    'weights',
+    'health'
+  ];
+
+  if(!allowed.includes(kind)){
+    return false;
+  }
+
+  const row=resolveAnimal(ref);
+  const list=
+    row&&
+    Array.isArray(row.a[kind])
+      ?row.a[kind]
+      :null;
+
+  if(!list){
+    return false;
+  }
+
+  let index=-1;
+
+  if(
+    typeof entryRef==='number'&&
+    Number.isInteger(entryRef)
+  ){
+    index=entryRef;
+  }else{
+    const id=String(
+      entryRef&&entryRef.id||
+      entryRef||
+      ''
+    );
+
+    index=list.findIndex(function(entry){
+      return String(entry&&entry.id||'')===id;
+    });
+  }
+
+  if(
+    index<0||
+    index>=list.length
+  ){
+    return false;
+  }
+
+  list.splice(index,1);
+
+  if(kind==='weights'){
+    const current=AnimalEngine.latest(list);
+
+    row.a.weight=current
+      ?current.weight
+      :'';
+  }
+
+  save();
+
+  return true;
+}
+
 function addFood(name,qty){
   const key=foodKey(name);
   const item=db.foodInventory.find(x=>foodKey(x.name)===key||x.key===key);
@@ -792,6 +976,10 @@ window.NGTStore={
   deleteAnimal,
   deleteAnimalById,
   recordFeed,
+  recordWeight,
+  recordShed,
+  recordHealth,
+  deleteHistoryEntry,
 
   addFood,
   reduceFood,

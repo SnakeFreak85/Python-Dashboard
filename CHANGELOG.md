@@ -4,6 +4,10 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Gewichts-, Häutungs- und Gesundheitseinträge aus Profil, Schnelleingabe und Chat auf zentrale Store-Pfade sowie gemeinsame Ereignismodelle umgestellt.
+- Das zuvor ungenutzte `profile-history`-Modul aktiviert und doppelte Verlaufslogik aus `profile-core` entfernt.
+- Gesundheitshistorien werden beim Laden defensiv initialisiert, chronologisch sortiert und in der gemeinsamen Tierchronik berücksichtigt.
+- Regressionstests für Historieneinträge, Quellzuordnung, Gewichtsaktualisierung und ID-basierte Löschung ergänzt.
 - Automatische Taxonomie-Dekoration durch den DOM-Beobachter mit einem eigenen Browser-Regressionstest abgesichert.
 - Automatische Firebase-Synchronisation gegen das Überschreiben lokaler Bestände durch fehlende, leere oder zeitlich nicht eindeutig einordenbare Cloud-Daten abgesichert.
 - Konfliktentscheidung zwischen lokalem Stand und Firestore in einer reinen `NGTSyncPolicyEngine` zentralisiert; bewusstes manuelles Laden aus der Cloud bleibt nach Bestätigung möglich.

@@ -2,108 +2,241 @@
 'use strict';
 
 const P=window.NGTProfileInternal;
-if(!P)throw new Error('NGTProfileInternal fehlt.');
 
-P.shedForm=function(){
- return '<div class="subcard tc2SubCard"><h3>Häutung eintragen</h3><input id="shedDate" type="date" value="'+NGT500.today()+'"><button onclick="NGTProfile.addShed()">Häutung speichern</button></div>';
-};
+if(!P){
+ throw new Error(
+  'NGTProfileInternal fehlt. profile-core.js muss vor profile-history.js geladen werden.'
+ );
+}
 
-P.weightForm=function(){
- return '<div class="subcard tc2SubCard"><h3>Gewicht eintragen</h3><input id="weightDate" type="date" value="'+NGT500.today()+'"><input id="weightValue" type="number" min="0" step="0.1" placeholder="Gewicht in g"><button onclick="NGTProfile.addWeight()">Gewicht speichern</button></div>';
-};
+function shedForm(){
+ return `
+  <div class="subcard tc2SubCard">
+   <h3>Häutung eintragen</h3>
 
-P.shedList=function(animal){
- const rows=(animal.sheds||[]).map(function(entry,index){
-  return {entry:entry,index:index};
- }).reverse().map(function(item){
-  return P.row(
-   item.entry.date,
-   'Häutung',
-   "NGTProfile.deleteEntry('sheds',"+item.index+")"
-  );
- }).join('');
- return '<div class="subcard tc2SubCard"><h3>Häutungen</h3>'+(rows||'<p class="muted">Keine Häutungen.</p>')+'</div>';
-};
+   <input
+    id="shedDate"
+    type="date"
+    value="${NGT500.today()}"
+   >
 
-P.weightList=function(animal){
- const rows=(animal.weights||[]).map(function(entry,index){
-  return {entry:entry,index:index};
- }).reverse().map(function(item){
-  return P.row(
-   item.entry.date,
-   item.entry.weight+' g',
-   "NGTProfile.deleteEntry('weights',"+item.index+")"
-  );
- }).join('');
- return '<div class="subcard tc2SubCard"><h3>Gewichte</h3>'+(rows||'<p class="muted">Keine Gewichte.</p>')+'</div>';
-};
+   <button onclick="NGTProfile.addShed()">
+    Häutung speichern
+   </button>
+  </div>
+ `;
+}
 
-P.addShed=function(){
+function weightForm(){
+ return `
+  <div class="subcard tc2SubCard">
+   <h3>Gewicht eintragen</h3>
+
+   <input
+    id="weightDate"
+    type="date"
+    value="${NGT500.today()}"
+   >
+
+   <input
+    id="weightValue"
+    type="number"
+    min="0"
+    step="0.1"
+    placeholder="Gewicht in g"
+   >
+
+   <button onclick="NGTProfile.addWeight()">
+    Gewicht speichern
+   </button>
+  </div>
+ `;
+}
+
+function shedList(animal){
+ const rows=(animal.sheds||[])
+  .map(function(entry,index){
+   return {
+    entry:entry,
+    index:index
+   };
+  })
+  .reverse()
+  .map(function(item){
+   return P.row(
+    item.entry.date,
+    'Häutung',
+    "NGTProfile.deleteEntry('sheds',"+
+     item.index+
+     ")"
+   );
+  })
+  .join('');
+
+ return `
+  <div class="subcard tc2SubCard">
+   <h3>Häutungen</h3>
+   ${
+    rows||
+    '<p class="muted">Keine Häutungen.</p>'
+   }
+  </div>
+ `;
+}
+
+function weightList(animal){
+ const rows=(animal.weights||[])
+  .map(function(entry,index){
+   return {
+    entry:entry,
+    index:index
+   };
+  })
+  .reverse()
+  .map(function(item){
+   return P.row(
+    item.entry.date,
+    item.entry.weight+' g',
+    "NGTProfile.deleteEntry('weights',"+
+     item.index+
+     ")"
+   );
+  })
+  .join('');
+
+ return `
+  <div class="subcard tc2SubCard">
+   <h3>Gewichte</h3>
+   ${
+    rows||
+    '<p class="muted">Keine Gewichte.</p>'
+   }
+  </div>
+ `;
+}
+
+function addShed(){
  const animal=P.current();
- const date=document.getElementById('shedDate');
- if(!animal)return;
- P.ensure(animal);
- animal.sheds.push({
-  id:NGT500.uid(),
-  date:(date&&date.value)||NGT500.today(),
-  complete:true
- });
- NGTStore.save();
- P.setTab('sheds');
-};
+ const date=document.getElementById(
+  'shedDate'
+ );
 
-P.addWeight=function(){
- const animal=P.current();
- const value=document.getElementById('weightValue');
- const date=document.getElementById('weightDate');
- const weight=Number(value&&value.value);
- if(!animal)return;
- if(!Number.isFinite(weight)||weight<=0){
-  alert('Bitte ein gültiges Gewicht eingeben.');
+ if(!animal){
   return;
  }
- P.ensure(animal);
- animal.weights.push({
-  id:NGT500.uid(),
-  date:(date&&date.value)||NGT500.today(),
-  weight:weight
- });
- animal.weight=weight;
- NGTStore.save();
- P.setTab('weights');
-};
 
-P.deleteEntry=function(kind,index){
- if(!confirm('Eintrag löschen?'))return;
- const animal=P.current();
- if(!animal||!Array.isArray(animal[kind]))return;
- if(index<0||index>=animal[kind].length)return;
- animal[kind].splice(index,1);
- if(kind==='weights'){
-  const latest=P.latest(animal.weights);
-  animal.weight=latest?latest.weight:'';
+ const result=NGTStore.recordShed(
+  P.getContext(),
+  {
+   date:
+    date&&date.value||
+    NGT500.today(),
+   complete:true,
+   source:'profile'
+  }
+ );
+
+ if(result){
+  P.setTab('sheds');
  }
- NGTStore.save();
- P.setTab(P.getTab());
+}
+
+function addWeight(){
+ const animal=P.current();
+ const value=document.getElementById(
+  'weightValue'
+ );
+ const date=document.getElementById(
+  'weightDate'
+ );
+ const weight=Number(
+  value&&value.value
+ );
+
+ if(!animal){
+  return;
+ }
+
+ if(
+  !Number.isFinite(weight)||
+  weight<=0
+ ){
+  window.alert(
+   'Bitte ein gültiges Gewicht eingeben.'
+  );
+  return;
+ }
+
+ const result=NGTStore.recordWeight(
+  P.getContext(),
+  {
+   date:
+    date&&date.value||
+    NGT500.today(),
+   weight:weight,
+   source:'profile'
+  }
+ );
+
+ if(result){
+  P.setTab('weights');
+ }
+}
+
+function deleteEntry(kind,index){
+ const removed=
+  NGTStore.deleteHistoryEntry(
+   P.getContext(),
+   kind,
+   index
+  );
+
+ if(removed){
+  P.setTab(P.getTab());
+ }
+}
+
+function charts(animal){
+ return `
+  <div class="subcard tc2SubCard">
+   <h3>Gewicht</h3>
+   <p class="muted">
+    ${(animal.weights||[]).length}
+    Einträge
+   </p>
+  </div>
+
+  <div class="subcard tc2SubCard">
+   <h3>Fütterungen</h3>
+   <p class="muted">
+    ${(animal.feeds||[]).length}
+    Einträge
+   </p>
+  </div>
+ `;
+}
+
+P.history={
+ shedForm:shedForm,
+ shedList:shedList,
+ addShed:addShed,
+ weightForm:weightForm,
+ weightList:weightList,
+ addWeight:addWeight,
+ deleteEntry:deleteEntry,
+ charts:charts
 };
 
-P.barChart=function(rows){
- if(!rows.length)return '<p class="muted">Keine Daten.</p>';
- const max=Math.max.apply(null,rows.map(function(row){
-  return Number(row.value||0);
- }).concat([1]));
- return rows.map(function(row){
-  const width=Math.max(4,Math.round((Number(row.value||0)/max)*100));
-  return '<div class="tc2Bar"><small>'+P.esc(row.label||'-')+'</small><span><i style="width:'+width+'%"></i></span><b>'+P.esc(row.value)+'</b></div>';
- }).join('');
-};
-
-P.charts=function(animal){
- return '<div class="subcard tc2SubCard"><h3>Gewicht</h3>'+P.barChart((animal.weights||[]).map(function(entry){
-  return {label:entry.date,value:Number(entry.weight||0)};
- }))+'</div><div class="subcard tc2SubCard"><h3>Fütterungen</h3>'+P.barChart((animal.feeds||[]).map(function(entry){
-  return {label:entry.date,value:entry.accepted===false?0:1};
- }))+'</div>';
-};
+/*
+ * Kompatible interne Namen für bestehende Erweiterungen.
+ */
+P.shedForm=shedForm;
+P.shedList=shedList;
+P.addShed=addShed;
+P.weightForm=weightForm;
+P.weightList=weightList;
+P.addWeight=addWeight;
+P.deleteEntry=deleteEntry;
+P.charts=charts;
 
 })();
