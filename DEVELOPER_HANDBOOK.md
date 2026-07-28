@@ -474,6 +474,13 @@ die beiden Legacy-Aliasse, der Futterschlüssel und eine passende
 Futterbestands-ID gemeinsam aktualisiert. Dadurch dürfen Schnelleingabe und
 Chat den Tierdatensatz nicht mehr direkt verändern.
 
+Die Futterverwaltung speichert Positionen über
+`NGTStore.saveFoodInventoryItem()`, ändert Mengen über
+`NGTStore.adjustFoodInventoryItem()` und löscht ausschließlich über
+`NGTStore.deleteFoodInventoryItem()`. Das Futtermodul verantwortet weiterhin
+Formularvalidierung, Duplikaterkennung und Benutzerbestätigung, verändert
+`foodInventory[]` aber nicht direkt.
+
 ### 8.6 Taxonomie
 
 Die Abhängigkeit lautet:

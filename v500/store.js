@@ -1152,6 +1152,108 @@ function updateFoodStock(name,change){
   return item;
 }
 
+function foodInventoryIndexById(id){
+  id=String(id||'').trim();
+
+  if(!id){
+    return -1;
+  }
+
+  return db.foodInventory.findIndex(function(item){
+    return String(
+      normalizeFoodItem(item).id
+    )===id;
+  });
+}
+
+function saveFoodInventoryItem(input){
+  input=input||{};
+
+  const requestedId=String(
+    input.id||''
+  ).trim();
+  const index=foodInventoryIndexById(
+    requestedId
+  );
+  const current=
+    index>=0
+      ?db.foodInventory[index]
+      :{};
+  const itemName=String(
+    input.itemName||
+    input.prey||
+    input.name||
+    input.label||
+    current.itemName||
+    current.prey||
+    current.name||
+    current.label||
+    ''
+  ).trim();
+
+  if(!itemName){
+    return null;
+  }
+
+  const item=normalizeFoodItem({
+    ...current,
+    ...input,
+    id:
+      requestedId||
+      NGT500.uid()
+  });
+
+  if(index>=0){
+    db.foodInventory[index]=item;
+  }else{
+    db.foodInventory.push(item);
+  }
+
+  save();
+
+  return item;
+}
+
+function adjustFoodInventoryItem(id,amount){
+  const index=foodInventoryIndexById(id);
+  const change=Number(amount);
+
+  if(index<0||!Number.isFinite(change)){
+    return null;
+  }
+
+  const item=normalizeFoodItem({
+    ...db.foodInventory[index],
+    qty:Math.max(
+      0,
+      Number(db.foodInventory[index].qty||0)+
+      change
+    )
+  });
+
+  db.foodInventory[index]=item;
+  save();
+
+  return item;
+}
+
+function deleteFoodInventoryItem(id){
+  const index=foodInventoryIndexById(id);
+
+  if(index<0){
+    return null;
+  }
+
+  const removed=db.foodInventory.splice(
+    index,
+    1
+  )[0];
+
+  save();
+
+  return removed;
+}
+
 function reduceFood(name,n){
   const key=foodKey(name);
   const item=db.foodInventory.find(x=>foodKey(x.name)===key||x.key===key);
@@ -1233,6 +1335,9 @@ window.NGTStore={
 
   addFood,
   updateFoodStock,
+  saveFoodInventoryItem,
+  adjustFoodInventoryItem,
+  deleteFoodInventoryItem,
   reduceFood,
 
   market,

@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Anlegen, Bearbeiten, Bestandsänderung und Löschen von Futterpositionen auf zentrale ID-basierte Store-Operationen umgestellt.
+- Duplikaterkennung und Bestätigungsdialoge bleiben als Bedienlogik im Futtermodul; direkte Änderungen an `foodInventory[]` wurden dort entfernt.
 - Standardfutter-Änderungen aus Schnelleingabe und Chat auf einen gemeinsamen Store-Pfad umgestellt.
 - Kanonischer Futterschlüssel, Typ, Größe, Zustand und verknüpfte Bestands-ID bleiben bei Standardfutter-Änderungen synchron.
 - Hinzufügen, Titelbildwechsel und Löschen von Tierfotos auf stabile, zentrale Store-Operationen umgestellt.

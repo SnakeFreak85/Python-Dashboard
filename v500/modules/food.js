@@ -390,14 +390,6 @@ function findById(id){
  );
 }
 
-function storedIndexById(id){
- return inventory().findIndex(function(item){
-  return String(
-   normalizeItem(item).id
-  )===String(id);
- });
-}
-
 function duplicateFor(data,ignoreId){
  const category=slug(data.category);
  const condition=slug(data.condition);
@@ -452,10 +444,17 @@ async function save(){
    return;
   }
 
-  const duplicateIndex=
-   storedIndexById(duplicate.id);
-
-  if(duplicateIndex<0){
+  if(
+   !NGTStore.saveFoodInventoryItem({
+    ...duplicate,
+    qty:
+     number(duplicate.qty,0)+
+     data.qty,
+    minimum:data.minimum,
+    label:itemLabel(data),
+    name:itemLabel(data)
+   })
+  ){
    NGT500.toast(
     'Die vorhandene Futterposition wurde nicht gefunden.',
     'danger'
@@ -463,30 +462,14 @@ async function save(){
    return;
   }
 
-  const duplicateItem=
-   inventory()[duplicateIndex];
-
-  inventory()[duplicateIndex]=
-   normalizeItem({
-    ...duplicateItem,
-    qty:
-     number(duplicate.qty,0)+
-     data.qty,
-    minimum:data.minimum,
-    label:itemLabel(data),
-    name:itemLabel(data)
-   });
-
-  NGTStore.save();
   NGT500.route('food');
   return;
  }
 
  if(id){
-  const existingIndex=
-   storedIndexById(id);
+  const existing=findById(id);
 
-  if(existingIndex<0){
+  if(!existing){
    NGT500.toast(
     'Die Futterposition wurde nicht gefunden.',
     'danger'
@@ -494,9 +477,8 @@ async function save(){
    return;
   }
 
-  inventory()[existingIndex]=
-   normalizeItem({
-    ...inventory()[existingIndex],
+  NGTStore.saveFoodInventoryItem({
+    ...existing,
     ...data,
     id:id,
     label:itemLabel(data),
@@ -511,7 +493,7 @@ async function save(){
    });
 
  }else{
-  inventory().push(normalizeItem({
+  NGTStore.saveFoodInventoryItem({
    id:uid(),
    category:data.category,
    itemName:data.itemName,
@@ -521,10 +503,9 @@ async function save(){
    qty:data.qty,
    minimum:data.minimum,
    label:itemLabel(data)
-  }));
+  });
  }
 
- NGTStore.save();
  NGT500.route('food');
 }
 
@@ -604,24 +585,15 @@ function cancelEdit(){
 }
 
 function change(id,amount){
- const index=storedIndexById(id);
-
- if(index<0)return;
-
- const item=normalizeItem(
-  inventory()[index]
- );
-
- inventory()[index]=normalizeItem({
-  ...item,
-  qty:Math.max(
-   0,
-   number(item.qty,0)+
+ if(
+  !NGTStore.adjustFoodInventoryItem(
+   id,
    number(amount,0)
   )
- });
+ ){
+  return;
+ }
 
- NGTStore.save();
  NGT500.route('food');
 }
 
@@ -647,9 +619,14 @@ async function del(id){
   return;
  }
 
- items.splice(index,1);
+ if(!NGTStore.deleteFoodInventoryItem(id)){
+  NGT500.toast(
+   'Die Futterposition wurde nicht gefunden.',
+   'danger'
+  );
+  return;
+ }
 
- NGTStore.save();
  NGT500.route('food');
 }
 

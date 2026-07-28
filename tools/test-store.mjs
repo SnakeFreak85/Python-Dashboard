@@ -886,6 +886,86 @@ assert.match(
  'Ohne Nachkaufbedarf muss das Smart Dashboard einen eindeutigen Leerzustand zeigen.'
 );
 
+const savedInventoryItem=
+ store.saveFoodInventoryItem({
+  id:'food-crud',
+  category:'Insekten',
+  condition:'Lebend',
+  itemName:'Heimchen',
+  variant:'mittel',
+  unit:'Dose',
+  qty:3,
+  minimum:2,
+  label:'Lebend Heimchen mittel'
+ });
+
+assert.equal(
+ savedInventoryItem.id,
+ 'food-crud',
+ 'Eine neue Futterposition muss ihre vorgegebene ID behalten.'
+);
+assert.equal(
+ savedInventoryItem.qty,
+ 3,
+ 'Eine neue Futterposition muss ihren Bestand speichern.'
+);
+
+const updatedInventoryItem=
+ store.saveFoodInventoryItem({
+  id:'food-crud',
+  qty:6,
+  minimum:4
+ });
+
+assert.equal(
+ updatedInventoryItem.itemName,
+ 'Heimchen',
+ 'Beim Bearbeiten muessen nicht uebergebene Metadaten erhalten bleiben.'
+);
+assert.equal(
+ updatedInventoryItem.qty,
+ 6,
+ 'Eine vorhandene Futterposition muss ueber ihre ID aktualisiert werden.'
+);
+assert.equal(
+ store.adjustFoodInventoryItem(
+  'food-crud',
+  -2
+ ).qty,
+ 4,
+ 'Bestandsaenderungen per ID muessen gespeichert werden.'
+);
+assert.equal(
+ store.adjustFoodInventoryItem(
+  'food-crud',
+  -99
+ ).qty,
+ 0,
+ 'Bestandsaenderungen per ID duerfen keinen negativen Bestand erzeugen.'
+);
+assert.equal(
+ store.adjustFoodInventoryItem(
+  'food-crud',
+  'ungueltig'
+ ),
+ null,
+ 'Ungueltige Bestandsaenderungen duerfen nicht gespeichert werden.'
+);
+assert.equal(
+ store.deleteFoodInventoryItem(
+  'food-crud'
+ ).id,
+ 'food-crud',
+ 'Futterpositionen muessen stabil ueber ihre ID geloescht werden koennen.'
+);
+assert.equal(
+ store.deleteFoodInventoryItem(
+  'food-crud'
+ ),
+ null,
+ 'Eine bereits entfernte Futterposition darf nicht erneut geloescht werden.'
+);
+
 vm.runInContext(
  fs.readFileSync('v500/modules/food.js','utf8'),
  context,
