@@ -4,6 +4,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Nachweislich ungenutzte Store-Funktionen `addFood()` und `reduceFood()` entfernt; Futterbestand besitzt keine parallelen, schwächer validierten Schreibpfade mehr.
 - Legacy-Fotomigration auf Arbeitskopien umgestellt; ein Tier übernimmt migrierte Metadaten erst nach vollständig erfolgreicher Verarbeitung.
 - Einzel- und Gesamtmigration schreiben Fotolisten über eine gemeinsame Store-Operation; redundante zusätzliche Speicheraufrufe entfernt.
 - Verkäuferdaten werden über eine zentrale Store-Operation gespeichert; das Einstellungsmodul verändert `settings` nicht mehr direkt.

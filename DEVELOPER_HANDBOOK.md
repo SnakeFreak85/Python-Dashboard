@@ -481,6 +481,11 @@ Die Futterverwaltung speichert Positionen über
 Formularvalidierung, Duplikaterkennung und Benutzerbestätigung, verändert
 `foodInventory[]` aber nicht direkt.
 
+Die früheren Store-Funktionen `addFood()` und `reduceFood()` sind entfernt.
+Neue Aufrufer verwenden abhängig vom Anwendungsfall
+`updateFoodStock()` für erkannte Spracheingaben oder die ID-basierten
+Operationen der Futterverwaltung.
+
 Verkäuferdaten aus den Einstellungen werden mit
 `NGTStore.saveSellerProfile()` gespeichert. Die Operation ersetzt nur das
 Verkäuferprofil, erhält andere Einstellungen und entfernt die veralteten

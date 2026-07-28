@@ -1140,23 +1140,6 @@ function deleteHistoryEntry(
   return true;
 }
 
-function addFood(name,qty){
-  const key=foodKey(name);
-  const item=db.foodInventory.find(x=>foodKey(x.name)===key||x.key===key);
-
-  if(item){
-    item.name=name;
-    item.label=foodLabel(name);
-    item.key=key;
-    item.id=item.id||('food_'+key);
-    item.qty=Number(qty||0);
-  }else{
-    db.foodInventory.push(normalizeFoodItem({name,qty:Number(qty||0)}));
-  }
-
-  save();
-}
-
 function updateFoodStock(name,change){
   const label=String(name||'').trim();
   const mode=String(change&&change.mode||'');
@@ -1300,15 +1283,6 @@ function deleteFoodInventoryItem(id){
   return removed;
 }
 
-function reduceFood(name,n){
-  const key=foodKey(name);
-  const item=db.foodInventory.find(x=>foodKey(x.name)===key||x.key===key);
-
-  if(item)item.qty=Math.max(0,Number(item.qty||0)-Number(n||1));
-
-  save();
-}
-
 function market(a){
   const buy=Number(a.buyPrice||0);
   const txt=String(a.morph||'').toLowerCase();
@@ -1381,12 +1355,10 @@ window.NGTStore={
   recordHealth,
   deleteHistoryEntry,
 
-  addFood,
   updateFoodStock,
   saveFoodInventoryItem,
   adjustFoodInventoryItem,
   deleteFoodInventoryItem,
-  reduceFood,
 
   market,
   parseFeeder,

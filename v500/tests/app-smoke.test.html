@@ -187,6 +187,15 @@ function testRuntime(){
     );
 
     record(
+     'Veraltete Futter-Schreibpfade entfernt',
+     !!(
+      win.NGTStore&&
+      typeof win.NGTStore.addFood==='undefined'&&
+      typeof win.NGTStore.reduceFood==='undefined'
+     )
+    );
+
+    record(
      'UUID-basierte Store-API verfügbar',
      !!(
       win.NGTStore&&
