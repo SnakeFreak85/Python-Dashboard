@@ -179,6 +179,12 @@ try{
   0
  );
 
+ equal(
+  'Dokumentensammlung wird zentral initialisiert',
+  Array.isArray(NGTStore.data().documents),
+  true
+ );
+
  NGTStore.addAnimal('',{
   uuid:'offspring-1',
   uid:'offspring-1',

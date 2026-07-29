@@ -118,19 +118,9 @@ function documents(){
  try{
   const data=NGTStore.data();
 
-  return []
-   .concat(
-    data.documents||
-    []
-   )
-   .concat(
-    data.sales||
-    []
-   )
-   .concat(
-    data.clutches||
-    []
-   );
+  return Array.isArray(data.documents)
+   ?data.documents
+   :[];
 
  }catch(error){
   return [];

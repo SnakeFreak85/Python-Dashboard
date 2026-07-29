@@ -105,7 +105,7 @@ function fileInput(){
  el=document.createElement('input');
  el.id='hknRuntimeFileInput';
  el.type='file';
- el.accept='image/*,.pdf';
+ el.accept='image/*';
  el.setAttribute('capture','environment');
  el.style.display='none';
  document.body.appendChild(el);

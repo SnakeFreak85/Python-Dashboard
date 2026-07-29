@@ -46,6 +46,7 @@ function base(){
     clutches:[],
     sales:[],
     archive:[],
+    documents:[],
     settings:{}
   };
 
@@ -406,7 +407,13 @@ function normalize(d,options){
     if(!Array.isArray(d[t]))d[t]=[];
   });
 
-  ['clutches','sales','archive','foodInventory'].forEach(k=>{
+  [
+    'clutches',
+    'sales',
+    'archive',
+    'documents',
+    'foodInventory'
+  ].forEach(k=>{
     if(!Array.isArray(d[k]))d[k]=[];
   });
 

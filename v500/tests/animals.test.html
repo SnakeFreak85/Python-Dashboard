@@ -301,6 +301,13 @@ async function run(){
    })
   );
 
+  win.NGTHknImport.run();
+  equal(
+   'HKN-Auswahl bietet nur dauerhaft unterstützte Bilddateien an',
+   win.document.getElementById('hknRuntimeFileInput').accept,
+   'image/*'
+  );
+
   win.NGT500.route('animals',{t:'koenig',hkn:1});
 
   record(
