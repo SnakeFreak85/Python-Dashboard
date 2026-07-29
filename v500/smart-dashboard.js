@@ -190,8 +190,6 @@ function foodRow(item){
 function render(){
  const all=
   NGTDashboardData.activeAnimals();
- const stock=
-  NGTDashboardData.sortedInventory();
  const docs=
   NGTDashboardData.documents();
  const groups=
@@ -239,16 +237,6 @@ function render(){
     )}
 
     ${kpi(
-     '⌂',
-     stock.length,
-     'Futterartikel',
-     low.length
-      ?low.length+' niedrig'
-      :'',
-     'orange'
-    )}
-
-    ${kpi(
      '▣',
      today.length,
      'Heute fällig',
@@ -256,6 +244,16 @@ function render(){
       ?today.length+' Aufgaben'
       :'',
      'orange'
+    )}
+
+    ${kpi(
+     '⌂',
+     low.length,
+     'Nachkaufen',
+     low.length
+      ?low.length+' Bestände'
+      :'Alles ausreichend',
+     low.length?'orange':'green'
     )}
 
     ${kpi(
@@ -267,7 +265,85 @@ function render(){
     )}
    </div>
 
-   <section class="tc2SDcard">
+   <section class="tc2SDcard tc2SDactionCard tc2SDtasksCard">
+    <div class="tc2SDcardHead">
+     <h3>Heute fällig</h3>
+    </div>
+
+    ${
+     today.length
+      ?today
+       .slice(0,3)
+       .map(taskRow)
+       .join('')+
+       (
+        today.length>3
+         ?`
+          <div class="tc2SDmore">
+           + ${today.length-3} weitere
+          </div>
+         `
+         :''
+       )
+      :`
+       <div class="tc2SDempty">
+        Heute nichts fällig.
+       </div>
+      `
+    }
+   </section>
+
+   <section class="tc2SDcard tc2SDactionCard tc2SDfoodCard">
+    <div class="tc2SDcardHead">
+     <h3>Futter nachkaufen</h3>
+
+     <button onclick="NGT500.route('food')">
+      Alle anzeigen ›
+     </button>
+    </div>
+
+    ${
+     low.length
+      ?low
+       .slice(0,3)
+       .map(foodRow)
+       .join('')
+      :`
+       <div class="tc2SDempty">
+        Alle Futterbestände sind ausreichend.
+       </div>
+      `
+    }
+   </section>
+
+   <section class="tc2SDcard tc2SDactivityCard">
+    <div class="tc2SDcardHead">
+     <h3>Aktivitäten</h3>
+    </div>
+
+    ${
+     activities.length
+      ?activities.map(function(activity){
+       return `
+        <div class="tc2SDactivity">
+         <span>${activity.icon}</span>
+
+         <div>
+          <b>${esc(activity.title)}</b>
+          <small>${esc(activity.sub)}</small>
+         </div>
+        </div>
+       `;
+      }).join('')
+      :`
+       <div class="tc2SDempty">
+        Noch keine Aktivitäten vorhanden.
+       </div>
+      `
+   }
+   </section>
+
+   <section class="tc2SDcard tc2SDstockCard">
     <div class="tc2SDcardHead">
      <h3>Bestand nach Tierart</h3>
 
@@ -308,84 +384,6 @@ function render(){
       :`
        <div class="tc2SDempty">
         Noch keine Tiere im Bestand.
-       </div>
-      `
-    }
-   </section>
-
-   <section class="tc2SDcard">
-    <div class="tc2SDcardHead">
-     <h3>Heute fällig</h3>
-    </div>
-
-    ${
-     today.length
-      ?today
-       .slice(0,3)
-       .map(taskRow)
-       .join('')+
-       (
-        today.length>3
-         ?`
-          <div class="tc2SDmore">
-           + ${today.length-3} weitere
-          </div>
-         `
-         :''
-       )
-      :`
-       <div class="tc2SDempty">
-        Heute nichts fällig.
-       </div>
-      `
-    }
-   </section>
-
-   <section class="tc2SDcard">
-    <div class="tc2SDcardHead">
-     <h3>Futter nachkaufen</h3>
-
-     <button onclick="NGT500.route('food')">
-      Alle anzeigen ›
-     </button>
-    </div>
-
-    ${
-     low.length
-      ?low
-       .slice(0,3)
-       .map(foodRow)
-       .join('')
-      :`
-       <div class="tc2SDempty">
-        Alle Futterbestände sind ausreichend.
-       </div>
-      `
-    }
-   </section>
-
-   <section class="tc2SDcard">
-    <div class="tc2SDcardHead">
-     <h3>Aktivitäten</h3>
-    </div>
-
-    ${
-     activities.length
-      ?activities.map(function(activity){
-       return `
-        <div class="tc2SDactivity">
-         <span>${activity.icon}</span>
-
-         <div>
-          <b>${esc(activity.title)}</b>
-          <small>${esc(activity.sub)}</small>
-         </div>
-        </div>
-       `;
-      }).join('')
-      :`
-       <div class="tc2SDempty">
-        Noch keine Aktivitäten vorhanden.
        </div>
       `
     }

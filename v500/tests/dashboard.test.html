@@ -431,9 +431,9 @@ async function run(){
    '2'
   );
   equal(
-   'Smart Dashboard zählt alle Futterartikel',
-   smartKpis.Futterartikel,
-   '2'
+   'Smart Dashboard zählt nur Nachkaufpositionen',
+   smartKpis.Nachkaufen,
+   '1'
   );
   equal(
    'Smart Dashboard übernimmt dieselben Fälligkeiten',
@@ -444,6 +444,21 @@ async function run(){
    'Smart Dashboard zählt nur echte Dokumente',
    smartKpis.Dokumente,
    '1'
+  );
+
+  const dashboardSectionOrder=
+   Array.from(
+    smartRoot.querySelectorAll(
+     '.tc2SDcardHead h3'
+    )
+   ).map(function(heading){
+    return heading.textContent.trim();
+   });
+
+  equal(
+   'Smart Dashboard zeigt Handlungsbedarf vor Bestandsverteilung',
+   dashboardSectionOrder.join('|'),
+   'Heute fällig|Futter nachkaufen|Aktivitäten|Bestand nach Tierart'
   );
 
   const legendText=
