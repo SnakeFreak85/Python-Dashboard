@@ -8995,7 +8995,20 @@ body:not(.tc2RefMode) .wrap {
 
 @media(max-width:370px){
  .tc2SDkpis{
-  grid-template-columns:1fr;
+  gap:8px;
+ }
+
+ .tc2SDkpi{
+  min-height:108px;
+  padding:12px;
+ }
+
+ .tc2SDkpi>span{
+  margin-bottom:9px;
+ }
+
+ .tc2SDkpi>b{
+  font-size:24px;
  }
 
  .tc2SDtask,
@@ -11654,12 +11667,16 @@ body.menuOpen #drawer{
 
 @media(max-width:370px){
  .tc21StartQuickGrid{
-  grid-template-columns:1fr;
+  gap:4px;
  }
 
  .tc21StartQuick{
-  flex-direction:row!important;
-  min-height:45px!important;
+  min-height:55px!important;
+  padding:5px 2px!important;
+ }
+
+ .tc21StartQuick>b{
+  font-size:7px;
  }
 
  .tc21StartNavText>small{

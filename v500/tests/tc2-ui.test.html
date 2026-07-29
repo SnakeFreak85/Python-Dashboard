@@ -163,6 +163,45 @@ function testRuntime(){
      doc.documentElement.scrollWidth<=doc.documentElement.clientWidth+2,
      doc.documentElement.scrollWidth+' / '+doc.documentElement.clientWidth
     );
+
+    frame.style.width='360px';
+    win.NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+
+    const quickGrid=app.querySelector('.tc21StartQuickGrid');
+    const quickColumns=quickGrid
+     ?win.getComputedStyle(quickGrid).gridTemplateColumns.split(/\s+/).length
+     :0;
+
+    record(
+     '360px-Startseite behält drei kompakte Schnellaktionen',
+     quickColumns===3,
+     String(quickColumns)
+    );
+
+    record(
+     '360px-Startseite ohne horizontales Überlaufen',
+     doc.documentElement.scrollWidth<=doc.documentElement.clientWidth+2,
+     doc.documentElement.scrollWidth+' / '+doc.documentElement.clientWidth
+    );
+
+    win.NGT500.route('smartDashboard',{}, {replace:true,noHistory:true});
+
+    const kpiGrid=app.querySelector('.tc2SDkpis');
+    const kpiColumns=kpiGrid
+     ?win.getComputedStyle(kpiGrid).gridTemplateColumns.split(/\s+/).length
+     :0;
+
+    record(
+     '360px-Smart-Dashboard behält zwei Kennzahlenspalten',
+     kpiColumns===2,
+     String(kpiColumns)
+    );
+
+    record(
+     '360px-Smart-Dashboard ohne horizontales Überlaufen',
+     doc.documentElement.scrollWidth<=doc.documentElement.clientWidth+2,
+     doc.documentElement.scrollWidth+' / '+doc.documentElement.clientWidth
+    );
    }catch(error){
     record('TC2-Runtime-Prüfung',false,error.message);
    }

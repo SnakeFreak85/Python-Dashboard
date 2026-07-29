@@ -409,14 +409,12 @@ Diese Punkte sind keine Voraussetzung für den strukturell stabilen Datenkern.
 4. nur kritische Fehler korrigieren
 5. Feedback und Nutzung nachvollziehbar dokumentieren
 
-### Phase C – Design
+### Phase C – Isolierte Designbereinigung
 
-Erst nach stabiler Testphase:
-
-1. Startseite entschlacken
-2. Smart Dashboard inhaltlich priorisieren
-3. Bestandsicons vereinheitlichen
-4. mobile Abstände und Hierarchie prüfen
+1. ✅ Startseite entschlanken.
+2. ✅ Smart Dashboard inhaltlich priorisieren.
+3. ✅ Bestandsicons vereinheitlichen.
+4. ✅ Mobile Abstände und Hierarchie bis 360 px prüfen.
 
 ### Phase D – Neue kostenlose Funktionen
 
@@ -443,9 +441,9 @@ Aktueller automatisierter Umfang:
 | QR-Import | 26 |
 | Historien | 17 |
 | Taxonomie | 31 |
-| TC2-Oberfläche | 49 |
+| TC2-Oberfläche | 53 |
 | App-Smoke-Test | 100 |
-| **Summe Browserprüfungen** | **477** |
+| **Summe Browserprüfungen** | **481** |
 
 Zusätzlich besteht der eigenständige Node-Store-Test.
 
