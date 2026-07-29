@@ -122,6 +122,15 @@ function testRuntime(){
     record('FoodInventoryEngine verfügbar',!!win.FoodInventoryEngine);
     record('CareRulesEngine verfügbar',!!win.CareRulesEngine);
     record('NGTSyncPolicyEngine verfügbar',!!win.NGTSyncPolicyEngine);
+    record(
+     'Gemeinsame Dashboard-Datenebene verfügbar',
+     !!(
+      win.NGTDashboardData&&
+      typeof win.NGTDashboardData.activeAnimals==='function'&&
+      typeof win.NGTDashboardData.dueTaskCount==='function'&&
+      typeof win.NGTDashboardData.lowFood==='function'
+     )
+    );
     record('NGTTaxonomy verfügbar',!!win.NGTTaxonomy);
     record(
      'Taxonomie-Teilmodule verfügbar',

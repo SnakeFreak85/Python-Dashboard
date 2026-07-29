@@ -97,6 +97,14 @@ animals.js
 
 `animals.js` bleibt der Controller und stellt die kompatible öffentliche `NGTAnimals`-API bereit. Gemeinsame Hilfen, Futteranbindung, Bestandsansicht und Editor liegen in getrennten internen Modulen.
 
+## Dashboard-Daten
+
+`dashboard-data.js` ist die gemeinsame lesende Datenebene für Startseite und
+Smart Dashboard. Aktive Tiere, Bestand, Nachzuchten, Fälligkeiten,
+Dokumentzahlen, Gruppen, Aktivitäten und kritische Futterpositionen werden dort
+einheitlich ermittelt. Die beiden Dashboard-Dateien bleiben für Darstellung und
+Bedienaktionen verantwortlich.
+
 ## Nachzuchtenmodule
 
 Der Nachzuchtenbereich wird in dieser Reihenfolge geladen:

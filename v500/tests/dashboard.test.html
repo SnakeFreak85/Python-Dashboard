@@ -159,6 +159,16 @@ async function run(){
     typeof win.NGT500.modules.dashboard.render==='function'
    )
   );
+  record(
+   'Gemeinsame Dashboard-Datenebene verfügbar',
+   !!(
+    win.NGTDashboardData&&
+    typeof win.NGTDashboardData.stockAnimals==='function'&&
+    typeof win.NGTDashboardData.offspringAnimals==='function'&&
+    typeof win.NGTDashboardData.plannedFeeds==='function'&&
+    typeof win.NGTDashboardData.lowFood==='function'
+   )
+  );
   equal(
    'Smart-Dashboard-API: render',
    typeof win.NGTSmartDashboard.render,

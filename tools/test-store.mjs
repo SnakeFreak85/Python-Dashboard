@@ -909,6 +909,12 @@ assert.equal(
 );
 
 vm.runInContext(
+ fs.readFileSync('v500/dashboard-data.js','utf8'),
+ context,
+ {filename:'v500/dashboard-data.js'}
+);
+
+vm.runInContext(
  fs.readFileSync('v500/smart-dashboard.js','utf8'),
  context,
  {filename:'v500/smart-dashboard.js'}

@@ -95,6 +95,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── photo-storage.js
     ├── firebase-sync.js
     ├── ai-*.js
+    ├── dashboard-data.js
     ├── smart-dashboard.js
     ├── modules/
     │   ├── dashboard.js
@@ -329,7 +330,23 @@ animals.js
 
 Die öffentliche `NGTAnimals`-API bleibt der Integrationspunkt für Inline-Handler und andere Module. Die internen Teilmodule kommunizieren über `window.NGTAnimalsInternal`.
 
-### 7.5 Nachzuchten-Architektur
+### 7.5 Dashboard-Datenarchitektur
+
+`dashboard-data.js` ist die gemeinsame, rein lesende Datenebene für
+`modules/dashboard.js` und `smart-dashboard.js`.
+
+| Bereich | Gemeinsame Verantwortung |
+|---|---|
+| Tiere | aktive Tiere, Bestand und Nachzuchten einheitlich abgrenzen |
+| Pflege | Fütterungs- und Gewichtsfälligkeiten über `CareRulesEngine` ableiten |
+| Futter | Bestand sortieren und Nachkaufpositionen über `FoodInventoryEngine` bestimmen |
+| Übersicht | Gruppen, Dokumentzahlen und letzte Aktivitäten bereitstellen |
+
+Die beiden Dashboard-Controller enthalten weiterhin nur ihre jeweilige
+Darstellung und Bedienaktionen. Sie dürfen keine parallelen Filter- oder
+Fälligkeitsregeln neu einführen.
+
+### 7.6 Nachzuchten-Architektur
 
 Der Nachzuchtenbereich wird in dieser Reihenfolge geladen:
 
@@ -347,7 +364,7 @@ offspring.js
 
 Die internen Teilmodule kommunizieren über `window.NGTOffspringInternal`. Nicht verwendete frühere APIs für direktes Editor-Einfügen und separates Löschen werden nicht mehr veröffentlicht; die Profil-Löschung bleibt beim zentralen Tierbestand.
 
-### 7.6 Taxonomie-Architektur
+### 7.7 Taxonomie-Architektur
 
 Die Taxonomie wird in dieser Reihenfolge geladen:
 

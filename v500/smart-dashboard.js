@@ -22,74 +22,6 @@ function profileRouteArgs(row){
  );
 }
 
-function animals(){
- try{
-  return NGTStore
-   .allAnimals()
-   .filter(function(row){
-    return ![
-     'Archiv',
-     'Verkauft',
-     'Abgegeben',
-     'Verstorben'
-    ].includes(
-     row.a.status
-    );
-   });
-
- }catch(error){
-  return [];
- }
-}
-
-function inventory(){
- try{
-  return FoodInventoryEngine
-   .sortInventory(
-    NGTStore
-     .data()
-     .foodInventory||
-    []
-   );
-
- }catch(error){
-  return [];
- }
-}
-
-function documents(){
- try{
-  const data=
-   NGTStore.data();
-
-  return []
-   .concat(
-    data.documents||
-    []
-   )
-   .concat(
-    data.sales||
-    []
-   )
-   .concat(
-    data.clutches||
-    []
-   );
-
- }catch(error){
-  return [];
- }
-}
-
-function feedName(animal){
- return (
-  animal.defaultFeeder||
-  animal.futterStandard||
-  animal.standardFeed||
-  ''
- );
-}
-
 function feedEnabled(animal){
  return CareRulesEngine.feedEnabled(
   animal
@@ -112,208 +44,6 @@ function weightInterval(animal){
  return CareRulesEngine.weightInterval(
   animal
  );
-}
-
-function dueFeed(
- animal,
- offset
-){
- return CareRulesEngine.isFeedDue(
-  animal,
-  {
-   offsetDays:offset
-  }
- );
-}
-
-function dueWeight(
- animal,
- offset
-){
- return CareRulesEngine.isWeightDue(
-  animal,
-  {
-   offsetDays:offset
-  }
- );
-}
-
-function plannedFeeds(offset){
- return animals()
-  .filter(function(row){
-   return dueFeed(
-    row.a,
-    offset
-   );
-  })
-  .map(function(row){
-   return {
-    name:
-     row.a.name||
-     'Unbenannt',
-
-    food:
-     feedName(
-      row.a
-     ),
-
-    type:
-     'Fütterung',
-
-    animalId:
-     NGTStore.animalId(row.a),
-
-    t:
-     row.t,
-
-    i:
-     row.i
-   };
-  });
-}
-
-function plannedWeights(offset){
- return animals()
-  .filter(function(row){
-   return dueWeight(
-    row.a,
-    offset
-   );
-  })
-  .map(function(row){
-   return {
-    name:
-     row.a.name||
-     'Unbenannt',
-
-    type:
-     'Gewicht',
-
-    animalId:
-     NGTStore.animalId(row.a),
-
-    t:
-     row.t,
-
-    i:
-     row.i
-   };
-  });
-}
-
-function groupRows(){
- const all=animals();
- const map={};
-
- all.forEach(function(row){
-  const group=
-   row.a.animalGroup||
-   'Unsortiert';
-
-  map[group]=
-   (
-    map[group]||
-    0
-   )+
-   1;
- });
-
- return Object.keys(map)
-  .sort(function(a,b){
-   return a.localeCompare(
-    b,
-    'de'
-   );
-  })
-  .map(function(group){
-   return {
-    label:group,
-    count:map[group]
-   };
-  });
-}
-
-function lowFood(){
- return inventory()
-  .filter(function(item){
-   return FoodInventoryEngine
-    .needsRestock(item);
-  });
-}
-
-function recentActivities(){
- const rows=[];
-
- animals().forEach(function(row){
-  const animal=row.a;
-
-  (
-   animal.feeds||
-   []
-  )
-   .slice(-2)
-   .forEach(function(feed){
-    rows.push({
-     icon:'🍽',
-     title:
-      animal.name||
-      'Unbenannt',
-
-     sub:
-      'Fütterung · '+
-      (
-       feed.date||
-       '-'
-      )
-    });
-   });
-
-  (
-   animal.weights||
-   []
-  )
-   .slice(-2)
-   .forEach(function(weight){
-    rows.push({
-     icon:'⚖',
-     title:
-      animal.name||
-      'Unbenannt',
-
-     sub:
-      'Gewicht · '+
-      (
-       weight.date||
-       '-'
-      )
-    });
-   });
-
-  (
-   animal.sheds||
-   []
-  )
-   .slice(-2)
-   .forEach(function(shed){
-    rows.push({
-     icon:'🧤',
-     title:
-      animal.name||
-      'Unbenannt',
-
-     sub:
-      'Häutung · '+
-      (
-       shed.date||
-       '-'
-      )
-    });
-   });
- });
-
- return rows
-  .slice(-4)
-  .reverse();
 }
 
 function donutStyle(
@@ -458,19 +188,24 @@ function foodRow(item){
 }
 
 function render(){
- const all=animals();
- const stock=inventory();
- const docs=documents();
- const groups=groupRows();
+ const all=
+  NGTDashboardData.activeAnimals();
+ const stock=
+  NGTDashboardData.sortedInventory();
+ const docs=
+  NGTDashboardData.documents();
+ const groups=
+  NGTDashboardData.groupRows();
 
  const today=[
-  ...plannedFeeds(0),
-  ...plannedWeights(0)
+  ...NGTDashboardData.plannedFeeds(0),
+  ...NGTDashboardData.plannedWeights(0)
  ];
 
- const low=lowFood();
+ const low=
+  NGTDashboardData.lowFood();
  const activities=
-  recentActivities();
+  NGTDashboardData.recentActivities();
 
  const total=all.length;
 

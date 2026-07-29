@@ -180,118 +180,6 @@ function openSmartDashboard(){
  NGT500.route('smartDashboard');
 }
 
-function isInactiveStatus(status){
- return [
-  'Archiv',
-  'Verkauft',
-  'Abgegeben',
-  'Verstorben'
- ].includes(status);
-}
-
-function isOffspringAnimal(animal){
- if(
-  window.NGTIdManager&&
-  NGTIdManager.isOffspring
- ){
-  return NGTIdManager.isOffspring(animal);
- }
-
- return (
-  String(
-   (animal&&animal.status)||''
-  ).toLowerCase()==='nachzucht'||
-
-  String(
-   (animal&&animal.collection)||''
-  ).toLowerCase()==='offspring'||
-
-  String(
-   (animal&&animal.collection)||''
-  ).toLowerCase()==='nachzuchten'
- );
-}
-
-function allAnimals(){
- try{
-  return NGTStore
-   .allAnimals()
-   .filter(function(row){
-    return (
-     !isInactiveStatus(row.a.status)&&
-     !isOffspringAnimal(row.a)
-    );
-   });
-
- }catch(error){
-  return [];
- }
-}
-
-function allOffspring(){
- try{
-  if(NGTStore.allOffspring){
-   return NGTStore
-    .allOffspring()
-    .filter(function(row){
-     return !isInactiveStatus(row.a.status);
-    });
-  }
-
-  return NGTStore
-   .allAnimals()
-   .filter(function(row){
-    return (
-     !isInactiveStatus(row.a.status)&&
-     isOffspringAnimal(row.a)
-    );
-   });
-
- }catch(error){
-  return [];
- }
-}
-
-function foodInventory(){
- try{
-  const data=NGTStore.data();
-
-  return Array.isArray(data.foodInventory)
-   ?data.foodInventory
-   :[];
-
- }catch(error){
-  return [];
- }
-}
-
-function lowFoodCount(){
- return foodInventory().filter(function(item){
-  return FoodInventoryEngine
-   .needsRestock(item);
- }).length;
-}
-
-function dueTaskCount(){
- let count=0;
-
- allAnimals()
-  .concat(allOffspring())
-  .forEach(function(row){
-   const animal=row.a||{};
-
-   if(CareRulesEngine.isFeedDue(animal)){
-    count++;
-   }
-
-   if(CareRulesEngine.isWeightDue(animal)){
-    count++;
-   }
-  });
-
- return count;
-}
-
 function legacyPhotoCount(){
  try{
   if(
@@ -530,11 +418,16 @@ function render(){
 
  const name=userName();
 
- const stockCount=allAnimals().length;
- const offspringCount=allOffspring().length;
- const foodCount=foodInventory().length;
- const lowCount=lowFoodCount();
- const tasks=dueTaskCount();
+ const stockCount=
+  NGTDashboardData.stockAnimals().length;
+ const offspringCount=
+  NGTDashboardData.offspringAnimals().length;
+ const foodCount=
+  NGTDashboardData.foodInventory().length;
+ const lowCount=
+  NGTDashboardData.lowFood().length;
+ const tasks=
+  NGTDashboardData.dueTaskCount(0);
 
  return `
   <section class="tc2Screen tc2Start tc21Start">
