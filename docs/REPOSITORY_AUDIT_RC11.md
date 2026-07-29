@@ -397,9 +397,9 @@ Diese Punkte sind keine Voraussetzung für den strukturell stabilen Datenkern.
 
 1. ✅ Firebase-Snapshot-Größe sichtbar prüfen.
 2. ✅ HKN-/Base64-Größenrisiko begrenzen.
-3. einen vollständigen manuellen Durchlauf mit realistischen Testdaten machen.
+3. ✅ einen vollständigen manuellen Durchlauf mit realistischen Testdaten machen.
 4. Backup erstellen, App-Daten löschen und Backup wiederherstellen.
-5. Cloud-Speichern und Cloud-Laden mit demselben Bestand prüfen.
+5. ✅ Cloud-Speichern und Cloud-Laden mit demselben Bestand prüfen.
 
 ### Phase B – Zweite geschlossene Testphase
 
@@ -463,6 +463,31 @@ Die Tests prüfen unter anderem:
 - Modulregistrierung und Ladeordnung
 - Offline-App-Shell
 
+### Manueller Live-Durchlauf
+
+Der veröffentlichte RC11-Stand wurde mit dem angemeldeten realen Testbestand
+geprüft:
+
+- Cloud-Laden stellte denselben Bestand mit 21 Tieren, 13 Futterpositionen
+  und 3 Nachkaufpositionen wieder her.
+- Firebase meldete anschließend wieder einen vollständig synchronisierten
+  lokalen und entfernten Datenstand.
+- Smart Dashboard und Futterverwaltung zeigten dieselben drei knappen
+  Futterpositionen.
+- Bestand, Tierkarten und Tierprofil wurden ohne Fehler geöffnet.
+- Fütterung, Gewicht und Chronik zeigten für dasselbe Tier übereinstimmende
+  Werte.
+- Die Bereiche für Fütterung, Gewicht, Häutung und Gesundheit wurden ohne
+  schreibende Testaktion geöffnet.
+- Die Schnelleingabe wurde bis zur Eingabemaske geprüft, ohne einen neuen
+  Datensatz anzulegen.
+- Ein lokales JSON-Backup wurde erfolgreich erzeugt.
+
+Nicht im produktiven Bestand durchgeführt wurde das Löschen aller App-Daten
+mit anschließendem Backup-Import. Dieser Test bleibt für ein Zweitgerät oder
+einen getrennten Testbestand vorgesehen, damit der reale Bestand keinem
+unnötigen Wiederherstellungsrisiko ausgesetzt wird.
+
 ## 10. Freigabekriterien vor Designänderungen
 
 Der technische Repository-Audit und die automatisierte Stabilisierung sind
@@ -471,7 +496,10 @@ realistischen Nutzerdaten:
 
 - ✅ alle automatisierten Tests bleiben grün
 - ✅ Firebase-Snapshot und HKN-Bildgröße sind kontrolliert
-- Backup und Cloud mit realistischen Daten manuell geprüft wurden
+- ✅ Cloud und zentrale Datenflüsse wurden mit realistischen Daten manuell
+  geprüft
+- Backup-Erstellung ist geprüft; ein vollständiger Restore bleibt auf einem
+  getrennten Testbestand offen
 - ✅ keine neue Versionsnummer wurde ohne ausdrückliche Freigabe gesetzt
 
 Nach diesen manuellen Prüfungen können Designänderungen isoliert erfolgen,
