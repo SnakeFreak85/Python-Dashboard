@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>History Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>History Browser Tests</h1>
+<p class="muted">Charakterisiert Chronik, letzte Profilwerte und gemeinsame Ereignisformate.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({
+  name:name,
+  passed:!!passed,
+  detail:detail||''
+ });
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+
+   ', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=
+  results.map(function(result){
+   return '<li class="'+
+    (result.passed?'pass':'fail')+
+    '">'+
+    (result.passed?'PASS':'FAIL')+
+    ' — '+result.name+
+    (
+     result.passed||!result.detail
+      ?''
+      :' <span class="muted">('+
+       result.detail+
+       ')</span>'
+    )+
+    '</li>';
+  }).join('');
+
+ document.title=
+  failed
+   ?'FAIL — History Tests'
+   :'PASS — History Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  let finished=false;
+
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener(
+   'load',
+   complete,
+   {once:true}
+  );
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'&&
+    /\/v500\.html(?:[?#]|$)/.test(
+     frame.contentWindow.location.href
+    )
+   ){
+    setTimeout(complete,0);
+   }
+  }catch(error){}
+ });
+}
+
+function rootFor(markup){
+ const root=document.createElement('div');
+ root.innerHTML=markup;
+ return root;
+}
+
+async function run(){
+ const frame=document.getElementById('appFrame');
+ let win=null;
+ let localBackup=null;
+ let routeBackup=null;
+ let stackBackup=null;
+
+ try{
+  win=await waitForLoad(frame);
+
+  localBackup=
+   win.localStorage.getItem('spd_v53');
+  routeBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_current_route_v1'
+   );
+  stackBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_route_stack_v1'
+   );
+
+  record(
+   'Gemeinsame Chronik-API verfügbar',
+   !!(
+    win.NGTUI&&
+    typeof win.NGTUI.timeline==='function'&&
+    win.AnimalEngine&&
+    typeof win.AnimalEngine.latest==='function'
+   )
+  );
+
+  const animal={
+   uuid:'history-animal',
+   uid:'history-animal',
+   publicId:'TC-HISTORY',
+   name:'Chronik-Tier',
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   status:'Bestand',
+   collection:'stock',
+   birth:'2024-01-01',
+   acquiredDate:'2024-02-01',
+   feeds:[
+    {
+     date:'2026-07-20',
+     accepted:false,
+     prey:'Maus',
+     amount:1,
+     size:'30 g',
+     unit:'Stück'
+    },
+    {
+     date:'2026-07-27',
+     accepted:true,
+     prey:'Ratte',
+     amount:1,
+     size:'150 g',
+     unit:'Stück'
+    }
+   ],
+   weights:[
+    {
+     date:'2026-07-26',
+     weight:980
+    },
+    {
+     date:'2026-07-10',
+     weight:950
+    }
+   ],
+   sheds:[{
+    date:'2026-07-25',
+    complete:true
+   }],
+   health:[{
+    date:'2026-07-24',
+    type:'Kontrolle',
+    title:'Routine',
+    status:'abgeschlossen'
+   }],
+   photos:[{
+    date:'2026-07-23',
+    type:'Profil',
+    note:'Neue Aufnahme'
+   }]
+  };
+
+  const feedOrder=animal.feeds.map(function(entry){
+   return entry.date;
+  }).join('|');
+  const weightOrder=animal.weights.map(function(entry){
+   return entry.date;
+  }).join('|');
+  const timeline=win.NGTUI.timeline(animal);
+
+  equal(
+   'Chronik enthält alle Stammdaten und Ereignisse',
+   timeline.length,
+   9
+  );
+  equal(
+   'Chronik sortiert das neueste Ereignis zuerst',
+   timeline[0].d,
+   '2026-07-27'
+  );
+  equal(
+   'Chronik sortiert das älteste Ereignis zuletzt',
+   timeline[timeline.length-1].d,
+   '2024-01-01'
+  );
+  equal(
+   'Legacy-Fütterung zeigt 150 g statt Menge 1 als Gewicht',
+   timeline[0].txt,
+   'Gefressen Ratte 150 g'
+  );
+  record(
+   'Chronik enthält Häutungen',
+   timeline.some(function(entry){
+    return entry.txt==='Häutung';
+   })
+  );
+  record(
+   'Chronik enthält Gewichte',
+   timeline.some(function(entry){
+    return entry.txt==='Gewicht 980g';
+   })
+  );
+  record(
+   'Chronik enthält Gesundheitseinträge',
+   timeline.some(function(entry){
+    return entry.txt.includes(
+     'Gesundheit Kontrolle Routine abgeschlossen'
+    );
+   })
+  );
+  record(
+   'Chronik enthält Fotos',
+   timeline.some(function(entry){
+    return entry.txt.includes(
+     'Foto Profil Neue Aufnahme'
+    );
+   })
+  );
+  equal(
+   'Chronik verändert die Fütterungsreihenfolge nicht',
+   animal.feeds.map(function(entry){
+    return entry.date;
+   }).join('|'),
+   feedOrder
+  );
+  equal(
+   'Chronik verändert die Gewichtsreihenfolge nicht',
+   animal.weights.map(function(entry){
+    return entry.date;
+   }).join('|'),
+   weightOrder
+  );
+
+  win.NGTStore.clearLocal();
+  win.NGTStore.addAnimal('',animal);
+
+  const profileMarkup=
+   win.NGT500.modules.profile.render({
+    animalId:'history-animal',
+    tab:'overview'
+   });
+  const profileRoot=rootFor(profileMarkup);
+  const summaryText=
+   profileRoot.querySelector(
+    '.tc2InfoRows'
+   ).textContent;
+
+  record(
+   'Profilzusammenfassung verwendet die neueste Fütterung nach Datum',
+   summaryText.includes(
+    '2026-07-27 gefressen'
+   )
+  );
+  record(
+   'Profilzusammenfassung verwendet das neueste Gewicht nach Datum',
+   summaryText.includes(
+    '980 g am 2026-07-26'
+   )
+  );
+  record(
+   'Profilchronik verwendet dieselbe formatierte Fütterung',
+   profileRoot.textContent.includes(
+    'Gefressen Ratte 150 g'
+   )
+  );
+
+ }catch(error){
+  record(
+   'Testlauf ohne Ausnahme',
+   false,
+   error&&error.stack
+    ?error.stack
+    :error.message
+  );
+
+ }finally{
+  if(win){
+   if(localBackup===null){
+    win.localStorage.removeItem('spd_v53');
+   }else{
+    win.localStorage.setItem(
+     'spd_v53',
+     localBackup
+    );
+   }
+
+   if(routeBackup===null){
+    win.sessionStorage.removeItem(
+     'terracontrol_current_route_v1'
+    );
+   }else{
+    win.sessionStorage.setItem(
+     'terracontrol_current_route_v1',
+     routeBackup
+    );
+   }
+
+   if(stackBackup===null){
+    win.sessionStorage.removeItem(
+     'terracontrol_route_stack_v1'
+    );
+   }else{
+    win.sessionStorage.setItem(
+     'terracontrol_route_stack_v1',
+     stackBackup
+    );
+   }
+  }
+
+  render();
+ }
+}
+
+run();
+
+})();
+</script>
+</body>
+</html>
