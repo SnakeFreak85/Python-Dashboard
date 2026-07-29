@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Futterbestand Browser Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}
+iframe{width:390px;height:420px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>Futterbestand Browser Tests</h1>
+<p class="muted">Prüft Mengenänderungen und den erhaltenen Scrollstand.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html"></iframe>
+<script>
+(async function(){
+'use strict';
+
+const results=[];
+const frame=document.getElementById('appFrame');
+let win=null;
+let localBackup=null;
+let routeBackup=null;
+let stackBackup=null;
+
+function record(name,passed,detail){
+ results.push({
+  name:name,
+  passed:!!passed,
+  detail:detail||''
+ });
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+
+   ', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=
+  results.map(function(result){
+   return '<li class="'+
+    (result.passed?'pass':'fail')+
+    '">'+
+    (result.passed?'PASS':'FAIL')+
+    ' — '+result.name+
+    (
+     result.passed||!result.detail
+      ?''
+      :' <span class="muted">('+
+       result.detail+
+       ')</span>'
+    )+
+    '</li>';
+  }).join('');
+
+ document.title=
+  failed
+   ?'FAIL — Futterbestand Tests'
+   :'PASS — Futterbestand Tests';
+}
+
+function waitForLoad(){
+ return new Promise(function(resolve,reject){
+  const timeout=setTimeout(function(){
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener(
+   'load',
+   complete,
+   {once:true}
+  );
+
+  if(
+   frame.contentDocument&&
+   frame.contentDocument.readyState==='complete'&&
+   /\/v500\.html(?:[?#]|$)/.test(
+    frame.contentWindow.location.href
+   )
+  ){
+   setTimeout(complete,0);
+  }
+ });
+}
+
+function afterRender(){
+ return new Promise(function(resolve){
+  win.requestAnimationFrame(function(){
+   win.requestAnimationFrame(resolve);
+  });
+ });
+}
+
+function targetCard(){
+ return Array.from(
+  win.document.querySelectorAll(
+   '.tc2FoodManageCard'
+  )
+ ).find(function(card){
+  const heading=card.querySelector('h3');
+  return heading&&
+   heading.textContent.trim()==='Frost Testfutter 10';
+ });
+}
+
+try{
+ win=await waitForLoad();
+
+ localBackup=
+  win.localStorage.getItem('spd_v53');
+ routeBackup=
+  win.sessionStorage.getItem(
+   'terracontrol_current_route_v1'
+  );
+ stackBackup=
+  win.sessionStorage.getItem(
+   'terracontrol_route_stack_v1'
+  );
+
+ win.NGTStore.clearLocal();
+
+ for(let index=1;index<=14;index++){
+  win.NGTStore.saveFoodInventoryItem({
+   id:'food-scroll-'+index,
+   category:'Futtertiere',
+   itemName:'Testfutter',
+   variant:String(index),
+   condition:'Frost',
+   unit:'Stück',
+   qty:5,
+   minimum:2
+  });
+ }
+
+ win.NGT500.route(
+  'food',
+  {},
+  {
+   replace:true,
+   noHistory:true
+  }
+ );
+
+ const card=targetCard();
+
+ record(
+  'Testposition wird im Futterbestand angezeigt',
+  !!card
+ );
+
+ win.scrollTo({
+  top:
+   win.scrollY+
+   card.getBoundingClientRect().top-
+   24,
+  behavior:'auto'
+ });
+
+ const scrollBeforePlus=win.scrollY;
+
+ record(
+  'Testposition liegt unterhalb des Seitenanfangs',
+  scrollBeforePlus>0,
+  String(scrollBeforePlus)
+ );
+
+ win.NGTFood.change(
+  'food-scroll-10',
+  1
+ );
+
+ await afterRender();
+
+ const cardAfterPlus=targetCard();
+ const scrollAfterPlus=win.scrollY;
+
+ equal(
+  'Plus erhöht den Bestand',
+  cardAfterPlus
+   ?cardAfterPlus.querySelector('strong').textContent.trim()
+   :'',
+  '6 Stück'
+ );
+
+ record(
+  'Plus erhält die Position in der Liste',
+  Math.abs(scrollAfterPlus-scrollBeforePlus)<=2,
+  scrollBeforePlus+' / '+scrollAfterPlus
+ );
+
+ win.NGTFood.change(
+  'food-scroll-10',
+  -1
+ );
+
+ await afterRender();
+
+ const cardAfterMinus=targetCard();
+ const scrollAfterMinus=win.scrollY;
+
+ equal(
+  'Minus verringert den Bestand',
+  cardAfterMinus
+   ?cardAfterMinus.querySelector('strong').textContent.trim()
+   :'',
+  '5 Stück'
+ );
+
+ record(
+  'Minus erhält die Position in der Liste',
+  Math.abs(scrollAfterMinus-scrollAfterPlus)<=2,
+  scrollAfterPlus+' / '+scrollAfterMinus
+ );
+
+}catch(error){
+ record(
+  'Testlauf ohne Ausnahme',
+  false,
+  error&&error.stack
+   ?error.stack
+   :String(error)
+ );
+
+}finally{
+ if(win){
+  if(localBackup===null){
+   win.localStorage.removeItem('spd_v53');
+  }else{
+   win.localStorage.setItem(
+    'spd_v53',
+    localBackup
+   );
+  }
+
+  if(routeBackup===null){
+   win.sessionStorage.removeItem(
+    'terracontrol_current_route_v1'
+   );
+  }else{
+   win.sessionStorage.setItem(
+    'terracontrol_current_route_v1',
+    routeBackup
+   );
+  }
+
+  if(stackBackup===null){
+   win.sessionStorage.removeItem(
+    'terracontrol_route_stack_v1'
+   );
+  }else{
+   win.sessionStorage.setItem(
+    'terracontrol_route_stack_v1',
+    stackBackup
+   );
+  }
+ }
+
+ render();
+}
+
+})();
+</script>
+</body>
+</html>

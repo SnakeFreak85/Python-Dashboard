@@ -580,7 +580,39 @@ function cancelEdit(){
  }
 }
 
+function rerenderAtScrollPosition(left,top){
+ NGT500.route(
+  'food',
+  {},
+  {
+   replace:true,
+   noHistory:true
+  }
+ );
+
+ const afterRender=
+  window.requestAnimationFrame||
+  function(callback){
+   callback();
+ };
+
+ afterRender(function(){
+  if(typeof window.scrollTo!=='function'){
+   return;
+  }
+
+  window.scrollTo({
+   left:left,
+   top:top,
+   behavior:'auto'
+  });
+ });
+}
+
 function change(id,amount){
+ const scrollLeft=window.scrollX||0;
+ const scrollTop=window.scrollY||0;
+
  if(
   !NGTStore.adjustFoodInventoryItem(
    id,
@@ -590,7 +622,10 @@ function change(id,amount){
   return;
  }
 
- NGT500.route('food');
+ rerenderAtScrollPosition(
+  scrollLeft,
+  scrollTop
+ );
 }
 
 async function del(id){

@@ -437,13 +437,14 @@ Aktueller automatisierter Umfang:
 | Bestand und Editor | 52 |
 | Nachzuchten | 26 |
 | Dashboard | 34 |
+| Futterbestand | 6 |
 | Schnelleingabe und Chat | 34 |
 | QR-Import | 26 |
 | Historien | 17 |
 | Taxonomie | 31 |
 | TC2-Oberfläche | 53 |
 | App-Smoke-Test | 100 |
-| **Summe Browserprüfungen** | **482** |
+| **Summe Browserprüfungen** | **488** |
 
 Zusätzlich besteht der eigenständige Node-Store-Test.
 
