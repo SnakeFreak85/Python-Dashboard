@@ -92,6 +92,19 @@ const foodEngine=context.FoodInventoryEngine;
 const careEngine=context.CareRulesEngine;
 const syncPolicy=context.NGTSyncPolicyEngine;
 
+function fixture(name){
+ return fs.readFileSync(
+  'v500/tests/fixtures/store/'+name,
+  'utf8'
+ );
+}
+
+function plain(value){
+ return JSON.parse(
+  JSON.stringify(value)
+ );
+}
+
 const localSyncData={
  animals:[{
   uuid:'local-animal',
@@ -1340,6 +1353,171 @@ assert.throws(
  },
  /Backup-Format/,
  'Ungueltige Backup-Huellen muessen vor dem Import abgelehnt werden.'
+);
+
+store.importJson(
+ fixture('legacy-arrays-v1.json')
+);
+
+assert.equal(
+ store.data().schemaVersion,
+ 3,
+ 'Ein Legacy-Datenbestand ohne Versionsfeld muss auf Schema 3 migriert werden.'
+);
+assert.equal(
+ store.allAnimals().length,
+ 4,
+ 'Alle vier alten Bestandslisten muessen vollständig übernommen werden.'
+);
+assert.deepEqual(
+ plain(
+  store.allAnimals().map(function(row){
+   return row.a.uuid;
+  }).sort()
+ ),
+ [
+  'fixture-boa-1',
+  'fixture-gecko-1',
+  'fixture-koenig-1',
+  'fixture-spider-1'
+ ],
+ 'Legacy-UIDs muessen als stabile UUIDs erhalten bleiben.'
+);
+
+const migratedLegacyPython=
+ store.getAnimalById('fixture-koenig-1');
+
+assert.equal(
+ migratedLegacyPython.animalGroup,
+ 'Königspythons',
+ 'Die alte Königspython-Liste muss ihre Tiergruppe erhalten.'
+);
+assert.equal(
+ migratedLegacyPython.genus,
+ 'Python',
+ 'Das deutsche Legacy-Feld gattung muss in genus übernommen werden.'
+);
+assert.equal(
+ migratedLegacyPython.species,
+ 'regius',
+ 'Das deutsche Legacy-Feld spezies muss in species übernommen werden.'
+);
+assert.equal(
+ migratedLegacyPython.defaultFeeder,
+ 'Frost Ratte 150 g',
+ 'Das alte Standardfutterfeld muss in das kanonische Feld übernommen werden.'
+);
+assert.deepEqual(
+ plain(
+  migratedLegacyPython.feeds.map(function(feed){
+   return feed.date;
+  })
+ ),
+ [
+  '2026-03-01',
+  '2026-03-02'
+ ],
+ 'Legacy-Historien muessen beim Import chronologisch sortiert werden.'
+);
+assert.equal(
+ Object.hasOwn(
+  migratedLegacyPython.photos[0],
+  'data'
+ ),
+ false,
+ 'Eingebettete Bilddaten muessen entfernt werden, wenn bereits ein Storage-Bild existiert.'
+);
+assert.equal(
+ store.data().foodInventory[0].minimum,
+ 5,
+ 'Alte Futterpositionen müssen den zentralen Standard-Mindestbestand erhalten.'
+);
+assert.equal(
+ store.data().clutches[0].id,
+ 'fixture-clutch-1',
+ 'Gelege dürfen bei einer Legacy-Migration nicht verloren gehen.'
+);
+assert.equal(
+ store.data().sales[0].id,
+ 'fixture-sale-1',
+ 'Verkäufe dürfen bei einer Legacy-Migration nicht verloren gehen.'
+);
+assert.equal(
+ store.data().archive[0].id,
+ 'fixture-archive-1',
+ 'Archiveinträge dürfen bei einer Legacy-Migration nicht verloren gehen.'
+);
+assert.equal(
+ store.data().settings.seller.name,
+ 'Fixture Halter',
+ 'Einstellungen dürfen bei einer Legacy-Migration nicht verloren gehen.'
+);
+
+store.importJson(
+ fixture('mixed-schema-v2.json')
+);
+
+assert.equal(
+ store.allAnimals().length,
+ 2,
+ 'Ein gemischter Schema-2-Bestand darf UUID-Duplikate nicht doppelt importieren.'
+);
+assert.equal(
+ store.getAnimalById('fixture-mixed-1').name,
+ 'Kanonischer Datensatz',
+ 'Bei UUID-Duplikaten muss animals[] Vorrang vor alten Bestandslisten haben.'
+);
+assert.equal(
+ store.getAnimalById('fixture-mixed-2').name,
+ 'Nur in Legacy-Liste',
+ 'Ein nur in einer Legacy-Liste vorhandenes Tier muss ergänzt werden.'
+);
+assert.deepEqual(
+ plain(
+  store.getAnimalById('fixture-mixed-1').weights.map(function(weight){
+   return weight.date;
+  })
+ ),
+ [
+  '2026-04-01',
+  '2026-04-10'
+ ],
+ 'Historien eines kanonischen Schema-2-Datensatzes müssen sortiert werden.'
+);
+assert.equal(
+ store.data().boas.length,
+ 2,
+ 'Die Legacy-Kompatibilitätsliste muss nach der Migration aus animals[] neu aufgebaut werden.'
+);
+
+store.importJson(
+ fixture('canonical-schema-v3.json')
+);
+
+assert.equal(
+ store.allAnimals().length,
+ 1,
+ 'Ein aktueller Schema-3-Bestand darf beim Import keine zusätzlichen Tiere erzeugen.'
+);
+assert.equal(
+ store.getAnimalById('fixture-current-1').publicId,
+ 'CC-007',
+ 'Eine vorhandene öffentliche Tier-ID muss unverändert bleiben.'
+);
+assert.equal(
+ store.getAnimalById('fixture-current-1').photos[0].data,
+ 'data:image/jpeg;base64,NEU',
+ 'Ein rein lokal gespeichertes Bild muss seine eingebetteten Daten behalten.'
+);
+assert.equal(
+ store.data().foodInventory[0].minimum,
+ 4,
+ 'Ein aktueller benutzerdefinierter Mindestbestand muss unverändert bleiben.'
+);
+assert.equal(
+ store.data().settings.seller.name,
+ 'Aktueller Halter',
+ 'Aktuelle Einstellungen müssen unverändert erhalten bleiben.'
 );
 
 console.log('Store tests passed.');

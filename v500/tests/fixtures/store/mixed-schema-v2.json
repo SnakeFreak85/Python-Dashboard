@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 2,
+  "animals": [
+    {
+      "uuid": "fixture-mixed-1",
+      "uid": "fixture-mixed-1",
+      "name": "Kanonischer Datensatz",
+      "animalGroup": "Boas",
+      "genus": "Boa",
+      "species": "constrictor",
+      "status": "Bestand",
+      "weights": [
+        {
+          "date": "2026-04-10",
+          "weight": 780
+        },
+        {
+          "date": "2026-04-01",
+          "weight": 750
+        }
+      ]
+    }
+  ],
+  "koenig": [],
+  "boas": [
+    {
+      "uuid": "fixture-mixed-1",
+      "uid": "fixture-mixed-1",
+      "name": "Veraltetes Duplikat",
+      "animalGroup": "Boas",
+      "status": "Bestand"
+    },
+    {
+      "uuid": "fixture-mixed-2",
+      "uid": "fixture-mixed-2",
+      "name": "Nur in Legacy-Liste",
+      "animalGroup": "Boas",
+      "genus": "Boa",
+      "species": "imperator",
+      "status": "Bestand"
+    }
+  ],
+  "geckos": [],
+  "spinnen": [],
+  "foodInventory": [],
+  "clutches": [],
+  "sales": [],
+  "archive": [],
+  "settings": {
+    "language": "de"
+  }
+}

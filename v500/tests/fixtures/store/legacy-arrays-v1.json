@@ -1,0 +1,93 @@
+{
+  "koenig": [
+    {
+      "uid": "fixture-koenig-1",
+      "name": "Legacy Python",
+      "gattung": "Python",
+      "spezies": "regius",
+      "status": "Bestand",
+      "futterStandard": "Frost Ratte 150 g",
+      "feeds": [
+        {
+          "date": "2026-03-02",
+          "accepted": true,
+          "prey": "Ratte",
+          "amount": 150
+        },
+        {
+          "date": "2026-03-01",
+          "accepted": false,
+          "prey": "Ratte",
+          "amount": 150
+        }
+      ],
+      "photos": [
+        {
+          "id": "fixture-photo-remote",
+          "storagePath": "animals/fixture-koenig-1/profile.jpg",
+          "url": "https://example.test/profile.jpg",
+          "data": "data:image/jpeg;base64,ALT"
+        }
+      ]
+    }
+  ],
+  "boas": [
+    {
+      "uid": "fixture-boa-1",
+      "name": "Legacy Boa",
+      "group": "Boas",
+      "breed": "Boa",
+      "subspecies": "constrictor",
+      "status": "Bestand"
+    }
+  ],
+  "geckos": [
+    {
+      "uid": "fixture-gecko-1",
+      "name": "Legacy Gecko",
+      "art": "Eublepharis",
+      "unterart": "macularius",
+      "status": "Bestand"
+    }
+  ],
+  "spinnen": [
+    {
+      "uid": "fixture-spider-1",
+      "name": "Legacy Spinne",
+      "gattung": "Brachypelma",
+      "spezies": "hamorii",
+      "status": "Bestand"
+    }
+  ],
+  "foodInventory": [
+    {
+      "id": "fixture-food-1",
+      "label": "Frost Ratte 150 g",
+      "qty": 6
+    }
+  ],
+  "clutches": [
+    {
+      "id": "fixture-clutch-1",
+      "note": "Legacy-Gelege"
+    }
+  ],
+  "sales": [
+    {
+      "id": "fixture-sale-1",
+      "amount": 125
+    }
+  ],
+  "archive": [
+    {
+      "id": "fixture-archive-1",
+      "label": "Alter Eintrag"
+    }
+  ],
+  "settings": {
+    "theme": "dark",
+    "seller": {
+      "name": "Fixture Halter"
+    }
+  }
+}

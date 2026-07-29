@@ -197,6 +197,10 @@ Der Store-Kerntest kann zusätzlich direkt ausgeführt werden:
 node tools/test-store.mjs
 ```
 
+Der Kerntest lädt außerdem realistische Datenstände aus
+`v500/tests/fixtures/store/`: reine Legacy-Listen ohne Schemaangabe,
+gemischte Schema-2-Daten und einen aktuellen Schema-3-Bestand.
+
 Taxonomie und Taxonomie-UI:
 
 ```text

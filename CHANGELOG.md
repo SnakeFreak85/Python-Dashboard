@@ -4,6 +4,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Store-Migrationen mit versionierten Alt-, Misch- und aktuellen Daten-Fixtures gegen Tierverlust, UUID-Duplikate, Feldalias-Verlust und unbeabsichtigte Bildbereinigung abgesichert.
 - Nachzuchtenbereich verhaltensneutral in gemeinsamen Kern, Editor und Ansichts-Controller aufgeteilt.
 - Nicht verwendete Nachzuchten-APIs für direktes Editor-Einfügen und separates Löschen entfernt; Speichern und zentrale Profil-Löschung bleiben unverändert.
 - Eigenen Browser-Charakterisierungstest für Nachzuchten ergänzt; Filter, UUID-Editor, Futterverknüpfung, Aliasfelder, Historienerhalt und Nummernkreis sind vor der Modularisierung abgesichert.

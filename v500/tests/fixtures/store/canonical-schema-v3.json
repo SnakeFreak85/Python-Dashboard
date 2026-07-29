@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 3,
+  "animals": [
+    {
+      "uuid": "fixture-current-1",
+      "uid": "fixture-current-1",
+      "publicId": "CC-007",
+      "displayId": "CC-007",
+      "name": "Aktueller Datensatz",
+      "animalGroup": "Chamäleons",
+      "genus": "Chamaeleo",
+      "species": "calyptratus",
+      "status": "Bestand",
+      "collection": "stock",
+      "feeds": [],
+      "sheds": [],
+      "weights": [],
+      "health": [],
+      "photos": [
+        {
+          "id": "fixture-photo-local",
+          "data": "data:image/jpeg;base64,NEU"
+        }
+      ]
+    }
+  ],
+  "animalGroups": [],
+  "foodCatalog": [],
+  "foodInventory": [
+    {
+      "id": "fixture-current-food",
+      "category": "Insekten",
+      "condition": "Lebend",
+      "itemName": "Heimchen",
+      "variant": "mittel",
+      "unit": "Stück",
+      "qty": 12,
+      "minimum": 4,
+      "label": "Heimchen mittel"
+    }
+  ],
+  "clutches": [],
+  "sales": [],
+  "archive": [],
+  "settings": {
+    "theme": "light",
+    "seller": {
+      "name": "Aktueller Halter"
+    }
+  },
+  "koenig": [],
+  "boas": [],
+  "geckos": [],
+  "spinnen": []
+}

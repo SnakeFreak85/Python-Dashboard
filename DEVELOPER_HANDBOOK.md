@@ -703,7 +703,10 @@ http://localhost:8000/v500/tests/store.test.html
 
 Prüft den Legacy-Import, den Vorrang von `animals[]`, persistente
 Löschungen, Nachzuchten, UUID-Auflösung unabhängig von Array-Positionen
-und den Schutz vor ungültigen Löschindizes.
+und den Schutz vor ungültigen Löschindizes. Der Node-Kerntest lädt zusätzlich
+versionierte Fixtures aus `v500/tests/fixtures/store/` und prüft reine
+Legacy-Listen, gemischte Schema-2-Daten sowie einen aktuellen
+Schema-3-Bestand auf vollständige und verlustfreie Normalisierung.
 
 Der gleiche Kernpfad kann ohne Browser ausgeführt werden:
 
