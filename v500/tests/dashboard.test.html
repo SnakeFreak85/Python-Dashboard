@@ -566,6 +566,43 @@ async function run(){
    })
   );
 
+  win.NGT500.route(
+   'dashboard',
+   {},
+   {
+    replace:true,
+    noHistory:true
+   }
+  );
+
+  win.NGTStore.addAnimal('',{
+   uuid:'dashboard-live-refresh',
+   uid:'dashboard-live-refresh',
+   name:'Nachgeladener Bestand',
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   status:'Bestand',
+   collection:'stock'
+  });
+
+  await new Promise(function(resolve){
+   setTimeout(resolve,30);
+  });
+
+  const refreshedStock=
+   win.document.querySelector(
+    '.tc21StartStat.animals b'
+   );
+
+  equal(
+   'Startseite aktualisiert Kennzahlen nach Store-Änderung',
+   refreshedStock
+    ?refreshedStock.textContent.trim()
+    :'',
+   '2'
+  );
+
  }catch(error){
   record(
    'Testlauf ohne Ausnahme',

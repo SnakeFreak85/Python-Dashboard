@@ -2,6 +2,7 @@
 'use strict';
 
 let statusTimer=null;
+let dataRefreshTimer=null;
 
 function tc2(on){
  document.body.classList.toggle(
@@ -102,6 +103,45 @@ function updateCloudStatus(){
  if(element){
   element.textContent=cloudLabel();
  }
+}
+
+function refreshVisibleDashboard(){
+ if(
+  !window.NGT500||
+  !NGT500.current
+ ){
+  return;
+ }
+
+ const current=NGT500.current();
+
+ if(
+  !current||
+  (
+   current.name!=='dashboard'&&
+   current.name!=='smartDashboard'
+  )
+ ){
+  return;
+ }
+
+ NGT500.route(
+  current.name,
+  current.args||{},
+  {
+   replace:true,
+   noHistory:true
+  }
+ );
+}
+
+function scheduleDataRefresh(){
+ clearTimeout(dataRefreshTimer);
+
+ dataRefreshTimer=setTimeout(
+  refreshVisibleDashboard,
+  0
+ );
 }
 
 function manualAnimal(){
@@ -599,5 +639,12 @@ NGT500.register(
   render:smartDashboardProxy
  }
 );
+
+if(NGT500.on){
+ NGT500.on(
+  'store:changed',
+  scheduleDataRefresh
+ );
+}
 
 })();
