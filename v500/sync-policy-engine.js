@@ -8,9 +8,11 @@ const COLLECTION_KEYS=[
  'geckos',
  'spinnen',
  'foodInventory',
+ 'foodCatalog',
  'clutches',
  'sales',
- 'archive'
+ 'archive',
+ 'documents'
 ];
 
 function isObject(value){

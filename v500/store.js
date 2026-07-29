@@ -1307,8 +1307,14 @@ function feederOptions(t){
 }
 
 function exportJson(){
+  return JSON.stringify(snapshot(),null,2);
+}
+
+function snapshot(){
   cleanAllPhotoData(db);
-  return JSON.stringify(db,null,2);
+  return JSON.parse(
+    JSON.stringify(db)
+  );
 }
 
 function exportBackup(){
@@ -1317,7 +1323,7 @@ function exportBackup(){
     type:'local-backup',
     version:APP_VERSION,
     createdAt:new Date().toISOString(),
-    data:JSON.parse(exportJson())
+    data:snapshot()
   };
 }
 
@@ -1332,16 +1338,44 @@ function importBackup(txt){
     typeof txt==='string'
       ?JSON.parse(txt)
       :txt;
-  const imported=
+  const isEnvelope=
     parsed&&
-    Object.hasOwn(parsed,'data')
+    Object.hasOwn(parsed,'data');
+  const imported=
+    isEnvelope
       ?parsed.data
       :parsed;
+  const recognizedKeys=[
+    'schemaVersion',
+    'animals',
+    'animalGroups',
+    'foodCatalog',
+    'foodInventory',
+    'clutches',
+    'sales',
+    'archive',
+    'documents',
+    'settings',
+    ...LEGACY_TYPES
+  ];
 
   if(
     !imported||
     typeof imported!=='object'||
-    Array.isArray(imported)
+    Array.isArray(imported)||
+    !recognizedKeys.some(function(key){
+      return Object.hasOwn(imported,key);
+    })||
+    (
+      isEnvelope&&
+      parsed.app&&
+      parsed.app!=='TerraControl'
+    )||
+    (
+      isEnvelope&&
+      parsed.type&&
+      parsed.type!=='local-backup'
+    )
   ){
     throw new Error(
       'Ungültiges Backup-Format'
@@ -1356,6 +1390,8 @@ function importBackup(txt){
 }
 
 window.NGTStore={
+  APP_VERSION,
+
   TYPES:LEGACY_TYPES,
   LABELS:LEGACY_LABELS,
   PREY,
@@ -1407,6 +1443,7 @@ window.NGTStore={
   feederOptions,
 
   exportJson,
+  snapshot,
   importJson,
   exportBackup,
   importBackup

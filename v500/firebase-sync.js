@@ -104,66 +104,6 @@ function setStatus(status,message){
  );
 }
 
-function stripLegacyPhotoData(value){
- const clone=JSON.parse(
-  JSON.stringify(value||{})
- );
-
- function cleanAnimal(animal){
-  if(
-   !animal||
-   !Array.isArray(animal.photos)
-  ){
-   return;
-  }
-
-  animal.photos=
-   animal.photos.map(function(photo){
-    if(!photo){
-     return photo;
-    }
-
-    const result=
-     Object.assign(
-      {},
-      photo
-     );
-
-    if(
-     result.storagePath||
-     result.url||
-     result.thumbPath||
-     result.thumbUrl
-    ){
-     delete result.data;
-    }
-
-    return result;
-   });
- }
-
- if(Array.isArray(clone.animals)){
-  clone.animals.forEach(
-   cleanAnimal
-  );
- }
-
- [
-  'koenig',
-  'boas',
-  'geckos',
-  'spinnen'
- ].forEach(function(key){
-  if(Array.isArray(clone[key])){
-   clone[key].forEach(
-    cleanAnimal
-   );
-  }
- });
-
- return clone;
-}
-
 async function loadSdk(){
  if(mods){
   return mods;
@@ -483,9 +423,7 @@ async function saveCloud(){
    docRef(),
    {
     data:
-     stripLegacyPhotoData(
-      NGTStore.data()
-     ),
+     NGTStore.snapshot(),
 
     updatedAt:
      mods.fsMod.serverTimestamp(),
@@ -493,7 +431,8 @@ async function saveCloud(){
     updatedAtMs:
      Date.now(),
 
-    version:"1.0.4-rc9"
+    version:
+     NGTStore.APP_VERSION
    },
    {
     merge:true

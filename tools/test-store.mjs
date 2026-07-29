@@ -150,6 +150,30 @@ assert.equal(
 );
 
 assert.equal(
+ syncPolicy.hasData({
+  documents:[{
+   id:'document-only'
+  }]
+ }),
+ true,
+ 'Dokumente muessen als synchronisierbare Nutzerdaten erkannt werden.'
+);
+
+assert.equal(
+ syncPolicy.decide({
+  localData:{},
+  cloudData:{
+   documents:[{
+    id:'cloud-document'
+   }]
+  },
+  cloudExists:true
+ }).action,
+ 'load-cloud',
+ 'Ein reiner Cloud-Dokumentbestand darf nicht als leer behandelt werden.'
+);
+
+assert.equal(
  syncPolicy.decide({
   localData:localSyncData,
   cloudData:cloudSyncData,
@@ -1310,6 +1334,12 @@ assert.equal(
 const backupEnvelope=store.exportBackup();
 
 assert.equal(
+ store.APP_VERSION,
+ '1.0.4-rc.11',
+ 'Alle Speicher- und Cloud-Metadaten muessen dieselbe freigegebene App-Version verwenden.'
+);
+
+assert.equal(
  backupEnvelope.app,
  'TerraControl',
  'Lokale Backups muessen als TerraControl-Datei gekennzeichnet werden.'
@@ -1331,6 +1361,15 @@ assert.ok(
 
 const originalBackupAnimalName=
  store.allAnimals()[0].a.name;
+
+const storeSnapshot=store.snapshot();
+storeSnapshot.animals[0].name='Nur im Snapshot';
+
+assert.equal(
+ store.allAnimals()[0].a.name,
+ originalBackupAnimalName,
+ 'Ein Cloud-Snapshot darf keine Live-Referenz auf den Store enthalten.'
+);
 
 backupEnvelope.data.animals[0].name=
  'Nur in der Sicherung';
@@ -1359,6 +1398,18 @@ assert.throws(
  },
  /Backup-Format/,
  'Ungueltige Backup-Huellen muessen vor dem Import abgelehnt werden.'
+);
+
+assert.throws(
+ function(){
+  store.importBackup(
+   JSON.stringify({
+    unrelated:true
+   })
+  );
+ },
+ /Backup-Format/,
+ 'Beliebige JSON-Objekte duerfen den lokalen Bestand nicht leeren.'
 );
 
 store.importJson(
