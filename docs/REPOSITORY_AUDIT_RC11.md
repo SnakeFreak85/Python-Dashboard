@@ -307,6 +307,14 @@ Empfehlung:
 - vorher Backup-Import alter Dateien weiterhin testen
 - nicht während der laufenden geschlossenen Testphase durchführen
 
+Status nach dem Audit:
+
+- Alle produktiven Schreibpfade verwenden bereits ausschließlich
+  `animals[]`.
+- Die vier Listen bleiben bewusst als Import- und
+  Backup-Kompatibilitätsschicht bestehen.
+- Eine Entfernung während RC11 wäre ein unnötiges Migrationsrisiko.
+
 #### D. Lesenden Store-Zugriff härten
 
 `NGTStore.data()` liefert weiterhin das lebende Store-Objekt. Die aktuellen
@@ -344,11 +352,21 @@ Empfehlung:
 - danach in einen klar bezeichneten Legacy-Ordner verschieben oder entfernen
 - aktive öffentliche Seiten wie `abgabe.html` und `install.html` beibehalten
 
+Status nach dem Audit:
+
+- Es wurden 24 Root-Dateien mit den Präfixen `v1-`, `v2-` und `v400-`
+  gefunden.
+- Keine aktive HTML-Seite, kein Manifest und kein Service Worker verweist
+  darauf.
+- Eine interne Verwendung ist ausgeschlossen; mögliche externe Direktlinks
+  oder Lesezeichen können lokal jedoch nicht sicher ausgeschlossen werden.
+- Deshalb werden die Dateien während RC11 weder verschoben noch gelöscht.
+
 #### F. QR-Bibliothek offline verfügbar machen
 
-`v500.html` lädt QRCode derzeit über ein externes CDN. Ohne vorherige
-Netzverbindung kann die App selbst offline starten, die QR-Erzeugung aber
-fehlen.
+Zum Prüfzeitpunkt lud `v500.html` QRCode über ein externes CDN. Ohne vorherige
+Netzverbindung konnte die App selbst offline starten, während die
+QR-Erzeugung fehlte.
 
 Betroffene Datei:
 
@@ -377,8 +395,8 @@ Diese Punkte sind keine Voraussetzung für den strukturell stabilen Datenkern.
 
 ### Phase A – RC11 abschließen
 
-1. Firebase-Snapshot-Größe sichtbar prüfen.
-2. HKN-/Base64-Größenrisiko begrenzen.
+1. ✅ Firebase-Snapshot-Größe sichtbar prüfen.
+2. ✅ HKN-/Base64-Größenrisiko begrenzen.
 3. einen vollständigen manuellen Durchlauf mit realistischen Testdaten machen.
 4. Backup erstellen, App-Daten löschen und Backup wiederherstellen.
 5. Cloud-Speichern und Cloud-Laden mit demselben Bestand prüfen.
@@ -447,12 +465,14 @@ Die Tests prüfen unter anderem:
 
 ## 10. Freigabekriterien vor Designänderungen
 
-Der Datenkern kann als audit-abgeschlossen gelten, wenn:
+Der technische Repository-Audit und die automatisierte Stabilisierung sind
+abgeschlossen. Vor Designänderungen bleibt die manuelle Freigabe mit
+realistischen Nutzerdaten:
 
-- alle automatisierten Tests grün bleiben
-- Firebase-Snapshot und HKN-Bildgröße kontrolliert sind
+- ✅ alle automatisierten Tests bleiben grün
+- ✅ Firebase-Snapshot und HKN-Bildgröße sind kontrolliert
 - Backup und Cloud mit realistischen Daten manuell geprüft wurden
-- keine neue Versionsnummer ohne ausdrückliche Freigabe gesetzt wird
+- ✅ keine neue Versionsnummer wurde ohne ausdrückliche Freigabe gesetzt
 
-Danach können Designänderungen isoliert erfolgen, ohne gleichzeitig
-Speicherlogik, Datenmodelle oder Synchronisation umzubauen.
+Nach diesen manuellen Prüfungen können Designänderungen isoliert erfolgen,
+ohne gleichzeitig Speicherlogik, Datenmodelle oder Synchronisation umzubauen.
