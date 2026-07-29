@@ -125,6 +125,18 @@ async function testAssets(){
    missingAppShellAssets.length===0,
    missingAppShellAssets.join(', ')
   );
+  record(
+   'Service Worker cached nur erfolgreiche Antworten',
+   serviceWorker.includes(
+    'if(!response||!response.ok)'
+   )
+  );
+  record(
+   'Service Worker wartet Cache-Schreibvorgänge ab',
+   serviceWorker.includes(
+    'await cache.put'
+   )
+  );
  }
 }
 
