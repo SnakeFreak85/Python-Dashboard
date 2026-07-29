@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Entry Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>AI Entry Browser Tests</h1>
+<p class="muted">Charakterisiert Schnelleingabe und Chat bis zur Anzeige im Tierprofil.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({
+  name:name,
+  passed:!!passed,
+  detail:detail||''
+ });
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+
+   ', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=
+  results.map(function(result){
+   return '<li class="'+
+    (result.passed?'pass':'fail')+
+    '">'+
+    (result.passed?'PASS':'FAIL')+
+    ' — '+result.name+
+    (
+     result.passed||!result.detail
+      ?''
+      :' <span class="muted">('+
+       result.detail+
+       ')</span>'
+    )+
+    '</li>';
+  }).join('');
+
+ document.title=
+  failed
+   ?'FAIL — AI Entry Tests'
+   :'PASS — AI Entry Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  let finished=false;
+
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener(
+   'load',
+   complete,
+   {once:true}
+  );
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'&&
+    /\/v500\.html(?:[?#]|$)/.test(
+     frame.contentWindow.location.href
+    )
+   ){
+    setTimeout(complete,0);
+   }
+  }catch(error){}
+ });
+}
+
+function profileText(win,animalId,tab){
+ return win.NGT500.modules.profile.render({
+  animalId:animalId,
+  tab:tab
+ }).replace(/<[^>]+>/g,' ')
+  .replace(/\s+/g,' ')
+  .trim();
+}
+
+async function run(){
+ const frame=document.getElementById('appFrame');
+ let win=null;
+ let localBackup=null;
+ let routeBackup=null;
+ let stackBackup=null;
+ let chatBackup=null;
+ let contextBackup=null;
+
+ try{
+  win=await waitForLoad(frame);
+
+  localBackup=
+   win.localStorage.getItem('spd_v53');
+  routeBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_current_route_v1'
+   );
+  stackBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_route_stack_v1'
+   );
+  chatBackup=
+   win.sessionStorage.getItem(
+    'ngt_ai_chat_v1'
+   );
+  contextBackup=
+   win.sessionStorage.getItem(
+    'ngt_ai_context_v1'
+   );
+
+  equal(
+   'Schnelleingabe-API verfügbar',
+   typeof win.NGTAssistant.run,
+   'function'
+  );
+  equal(
+   'Chat-API verfügbar',
+   typeof win.NGTChat.ask,
+   'function'
+  );
+
+  win.NGTStore.clearLocal();
+  win.sessionStorage.removeItem(
+   'ngt_ai_chat_v1'
+  );
+  win.sessionStorage.removeItem(
+   'ngt_ai_context_v1'
+  );
+
+  const animal=win.NGTStore.addAnimal('',{
+   uuid:'ai-entry-animal',
+   uid:'ai-entry-animal',
+   name:'Medusa',
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   status:'Bestand',
+   collection:'stock',
+   defaultFeeder:'Frost Ratte 150 g',
+   futterStandard:'Frost Ratte 150 g',
+   standardFeed:'Frost Ratte 150 g',
+   feedIntervalDays:7,
+   weightIntervalDays:30
+  });
+
+  win.NGTStore.saveFoodInventoryItem({
+   id:'ai-entry-food',
+   category:'Nagetiere',
+   condition:'Frost',
+   itemName:'Ratte',
+   variant:'150 g',
+   unit:'Stück',
+   qty:5,
+   minimum:2,
+   label:'Frost Ratte 150 g'
+  });
+
+  const app=win.document.getElementById('app');
+  app.innerHTML=
+   win.NGT500.modules.assistant.render();
+
+  win.document.getElementById('aiText').value=
+   'Medusa hat heute Frost Ratte 150 g gefressen';
+
+  win.NGTAssistant.run();
+
+  const afterAssistant=
+   win.NGTStore.getAnimalById(
+    'ai-entry-animal'
+   );
+
+  equal(
+   'Schnelleingabe speichert eine Fütterung',
+   afterAssistant.feeds.length,
+   1
+  );
+  equal(
+   'Schnelleingabe speichert 150 g statt Stückzahl als Gewicht',
+   afterAssistant.feeds[0].preyWeightGrams,
+   150
+  );
+  equal(
+   'Schnelleingabe speichert die Stückzahl getrennt',
+   afterAssistant.feeds[0].quantity,
+   1
+  );
+  equal(
+   'Schnelleingabe kennzeichnet ihre Herkunft',
+   afterAssistant.feeds[0].source,
+   'assistant'
+  );
+  equal(
+   'Gefressenes Futter reduziert den Bestand',
+   win.NGTStore.data().foodInventory[0].qty,
+   4
+  );
+  record(
+   'Fütterung erscheint im Tierprofil',
+   profileText(
+    win,
+    'ai-entry-animal',
+    'feeds'
+   ).includes('150 g')
+  );
+
+  win.NGTChat.ask(
+   'Medusa wiegt 1234 Gramm'
+  );
+
+  const afterWeight=
+   win.NGTStore.getAnimalById(
+    'ai-entry-animal'
+   );
+
+  equal(
+   'Chat speichert einen Gewichtseintrag',
+   afterWeight.weights.length,
+   1
+  );
+  equal(
+   'Chat speichert das erkannte Gewicht',
+   afterWeight.weights[0].weight,
+   1234
+  );
+  equal(
+   'Chat kennzeichnet die Gewicht-Herkunft',
+   afterWeight.weights[0].source,
+   'chat'
+  );
+  equal(
+   'Kompatibilitätsgewicht wird aktualisiert',
+   afterWeight.weight,
+   1234
+  );
+  record(
+   'Gewicht erscheint im Tierprofil',
+   profileText(
+    win,
+    'ai-entry-animal',
+    'weights'
+   ).includes('1234')
+  );
+
+  win.NGTChat.ask(
+   'Medusa hat sich heute gehäutet'
+  );
+
+  const afterShed=
+   win.NGTStore.getAnimalById(
+    'ai-entry-animal'
+   );
+
+  equal(
+   'Chat speichert eine Häutung',
+   afterShed.sheds.length,
+   1
+  );
+  equal(
+   'Chat kennzeichnet die Häutungs-Herkunft',
+   afterShed.sheds[0].source,
+   'chat'
+  );
+  record(
+   'Häutung erscheint im Tierprofil',
+   profileText(
+   win,
+   'ai-entry-animal',
+   'sheds'
+   ).includes('Häutung')
+  );
+
+  win.NGTChat.ask(
+   'Medusa hat heute Frost Ratte 150 g verweigert'
+  );
+
+  const afterRefusal=
+   win.NGTStore.getAnimalById(
+    'ai-entry-animal'
+   );
+  const refusal=
+   afterRefusal.feeds[
+    afterRefusal.feeds.length-1
+   ];
+
+  equal(
+   'Chat speichert eine verweigerte Fütterung',
+   afterRefusal.feeds.length,
+   2
+  );
+  equal(
+   'Verweigerung bleibt fachlich erkennbar',
+   refusal.accepted,
+   false
+  );
+  equal(
+   'Verweigerung kennzeichnet die Chat-Herkunft',
+   refusal.source,
+   'chat'
+  );
+  equal(
+   'Verweigertes Futter reduziert den Bestand nicht',
+   win.NGTStore.data().foodInventory[0].qty,
+   4
+  );
+  record(
+   'Verweigerung erscheint im Tierprofil',
+   profileText(
+    win,
+    'ai-entry-animal',
+    'feeds'
+   ).includes('Verweigert')
+  );
+
+  record(
+   'Tieridentität bleibt bei allen Einträgen erhalten',
+   win.NGTStore.animalId(animal)===
+   win.NGTStore.animalId(afterRefusal)
+  );
+
+ }catch(error){
+  record(
+   'Testlauf ohne Ausnahme',
+   false,
+   error&&error.stack
+    ?error.stack
+    :error.message
+  );
+
+ }finally{
+  if(win){
+   if(localBackup===null){
+    win.localStorage.removeItem('spd_v53');
+   }else{
+    win.localStorage.setItem(
+     'spd_v53',
+     localBackup
+    );
+   }
+
+   [
+    [
+     'terracontrol_current_route_v1',
+     routeBackup
+    ],
+    [
+     'terracontrol_route_stack_v1',
+     stackBackup
+    ],
+    [
+     'ngt_ai_chat_v1',
+     chatBackup
+    ],
+    [
+     'ngt_ai_context_v1',
+     contextBackup
+    ]
+   ].forEach(function(entry){
+    if(entry[1]===null){
+     win.sessionStorage.removeItem(
+      entry[0]
+     );
+    }else{
+     win.sessionStorage.setItem(
+      entry[0],
+      entry[1]
+     );
+    }
+   });
+  }
+
+  render();
+ }
+}
+
+run();
+
+})();
+</script>
+</body>
+</html>

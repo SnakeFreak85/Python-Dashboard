@@ -4,6 +4,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Eigenen End-to-End-Browsertest für Schnelleingabe und Chat ergänzt; Fütterung, Verweigerung, Gewicht und Häutung sind bis zur Tierprofilanzeige und Futterbestandswirkung abgesichert.
 - Auswahl, Gruppierung und Zählung für Startseite und Smart Dashboard in `dashboard-data.js` vereinheitlicht; beide Ansichten verwenden dieselben aktiven Tiere, Fälligkeiten, Dokumente und Nachkaufpositionen.
 - Eigenen Browser-Charakterisierungstest für Startseite und Smart Dashboard ergänzt; Bestandsabgrenzung, Fälligkeiten, Dokumentzählung, UUID-Routen und Nachkaufliste sind vor der Zusammenführung gemeinsamer Datenlogik abgesichert.
 - Store-Migrationen mit versionierten Alt-, Misch- und aktuellen Daten-Fixtures gegen Tierverlust, UUID-Duplikate, Feldalias-Verlust und unbeabsichtigte Bildbereinigung abgesichert.

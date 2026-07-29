@@ -187,6 +187,12 @@ Startseite und Smart Dashboard:
 http://localhost:8000/v500/tests/dashboard.test.html
 ```
 
+Schnelleingabe und App-Chat:
+
+```text
+http://localhost:8000/v500/tests/ai-entry.test.html
+```
+
 Tierbestandsmodule:
 
 ```text
