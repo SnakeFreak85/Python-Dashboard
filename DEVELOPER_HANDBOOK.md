@@ -850,7 +850,9 @@ Architektur-, Datenmodell-, Script- oder Workflow-Änderungen müssen in der pas
 
 - `v500/` als aktive Codebasis dokumentiert.
 - README und Handbook konsolidiert.
-- ungenutzte v1-Root-Assets entfernt.
+- ungenutzte v1-Root-Assets aus der aktiven App-Shell entfernt; die
+  physischen Legacy-Dateien bleiben bis zur Prüfung öffentlicher Verweise
+  separat zu bereinigen.
 - Versionierung und Cache-Busting vereinheitlicht.
 - Service-Worker-App-Shell vervollständigt.
 - AnimalEngine erweitert und getestet.
