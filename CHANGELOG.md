@@ -4,6 +4,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- QRCode.js in der unveränderten Version 1.0.0 lokal eingebunden und in die Offline-App-Shell aufgenommen; App und Abgabeseite benötigen für die QR-Erzeugung kein externes CDN mehr. Die Abgabeseite lädt außerdem die Tier-Engine wieder vor dem Store.
 - Produktive Leser für Futterbestand, Dokumente und Einstellungen vom veränderbaren Live-Store getrennt; UI, Dashboard, KI, Backup, QR und Firebase verwenden keine direkten `NGTStore.data()`-Zugriffe mehr.
 - Herkunftsnachweis-Bilder werden vor der lokalen Einbettung verkleinert, als JPEG komprimiert und auf 450 KiB begrenzt; sehr große Quelldateien werden verständlich abgewiesen.
 - Firestore-Snapshots werden vor dem Schreiben auf ihre UTF-8-Größe geprüft; große Datenstände warnen frühzeitig und werden mit Sicherheitsabstand zur Dokumentgrenze verständlich gestoppt.

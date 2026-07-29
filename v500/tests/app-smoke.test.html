@@ -166,6 +166,26 @@ function testRuntime(){
     record('FoodInventoryEngine verfügbar',!!win.FoodInventoryEngine);
     record('CareRulesEngine verfügbar',!!win.CareRulesEngine);
     record('NGTSyncPolicyEngine verfügbar',!!win.NGTSyncPolicyEngine);
+    record('Lokale QRCode-Bibliothek verfügbar',typeof win.QRCode==='function');
+
+    const qrProbe=
+     win.document.createElement('div');
+
+    if(typeof win.QRCode==='function'){
+     new win.QRCode(qrProbe,{
+      text:'TerraControl Offline-Test',
+      width:64,
+      height:64
+     });
+    }
+
+    record(
+     'Lokale QRCode-Bibliothek erzeugt einen QR-Code',
+     !!qrProbe.querySelector(
+      'canvas, img, svg, table'
+     )
+    );
+
     record(
      'Gemeinsame Dashboard-Datenebene verfügbar',
      !!(

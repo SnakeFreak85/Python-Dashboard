@@ -358,6 +358,12 @@ Empfehlung:
 
 - Bibliothek später lokal versioniert ausliefern und in die App-Shell aufnehmen
 
+Status nach dem Audit:
+
+- QRCode.js 1.0.0 ist lokal versioniert eingebunden.
+- App und Abgabeseite verwenden keine externe QR-Abhängigkeit mehr.
+- Die lokale Datei ist Bestandteil der Offline-App-Shell.
+
 ### P3 – Bewusst spätere Funktionen
 
 - echtes Dokumentencenter mit PDFs und CITES-Unterlagen
@@ -420,8 +426,8 @@ Aktueller automatisierter Umfang:
 | Historien | 17 |
 | Taxonomie | 27 |
 | TC2-Oberfläche | 49 |
-| App-Smoke-Test | 97 |
-| **Summe Browserprüfungen** | **462** |
+| App-Smoke-Test | 100 |
+| **Summe Browserprüfungen** | **465** |
 
 Zusätzlich besteht der eigenständige Node-Store-Test.
 

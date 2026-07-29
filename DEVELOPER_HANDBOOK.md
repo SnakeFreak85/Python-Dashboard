@@ -252,6 +252,11 @@ Speicherpfad neben `firebase-sync.js` und `photo-storage.js` einführen.
 
 `manifest.json` beschreibt die installierbare Anwendung. `service-worker.js` verwaltet die Offline-App-Shell und Cache-Aktualisierung. Neue produktive Assets müssen sowohl in `v500.html` eingebunden als auch in der App-Shell berücksichtigt werden.
 
+Die QR-Erzeugung verwendet die lokal versionierte Bibliothek
+`v500/vendor/qrcode.min.js`. Aktive Seiten dürfen dafür keine externe
+CDN-Abhängigkeit einführen. Lizenz und Herkunft der Bibliothek liegen im
+gleichen Vendor-Verzeichnis.
+
 ---
 
 ## 6. Start- und Lade-Reihenfolge
@@ -268,6 +273,10 @@ Speicherpfad neben `firebase-sync.js` und `photo-storage.js` einführen.
 4. Fachmodule
 5. Firebase-Synchronisation
 6. `app.js` als Abschluss der Initialisierung
+
+Eigenständige aktive Seiten wie `abgabe.html` müssen dieselbe
+Abhängigkeitsreihenfolge einhalten: `animal-engine.js` wird vor `store.js`
+geladen.
 
 Die Anwendung verwendet globale Browser-Namespaces wie:
 
