@@ -34,6 +34,14 @@ function render(args){
         <button class="tc2QRPrimary" onclick="NGTQR.find()">Prüfen</button>
       </section>
 
+      <section class="tc2QRCard">
+        <div class="tc2QRHead">
+          <h3>Herkunftsnachweis importieren</h3>
+        </div>
+        <p>Bild eines Herkunftsnachweises auswählen und die erkannten Tierdaten vor dem Anlegen prüfen.</p>
+        <button class="tc2QRPrimary" onclick="NGTHknImport.run()">Dokument auswählen</button>
+      </section>
+
       <div id="qrResult"></div>
     </section>
   `;

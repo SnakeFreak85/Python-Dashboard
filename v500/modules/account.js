@@ -49,7 +49,7 @@ function render(){
             <div>
               <b>Nicht angemeldet</b>
               <strong>Lokaler Modus</strong>
-              <span>Anmelden, Speichern und Laden befinden sich auf der Startseite.</span>
+              <span>Du kannst TerraControl lokal verwenden oder dich hier anmelden.</span>
             </div>
           `
         }
@@ -62,14 +62,19 @@ function render(){
         <div class="tc2AccountRows">
           <div>
             <span>Status</span>
-            <b>${esc(syncText())}</b>
+            <b id="accountCloudStatus">${esc(syncText())}</b>
           </div>
           <div>
             <span>Lokale Tiere</span>
             <b>${animalCount()}</b>
           </div>
         </div>
-        <p>Anmeldung und Cloud-Synchronisation steuerst du über die Startseite.</p>
+        <p>Anmeldung und Cloud-Synchronisation werden zentral in diesem Bereich gesteuert.</p>
+        <div class="tc2AccountActions tc2AccountCloudActions">
+          <button onclick="NGTAccount.googleSignIn()">Anmelden</button>
+          <button onclick="NGTAccount.firestoreSave()">Cloud speichern</button>
+          <button onclick="NGTAccount.firestoreLoad()">Cloud laden</button>
+        </div>
       </section>
 
       <section class="tc2AccountCard">
@@ -95,9 +100,36 @@ function render(){
   `;
 }
 
-async function googleSignIn(){if(window.NGTFirebaseSync)return NGTFirebaseSync.signIn()}
-async function firestoreSave(){if(window.NGTFirebaseSync)return NGTFirebaseSync.saveCloud()}
-async function firestoreLoad(){if(window.NGTFirebaseSync)return NGTFirebaseSync.loadCloud({force:true})}
+function updateCloudStatus(){
+ const element=document.getElementById('accountCloudStatus');
+ if(element)element.textContent=syncText();
+}
+
+async function googleSignIn(){
+ if(!window.NGTFirebaseSync)return;
+ await NGTFirebaseSync.signIn();
+ updateCloudStatus();
+}
+
+async function firestoreSave(){
+ if(!window.NGTFirebaseSync)return;
+ await NGTFirebaseSync.saveCloud();
+ updateCloudStatus();
+}
+
+async function firestoreLoad(){
+ if(!window.NGTFirebaseSync)return;
+ if(!await NGT500.confirmAction(
+  'Cloud-Daten laden? Der lokale Stand wird durch den gespeicherten Cloud-Stand ersetzt.',
+  {
+   title:'Cloud-Daten laden',
+   confirmText:'Daten laden',
+   danger:true
+  }
+ ))return;
+ await NGTFirebaseSync.loadCloud({force:true});
+ location.reload();
+}
 
 function localBackup(){
   const payload=NGTStore.exportBackup();
@@ -170,9 +202,7 @@ async function clear(){
 }
 
 function afterRender(){
-  try{
-    if(window.NGTDashboard&&NGTDashboard.updateCloudStatus)NGTDashboard.updateCloudStatus();
-  }catch(e){}
+ updateCloudStatus();
 }
 
 window.NGTAccount={googleSignIn,firestoreSave,firestoreLoad,localBackup,localRestorePick,localRestore,clear};

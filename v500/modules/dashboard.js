@@ -104,51 +104,6 @@ function updateCloudStatus(){
  }
 }
 
-async function googleSignIn(){
- if(window.NGTFirebaseSync){
-  await NGTFirebaseSync.signIn();
- }
-
- updateCloudStatus();
-}
-
-async function firestoreSave(){
- if(window.NGTFirebaseSync){
-  await NGTFirebaseSync.saveCloud();
-  updateCloudStatus();
- }
-}
-
-async function firestoreLoad(){
- if(!window.NGTFirebaseSync){
-  return;
- }
-
- if(!await NGT500.confirmAction(
-  'Daten aus Firestore laden? Lokale Daten können überschrieben werden.',
-  {
-   title:'Cloud-Daten laden',
-   confirmText:'Daten laden',
-   danger:true
-  }
- )){
-  return;
- }
-
- await NGTFirebaseSync.loadCloud({
-  force:true
- });
- location.reload();
-}
-
-function openHknImport(){
- if(window.NGTHknImport){
-  NGTHknImport.run();
- }else{
-  NGT500.toast('HKN-Import lädt noch.','warn');
- }
-}
-
 function manualAnimal(){
  NGT500.route(
   'animals',
@@ -460,32 +415,6 @@ function render(){
     </div>
    </header>
 
-   <section class="tc21CloudToolbar">
-    <button
-     type="button"
-     onclick="NGTDashboard.googleSignIn()"
-    >
-     <span>☁</span>
-     <b>Anmelden</b>
-    </button>
-
-    <button
-     type="button"
-     onclick="NGTDashboard.firestoreSave()"
-    >
-     <span>↑</span>
-     <b>Speichern</b>
-    </button>
-
-    <button
-     type="button"
-     onclick="NGTDashboard.firestoreLoad()"
-    >
-     <span>↓</span>
-     <b>Laden</b>
-    </button>
-   </section>
-
    <section class="tc21Welcome">
     <div>
      <h2>
@@ -564,11 +493,6 @@ function render(){
       "NGT500.route('assistant')"
      )}
 
-     ${quickAction(
-      '▱',
-      'Dokument',
-      'NGTDashboard.openHknImport()'
-     )}
     </div>
    </section>
 
@@ -597,15 +521,6 @@ function render(){
      )}
 
      ${navigationCard(
-      '🥩',
-      'Futterbestand',
-      'Bestände und Kategorien verwalten',
-      foodCount,
-      "NGT500.route('food')",
-      'food'
-     )}
-
-     ${navigationCard(
       '▥',
       'Smart Dashboard',
       tasks+
@@ -620,14 +535,6 @@ function render(){
       'dashboard'
      )}
 
-     ${navigationCard(
-      '💬',
-      'TerraControl KI',
-      'Fragen stellen und Einträge erfassen',
-      null,
-      "NGT500.route('chat')",
-      'ai'
-     )}
     </div>
    </section>
 
@@ -670,10 +577,6 @@ function afterRender(){
 
 window.NGTDashboard={
  updateCloudStatus:updateCloudStatus,
- googleSignIn:googleSignIn,
- firestoreSave:firestoreSave,
- firestoreLoad:firestoreLoad,
- openHknImport:openHknImport,
  manualAnimal:manualAnimal,
  manualOffspring:manualOffspring,
  toggleBestand:toggleBestand,

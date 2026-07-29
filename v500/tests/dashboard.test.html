@@ -326,6 +326,97 @@ async function run(){
    welcomeText.includes('Aufgaben')
   );
 
+  const quickActions=
+   dashboardRoot.querySelectorAll(
+    '.tc21StartQuick'
+   );
+  const quickText=
+   dashboardRoot.querySelector(
+    '.tc21StartQuickSection'
+   ).textContent;
+
+  equal(
+   'Startseite zeigt drei zentrale Schnellaktionen',
+   quickActions.length,
+   3
+  );
+  record(
+   'Dokumentimport ist nicht mehr auf der Startseite',
+   !quickText.includes('Dokument')
+  );
+
+  const navigationCards=
+   dashboardRoot.querySelectorAll(
+    '.tc21StartNavCard'
+   );
+  const navigationText=
+   dashboardRoot.querySelector(
+    '.tc21StartNavigation'
+   ).textContent;
+
+  equal(
+   'Startseite zeigt drei priorisierte Bereiche',
+   navigationCards.length,
+   3
+  );
+  record(
+   'Startseite priorisiert Bestand, Nachzuchten und Smart Dashboard',
+   navigationText.includes('Bestand')&&
+   navigationText.includes('Nachzuchten')&&
+   navigationText.includes('Smart Dashboard')&&
+   !navigationText.includes('Futterbestand')&&
+   !navigationText.includes('TerraControl KI')
+  );
+
+  if(!win.NGT500.modules.account){
+   win.NGTApp.loadAccount();
+
+   await new Promise(function(resolve){
+    let attempts=0;
+    const timer=setInterval(function(){
+     attempts+=1;
+
+     if(
+      win.NGT500.modules.account||
+      attempts>=50
+     ){
+      clearInterval(timer);
+      resolve();
+     }
+    },20);
+   });
+  }
+
+  const accountModule=
+   win.NGT500.modules.account;
+  const accountRoot=
+   accountModule&&
+   typeof accountModule.render==='function'
+    ?rootFor(accountModule.render())
+    :null;
+  const cloudActions=
+   accountRoot
+    ?accountRoot.querySelector(
+     '.tc2AccountCard .tc2AccountActions'
+    )
+    :null;
+
+  equal(
+   'Konto enthält drei Cloud-Aktionen',
+   cloudActions
+    ?cloudActions.querySelectorAll('button').length
+    :0,
+   3
+  );
+  record(
+   'Cloud-Speichern und Cloud-Laden sind im Konto erreichbar',
+   !!(
+    cloudActions&&
+    cloudActions.textContent.includes('Cloud speichern')&&
+    cloudActions.textContent.includes('Cloud laden')
+   )
+  );
+
   const smartRoot=rootFor(
    win.NGTSmartDashboard.render()
   );

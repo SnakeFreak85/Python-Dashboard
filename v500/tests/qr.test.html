@@ -91,6 +91,15 @@ async function run(){
    settings:{}
   }));
 
+  const qrMarkup=
+   win.NGT500.modules.qr.render({});
+
+  record(
+   'HKN-Dokumentimport bleibt im QR-/Tierpass-Bereich erreichbar',
+   qrMarkup.includes('NGTHknImport.run()')&&
+   qrMarkup.includes('Herkunftsnachweis importieren')
+  );
+
   const json=win.NGTQR.parseTC(JSON.stringify({
    app:'TerraControl',
    type:'animal-passport',
