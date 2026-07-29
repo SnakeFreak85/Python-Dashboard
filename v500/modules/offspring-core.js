@@ -69,31 +69,10 @@ P.allOffspring=function(){
 };
 
 P.photoSrc=function(photo,preferThumbnail){
- if(!photo)return '';
-
- if(window.NGTPhotoStorage&&NGTPhotoStorage.src){
-  return NGTPhotoStorage.src(
-   photo,
-   preferThumbnail
-  );
- }
-
- if(
-  preferThumbnail&&
-  (
-   photo.thumbUrl||
-   photo.thumbnailUrl
-  )
- ){
-  return photo.thumbUrl||
-   photo.thumbnailUrl;
- }
-
- return photo.url||
-  photo.thumbUrl||
-  photo.thumbnailUrl||
-  photo.data||
-  '';
+ return AnimalEngine.photoSource(
+  photo,
+  preferThumbnail
+ );
 };
 
 P.isUsablePhoto=function(photo){
@@ -101,15 +80,9 @@ P.isUsablePhoto=function(photo){
 };
 
 P.coverPhoto=function(animal){
- const photos=(
-  animal&&Array.isArray(animal.photos)
-   ?animal.photos
-   :[]
- ).filter(P.isUsablePhoto);
-
- return photos.find(function(photo){
-  return photo.cover;
- })||photos[0]||null;
+ return AnimalEngine.coverPhoto(
+  animal
+ );
 };
 
 P.foodInventory=function(){

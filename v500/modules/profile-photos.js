@@ -10,37 +10,9 @@ if(!P){
 }
 
 function photoSrc(photo,thumb){
- if(!photo)return '';
-
- if(
-  window.NGTPhotoStorage&&
-  NGTPhotoStorage.src
- ){
-  return NGTPhotoStorage.src(
-   photo,
-   thumb
-  );
- }
-
- if(
-  thumb&&
-  (
-   photo.thumbUrl||
-   photo.thumbnailUrl
-  )
- ){
-  return (
-   photo.thumbUrl||
-   photo.thumbnailUrl
-  );
- }
-
- return (
-  photo.url||
-  photo.thumbUrl||
-  photo.thumbnailUrl||
-  photo.data||
-  ''
+ return AnimalEngine.photoSource(
+  photo,
+  thumb
  );
 }
 
@@ -52,27 +24,14 @@ function isUsablePhoto(photo){
 }
 
 function usablePhotos(animal){
- return (
-  animal&&
-  Array.isArray(animal.photos)
-   ?animal.photos
-   :[]
- )
-  .filter(
-   isUsablePhoto
-  );
+ return AnimalEngine.usablePhotos(
+  animal
+ );
 }
 
 function profilePhoto(animal){
- const photos=
-  usablePhotos(animal);
-
- return (
-  photos.find(function(photo){
-   return photo.cover;
-  })||
-  photos[0]||
-  null
+ return AnimalEngine.coverPhoto(
+  animal
  );
 }
 

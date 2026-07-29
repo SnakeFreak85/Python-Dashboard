@@ -58,39 +58,9 @@ function statusOptions(current){
 }
 
 function photoSrc(photo,preferThumb){
- if(!photo){
-  return '';
- }
-
- if(
-  window.NGTPhotoStorage&&
-  NGTPhotoStorage.src
- ){
-  return NGTPhotoStorage.src(
-   photo,
-   preferThumb
-  );
- }
-
- if(
-  preferThumb&&
-  (
-   photo.thumbUrl||
-   photo.thumbnailUrl
-  )
- ){
-  return (
-   photo.thumbUrl||
-   photo.thumbnailUrl
-  );
- }
-
- return (
-  photo.url||
-  photo.thumbUrl||
-  photo.thumbnailUrl||
-  photo.data||
-  ''
+ return AnimalEngine.photoSource(
+  photo,
+  preferThumb
  );
 }
 
@@ -99,19 +69,8 @@ function isUsablePhoto(photo){
 }
 
 function coverPhoto(animal){
- const photos=(
-  animal&&
-  Array.isArray(animal.photos)
-   ?animal.photos
-   :[]
- ).filter(isUsablePhoto);
-
- return (
-  photos.find(function(photo){
-   return photo.cover;
-  })||
-  photos[0]||
-  null
+ return AnimalEngine.coverPhoto(
+  animal
  );
 }
 

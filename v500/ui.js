@@ -48,15 +48,19 @@ function animalCard(x){
  const lf=latest(a.feeds);
  const lw=latest(a.weights);
  const ls=latest(a.sheds);
- const photo=(a.photos||[]).find(function(p){return p.cover;})||(a.photos||[])[0];
+ const photo=AnimalEngine.coverPhoto(a);
+ const photoUrl=AnimalEngine.photoSource(
+  photo,
+  true
+ );
  const hs=healthStatus(a);
  const animalId=NGTStore.animalId(a);
  const jsAnimalId=jsArg(animalId);
  const uid=encodeURIComponent(animalId);
  const weight=lw?esc(lw.weight)+' g':(a.weight?esc(a.weight)+' g':'-');
 
- const img=photo
-  ? `<img class="tc2AnimalPhoto" src="${photo.data}">`
+ const img=photoUrl
+  ? `<img class="tc2AnimalPhoto" src="${esc(photoUrl)}">`
   : `<div class="tc2AnimalPhoto tc2AnimalPhotoEmpty"><span>📷</span><b>Titelbild hinzufügen</b></div>`;
 
  return `<article class="tc2AnimalCard ${hs.cls}">

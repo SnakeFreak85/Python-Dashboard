@@ -479,17 +479,10 @@ async function remove(photo){
 }
 
 function src(photo,preferThumb){
-  if(!photo)return '';
-
-  if(preferThumb&&(photo.thumbUrl||photo.thumbnailUrl)){
-    return photo.thumbUrl||photo.thumbnailUrl;
-  }
-
-  return photo.url||
-    photo.thumbUrl||
-    photo.thumbnailUrl||
-    photo.data||
-    '';
+  return AnimalEngine.photoSource(
+    photo,
+    preferThumb
+  );
 }
 
 function isLegacyPhoto(photo){

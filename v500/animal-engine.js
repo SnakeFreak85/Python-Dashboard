@@ -190,6 +190,59 @@ function ensureHistories(animal){
     return animal;
 }
 
+function photoSource(photo,preferThumbnail){
+    if(!photo){
+        return "";
+    }
+
+    if(
+        preferThumbnail&&
+        (
+            photo.thumbUrl||
+            photo.thumbnailUrl
+        )
+    ){
+        return (
+            photo.thumbUrl||
+            photo.thumbnailUrl
+        );
+    }
+
+    return (
+        photo.url||
+        photo.thumbUrl||
+        photo.thumbnailUrl||
+        photo.data||
+        ""
+    );
+}
+
+function usablePhotos(animal){
+    return (
+        animal&&
+        Array.isArray(animal.photos)
+            ?animal.photos
+            :[]
+    ).filter(function(photo){
+        return !!photoSource(
+            photo,
+            true
+        );
+    });
+}
+
+function coverPhoto(animal){
+    const photos=usablePhotos(animal);
+
+    return (
+        photos.find(function(photo){
+            return photo.cover;
+        })||
+        photos[0]||
+        null
+    );
+}
+
 function positiveNumber(value){
     const result=number(value);
 
@@ -660,6 +713,12 @@ window.AnimalEngine={
     daysSinceOr,
 
     ensureHistories,
+
+    photoSource,
+
+    usablePhotos,
+
+    coverPhoto,
 
     normalizeFeedEvent,
 

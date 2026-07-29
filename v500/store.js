@@ -708,15 +708,10 @@ function deleteAnimalById(id){
 }
 
 function storedPhotoSource(photo){
-  return (
-    photo&&
-    (
-      photo.thumbUrl||
-      photo.thumbnailUrl||
-      photo.url||
-      photo.data
-    )
-  )||'';
+  return AnimalEngine.photoSource(
+    photo,
+    true
+  );
 }
 
 function animalPhotoIndex(photos,photoRef){

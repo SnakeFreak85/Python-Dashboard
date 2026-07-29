@@ -311,6 +311,60 @@ assert('Bestehende Felder bleiben erhalten',normalized.name==='Altbestand');
 const repeat=AnimalEngine.ensureHistories(normalized);
 assert('Normalisierung ist wiederholbar',repeat===normalized);
 
+const photoAnimal={
+ photos:[
+  {
+   id:'photo-invalid',
+   cover:true
+  },
+  {
+   id:'photo-first',
+   url:'https://example.test/first.jpg',
+   thumbUrl:'https://example.test/first-thumb.jpg'
+  },
+  {
+   id:'photo-cover',
+   url:'https://example.test/cover.jpg',
+   thumbUrl:'https://example.test/cover-thumb.jpg',
+   cover:true
+  }
+ ]
+};
+
+equal(
+ 'Vorschaubild bevorzugt die Thumbnail-URL',
+ AnimalEngine.photoSource(
+  photoAnimal.photos[1],
+  true
+ ),
+ 'https://example.test/first-thumb.jpg'
+);
+equal(
+ 'Vollbild bevorzugt die Bild-URL',
+ AnimalEngine.photoSource(
+  photoAnimal.photos[1],
+  false
+ ),
+ 'https://example.test/first.jpg'
+);
+equal(
+ 'Eingebettetes Legacy-Foto bleibt lesbar',
+ AnimalEngine.photoSource({
+  data:'data:image/jpeg;base64,TEST'
+ }),
+ 'data:image/jpeg;base64,TEST'
+);
+equal(
+ 'Unbrauchbare Fotos werden aus der Galerie gefiltert',
+ AnimalEngine.usablePhotos(photoAnimal).length,
+ 2
+);
+equal(
+ 'Titelbildauswahl ignoriert unbrauchbare Cover-Einträge',
+ AnimalEngine.coverPhoto(photoAnimal).id,
+ 'photo-cover'
+);
+
 const box=document.getElementById('results');
 const passed=results.filter(function(result){return result.ok;}).length;
 box.innerHTML='<p><strong>'+passed+' / '+results.length+' Tests bestanden</strong></p>'+results.map(function(result){
