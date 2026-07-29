@@ -173,6 +173,12 @@ App-Smoke-Test:
 http://localhost:8000/v500/tests/app-smoke.test.html
 ```
 
+Startseite und Smart Dashboard:
+
+```text
+http://localhost:8000/v500/tests/dashboard.test.html
+```
+
 Tierbestandsmodule:
 
 ```text

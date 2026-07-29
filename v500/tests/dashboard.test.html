@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>Dashboard Browser Tests</h1>
+<p class="muted">Charakterisiert Bestandszahlen, Fälligkeiten, Futterwarnungen und Smart-Dashboard-Auswahl.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({
+  name:name,
+  passed:!!passed,
+  detail:detail||''
+ });
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+
+   ', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=
+  results.map(function(result){
+   return '<li class="'+
+    (result.passed?'pass':'fail')+
+    '">'+
+    (result.passed?'PASS':'FAIL')+
+    ' — '+result.name+
+    (
+     result.passed||!result.detail
+      ?''
+      :' <span class="muted">('+
+       result.detail+
+       ')</span>'
+    )+
+    '</li>';
+  }).join('');
+
+ document.title=
+  failed
+   ?'FAIL — Dashboard Tests'
+   :'PASS — Dashboard Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  let finished=false;
+
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener(
+   'load',
+   complete,
+   {once:true}
+  );
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'&&
+    /\/v500\.html(?:[?#]|$)/.test(
+     frame.contentWindow.location.href
+    )
+   ){
+    setTimeout(complete,0);
+   }
+  }catch(error){}
+ });
+}
+
+function rootFor(markup){
+ const root=document.createElement('div');
+ root.innerHTML=markup;
+ return root;
+}
+
+function valuesByLabel(root,selector){
+ const values={};
+
+ root.querySelectorAll(selector)
+  .forEach(function(element){
+   const label=element.querySelector('small');
+   const value=element.querySelector('b');
+
+   if(label&&value){
+    values[label.textContent.trim()]=
+     value.textContent.trim();
+   }
+  });
+
+ return values;
+}
+
+async function run(){
+ const frame=document.getElementById('appFrame');
+ let win=null;
+ let localBackup=null;
+ let routeBackup=null;
+ let stackBackup=null;
+
+ try{
+  win=await waitForLoad(frame);
+
+  localBackup=
+   win.localStorage.getItem('spd_v53');
+  routeBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_current_route_v1'
+   );
+  stackBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_route_stack_v1'
+   );
+
+  record(
+   'Dashboard-Modul verfügbar',
+   !!(
+    win.NGT500.modules.dashboard&&
+    typeof win.NGT500.modules.dashboard.render==='function'
+   )
+  );
+  equal(
+   'Smart-Dashboard-API: render',
+   typeof win.NGTSmartDashboard.render,
+   'function'
+  );
+
+  win.NGTStore.clearLocal();
+
+  win.NGTStore.addAnimal('',{
+   uuid:'dashboard-stock',
+   uid:'dashboard-stock',
+   name:'Aktives Bestandstier',
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   status:'Bestand',
+   collection:'stock',
+   feedIntervalDays:7,
+   weightIntervalDays:30,
+   feeds:[{
+    date:'2020-01-01',
+    accepted:true,
+    prey:'Ratte'
+   }]
+  });
+
+  win.NGTStore.addAnimal('',{
+   uuid:'dashboard-offspring',
+   uid:'dashboard-offspring',
+   name:'Aktive Nachzucht',
+   animalGroup:'Geckos',
+   genus:'Eublepharis',
+   species:'macularius',
+   status:'Nachzucht',
+   collection:'offspring',
+   feedIntervalDays:7,
+   weightIntervalEnabled:false
+  });
+
+  win.NGTStore.addAnimal('',{
+   uuid:'dashboard-archive',
+   uid:'dashboard-archive',
+   name:'Archiviertes Tier',
+   animalGroup:'Archivgruppe',
+   status:'Archiv',
+   collection:'stock',
+   feedIntervalDays:1,
+   weightIntervalDays:1
+  });
+
+  win.NGTStore.addAnimal('',{
+   uuid:'dashboard-sold',
+   uid:'dashboard-sold',
+   name:'Verkaufte Nachzucht',
+   animalGroup:'Verkaufsgruppe',
+   status:'Verkauft',
+   collection:'offspring',
+   feedIntervalDays:1,
+   weightIntervalDays:1
+  });
+
+  win.NGTStore.saveFoodInventoryItem({
+   id:'dashboard-food-low',
+   category:'Nagetiere',
+   condition:'Frost',
+   itemName:'Ratte',
+   variant:'150 g',
+   unit:'Stück',
+   qty:2,
+   minimum:3,
+   label:'Frost Ratte 150 g'
+  });
+
+  win.NGTStore.saveFoodInventoryItem({
+   id:'dashboard-food-ok',
+   category:'Insekten',
+   condition:'Lebend',
+   itemName:'Heimchen',
+   variant:'mittel',
+   unit:'Stück',
+   qty:8,
+   minimum:3,
+   label:'Heimchen mittel'
+  });
+
+  const data=win.NGTStore.data();
+  data.documents=[{
+   id:'dashboard-document'
+  }];
+  data.sales=[{
+   id:'dashboard-sale'
+  }];
+  data.clutches=[{
+   id:'dashboard-clutch'
+  }];
+  win.NGTStore.save();
+
+  const dashboardRoot=rootFor(
+   win.NGT500.modules.dashboard.render()
+  );
+  const dashboardStats=valuesByLabel(
+   dashboardRoot,
+   '.tc21StartStat'
+  );
+
+  equal(
+   'Startseite zählt nur aktive Bestandstiere',
+   dashboardStats.Bestand,
+   '1'
+  );
+  equal(
+   'Startseite zählt aktive Nachzuchten getrennt',
+   dashboardStats.Nachzuchten,
+   '1'
+  );
+  equal(
+   'Startseite zählt alle Futterpositionen',
+   dashboardStats.Futter,
+   '2'
+  );
+  equal(
+   'Startseite zählt nur kritische Futterpositionen',
+   dashboardStats.Niedrig,
+   '1'
+  );
+
+  const welcomeText=
+   dashboardRoot.querySelector(
+    '.tc21Welcome'
+   ).textContent;
+
+  record(
+   'Startseite zeigt zwei aktive Tiere',
+   welcomeText.includes('2')&&
+   welcomeText.includes('Tiere')
+  );
+  record(
+   'Startseite zeigt drei fällige Aufgaben',
+   welcomeText.includes('3')&&
+   welcomeText.includes('Aufgaben')
+  );
+
+  const smartRoot=rootFor(
+   win.NGTSmartDashboard.render()
+  );
+  const smartKpis=valuesByLabel(
+   smartRoot,
+   '.tc2SDkpi'
+  );
+
+  equal(
+   'Smart Dashboard zählt Bestand und Nachzuchten gemeinsam',
+   smartKpis.Tiere,
+   '2'
+  );
+  equal(
+   'Smart Dashboard zählt alle Futterartikel',
+   smartKpis.Futterartikel,
+   '2'
+  );
+  equal(
+   'Smart Dashboard übernimmt dieselben Fälligkeiten',
+   smartKpis['Heute fällig'],
+   '3'
+  );
+  equal(
+   'Smart Dashboard zählt Dokumentquellen gemeinsam',
+   smartKpis.Dokumente,
+   '3'
+  );
+
+  const legendText=
+   smartRoot.querySelector(
+    '.tc2SDlegend'
+   ).textContent;
+
+  record(
+   'Aktive Bestandsgruppe wird angezeigt',
+   legendText.includes('Pythons')
+  );
+  record(
+   'Aktive Nachzuchtgruppe wird angezeigt',
+   legendText.includes('Geckos')
+  );
+  record(
+   'Archivierte Tiergruppe wird ausgeblendet',
+   !legendText.includes('Archivgruppe')
+  );
+  record(
+   'Verkaufte Tiergruppe wird ausgeblendet',
+   !legendText.includes('Verkaufsgruppe')
+  );
+
+  const taskRows=Array.from(
+   smartRoot.querySelectorAll(
+    '.tc2SDtask'
+   )
+  );
+
+  equal(
+   'Smart Dashboard rendert drei fällige Aufgaben',
+   taskRows.length,
+   3
+  );
+
+  const taskActions=taskRows.map(function(row){
+   return row.getAttribute('onclick')||'';
+  }).join(' ');
+
+  record(
+   'Fälligkeiten verlinken das Bestandstier per UUID',
+   taskActions.includes('dashboard-stock')
+  );
+  record(
+   'Fälligkeiten verlinken die Nachzucht per UUID',
+   taskActions.includes('dashboard-offspring')
+  );
+
+  const foodRows=Array.from(
+   smartRoot.querySelectorAll(
+    '.tc2SDfood'
+   )
+  );
+
+  equal(
+   'Nachkaufliste enthält nur kritische Positionen',
+   foodRows.length,
+   1
+  );
+  record(
+   'Kritische Futterposition wird angezeigt',
+   foodRows[0].textContent.includes(
+    'Frost Ratte 150 g'
+   )
+  );
+  record(
+   'Ausreichende Futterposition wird nicht angezeigt',
+   !foodRows[0].textContent.includes(
+    'Heimchen mittel'
+   )
+  );
+
+  record(
+   'Letzte Fütterung erscheint als Aktivität',
+   smartRoot.querySelector(
+    '.tc2SDactivity'
+   ).textContent.includes(
+    'Aktives Bestandstier'
+   )
+  );
+
+ }catch(error){
+  record(
+   'Testlauf ohne Ausnahme',
+   false,
+   error&&error.stack
+    ?error.stack
+    :error.message
+  );
+
+ }finally{
+  if(win){
+   if(localBackup===null){
+    win.localStorage.removeItem('spd_v53');
+   }else{
+    win.localStorage.setItem(
+     'spd_v53',
+     localBackup
+    );
+   }
+
+   if(routeBackup===null){
+    win.sessionStorage.removeItem(
+     'terracontrol_current_route_v1'
+    );
+   }else{
+    win.sessionStorage.setItem(
+     'terracontrol_current_route_v1',
+     routeBackup
+    );
+   }
+
+   if(stackBackup===null){
+    win.sessionStorage.removeItem(
+     'terracontrol_route_stack_v1'
+    );
+   }else{
+    win.sessionStorage.setItem(
+     'terracontrol_route_stack_v1',
+     stackBackup
+    );
+   }
+  }
+
+  render();
+ }
+}
+
+run();
+
+})();
+</script>
+</body>
+</html>

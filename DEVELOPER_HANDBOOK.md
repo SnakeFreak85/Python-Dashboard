@@ -120,6 +120,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     └── tests/
         ├── animal-engine.test.html
         ├── animals.test.html
+        ├── dashboard.test.html
         ├── offspring.test.html
         ├── store.test.html
         ├── taxonomy.test.html
@@ -666,7 +667,17 @@ Prüft:
 - Modulregistrierung,
 - grundlegende AnimalEngine-Ausführung.
 
-### 12.3 Nachzuchten
+### 12.3 Startseite und Smart Dashboard
+
+```text
+http://localhost:8000/v500/tests/dashboard.test.html
+```
+
+Charakterisiert die Abgrenzung von aktivem Bestand und Nachzuchten,
+Futter- und Dokumentzahlen, gemeinsame Fälligkeiten, Gruppenauswahl,
+UUID-basierte Aufgabenrouten, Aktivitäten und die gefilterte Nachkaufliste.
+
+### 12.4 Nachzuchten
 
 ```text
 http://localhost:8000/v500/tests/offspring.test.html
@@ -676,7 +687,7 @@ Prüft aktive Nachzuchtenfilter, UUID-basiertes Bearbeiten, dynamische
 Futterverknüpfung, kompatible Aliasfelder, Historienerhalt und den eigenen
 Nachzuchten-Nummernkreis.
 
-### 12.4 Taxonomie
+### 12.5 Taxonomie
 
 ```text
 http://localhost:8000/v500/tests/taxonomy.test.html
@@ -687,7 +698,7 @@ Bild-Fallbacks sowie Klassifikation, Illustrationen, öffentliche
 `NGTTaxonomyUI`-Dekoration und die automatische Dekoration neu eingefügter
 Elemente durch den DOM-Beobachter.
 
-### 12.5 TC2-Oberfläche
+### 12.6 TC2-Oberfläche
 
 ```text
 http://localhost:8000/v500/tests/tc2-ui.test.html
@@ -695,7 +706,7 @@ http://localhost:8000/v500/tests/tc2-ui.test.html
 
 Prüft die TC2-Seitenrahmen der aktiven Routen, die öffentlichen HTML-Seiten, die gemeinsame Dialogsemantik, zentrale TC2-CSS-Regeln und das mobile Überlaufverhalten.
 
-### 12.6 Store und Migration
+### 12.7 Store und Migration
 
 ```text
 http://localhost:8000/v500/tests/store.test.html
@@ -714,7 +725,7 @@ Der gleiche Kernpfad kann ohne Browser ausgeführt werden:
 node tools/test-store.mjs
 ```
 
-### 12.7 Manuelle Mindestprüfung
+### 12.8 Manuelle Mindestprüfung
 
 - App startet ohne rote Konsolenfehler.
 - Drawer und Navigation funktionieren.
