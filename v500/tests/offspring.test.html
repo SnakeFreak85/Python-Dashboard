@@ -146,6 +146,20 @@ async function run(){
    typeof win.NGTOffspring.save,
    'function'
   );
+  record(
+   'Nachzuchten-Teilmodule verfügbar',
+   !!(
+    win.NGTOffspringInternal&&
+    win.NGTOffspringInternal.editor&&
+    typeof win.NGTOffspringInternal.editor.render==='function'&&
+    typeof win.NGTOffspringInternal.editor.save==='function'
+   )
+  );
+  record(
+   'veraltete Nachzuchten-APIs entfernt',
+   typeof win.NGTOffspring.openEditor==='undefined'&&
+   typeof win.NGTOffspring.remove==='undefined'
+  );
 
   win.NGTStore.clearLocal();
 

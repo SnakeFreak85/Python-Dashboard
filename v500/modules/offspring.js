@@ -1,254 +1,19 @@
 (function(){
 'use strict';
 
-function esc(value){
- return NGT500.esc(value||'');
-}
+const P=window.NGTOffspringInternal;
 
-function text(value){
- return String(value==null?'':value).trim();
-}
-
-function jsArg(value){
- return String(value||'')
-  .replace(/\\/g,'\\\\')
-  .replace(/'/g,"\\'");
-}
-
-function statusOptions(current){
- return [
-  'Nachzucht',
-  'Reserviert',
-  'Verkauft',
-  'Verstorben',
-  'Archiv'
- ].map(function(status){
-  return `<option ${current===status?'selected':''}>
-   ${status}
-  </option>`;
- }).join('');
-}
-
-function isInactiveStatus(status){
- return [
-  'Archiv',
-  'Verkauft',
-  'Abgegeben',
-  'Verstorben'
- ].includes(status);
-}
-
-function isOffspringAnimal(animal){
- if(window.NGTIdManager&&NGTIdManager.isOffspring){
-  return NGTIdManager.isOffspring(animal);
- }
-
- return String((animal&&animal.status)||'').toLowerCase()==='nachzucht'||
-  String((animal&&animal.collection)||'').toLowerCase()==='offspring'||
-  String((animal&&animal.collection)||'').toLowerCase()==='nachzuchten';
-}
-
-function allOffspring(){
- if(NGTStore.allOffspring){
-  return NGTStore.allOffspring().filter(function(row){
-   return !isInactiveStatus(row.a.status);
-  });
- }
-
- const all=NGTStore.allAnimals
-  ?NGTStore.allAnimals()
-  :[];
-
- return all.filter(function(row){
-  return !isInactiveStatus(row.a.status)&&
-   isOffspringAnimal(row.a);
- });
-}
-
-function photoSrc(photo,preferThumbnail){
- if(!photo)return '';
-
- if(window.NGTPhotoStorage&&NGTPhotoStorage.src){
-  return NGTPhotoStorage.src(
-   photo,
-   preferThumbnail
-  );
- }
-
- if(
-  preferThumbnail&&
-  (
-   photo.thumbUrl||
-   photo.thumbnailUrl
-  )
- ){
-  return photo.thumbUrl||
-   photo.thumbnailUrl;
- }
-
- return photo.url||
-  photo.thumbUrl||
-  photo.thumbnailUrl||
-  photo.data||
-  '';
-}
-
-function isUsablePhoto(photo){
- return !!photoSrc(photo,true);
-}
-
-function coverPhoto(animal){
- const photos=(
-  animal&&Array.isArray(animal.photos)
-   ?animal.photos
-   :[]
- ).filter(isUsablePhoto);
-
- return photos.find(function(photo){
-  return photo.cover;
- })||photos[0]||null;
-}
-
-function foodInventory(){
- const data=NGTStore.data();
-
- return Array.isArray(data.foodInventory)
-  ?data.foodInventory
-  :[];
-}
-
-function normalizeFoodItem(item){
- return FoodInventoryEngine.normalizeItem(
-  item
- );
-}
-
-function normalizedFoodInventory(){
- return FoodInventoryEngine.sortInventory(
-  foodInventory()
- );
-}
-
-function foodLabel(item){
- return item
-  ?FoodInventoryEngine.itemLabel(item)
-  :'';
-}
-
-function foodMeta(item){
- return item
-  ?FoodInventoryEngine.meta(item)
-  :'';
-}
-
-function foodById(id){
- return FoodInventoryEngine.findById(
-  foodInventory(),
-  id
- );
-}
-
-function defaultFoodId(animal){
- const stored=text(
-  animal.defaultFeederId||
-  animal.foodInventoryId||
-  ''
- );
-
- if(stored&&foodById(stored)){
-  return stored;
- }
-
- const legacy=text(
-  animal.defaultFeeder||
-  animal.futterStandard||
-  animal.standardFeed||
-  ''
- );
-
- if(!legacy)return '';
-
- const match=normalizedFoodInventory().find(function(item){
-  return foodLabel(item)===legacy||
-   text(item.label)===legacy||
-   text(item.name)===legacy;
- });
-
- return match?match.id:'';
-}
-
-function foodOptions(animal){
- const items=normalizedFoodInventory();
- const selectedId=defaultFoodId(animal);
-
- let options='<option value="">Kein Standardfutter</option>';
- let selectedFound=false;
-
- items.forEach(function(item){
-  const selected=
-   String(item.id)===String(selectedId);
-
-  if(selected){
-   selectedFound=true;
-  }
-
-  options+=`<option
-   value="${esc(item.id)}"
-   ${selected?'selected':''}
-  >
-   ${esc(foodLabel(item))} · ${esc(foodMeta(item))}
-  </option>`;
- });
-
- const legacy=text(
-  animal.defaultFeeder||
-  animal.futterStandard||
-  animal.standardFeed||
-  ''
- );
-
- if(
-  legacy&&
-  !selectedFound
- ){
-  options+=`<option
-   value="legacy:${esc(legacy)}"
-   selected
-  >
-   ${esc(legacy)} · bisherige Auswahl
-  </option>`;
- }
-
- return options;
-}
-
-function countBy(rows,keyFunction){
- const map={};
-
- rows.forEach(function(row){
-  const key=keyFunction(row)||'Unsortiert';
-  map[key]=(map[key]||0)+1;
- });
-
- return Object.keys(map)
-  .sort(function(a,b){
-   return a.localeCompare(b,'de');
-  })
-  .map(function(key){
-   return {
-    label:key,
-    count:map[key]
-   };
-  });
+if(!P||!P.editor){
+ throw new Error('Nachzuchtenmodule fehlen');
 }
 
 function backButton(args){
  if(args&&args.genus){
   return `<button
    class="tc2ProfileTopBack"
-   onclick="NGT500.route('offspring',{group:'${jsArg(args.group)}'})"
+   onclick="NGT500.route('offspring',{group:'${P.jsArg(args.group)}'})"
   >
-   ‹ ${esc(args.group)}
+   ‹ ${P.esc(args.group)}
   </button>`;
  }
 
@@ -274,7 +39,7 @@ function summary(all){
  const photos=all.reduce(function(total,row){
   return total+(
    Array.isArray(row.a.photos)
-    ?row.a.photos.filter(isUsablePhoto).length
+    ?row.a.photos.filter(P.isUsablePhoto).length
     :0
   );
  },0);
@@ -305,8 +70,8 @@ function summary(all){
 function emptyState(title,message){
  return `<div class="tc2EmptyState">
   <div class="tc2EmptyStateIcon">🥚</div>
-  <h3>${esc(title)}</h3>
-  <p>${esc(message)}</p>
+  <h3>${P.esc(title)}</h3>
+  <p>${P.esc(message)}</p>
  </div>`;
 }
 
@@ -326,7 +91,7 @@ function folderGrid(items,onclick){
    >
     <span>🥚</span>
 
-    <b>${esc(item.label)}</b>
+    <b>${P.esc(item.label)}</b>
 
     <small>
      ${item.count}
@@ -348,13 +113,13 @@ function animalIconGrid(rows){
  return `<div class="tc2TaxAnimalGrid">
   ${rows.map(function(row){
    const animal=row.a;
-   const photo=coverPhoto(animal);
-   const source=photoSrc(photo,true);
+   const photo=P.coverPhoto(animal);
+   const source=P.photoSrc(photo,true);
 
    const image=source
     ?`<img
-      src="${esc(source)}"
-      alt="${esc(animal.name||'Nachzuchtfoto')}"
+      src="${P.esc(source)}"
+      alt="${P.esc(animal.name||'Nachzuchtfoto')}"
       loading="lazy"
      >`
     :'<span>🥚</span>';
@@ -368,24 +133,24 @@ function animalIconGrid(rows){
 
    return `<button
     class="tc2TaxAnimal tc2OffspringAnimal"
-    onclick="NGT500.route('profile',{animalId:'${jsArg(NGTStore.animalId(animal))}'})"
+    onclick="NGT500.route('profile',{animalId:'${P.jsArg(NGTStore.animalId(animal))}'})"
    >
     <div>${image}</div>
 
     <b>
-     ${esc(animal.publicId||animal.displayId||'')}
+     ${P.esc(animal.publicId||animal.displayId||'')}
     </b>
 
     <strong>
-     ${esc(animal.name||'Unbenannt')}
+     ${P.esc(animal.name||'Unbenannt')}
     </strong>
 
     <small>
-     ${esc(taxonomy||animal.animalGroup||'')}
+     ${P.esc(taxonomy||animal.animalGroup||'')}
     </small>
 
     <em class="tc2OffspringStatus">
-     ${esc(status)}
+     ${P.esc(status)}
     </em>
    </button>`;
   }).join('')}
@@ -397,10 +162,10 @@ function pageHeader(title,subtitle,back){
   <div>
    ${back||''}
 
-   <h2>${esc(title)}</h2>
+   <h2>${P.esc(title)}</h2>
 
    <p class="muted">
-    ${esc(subtitle)}
+    ${P.esc(subtitle)}
    </p>
   </div>
  </div>`;
@@ -418,7 +183,7 @@ function render(args){
 
  if(create){
   return `<section class="tc2PageCard tc2AnimalsPage tc2OffspringPage">
-   ${editor('',undefined)}
+   ${P.editor.render('',undefined)}
   </section>`;
  }
 
@@ -430,7 +195,7 @@ function render(args){
   return `<section class="tc2PageCard tc2AnimalsPage tc2OffspringPage">
    ${
     editRow
-     ?editor(editRow.t,editRow.i)
+     ?P.editor.render(editRow.t,editRow.i)
      :emptyState(
       'Nachzucht nicht gefunden',
       'Der Datensatz ist nicht mehr vorhanden.'
@@ -439,10 +204,10 @@ function render(args){
   </section>`;
  }
 
- const all=allOffspring();
+ const all=P.allOffspring();
 
  if(!group){
-  const groups=countBy(
+  const groups=P.countBy(
    all,
    function(row){
     return row.a.animalGroup||'Unsortiert';
@@ -474,7 +239,7 @@ function render(args){
    ${folderGrid(
     groups,
     function(item){
-     return `NGT500.route('offspring',{group:'${jsArg(item.label)}'})`;
+     return `NGT500.route('offspring',{group:'${P.jsArg(item.label)}'})`;
     }
    )}
   </section>`;
@@ -488,7 +253,7 @@ function render(args){
  });
 
  if(group&&!genus){
-  const genusRows=countBy(
+  const genusRows=P.countBy(
    groupRows,
    function(row){
     return row.a.genus||'Ohne Gattung';
@@ -508,7 +273,7 @@ function render(args){
    ${folderGrid(
     genusRows,
     function(item){
-     return `NGT500.route('offspring',{group:'${jsArg(group)}',genus:'${jsArg(item.label)}'})`;
+     return `NGT500.route('offspring',{group:'${P.jsArg(group)}',genus:'${P.jsArg(item.label)}'})`;
     }
    )}
   </section>`;
@@ -541,540 +306,8 @@ function render(args){
  </section>`;
 }
 
-function editor(t,index){
- const animal=index!==undefined
-  ?NGTStore.animal(t,index)
-  :{};
- const animalId=index!==undefined
-  ?NGTStore.animalId(animal)
-  :'';
-
- const feedInterval=
-  animal.feedIntervalDays||
-  animal.feedingInterval||
-  animal.feedInterval||
-  7;
-
- const hasFood=
-  normalizedFoodInventory().length>0;
-
- return `<section class="tc2AnimalEditor tc2OffspringEditor">
-  <div class="tc2AnimalEditorHead">
-   <div>
-    <h3>
-     ${
-      index!==undefined
-       ?'Nachzucht bearbeiten'
-       :'Nachzucht anlegen'
-     }
-    </h3>
-
-    <p>
-     Nachzuchten bekommen eigene IDs wie KP-NZ001,
-     VS-NZ001 oder LG-NZ001.
-    </p>
-   </div>
-  </div>
-
-  <div class="tc2AnimalEditorBlock">
-   <h4>Taxonomie</h4>
-
-   <div class="tc2AnimalFields">
-    <label>
-     <span>Tiergruppe</span>
-
-     <input
-      id="edAnimalGroup"
-      placeholder="z. B. Pythons"
-      value="${esc(animal.animalGroup||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Gattung</span>
-
-     <input
-      id="edGenus"
-      placeholder="z. B. Python"
-      value="${esc(animal.genus||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Art</span>
-
-     <input
-      id="edSpecies"
-      placeholder="z. B. regius"
-      value="${esc(animal.species||'')}"
-     >
-    </label>
-   </div>
-  </div>
-
-  <div class="tc2AnimalEditorBlock">
-   <h4>Stammdaten</h4>
-
-   <div class="tc2AnimalFields">
-    <label>
-     <span>Name / Kennung</span>
-
-     <input
-      id="edName"
-      placeholder="optional"
-      value="${esc(animal.name||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Morph</span>
-
-     <input
-      id="edMorph"
-      value="${esc(animal.morph||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Gewicht in g</span>
-
-     <input
-      id="edWeight"
-      type="number"
-      min="0"
-      step="any"
-      value="${esc(animal.weight||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Geschlecht</span>
-
-     <select id="edSex">
-      <option ${animal.sex==='Unbestimmt'?'selected':''}>
-       Unbestimmt
-      </option>
-
-      <option ${animal.sex==='Männlich'?'selected':''}>
-       Männlich
-      </option>
-
-      <option ${animal.sex==='Weiblich'?'selected':''}>
-       Weiblich
-      </option>
-     </select>
-    </label>
-
-    <label>
-     <span>Status</span>
-
-     <select id="edStatus">
-      ${statusOptions(
-       animal.status||
-       'Nachzucht'
-      )}
-     </select>
-    </label>
-   </div>
-  </div>
-
-  <div class="tc2AnimalEditorBlock">
-   <h4>Zucht und Herkunft</h4>
-
-   <div class="tc2AnimalFields">
-    <label>
-     <span>Schlupf / Geburt</span>
-
-     <input
-      id="edBirth"
-      type="date"
-      value="${esc(animal.birth||animal.birthDate||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Gelege / Wurf</span>
-
-     <input
-      id="edClutch"
-      placeholder="z. B. CL-001"
-      value="${esc(animal.clutchId||animal.clutch||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Vatertier</span>
-
-     <input
-      id="edFather"
-      placeholder="z. B. KP-001"
-      value="${esc(animal.father||animal.vater||animal.sire||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Muttertier</span>
-
-     <input
-      id="edMother"
-      placeholder="z. B. KP-002"
-      value="${esc(animal.mother||animal.mutter||animal.dam||'')}"
-     >
-    </label>
-
-    <label>
-     <span>Verkaufspreis</span>
-
-     <input
-      id="edBuy"
-      type="number"
-      min="0"
-      step="any"
-      value="${esc(animal.salePrice||animal.buyPrice||'')}"
-     >
-    </label>
-   </div>
-  </div>
-
-  <div class="tc2AnimalEditorBlock">
-   <h4>Standardfutter</h4>
-
-   <div class="tc2AnimalFields">
-    <label>
-     <span>Intervall in Tagen</span>
-
-     <input
-      id="edFeedInterval"
-      type="number"
-      min="1"
-      value="${esc(feedInterval)}"
-     >
-    </label>
-
-    <label>
-     <span>Futter aus Bestand</span>
-
-     <select id="edFoodInventoryId">
-      ${foodOptions(animal)}
-     </select>
-    </label>
-   </div>
-
-   ${
-    hasFood
-     ?`<p class="muted">
-       Das Standardfutter wird direkt mit einer Position
-       aus dem dynamischen Futterbestand verknüpft.
-      </p>`
-     :`<div class="tc2EmptyState tc2OffspringFoodEmpty">
-       <div class="tc2EmptyStateIcon">🥩</div>
-
-       <h3>Noch kein Futterbestand</h3>
-
-       <p>
-        Lege zuerst eine Position in der Futterverwaltung an.
-       </p>
-
-       <button
-        type="button"
-        onclick="NGT500.route('food')"
-       >
-        Futterbestand öffnen
-       </button>
-      </div>`
-   }
-
-   <p class="muted">
-    Gewichtsintervall für Nachzuchten: 14 Tage.
-   </p>
-  </div>
-
-  <div class="tc2AnimalEditorBlock">
-   <h4>Notizen</h4>
-
-   <textarea
-    id="edNote"
-    placeholder="Notizen"
-   >${esc(animal.note||'')}</textarea>
-  </div>
-
-  <div class="tc2AnimalEditorActions">
-   <button
-    type="button"
-    onclick="NGT500.route('offspring')"
-   >
-    Abbrechen
-   </button>
-
-   <button
-    type="button"
-    onclick="NGTOffspring.save('${jsArg(t)}',${index===undefined?'null':index},'${jsArg(animalId)}')"
-   >
-    Speichern
-   </button>
-  </div>
- </section>`;
-}
-
-function openEditor(t){
- const target=document.querySelector(
-  '.tc2OffspringPage, .tc2AnimalsPage, .tc2PageCard'
- );
-
- if(!target)return;
-
- target.insertAdjacentHTML(
-  'afterbegin',
-  editor(t)
- );
-
- window.scrollTo({
-  top:0,
-  behavior:'smooth'
- });
-}
-
-function inputValue(id){
- const element=document.getElementById(id);
-
- return element
-  ?text(element.value)
-  :'';
-}
-
-function save(t,index,animalId){
- const existing=index===null
-  ?{}
-  :animalId
-   ?NGTStore.getAnimalById(animalId)
-   :NGTStore.animal(t,index);
- const old=existing||{};
-
- const interval=Math.max(
-  1,
-  Number(
-   inputValue('edFeedInterval')||
-   7
-  )
- );
-
- const selectedId=inputValue(
-  'edFoodInventoryId'
- );
-
- const selectedFood=foodById(
-  selectedId
- );
-
- let feeder='';
- let feederId='';
- let feederCategory='';
- let feederCondition='';
- let feederType='';
- let feederSize='';
- let feederUnit='';
-
- if(selectedFood){
-  feeder=foodLabel(selectedFood);
-  feederId=selectedFood.id;
-  feederCategory=selectedFood.category;
-  feederCondition=selectedFood.condition;
-  feederType=selectedFood.itemName;
-  feederSize=selectedFood.variant;
-  feederUnit=selectedFood.unit;
-
- }else if(
-  selectedId.startsWith('legacy:')
- ){
-  feeder=selectedId.slice(7);
-  feederId=text(
-   old.defaultFeederId||
-   old.foodInventoryId
-  );
-
-  feederCategory=text(
-   old.defaultFeederCategory
-  );
-
-  feederCondition=text(
-   old.defaultFeederCondition||
-   old.defaultFeederState
-  );
-
-  feederType=text(
-   old.defaultFeederType
-  );
-
-  feederSize=text(
-   old.defaultFeederSize
-  );
-
-  feederUnit=text(
-   old.defaultFeederUnit
-  );
- }
-
- const birth=inputValue('edBirth');
- const clutch=inputValue('edClutch');
- const father=inputValue('edFather');
- const mother=inputValue('edMother');
- const salePrice=inputValue('edBuy');
-
- const animal={
-  ...old,
-
-  animalGroup:
-   inputValue('edAnimalGroup')||
-   old.animalGroup||
-   'Unsortiert',
-
-  genus:
-   inputValue('edGenus')||
-   'Ohne Gattung',
-
-  species:
-   inputValue('edSpecies'),
-
-  name:
-   inputValue('edName'),
-
-  morph:
-   inputValue('edMorph'),
-
-  weight:
-   inputValue('edWeight'),
-
-  origin:'Nachzucht',
-  originType:'Nachzucht',
-
-  birth:birth,
-  birthDate:birth,
-
-  clutchId:clutch,
-  clutch:clutch,
-
-  father:father,
-  vater:father,
-  sire:father,
-
-  mother:mother,
-  mutter:mother,
-  dam:mother,
-
-  feedIntervalDays:interval,
-  feedingInterval:interval,
-  feedInterval:interval,
-  weightIntervalDays:14,
-
-  buyPrice:salePrice,
-  salePrice:salePrice,
-
-  sex:
-   inputValue('edSex')||
-   'Unbestimmt',
-
-  status:
-   inputValue('edStatus')||
-   'Nachzucht',
-
-  collection:'offspring',
-
-  defaultFeederId:feederId,
-  foodInventoryId:feederId,
-  defaultFeeder:feeder,
-  defaultFeederCategory:feederCategory,
-  defaultFeederCondition:feederCondition,
-  defaultFeederState:feederCondition,
-  defaultFeederType:feederType,
-  defaultFeederSize:feederSize,
-  defaultFeederUnit:feederUnit,
-
-  futterStandard:feeder,
-  standardFeed:feeder,
-
-  note:
-   inputValue('edNote')
- };
-
- animal.feeds=Array.isArray(animal.feeds)
-  ?animal.feeds
-  :[];
-
- animal.sheds=Array.isArray(animal.sheds)
-  ?animal.sheds
-  :[];
-
- animal.weights=Array.isArray(animal.weights)
-  ?animal.weights
-  :[];
-
- animal.photos=Array.isArray(animal.photos)
-  ?animal.photos
-  :[];
-
- animal.health=Array.isArray(animal.health)
-  ?animal.health
-  :[];
-
- if(index===null){
-  NGTStore.addAnimal(
-   t,
-   animal
-  );
- }else{
-  if(animalId){
-   NGTStore.updateAnimalById(
-    animalId,
-    animal
-   );
-  }else{
-   NGTStore.updateAnimal(
-    t,
-    index,
-    animal
-   );
-  }
- }
-
- NGT500.route('offspring',{
-  group:animal.animalGroup,
-  genus:animal.genus
- });
-}
-
-async function remove(t,index){
- if(!await NGT500.confirmAction(
-  'Nachzucht wirklich löschen?',
-  {
-   title:'Nachzucht löschen',
-   confirmText:'Nachzucht löschen',
-   danger:true
-  }
- )){
-  return;
- }
-
- const animal=NGTStore.animal(t,index)||{};
-
- NGTStore.deleteAnimalById(
-  NGTStore.animalId(animal)
- );
-
- NGT500.route('offspring',{
-  group:
-   animal.animalGroup||
-   'Unsortiert',
-
-  genus:
-   animal.genus||
-   'Ohne Gattung'
- });
-}
-
 window.NGTOffspring={
- openEditor:openEditor,
- save:save,
- remove:remove
+ save:P.editor.save
 };
 
 NGT500.register('offspring',{

@@ -151,6 +151,17 @@ function testRuntime(){
       win.NGTAnimalsInternal.editor
      )
     );
+    record(
+     'Nachzuchten-Teilmodule verfügbar',
+     !!(
+      win.NGTOffspring&&
+      typeof win.NGTOffspring.save==='function'&&
+      typeof win.NGTOffspring.openEditor==='undefined'&&
+      typeof win.NGTOffspring.remove==='undefined'&&
+      win.NGTOffspringInternal&&
+      win.NGTOffspringInternal.editor
+     )
+    );
 
     record(
      'Keine veralteten Parallelmodule aktiv',

@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Nachzuchtenbereich verhaltensneutral in gemeinsamen Kern, Editor und Ansichts-Controller aufgeteilt.
+- Nicht verwendete Nachzuchten-APIs für direktes Editor-Einfügen und separates Löschen entfernt; Speichern und zentrale Profil-Löschung bleiben unverändert.
 - Eigenen Browser-Charakterisierungstest für Nachzuchten ergänzt; Filter, UUID-Editor, Futterverknüpfung, Aliasfelder, Historienerhalt und Nummernkreis sind vor der Modularisierung abgesichert.
 - Lokale Sicherungen aus Backup- und Kontoseite auf ein gemeinsames Export- und Importformat im Store umgestellt.
 - Widersprüchliche Backup-Metadaten (`1.0.4` und `1.0.4-rc4`) auf den unveränderten App-Stand `1.0.4-rc.11` korrigiert und Importvalidierung vereinheitlicht.

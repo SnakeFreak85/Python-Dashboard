@@ -103,6 +103,8 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     │   ├── animals-stock.js
     │   ├── animals-editor.js
     │   ├── animals.js
+    │   ├── offspring-core.js
+    │   ├── offspring-editor.js
     │   ├── offspring.js
     │   ├── profile-core.js
     │   ├── profile-food.js
@@ -326,7 +328,25 @@ animals.js
 
 Die öffentliche `NGTAnimals`-API bleibt der Integrationspunkt für Inline-Handler und andere Module. Die internen Teilmodule kommunizieren über `window.NGTAnimalsInternal`.
 
-### 7.5 Taxonomie-Architektur
+### 7.5 Nachzuchten-Architektur
+
+Der Nachzuchtenbereich wird in dieser Reihenfolge geladen:
+
+```text
+offspring-core.js
+offspring-editor.js
+offspring.js
+```
+
+| Datei | Verantwortung |
+|---|---|
+| `offspring-core.js` | interner Namespace, Nachzuchtenfilter, Foto- und Futterauswahl sowie Gruppierung |
+| `offspring-editor.js` | Editor und UUID-kompatibler Speicherpfad |
+| `offspring.js` | Ansichts-Controller, öffentliche `NGTOffspring.save()`-API und Modulregistrierung |
+
+Die internen Teilmodule kommunizieren über `window.NGTOffspringInternal`. Nicht verwendete frühere APIs für direktes Editor-Einfügen und separates Löschen werden nicht mehr veröffentlicht; die Profil-Löschung bleibt beim zentralen Tierbestand.
+
+### 7.6 Taxonomie-Architektur
 
 Die Taxonomie wird in dieser Reihenfolge geladen:
 

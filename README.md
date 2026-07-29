@@ -97,6 +97,18 @@ animals.js
 
 `animals.js` bleibt der Controller und stellt die kompatible öffentliche `NGTAnimals`-API bereit. Gemeinsame Hilfen, Futteranbindung, Bestandsansicht und Editor liegen in getrennten internen Modulen.
 
+## Nachzuchtenmodule
+
+Der Nachzuchtenbereich wird in dieser Reihenfolge geladen:
+
+```text
+offspring-core.js
+offspring-editor.js
+offspring.js
+```
+
+`offspring.js` rendert und orchestriert die Ansichten. Gemeinsame Fach- und Auswahllogik liegt in `offspring-core.js`, der Editor mit seinem Speicherpfad in `offspring-editor.js`. Die öffentliche `NGTOffspring.save()`-Funktion bleibt für den Formular-Handler kompatibel.
+
 ## Taxonomiemodule
 
 Die Taxonomie wird in dieser Reihenfolge geladen:
