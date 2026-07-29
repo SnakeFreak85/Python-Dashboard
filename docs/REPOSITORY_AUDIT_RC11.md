@@ -283,6 +283,13 @@ Empfehlung:
 2. Bei angemeldeten Nutzern denselben Cloud-Fotopfad verwenden.
 3. Eine klare lokale Größenobergrenze einführen.
 
+Status nach dem Audit:
+
+- Verkleinerung und lokale Größenobergrenze sind umgesetzt.
+- Die Übernahme in Firebase Storage bleibt über die vorhandene
+  Legacy-Fotomigration möglich; eine vollständig automatische Migration wird
+  erst nach der stabilen Testphase bewertet.
+
 ### P2 – Nach der stabilen Testphase
 
 #### C. Legacy-Bestandslisten entfernen
@@ -398,7 +405,7 @@ Aktueller automatisierter Umfang:
 | --- | ---: |
 | AnimalEngine | 71 |
 | Store | 34 |
-| Bestand und Editor | 49 |
+| Bestand und Editor | 52 |
 | Nachzuchten | 26 |
 | Dashboard | 26 |
 | Schnelleingabe und Chat | 34 |
@@ -407,7 +414,7 @@ Aktueller automatisierter Umfang:
 | Taxonomie | 27 |
 | TC2-Oberfläche | 49 |
 | App-Smoke-Test | 97 |
-| **Summe Browserprüfungen** | **455** |
+| **Summe Browserprüfungen** | **458** |
 
 Zusätzlich besteht der eigenständige Node-Store-Test.
 

@@ -308,6 +308,43 @@ async function run(){
    'image/*'
   );
 
+  const preparedHkn=
+   await win.NGTPhotoStorage
+    .prepareEmbeddedDataUrl(
+     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='
+    );
+
+  record(
+   'HKN-Bilder werden als komprimiertes JPEG vorbereitet',
+   preparedHkn.data.startsWith(
+    'data:image/jpeg'
+   )
+  );
+  record(
+   'HKN-Bilder bleiben unter der lokalen Größenobergrenze',
+   preparedHkn.bytes<=
+    preparedHkn.maxBytes
+  );
+
+  let oversizedHknRejected=false;
+
+  try{
+   await win.NGTPhotoStorage
+    .prepareEmbeddedFile({
+     size:21*1024*1024,
+     type:'image/jpeg'
+    });
+  }catch(error){
+   oversizedHknRejected=
+    String(error.message||error)
+     .includes('20 MB');
+  }
+
+  record(
+   'Zu große HKN-Quelldateien werden verständlich abgewiesen',
+   oversizedHknRejected
+  );
+
   win.NGT500.route('animals',{t:'koenig',hkn:1});
 
   record(

@@ -14,6 +14,8 @@ const AUTH_TIMEOUT_MS=12000;
 const IMAGE_TIMEOUT_MS=20000;
 const UPLOAD_TIMEOUT_MS=60000;
 const DOWNLOAD_URL_TIMEOUT_MS=20000;
+const EMBEDDED_SOURCE_MAX_BYTES=20*1024*1024;
+const EMBEDDED_IMAGE_MAX_BYTES=450*1024;
 
 let app=null;
 let auth=null;
@@ -302,6 +304,60 @@ async function createPhotoBlobsFromDataUrl(dataUrl){
   const thumbBlob=await resizeImage(image,360,0.72);
 
   return {fullBlob,thumbBlob};
+}
+
+async function prepareEmbeddedImage(image){
+  const plans=[
+    {maxSize:1200,quality:0.76},
+    {maxSize:900,quality:0.68},
+    {maxSize:700,quality:0.58}
+  ];
+
+  for(const plan of plans){
+    const blob=await resizeImage(
+      image,
+      plan.maxSize,
+      plan.quality
+    );
+
+    if(blob.size<=EMBEDDED_IMAGE_MAX_BYTES){
+      return {
+        data:await fileToDataUrl(blob),
+        type:'image/jpeg',
+        bytes:blob.size,
+        maxBytes:EMBEDDED_IMAGE_MAX_BYTES
+      };
+    }
+  }
+
+  throw new Error(
+    'Das Bild bleibt trotz Verkleinerung zu groß. Bitte ein kleineres Bild auswählen.'
+  );
+}
+
+async function prepareEmbeddedFile(file){
+  if(!file){
+    throw new Error('Keine Bilddatei ausgewählt.');
+  }
+
+  if(
+    Number(file.size||0)>
+    EMBEDDED_SOURCE_MAX_BYTES
+  ){
+    throw new Error(
+      'Die Bilddatei ist größer als 20 MB. Bitte ein kleineres Bild auswählen.'
+    );
+  }
+
+  return prepareEmbeddedImage(
+    await loadImageFromFile(file)
+  );
+}
+
+async function prepareEmbeddedDataUrl(dataUrl){
+  return prepareEmbeddedImage(
+    await loadImageFromDataUrl(dataUrl)
+  );
 }
 
 function basePath(animal,id,user){
@@ -655,6 +711,8 @@ window.NGTPhotoStorage={
   init:init,
   upload:upload,
   uploadDataUrl:uploadDataUrl,
+  prepareEmbeddedFile:prepareEmbeddedFile,
+  prepareEmbeddedDataUrl:prepareEmbeddedDataUrl,
   remove:remove,
   src:src,
   hasLegacyPhotos:hasLegacyPhotos,

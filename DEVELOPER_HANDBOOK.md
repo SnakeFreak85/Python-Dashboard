@@ -593,6 +593,12 @@ Fotos können URL-, Thumbnail-, Storage- oder Legacy-Base64-Daten enthalten. Än
 - Löschen aus Firebase Storage,
 - Offline- und Fehlerverhalten.
 
+Herkunftsnachweis-Bilder werden vor der lokalen Einbettung über
+`NGTPhotoStorage.prepareEmbeddedFile()` als JPEG verkleinert. Die Quelldatei
+darf höchstens 20 MiB groß sein; das eingebettete Ergebnis höchstens 450 KiB.
+Damit dürfen HKN-Importe keine unkomprimierten Kamerabilder mehr in
+Local Storage und den Firestore-Hauptsnapshot übernehmen.
+
 Normale Profilaktionen speichern Fotometadaten ausschließlich über
 `NGTStore.addAnimalPhoto()`, `NGTStore.setAnimalCoverPhoto()` und
 `NGTStore.deleteAnimalPhoto()`. Die Store-Operationen lösen das Tier über

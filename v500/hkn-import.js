@@ -115,34 +115,52 @@ function fileInput(){
 async function run(){
  const input=fileInput();
  input.value='';
- input.onchange=function(){
+ input.onchange=async function(){
   const file=input.files&&input.files[0];
   if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(){
-   try{
-    sessionStorage.setItem('terracontrol_hkn_import_v1',JSON.stringify({
-     name:file.name||'Herkunftsnachweis',
-     type:file.type||'',
-     data:String(reader.result||''),
-     at:new Date().toISOString()
-    }));
-   }catch(e){
-    NGT500.toast(
-     'HKN konnte nicht zwischengespeichert werden: '+(e.message||e),
-     'danger'
+
+  try{
+   if(
+    !window.NGTPhotoStorage||
+    typeof NGTPhotoStorage
+     .prepareEmbeddedFile!=='function'
+   ){
+    throw new Error(
+     'Die Bildverarbeitung ist noch nicht verfügbar.'
     );
-    return;
    }
-   NGT500.route('animals',{hkn:1});
-  };
-  reader.onerror=function(){
+
+   const prepared=
+    await NGTPhotoStorage
+     .prepareEmbeddedFile(file);
+
+   sessionStorage.setItem(
+    'terracontrol_hkn_import_v1',
+    JSON.stringify({
+     name:
+      file.name||
+      'Herkunftsnachweis',
+     type:prepared.type,
+     data:prepared.data,
+     originalBytes:
+      Number(file.size||0),
+     storedBytes:prepared.bytes,
+     at:new Date().toISOString()
+    })
+   );
+
+   NGT500.route(
+    'animals',
+    {hkn:1}
+   );
+
+  }catch(error){
    NGT500.toast(
-    'HKN-Datei konnte nicht gelesen werden.',
+    'HKN konnte nicht vorbereitet werden: '+
+     (error.message||error),
     'danger'
    );
-  };
-  reader.readAsDataURL(file);
+  }
  };
  input.click();
 }
