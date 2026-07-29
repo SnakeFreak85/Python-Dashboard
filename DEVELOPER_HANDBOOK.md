@@ -229,6 +229,13 @@ welcher Datenstand verwendet werden darf:
 Änderungen, die während eines laufenden Firestore-Speichervorgangs eintreffen,
 müssen anschließend einen weiteren Speicherlauf auslösen.
 
+Vor jedem Firestore-Schreibvorgang misst `sync-policy-engine.js` die
+UTF-8-Größe des vollständigen Cloud-Dokuments. Ab 700 KiB wird nach
+erfolgreichem Speichern gewarnt. Ab 900 KiB wird der Schreibvorgang mit einer
+verständlichen Meldung gestoppt, damit die Firestore-Dokumentgrenze nicht erst
+als unklarer Cloud-Fehler sichtbar wird. Die Sicherheitsgrenze lässt bewusst
+Abstand für Firestore-Feldmetadaten.
+
 Frühere Google-Drive-Implementierungen wurden aus der aktiven Codebasis
 entfernt. Neue Sync-Funktionen dürfen keinen zweiten, konkurrierenden
 Speicherpfad neben `firebase-sync.js` und `photo-storage.js` einführen.
@@ -243,8 +250,12 @@ Speicherpfad neben `firebase-sync.js` und `photo-storage.js` einführen.
 
 `index.html` verweist auf die aktive Anwendung in `v500.html`. Dort werden die Scripts in definierter Reihenfolge geladen:
 
-1. Kernsystem: `core.js`, `id-manager.js`, `food-inventory-engine.js`, `store.js`, `ui.js`
-2. Taxonomie: `taxonomy-core.js`, `taxonomy-store.js`, `taxonomy-cloud.js`, `taxonomy.js`, `taxonomy-ui-illustrations.js`, `taxonomy-ui-decoration.js`, `taxonomy-ui.js`; danach AnimalEngine, CareRulesEngine und SyncPolicyEngine
+1. Kernsystem und Store-Abhängigkeiten: `core.js`, `id-manager.js`,
+   `food-inventory-engine.js`, `animal-engine.js`, danach `store.js` und
+   `ui.js`
+2. Taxonomie und weitere Regeln: `taxonomy-core.js`, `taxonomy-store.js`,
+   `taxonomy-cloud.js`, `taxonomy.js`, die Taxonomie-UI, danach
+   `care-rules-engine.js` und `sync-policy-engine.js`
 3. AI-, Dashboard- und Foto-Services
 4. Fachmodule
 5. Firebase-Synchronisation

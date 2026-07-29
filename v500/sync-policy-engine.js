@@ -15,12 +15,55 @@ const COLLECTION_KEYS=[
  'documents'
 ];
 
+const FIRESTORE_WARNING_BYTES=
+ 700*1024;
+
+const FIRESTORE_SAFE_LIMIT_BYTES=
+ 900*1024;
+
 function isObject(value){
  return (
   value!==null&&
   typeof value==='object'&&
   !Array.isArray(value)
  );
+}
+
+function utf8Bytes(value){
+ const serialized=
+  typeof value==='string'
+   ?value
+   :JSON.stringify(value||{});
+
+ if(typeof TextEncoder!=='undefined'){
+  return new TextEncoder()
+   .encode(serialized)
+   .length;
+ }
+
+ return unescape(
+  encodeURIComponent(serialized)
+ ).length;
+}
+
+function firestoreDocumentBudget(value){
+ const bytes=utf8Bytes(value);
+
+ return {
+  bytes:bytes,
+  warning:
+   bytes>=FIRESTORE_WARNING_BYTES,
+  blocked:
+   bytes>=FIRESTORE_SAFE_LIMIT_BYTES,
+  warningBytes:
+   FIRESTORE_WARNING_BYTES,
+  limitBytes:
+   FIRESTORE_SAFE_LIMIT_BYTES,
+  remainingBytes:Math.max(
+   0,
+   FIRESTORE_SAFE_LIMIT_BYTES-bytes
+  )
+ };
 }
 
 function hasData(data){
@@ -243,6 +286,8 @@ function decide(input){
 }
 
 window.NGTSyncPolicyEngine={
+ utf8Bytes:utf8Bytes,
+ firestoreDocumentBudget:firestoreDocumentBudget,
  hasData:hasData,
  signature:signature,
  timestamp:timestamp,

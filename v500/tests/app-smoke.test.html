@@ -357,6 +357,36 @@ function testRuntime(){
      )
     );
 
+    const smallCloudBudget=
+     win.NGTSyncPolicyEngine&&
+     win.NGTSyncPolicyEngine
+      .firestoreDocumentBudget({
+       data:{
+        animals:[{uuid:'small'}]
+       }
+      });
+
+    const largeCloudBudget=
+     win.NGTSyncPolicyEngine&&
+     win.NGTSyncPolicyEngine
+      .firestoreDocumentBudget({
+       data:{
+        legacyImage:
+         'x'.repeat(925*1024)
+       }
+      });
+
+    record(
+     'Cloud-Snapshot wird vor dem Firestore-Limit geschützt',
+     !!(
+      smallCloudBudget&&
+      smallCloudBudget.blocked===false&&
+      largeCloudBudget&&
+      largeCloudBudget.warning===true&&
+      largeCloudBudget.blocked===true
+     )
+    );
+
     const aiAnswer=
      win.NGTAIQuery&&
      win.NGTAIQuery.query(

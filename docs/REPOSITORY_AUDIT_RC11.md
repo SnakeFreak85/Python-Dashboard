@@ -259,6 +259,12 @@ Empfehlung:
 2. Frühzeitig warnen und den Speichervorgang nicht still scheitern lassen.
 3. Nach der Testphase eine Aufteilung nach Benutzer und Sammlung planen.
 
+Status nach dem Audit:
+
+- Größenmessung, Frühwarnung und kontrollierter Abbruch sind umgesetzt.
+- Die spätere Aufteilung des Hauptdokuments bleibt als strukturelles
+  Refactoring bestehen.
+
 #### B. Eingebettete Legacy- und HKN-Bilder
 
 Ein HKN-Bild wird zunächst als Base64-Daten im Tier gespeichert. Große
@@ -400,8 +406,8 @@ Aktueller automatisierter Umfang:
 | Historien | 17 |
 | Taxonomie | 27 |
 | TC2-Oberfläche | 49 |
-| App-Smoke-Test | 96 |
-| **Summe Browserprüfungen** | **454** |
+| App-Smoke-Test | 97 |
+| **Summe Browserprüfungen** | **455** |
 
 Zusätzlich besteht der eigenständige Node-Store-Test.
 
@@ -414,6 +420,7 @@ Die Tests prüfen unter anderem:
 - Profil- und Chronikanzeige
 - Dashboard-Fälligkeiten
 - Cloud-Konfliktentscheidungen
+- Cloud-Snapshot-Größenlimits
 - Backup-Validierung
 - Modulregistrierung und Ladeordnung
 - Offline-App-Shell

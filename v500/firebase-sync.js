@@ -419,17 +419,43 @@ async function saveCloud(){
  );
 
  try{
+  const storeSnapshot=
+   NGTStore.snapshot();
+  const updatedAtMs=
+   Date.now();
+  const budget=
+   NGTSyncPolicyEngine
+    .firestoreDocumentBudget({
+     data:storeSnapshot,
+     updatedAtMs:updatedAtMs,
+     version:NGTStore.APP_VERSION
+    });
+
+  emit(
+   'firebase:size',
+   budget
+  );
+
+  if(budget.blocked){
+   setStatus(
+    "error",
+    "Cloud-Speicherung gestoppt: Der Datenbestand ist zu groß. Bitte eingebettete Fotos migrieren oder entfernen."
+   );
+
+   return false;
+  }
+
   await mods.fsMod.setDoc(
    docRef(),
    {
     data:
-     NGTStore.snapshot(),
+     storeSnapshot,
 
     updatedAt:
      mods.fsMod.serverTimestamp(),
 
     updatedAtMs:
-     Date.now(),
+     updatedAtMs,
 
     version:
      NGTStore.APP_VERSION
@@ -440,8 +466,12 @@ async function saveCloud(){
   );
 
   setStatus(
-   "ok",
-   "Firestore synchronisiert"
+   budget.warning
+    ?"warning"
+    :"ok",
+   budget.warning
+    ?"Firestore synchronisiert – der Cloud-Datensatz nähert sich dem Größenlimit"
+    :"Firestore synchronisiert"
   );
 
   return true;
@@ -723,7 +753,10 @@ function label(){
  if(
   currentState.status==="error"
  ){
-  return "Firestore Fehler";
+  return (
+   currentState.message||
+   "Firestore Fehler"
+  );
  }
 
  if(

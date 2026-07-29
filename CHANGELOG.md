@@ -4,6 +4,7 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Firestore-Snapshots werden vor dem Schreiben auf ihre UTF-8-Größe geprüft; große Datenstände warnen frühzeitig und werden mit Sicherheitsabstand zur Dokumentgrenze verständlich gestoppt.
 - Schreibende Befehlsausführung von Schnelleingabe und App-Chat in `ai-actions.js` vereinheitlicht; Fütterung, Verweigerung, Gewicht, Häutung, Standardfutter und Futterbestand besitzen keine parallele Ausführungslogik mehr.
 - Eigenen End-to-End-Browsertest für Schnelleingabe und Chat ergänzt; Fütterung, Verweigerung, Gewicht und Häutung sind bis zur Tierprofilanzeige und Futterbestandswirkung abgesichert.
 - Auswahl, Gruppierung und Zählung für Startseite und Smart Dashboard in `dashboard-data.js` vereinheitlicht; beide Ansichten verwenden dieselben aktiven Tiere, Fälligkeiten, Dokumente und Nachkaufpositionen.
