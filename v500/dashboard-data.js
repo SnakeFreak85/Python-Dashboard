@@ -63,11 +63,7 @@ function offspringAnimals(){
 
 function foodInventory(){
  try{
-  const data=NGTStore.data();
-
-  return Array.isArray(data.foodInventory)
-   ?data.foodInventory
-   :[];
+  return NGTStore.foodInventory();
 
  }catch(error){
   return [];
@@ -96,11 +92,7 @@ function lowFood(){
 
 function documents(){
  try{
-  const data=NGTStore.data();
-
-  return Array.isArray(data.documents)
-   ?data.documents
-   :[];
+  return NGTStore.documents();
 
  }catch(error){
   return [];

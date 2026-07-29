@@ -210,6 +210,14 @@ diese Selektoren verwenden.
 
 Module dürfen keine konkurrierende dauerhafte Datenhaltung aufbauen.
 
+Produktive Module lesen Futterbestand, Dokumente und Einstellungen über
+`NGTStore.foodInventory()`, `NGTStore.documents()` und
+`NGTStore.settings()`. Diese Leser liefern getrennte Kopien und dürfen daher
+nicht zum Schreiben verwendet werden. Änderungen laufen ausschließlich über
+die fachlichen Store-Operationen. `NGTStore.data()` bleibt nur als
+Legacy-Kompatibilität bestehen und darf in produktiven Modulen nicht neu
+verwendet werden.
+
 ### 5.4 Firebase
 
 `v500/firebase-sync.js` ist der aktive Adapter für Authentifizierung und

@@ -515,6 +515,37 @@ function data(){
   return db;
 }
 
+function detached(value,fallback){
+  try{
+    return JSON.parse(
+      JSON.stringify(value)
+    );
+  }catch(error){
+    return fallback;
+  }
+}
+
+function foodInventory(){
+  return detached(
+    db.foodInventory,
+    []
+  );
+}
+
+function documents(){
+  return detached(
+    db.documents,
+    []
+  );
+}
+
+function settings(){
+  return detached(
+    db.settings,
+    {}
+  );
+}
+
 function sellerProfile(){
   const stored=
     db&&
@@ -1523,6 +1554,9 @@ window.NGTStore={
   INSECT_PREY,
 
   data,
+  foodInventory,
+  documents,
+  settings,
   save,
   clearLocal,
   sellerProfile,

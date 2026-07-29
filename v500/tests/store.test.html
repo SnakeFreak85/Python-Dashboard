@@ -349,6 +349,47 @@ try{
  });
  NGTStore.save();
 
+ const detachedInventory=
+  NGTStore.foodInventory();
+
+ detachedInventory[0].qty=999;
+ detachedInventory.push({
+  id:'detached-only'
+ });
+
+ equal(
+  'Futterbestandsleser schützt Einträge vor direkter Änderung',
+  NGTStore.data().foodInventory[0].qty,
+  2
+ );
+ equal(
+  'Futterbestandsleser schützt die Liste vor direkter Änderung',
+  NGTStore.data().foodInventory.length,
+  1
+ );
+
+ const detachedDocuments=
+  NGTStore.documents();
+ detachedDocuments.push({
+  id:'detached-document'
+ });
+
+ equal(
+  'Dokumentenleser liefert eine getrennte Liste',
+  NGTStore.data().documents.length,
+  0
+ );
+
+ const detachedSettings=
+  NGTStore.settings();
+ detachedSettings.testValue=true;
+
+ equal(
+  'Einstellungsleser liefert ein getrenntes Objekt',
+  NGTStore.data().settings.testValue,
+  undefined
+ );
+
  const recordedFeed=NGTStore.recordFeed(
   {animalId:'mixed-2'},
   {

@@ -29,10 +29,9 @@ function animalCount(){
 
 function foodCount(){
  try{
-  const data=NGTStore.data();
-  return Array.isArray(data.foodInventory)
-   ?data.foodInventory.length
-   :0;
+  return NGTStore
+   .foodInventory()
+   .length;
  }catch(error){
   return 0;
  }

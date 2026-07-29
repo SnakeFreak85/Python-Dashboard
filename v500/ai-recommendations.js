@@ -220,9 +220,8 @@ function animalRecommendations(
 
 function foodRecommendations(out){
  FoodInventoryEngine
-  .sortInventory(
-   NGTStore.data().foodInventory||
-   []
+ .sortInventory(
+   NGTStore.foodInventory()
   )
   .filter(function(item){
    return FoodInventoryEngine

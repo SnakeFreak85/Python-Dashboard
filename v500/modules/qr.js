@@ -249,6 +249,11 @@ function importTC(){
   const a=importedAnimal(data);
 
   const imported=NGTStore.addAnimal(t,a);
+  const importedRow=
+    NGTStore.resolveAnimal({
+      animalId:
+        NGTStore.animalId(imported)
+    });
 
   document.getElementById('qrResult').innerHTML=`
     <div class="tc2QREmpty">
@@ -257,7 +262,7 @@ function importTC(){
     </div>
     ${NGTUI.animalCard({
       t:imported.legacyType||'',
-      i:NGTStore.data().animals.indexOf(imported),
+      i:importedRow?importedRow.i:0,
       a:imported
     })}
   `;

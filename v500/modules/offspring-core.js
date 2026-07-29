@@ -79,11 +79,7 @@ P.coverPhoto=function(animal){
 };
 
 P.foodInventory=function(){
- const data=NGTStore.data();
-
- return Array.isArray(data.foodInventory)
-  ?data.foodInventory
-  :[];
+ return NGTStore.foodInventory();
 };
 
 P.normalizedFoodInventory=function(){

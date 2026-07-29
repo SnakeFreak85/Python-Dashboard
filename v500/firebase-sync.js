@@ -275,7 +275,7 @@ function syncDecision(
  options
 ){
  return NGTSyncPolicyEngine.decide({
-  localData:NGTStore.data(),
+  localData:NGTStore.snapshot(),
   cloudData:
    cloud&&cloud.data
     ?cloud.data

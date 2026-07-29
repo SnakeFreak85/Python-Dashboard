@@ -11,11 +11,7 @@ if(!P){
 }
 
 function foodInventory(){
- const data=NGTStore.data();
-
- return Array.isArray(data.foodInventory)
-  ?data.foodInventory
-  :[];
+ return NGTStore.foodInventory();
 }
 
 function normalizeFoodItem(item){

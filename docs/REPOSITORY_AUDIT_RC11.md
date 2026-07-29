@@ -320,6 +320,13 @@ Empfehlung:
 - später `data()` durch einen Snapshot oder eine schreibgeschützte Sicht
   ersetzen
 
+Status nach dem Audit:
+
+- Die gezielten, vom Live-Store getrennten Leser sind umgesetzt.
+- Produktive Module verwenden `data()` nicht mehr.
+- Die öffentliche Legacy-Funktion bleibt bis zu einer späteren
+  Kompatibilitätsbereinigung erhalten.
+
 #### E. Alte Root-Dateien archivieren
 
 Im Repository liegen weiterhin ältere `v1-*`, `v2-*` und `v400-*`-Dateien.
@@ -404,7 +411,7 @@ Aktueller automatisierter Umfang:
 | Testsuite | Prüfungen |
 | --- | ---: |
 | AnimalEngine | 71 |
-| Store | 34 |
+| Store | 38 |
 | Bestand und Editor | 52 |
 | Nachzuchten | 26 |
 | Dashboard | 26 |
@@ -414,7 +421,7 @@ Aktueller automatisierter Umfang:
 | Taxonomie | 27 |
 | TC2-Oberfläche | 49 |
 | App-Smoke-Test | 97 |
-| **Summe Browserprüfungen** | **458** |
+| **Summe Browserprüfungen** | **462** |
 
 Zusätzlich besteht der eigenständige Node-Store-Test.
 

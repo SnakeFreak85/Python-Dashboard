@@ -27,11 +27,7 @@ function slug(value){
 }
 
 function inventory(){
- const data=NGTStore.data();
-
- return Array.isArray(data.foodInventory)
-  ?data.foodInventory
-  :[];
+ return NGTStore.foodInventory();
 }
 
 function normalizeItem(item){
