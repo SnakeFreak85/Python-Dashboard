@@ -146,7 +146,99 @@ function testRuntime(){
       'TC2-Inhalt gerendert: '+name,
       !!app.querySelector('[class*="tc2"]')
      );
+     record(
+      'Globale Hauptnavigation vorhanden: '+name,
+      app.querySelectorAll('.tc2GlobalBottomNav').length===1
+     );
     });
+
+    const drawerLabels=Array.from(
+     doc.querySelectorAll('#drawer .tc2DrawerItem b')
+    ).map(function(label){
+     return label.textContent.trim();
+    });
+
+    record(
+     'Hamburger-Menü enthält sechs ergänzende Ziele',
+     drawerLabels.length===6,
+     String(drawerLabels.length)
+    );
+    record(
+     'Hamburger-Menü ist auf ergänzende Bereiche reduziert',
+     drawerLabels.join('|')===
+      'Bestand|Nachzuchten|Backup|TerraControl KI|Schnelleingabe|Konto',
+     drawerLabels.join('|')
+    );
+    record(
+     'Hamburger-Menü enthält keine Hauptnavigation',
+     !drawerLabels.some(function(label){
+      return [
+       'Startseite',
+       'Smart Dashboard',
+       'Futterbestand',
+       'QR / Tierpass',
+       'Einstellungen'
+      ].includes(label);
+     })
+    );
+
+    win.NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+    record(
+     'Startseite markiert Start in der Hauptnavigation',
+     app.querySelector('.tc2GlobalBottomNav .on span')&&
+      app.querySelector('.tc2GlobalBottomNav .on span').textContent==='Start'
+    );
+
+    win.NGT500.route('smartDashboard',{}, {replace:true,noHistory:true});
+    record(
+     'Smart Dashboard markiert Übersicht',
+     app.querySelector('.tc2GlobalBottomNav .on span')&&
+      app.querySelector('.tc2GlobalBottomNav .on span').textContent==='Übersicht'
+    );
+
+    win.NGT500.route('food',{}, {replace:true,noHistory:true});
+    record(
+     'Futterbestand markiert Futter',
+     app.querySelector('.tc2GlobalBottomNav .on span')&&
+      app.querySelector('.tc2GlobalBottomNav .on span').textContent==='Futter'
+    );
+
+    const systemButton=Array.from(
+     app.querySelectorAll('.tc2GlobalBottomNav button')
+    ).find(function(button){
+     return button.textContent.includes('System');
+    });
+
+    systemButton.click();
+
+    await new Promise(function(resolve){
+     let attempts=0;
+     const timer=setInterval(function(){
+      attempts+=1;
+
+      if(
+       (
+        win.NGT500.current()&&
+        win.NGT500.current().name==='settings'
+       )||
+       attempts>=60
+      ){
+       clearInterval(timer);
+       resolve();
+      }
+     },20);
+    });
+
+    record(
+     'Systemziel wird aus der Hauptnavigation geladen',
+     win.NGT500.current()&&
+      win.NGT500.current().name==='settings'
+    );
+    record(
+     'Einstellungen markieren System',
+     app.querySelector('.tc2GlobalBottomNav .on span')&&
+      app.querySelector('.tc2GlobalBottomNav .on span').textContent==='System'
+    );
 
     const confirmation=win.NGT500.confirmAction(
      'TC2-Testbestätigung',

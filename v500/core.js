@@ -418,6 +418,37 @@ function backBar(name){
  `;
 }
 
+function primaryNavigation(name){
+ const entries=[
+  {route:'smartDashboard',icon:'▥',label:'Übersicht'},
+  {route:'dashboard',icon:'●●●',label:'Start'},
+  {route:'food',icon:'⌂',label:'Futter'},
+  {route:'qr',icon:'▱',label:'QR'},
+  {route:'settings',icon:'⚙',label:'System'}
+ ];
+
+ return `
+  <nav
+   class="tc2SDnav tc2GlobalBottomNav"
+   aria-label="Hauptnavigation"
+  >
+   ${entries.map(function(entry){
+    return `
+     <button
+      type="button"
+      class="${name===entry.route?'on':''}"
+      onclick="NGT500.route('${entry.route}')"
+      ${name===entry.route?'aria-current="page"':''}
+     >
+      ${entry.icon}
+      <span>${entry.label}</span>
+     </button>
+    `;
+   }).join('')}
+  </nav>
+ `;
+}
+
 function renderRoute(record,options){
  const normalized=normalizeRoute(record);
 
@@ -503,7 +534,8 @@ function renderRoute(record,options){
  app.innerHTML=
   appTop(normalized.name)+
   backBar(normalized.name)+
-  html;
+  html+
+  primaryNavigation(normalized.name);
 
  if(typeof mod.afterRender==='function'){
   try{

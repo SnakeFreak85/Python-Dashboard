@@ -389,33 +389,6 @@ function render(){
     }
    </section>
 
-   <nav class="tc2SDnav">
-    <button class="on">
-     ▥
-     <span>Übersicht</span>
-    </button>
-
-    <button onclick="NGT500.route('dashboard')">
-     ●●●
-     <span>Start</span>
-    </button>
-
-    <button onclick="NGT500.route('food')">
-     ⌂
-     <span>Futter</span>
-    </button>
-
-    <button onclick="NGT500.route('qr')">
-     ▱
-     <span>QR</span>
-    </button>
-
-    <button onclick="NGT500.route('settings')">
-     ⚙
-     <span>System</span>
-    </button>
-   </nav>
-
   </section>
  `;
 }

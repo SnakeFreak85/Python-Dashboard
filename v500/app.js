@@ -31,7 +31,7 @@ function loadAccount(args,options){loadScriptOnce('account','./v500/modules/acco
 
 function openMissingRoute(event){
  if(!event||!event.name)return;
- const options=Object.assign({},event.options||{},{replace:true,noHistory:true});
+ const options=Object.assign({},event.options||{});
  switch(event.name){
   case 'analytics':loadAnalytics(event.args,options);break;
   case 'settings':loadSettings(event.args,options);break;
@@ -49,20 +49,6 @@ function navGroup(title,items){
  return '<div class="tc2DrawerGroup"><div class="tc2DrawerGroupTitle">'+title+'</div>'+items.join('')+'</div>';
 }
 
-function dynamicAnimalNav(){
- try{
-  const map=NGTStore.animalsByGroup?NGTStore.animalsByGroup():{};
-  const groups=Object.keys(map).sort();
-  if(!groups.length)return [navButton('＋','Tier anlegen','NGTDashboard.manualAnimal()')];
-  return groups.map(function(group){
-   const safeGroup=String(group).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-   return navButton('●●●',group,"NGT500.route('animals',{group:'"+safeGroup+"'})");
-  });
- }catch(e){
-  return [navButton('●●●','Bestand',"NGT500.route('dashboard')")];
- }
-}
-
 function nav(){
  const d=document.getElementById('drawer');
  if(!d)return;
@@ -71,22 +57,18 @@ function nav(){
    <div class="tc2DrawerLogo">TC</div>
    <div><h2>TerraControl</h2><p>Version 1.0.4 RC11</p></div>
   </div>
-  ${navGroup('Start',[
-   navButton('🏠','Startseite',"NGT500.route('dashboard')"),
-   navButton('▥','Smart Dashboard',"NGT500.route('smartDashboard')")
+  ${navGroup('Bestand',[
+   navButton('●●●','Bestand',"NGT500.route('animals')"),
+   navButton('🥚','Nachzuchten',"NGT500.route('offspring')")
   ])}
-  ${navGroup('Bestand',dynamicAnimalNav())}
   ${navGroup('Verwaltung',[
-   navButton('🥩','Futterbestand',"NGT500.route('food')"),
-   navButton('🏷️','QR / Tierpass',"NGT500.route('qr')"),
    navButton('💾','Backup',"NGT500.route('backup')")
   ])}
   ${navGroup('KI',[
    navButton('💬','TerraControl KI',"NGT500.route('chat')"),
    navButton('⚡','Schnelleingabe',"NGT500.route('assistant')")
   ])}
-  ${navGroup('System',[
-   navButton('⚙️','Einstellungen',"NGTApp.loadSettings()"),
+  ${navGroup('Konto',[
    navButton('👤','Konto',"NGTApp.loadAccount()")
   ])}`;
 }
