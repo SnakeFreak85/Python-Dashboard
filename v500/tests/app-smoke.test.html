@@ -56,8 +56,40 @@ async function testAssets(){
  const urls=Array.from(doc.querySelectorAll('script[src],link[rel="stylesheet"][href]'))
   .map(function(node){return node.getAttribute('src')||node.getAttribute('href');})
   .filter(function(url){return url&& !/^https?:\/\//.test(url);});
+ const scripts=Array.from(
+  doc.querySelectorAll('script[src]')
+ ).map(function(node){
+  return String(
+   node.getAttribute('src')||''
+  ).split('?')[0];
+ });
+
+ function loadsBefore(first,second){
+  const firstIndex=scripts.indexOf(first);
+  const secondIndex=scripts.indexOf(second);
+
+  return (
+   firstIndex>=0&&
+   secondIndex>=0&&
+   firstIndex<secondIndex
+  );
+ }
 
  record('lokale Start-Assets gefunden',urls.length>0,String(urls.length));
+ record(
+  'AnimalEngine wird vor dem Store geladen',
+  loadsBefore(
+   './v500/animal-engine.js',
+   './v500/store.js'
+  )
+ );
+ record(
+  'Futter-Engine wird vor dem Store geladen',
+  loadsBefore(
+   './v500/food-inventory-engine.js',
+   './v500/store.js'
+  )
+ );
 
  for(const url of urls){
   const assetUrl=new URL(url,response.url).href;
