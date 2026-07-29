@@ -61,6 +61,137 @@ P.allOffspring=function(){
  });
 };
 
+P.parentStoredLabel=function(animal){
+ animal=animal||{};
+
+ const publicId=P.text(
+  animal.publicId||
+  animal.displayId
+ );
+ const name=P.text(
+  AnimalEngine.getDisplayName(animal)
+ );
+
+ if(publicId&&name&&publicId!==name){
+  return publicId+' Â· '+name;
+ }
+
+ return publicId||name||'Unbenanntes Tier';
+};
+
+P.parentOptionLabel=function(animal){
+ animal=animal||{};
+
+ const label=P.parentStoredLabel(animal);
+ const sex=P.text(animal.sex);
+
+ return sex
+  ?label+' Â· '+sex
+  :label;
+};
+
+P.parentCandidates=function(currentAnimalId){
+ const currentId=P.text(currentAnimalId);
+ const rows=NGTStore.allAnimals
+  ?NGTStore.allAnimals()
+  :[];
+
+ return rows
+  .filter(function(row){
+   const animal=row.a||{};
+   const id=NGTStore.animalId(animal);
+
+   return (
+    (!currentId||id!==currentId)&&
+    !P.isOffspringAnimal(animal)&&
+    AnimalEngine.isActiveAnimal(animal)
+   );
+  })
+  .sort(function(a,b){
+   return P.parentOptionLabel(a.a)
+    .localeCompare(
+     P.parentOptionLabel(b.a),
+     'de'
+    );
+  });
+};
+
+P.parentId=function(animal,role){
+ animal=animal||{};
+
+ if(role==='father'){
+  return P.text(
+   animal.fatherId||
+   animal.vaterId||
+   animal.sireId
+  );
+ }
+
+ return P.text(
+  animal.motherId||
+  animal.mutterId||
+  animal.damId
+ );
+};
+
+P.parentOptions=function(animal,role,currentAnimalId){
+ const selectedId=P.parentId(animal,role);
+ const candidates=P.parentCandidates(currentAnimalId);
+ const emptyLabel=role==='father'
+  ?'Kein Vatertier ausgewÃ¤hlt'
+  :'Kein Muttertier ausgewÃ¤hlt';
+ let selectedFound=false;
+ let options=`<option value="">${emptyLabel}</option>`;
+
+ candidates.forEach(function(row){
+  const id=NGTStore.animalId(row.a);
+  const selected=id===selectedId;
+
+  if(selected){
+   selectedFound=true;
+  }
+
+  options+=`<option
+   value="${P.esc(id)}"
+   ${selected?'selected':''}
+  >
+   ${P.esc(P.parentOptionLabel(row.a))}
+  </option>`;
+ });
+
+ if(selectedId&&!selectedFound){
+  const selectedRow=NGTStore.findAnimalById
+   ?NGTStore.findAnimalById(selectedId)
+   :null;
+  const legacyLabel=role==='father'
+   ?animal.father||animal.vater||animal.sire
+   :animal.mother||animal.mutter||animal.dam;
+
+  options+=`<option
+   value="${P.esc(selectedId)}"
+   selected
+  >
+   ${P.esc(
+    selectedRow
+     ?P.parentOptionLabel(selectedRow.a)
+     :legacyLabel||'Bisheriges Elterntier'
+   )} Â· bisher zugeordnet
+  </option>`;
+ }
+
+ return options;
+};
+
+P.parentById=function(id){
+ const row=NGTStore.findAnimalById
+  ?NGTStore.findAnimalById(P.text(id))
+  :null;
+
+ return row
+  ?row.a
+  :null;
+};
+
 P.photoSrc=function(photo,preferThumbnail){
  return AnimalEngine.photoSource(
   photo,

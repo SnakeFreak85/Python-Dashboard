@@ -175,14 +175,28 @@ async function run(){
    label:'Frost Maus 20 g'
   });
 
-  win.NGTStore.addAnimal('',{
+  const fatherStock=win.NGTStore.addAnimal('',{
    animalGroup:'Pythons',
    genus:'Python',
    species:'regius',
-   name:'Bestandstier',
+   name:'Vater aus Bestand',
+   sex:'Männlich',
    status:'Bestand',
    collection:'stock'
   });
+
+  const motherStock=win.NGTStore.addAnimal('',{
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   name:'Mutter aus Bestand',
+   sex:'Weiblich',
+   status:'Bestand',
+   collection:'stock'
+  });
+
+  const fatherStockId=win.NGTStore.animalId(fatherStock);
+  const motherStockId=win.NGTStore.animalId(motherStock);
 
   const active=
    win.NGTStore.addAnimal('',{
@@ -242,7 +256,7 @@ async function run(){
    rootText.includes('Pythons')
   );
   record(
-   'Bestandstier wird nicht als Nachzucht gezählt',
+   'Bestandstiere werden nicht als Nachzucht gezählt',
    rootText.includes('1 Nachzucht')
   );
 
@@ -266,8 +280,9 @@ async function run(){
    !listText.includes('Archivierte Nachzucht')
   );
   record(
-   'Bestandstier wird ausgeblendet',
-   !listText.includes('Bestandstier')
+   'Bestandstiere werden ausgeblendet',
+   !listText.includes('Vater aus Bestand')&&
+    !listText.includes('Mutter aus Bestand')
   );
   equal(
    'Thumbnail wird bevorzugt',
@@ -292,6 +307,38 @@ async function run(){
     .getElementById('edFoodInventoryId')
     .value,
    'food-offspring'
+  );
+  record(
+   'Vatertier aus dem Bestand ist auswählbar',
+   Array.from(
+    win.document
+     .getElementById('edFatherId')
+     .options
+   ).some(function(option){
+    return option.value===fatherStockId&&
+     option.textContent.includes('Vater aus Bestand');
+   })
+  );
+  record(
+   'Muttertier aus dem Bestand ist auswählbar',
+   Array.from(
+    win.document
+     .getElementById('edMotherId')
+     .options
+   ).some(function(option){
+    return option.value===motherStockId&&
+     option.textContent.includes('Mutter aus Bestand');
+   })
+  );
+  record(
+   'Nachzuchten stehen nicht als Elterntiere zur Auswahl',
+   !Array.from(
+    win.document
+     .getElementById('edFatherId')
+     .options
+   ).some(function(option){
+    return option.value===activeId;
+   })
   );
 
   win.NGTStore.data().animals.reverse();
@@ -375,6 +422,8 @@ async function run(){
   setValue(win,'edGenus','Python');
   setValue(win,'edSpecies','regius');
   setValue(win,'edName','Neue Nachzucht');
+  setValue(win,'edFatherId',fatherStockId);
+  setValue(win,'edMotherId',motherStockId);
   setValue(
    win,
    'edFoodInventoryId',
@@ -401,6 +450,40 @@ async function run(){
    'Herkunft neuer Nachzucht ist synchron',
    created.originType,
    'Nachzucht'
+  );
+  equal(
+   'Vatertier ist stabil per Tier-ID verknüpft',
+   created.fatherId,
+   fatherStockId
+  );
+  equal(
+   'Muttertier ist stabil per Tier-ID verknüpft',
+   created.motherId,
+   motherStockId
+  );
+  record(
+   'Vatertier wird lesbar gespeichert',
+   created.father.includes('Vater aus Bestand')
+  );
+  record(
+   'Muttertier wird lesbar gespeichert',
+   created.mother.includes('Mutter aus Bestand')
+  );
+  const createdId=win.NGTStore.animalId(created);
+
+  win.NGT500.route('offspring',{
+   editId:createdId
+  });
+
+  equal(
+   'Gespeichertes Vatertier bleibt im Editor ausgewählt',
+   win.document.getElementById('edFatherId').value,
+   fatherStockId
+  );
+  equal(
+   'Gespeichertes Muttertier bleibt im Editor ausgewählt',
+   win.document.getElementById('edMotherId').value,
+   motherStockId
   );
   record(
    'Nachzucht erhält eigenen Nummernkreis',

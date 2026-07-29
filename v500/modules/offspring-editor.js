@@ -169,22 +169,46 @@ function editor(t,index){
     </label>
 
     <label>
-     <span>Vatertier</span>
+     <span>Vatertier aus eigenem Bestand</span>
+
+     <select id="edFatherId">
+      ${P.parentOptions(animal,'father',animalId)}
+     </select>
+    </label>
+
+    <label>
+     <span>Muttertier aus eigenem Bestand</span>
+
+     <select id="edMotherId">
+      ${P.parentOptions(animal,'mother',animalId)}
+     </select>
+    </label>
+
+    <label>
+     <span>Vatertier auÃŸerhalb des Bestands</span>
 
      <input
       id="edFather"
-      placeholder="z. B. KP-001"
-      value="${P.esc(animal.father||animal.vater||animal.sire||'')}"
+      placeholder="optional, z. B. KP-001"
+      value="${
+       P.parentId(animal,'father')
+        ?''
+        :P.esc(animal.father||animal.vater||animal.sire||'')
+      }"
      >
     </label>
 
     <label>
-     <span>Muttertier</span>
+     <span>Muttertier auÃŸerhalb des Bestands</span>
 
      <input
       id="edMother"
-      placeholder="z. B. KP-002"
-      value="${P.esc(animal.mother||animal.mutter||animal.dam||'')}"
+      placeholder="optional, z. B. KP-002"
+      value="${
+       P.parentId(animal,'mother')
+        ?''
+        :P.esc(animal.mother||animal.mutter||animal.dam||'')
+      }"
      >
     </label>
 
@@ -364,8 +388,26 @@ function save(t,index,animalId){
 
  const birth=inputValue('edBirth');
  const clutch=inputValue('edClutch');
- const father=inputValue('edFather');
- const mother=inputValue('edMother');
+ const fatherId=inputValue('edFatherId');
+ const motherId=inputValue('edMotherId');
+ const fatherAnimal=P.parentById(fatherId);
+ const motherAnimal=P.parentById(motherId);
+ const father=fatherAnimal
+  ?P.parentStoredLabel(fatherAnimal)
+  :inputValue('edFather')||
+   (
+    fatherId
+     ?P.text(old.father||old.vater||old.sire)
+     :''
+   );
+ const mother=motherAnimal
+  ?P.parentStoredLabel(motherAnimal)
+  :inputValue('edMother')||
+   (
+    motherId
+     ?P.text(old.mother||old.mutter||old.dam)
+     :''
+   );
  const salePrice=inputValue('edBuy');
 
  const animal={
@@ -404,10 +446,16 @@ function save(t,index,animalId){
   father:father,
   vater:father,
   sire:father,
+  fatherId:fatherId,
+  vaterId:fatherId,
+  sireId:fatherId,
 
   mother:mother,
   mutter:mother,
   dam:mother,
+  motherId:motherId,
+  mutterId:motherId,
+  damId:motherId,
 
   feedIntervalDays:interval,
   feedingInterval:interval,
