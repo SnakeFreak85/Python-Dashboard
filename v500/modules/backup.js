@@ -202,15 +202,7 @@ function render(){
 
 function exportData(){
  try{
-  const json=NGTStore.exportJson();
-
-  const payload={
-   app:'TerraControl',
-   type:'local-backup',
-   version:'1.0.4',
-   createdAt:new Date().toISOString(),
-   data:JSON.parse(json)
-  };
+  const payload=NGTStore.exportBackup();
 
   const blob=new Blob(
    [JSON.stringify(payload,null,2)],
@@ -327,18 +319,8 @@ async function importData(file){
 
  reader.onload=async function(){
   try{
-   const parsed=JSON.parse(
+   NGTStore.importBackup(
     String(reader.result||'{}')
-   );
-
-   const data=parsed.data||parsed;
-
-   if(!data||typeof data!=='object'){
-    throw new Error('Ungültiges Backup-Format');
-   }
-
-   NGTStore.importJson(
-    JSON.stringify(data)
    );
 
    statusMessage='Backup erfolgreich wiederhergestellt.';

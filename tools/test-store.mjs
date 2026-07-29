@@ -1288,4 +1288,58 @@ assert.equal(
  'Ein ungültiger Index darf den Bestand nicht verändern.'
 );
 
+const backupEnvelope=store.exportBackup();
+
+assert.equal(
+ backupEnvelope.app,
+ 'TerraControl',
+ 'Lokale Backups muessen als TerraControl-Datei gekennzeichnet werden.'
+);
+assert.equal(
+ backupEnvelope.type,
+ 'local-backup',
+ 'Lokale Backups muessen einen eindeutigen Typ enthalten.'
+);
+assert.equal(
+ backupEnvelope.version,
+ '1.0.4-rc.11',
+ 'Backup-Metadaten muessen der freigegebenen App-Version entsprechen.'
+);
+assert.ok(
+ backupEnvelope.createdAt,
+ 'Lokale Backups muessen einen Erstellungszeitpunkt enthalten.'
+);
+
+const originalBackupAnimalName=
+ store.allAnimals()[0].a.name;
+
+backupEnvelope.data.animals[0].name=
+ 'Nur in der Sicherung';
+
+assert.equal(
+ store.allAnimals()[0].a.name,
+ originalBackupAnimalName,
+ 'Exportierte Backup-Daten duerfen keine Live-Referenz auf den Store enthalten.'
+);
+
+const importedBackup=
+ store.importBackup(
+  JSON.stringify(backupEnvelope)
+ );
+
+assert.equal(
+ importedBackup.animals[0].name,
+ 'Nur in der Sicherung',
+ 'Das gemeinsame Importformat muss umhuellte Backup-Dateien laden.'
+);
+assert.throws(
+ function(){
+  store.importBackup(
+   JSON.stringify({data:null})
+  );
+ },
+ /Backup-Format/,
+ 'Ungueltige Backup-Huellen muessen vor dem Import abgelehnt werden.'
+);
+
 console.log('Store tests passed.');

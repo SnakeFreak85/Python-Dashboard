@@ -4,6 +4,8 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Lokale Sicherungen aus Backup- und Kontoseite auf ein gemeinsames Export- und Importformat im Store umgestellt.
+- Widersprüchliche Backup-Metadaten (`1.0.4` und `1.0.4-rc4`) auf den unveränderten App-Stand `1.0.4-rc.11` korrigiert und Importvalidierung vereinheitlicht.
 - Nachweislich ungenutzte Store-Funktionen `addFood()` und `reduceFood()` entfernt; Futterbestand besitzt keine parallelen, schwächer validierten Schreibpfade mehr.
 - Legacy-Fotomigration auf Arbeitskopien umgestellt; ein Tier übernimmt migrierte Metadaten erst nach vollständig erfolgreicher Verarbeitung.
 - Einzel- und Gesamtmigration schreiben Fotolisten über eine gemeinsame Store-Operation; redundante zusätzliche Speicheraufrufe entfernt.

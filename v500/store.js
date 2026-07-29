@@ -2,6 +2,7 @@
 'use strict';
 
 const KEY='spd_v53';
+const APP_VERSION='1.0.4-rc.11';
 
 const LEGACY_TYPES=['koenig','boas','geckos','spinnen'];
 
@@ -1310,10 +1311,48 @@ function exportJson(){
   return JSON.stringify(db,null,2);
 }
 
+function exportBackup(){
+  return {
+    app:'TerraControl',
+    type:'local-backup',
+    version:APP_VERSION,
+    createdAt:new Date().toISOString(),
+    data:JSON.parse(exportJson())
+  };
+}
+
 function importJson(txt){
   db=normalize(JSON.parse(txt),{importLegacy:true});
   cleanAllPhotoData(db);
   save();
+}
+
+function importBackup(txt){
+  const parsed=
+    typeof txt==='string'
+      ?JSON.parse(txt)
+      :txt;
+  const imported=
+    parsed&&
+    Object.hasOwn(parsed,'data')
+      ?parsed.data
+      :parsed;
+
+  if(
+    !imported||
+    typeof imported!=='object'||
+    Array.isArray(imported)
+  ){
+    throw new Error(
+      'Ungültiges Backup-Format'
+    );
+  }
+
+  importJson(
+    JSON.stringify(imported)
+  );
+
+  return db;
 }
 
 window.NGTStore={
@@ -1368,7 +1407,9 @@ window.NGTStore={
   feederOptions,
 
   exportJson,
-  importJson
+  importJson,
+  exportBackup,
+  importBackup
 };
 
 })();

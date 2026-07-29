@@ -100,7 +100,7 @@ async function firestoreSave(){if(window.NGTFirebaseSync)return NGTFirebaseSync.
 async function firestoreLoad(){if(window.NGTFirebaseSync)return NGTFirebaseSync.loadCloud({force:true})}
 
 function localBackup(){
-  const payload={app:'TerraControl',type:'local-backup',version:'1.0.4-rc4',createdAt:new Date().toISOString(),data:NGTStore.data()};
+  const payload=NGTStore.exportBackup();
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -131,9 +131,9 @@ async function localRestore(file){
   const r=new FileReader();
   r.onload=async function(){
     try{
-      const obj=JSON.parse(String(r.result||'{}'));
-      const data=obj.data||obj;
-      NGTStore.importJson(JSON.stringify(data));
+      NGTStore.importBackup(
+       String(r.result||'{}')
+      );
       await NGT500.notice(
        'Backup geladen. App wird neu gestartet.',
        {title:'Backup wiederhergestellt'}

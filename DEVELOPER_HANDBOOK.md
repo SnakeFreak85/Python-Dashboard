@@ -493,6 +493,14 @@ globalen Pflegeintervalle. Das Einstellungsmodul spiegelt die Daten aus
 Kompatibilitätsgründen zusätzlich in die bisherigen Local-Storage-Schlüssel,
 verändert `NGTStore.data().settings` aber nicht direkt.
 
+Lokale Sicherungen werden in Konto- und Backup-Ansicht ausschließlich mit
+`NGTStore.exportBackup()` erzeugt und mit `NGTStore.importBackup()`
+eingelesen. Das gemeinsame Format enthält App, Typ, den unveränderten
+Versionsstand `1.0.4-rc.11`, Erstellungszeitpunkt und eine vom Live-Store
+getrennte Datenkopie. Der Import akzeptiert weiterhin ältere rohe
+TerraControl-Datensätze, validiert aber umhüllte und rohe Formate an einer
+zentralen Stelle.
+
 ### 8.6 Taxonomie
 
 Die Abhängigkeit lautet:
