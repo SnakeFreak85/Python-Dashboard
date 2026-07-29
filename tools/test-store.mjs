@@ -1262,6 +1262,11 @@ assert.equal(
  'Verkaeuferdaten muessen zentral gespeichert werden.'
 );
 assert.equal(
+ store.sellerProfile().name,
+ 'TerraControl Test',
+ 'Verkaeuferdaten muessen ueber den zentralen Store lesbar sein.'
+);
+assert.equal(
  store.data().settings.seller.email,
  'test@example.test',
  'Kompatible Kontaktdaten muessen im Store erhalten bleiben.'
@@ -1270,6 +1275,33 @@ assert.equal(
  store.data().settings.theme,
  'dark',
  'Andere Einstellungen duerfen beim Speichern des Verkaeufers nicht verloren gehen.'
+);
+assert.equal(
+ JSON.parse(
+  localStorage.getItem(
+   'ngt_seller_profile_v1'
+  )
+ ).email,
+ 'test@example.test',
+ 'Das alte PDF-Speicherfeld muss automatisch mit dem Store synchron bleiben.'
+);
+assert.equal(
+ JSON.parse(
+  localStorage.getItem(
+   'terracontrol_settings_v1'
+  )
+ ).seller.name,
+ 'TerraControl Test',
+ 'Die alte Einstellungsstruktur muss automatisch mit dem Store synchron bleiben.'
+);
+
+const sellerCopy=store.sellerProfile();
+sellerCopy.name='Nur in der Kopie';
+
+assert.equal(
+ store.sellerProfile().name,
+ 'TerraControl Test',
+ 'Lesende Verkaeuferdaten duerfen keine Live-Referenz auf den Store liefern.'
 );
 assert.equal(
  Object.hasOwn(

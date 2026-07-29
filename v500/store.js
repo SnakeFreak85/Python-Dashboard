@@ -3,6 +3,10 @@
 
 const KEY='spd_v53';
 const APP_VERSION='1.0.4-rc.11';
+const LEGACY_SETTINGS_KEY=
+  'terracontrol_settings_v1';
+const LEGACY_SELLER_KEY=
+  'ngt_seller_profile_v1';
 
 const LEGACY_TYPES=['koenig','boas','geckos','spinnen'];
 
@@ -386,9 +390,26 @@ function readJson(k){
 
 function load(){
   const d=readJson(KEY);
-  if(d)return normalize(d,{importLegacy:true});
+  const loaded=d
+    ?normalize(d,{importLegacy:true})
+    :base();
 
-  return base();
+  const legacySeller=
+    readJson(LEGACY_SELLER_KEY);
+
+  if(
+    !loaded.settings.seller&&
+    legacySeller&&
+    typeof legacySeller==='object'&&
+    !Array.isArray(legacySeller)&&
+    Object.keys(legacySeller).length
+  ){
+    loaded.settings.seller={
+      ...legacySeller
+    };
+  }
+
+  return loaded;
 }
 
 let db=load();
@@ -427,6 +448,48 @@ function data(){
   return db;
 }
 
+function sellerProfile(){
+  const stored=
+    db&&
+    db.settings&&
+    db.settings.seller;
+
+  return (
+    stored&&
+    typeof stored==='object'&&
+    !Array.isArray(stored)
+  )
+    ?{...stored}
+    :{};
+}
+
+function mirrorSellerProfile(profile){
+  try{
+    localStorage.setItem(
+      LEGACY_SELLER_KEY,
+      JSON.stringify(profile)
+    );
+
+    const legacySettings=
+      readJson(LEGACY_SETTINGS_KEY)||
+      {};
+
+    legacySettings.seller={
+      ...profile
+    };
+
+    localStorage.setItem(
+      LEGACY_SETTINGS_KEY,
+      JSON.stringify(legacySettings)
+    );
+  }catch(error){
+    console.warn(
+      'Legacy-Verkäuferdaten konnten nicht gespiegelt werden.',
+      error
+    );
+  }
+}
+
 function saveSellerProfile(profile){
   if(
     !profile||
@@ -447,9 +510,13 @@ function saveSellerProfile(profile){
    */
   delete db.settings.defaults;
 
+  mirrorSellerProfile(
+    db.settings.seller
+  );
+
   save();
 
-  return db.settings.seller;
+  return sellerProfile();
 }
 
 function allAnimals(){
@@ -1330,6 +1397,10 @@ function exportBackup(){
 function importJson(txt){
   db=normalize(JSON.parse(txt),{importLegacy:true});
   cleanAllPhotoData(db);
+  mirrorSellerProfile(
+    db.settings.seller||
+    {}
+  );
   save();
 }
 
@@ -1403,6 +1474,7 @@ window.NGTStore={
   data,
   save,
   clearLocal,
+  sellerProfile,
   saveSellerProfile,
 
   allAnimals,

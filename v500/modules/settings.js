@@ -1,61 +1,14 @@
 (function(){
 'use strict';
 
-const KEY='terracontrol_settings_v1';
-const SELLER_KEY='ngt_seller_profile_v1';
-
 let editMode='';
 
-function storeSettings(){
- try{
-  const data=
-   window.NGTStore&&
-   NGTStore.data
-    ?NGTStore.data()
-    :null;
-
-  if(!data){
-   return {};
-  }
-
-  return data.settings||{};
-
- }catch(error){
-  return {};
- }
-}
-
-function legacyLoad(key){
- try{
-  return JSON.parse(
-   localStorage.getItem(key)||'{}'
-  );
- }catch(error){
-  return {};
- }
-}
-
-function load(){
- const stored=storeSettings();
-
- return Object.keys(stored).length
-  ?stored
-  :legacyLoad(KEY);
-}
-
 function seller(){
- const stored=storeSettings();
-
- if(
-  stored.seller&&
-  Object.keys(stored.seller).length
- ){
-  return stored.seller;
+ try{
+  return NGTStore.sellerProfile();
+ }catch(error){
+  return {};
  }
-
- return legacyLoad(
-  SELLER_KEY
- );
 }
 
 function cloud(){
@@ -405,26 +358,6 @@ function saveSeller(){
  saveSettingsToStore(
   profile
  );
-
- try{
-  localStorage.setItem(
-   SELLER_KEY,
-   JSON.stringify(profile)
-  );
-
-  localStorage.setItem(
-   KEY,
-   JSON.stringify({
-    seller:profile
-   })
-  );
-
- }catch(error){
-  console.warn(
-   'Lokale Einstellungen konnten nicht gespiegelt werden.',
-   error
-  );
- }
 
  editMode='';
 

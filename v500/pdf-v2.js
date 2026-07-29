@@ -1,11 +1,10 @@
 (function(){
 'use strict';
-var SELLER_KEY='ngt_seller_profile_v1';
 function id(x){return document.getElementById(x)}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
 function safe(s){return String(s||'').replace(/[|\n\r]/g,' ').trim().slice(0,80)}
-function seller(){try{return JSON.parse(localStorage.getItem(SELLER_KEY)||'{}')||{}}catch(e){return {}}}
-function saveSeller(){var s={name:id('sName').value,street:id('sStreet').value,city:id('sCity').value,contact:id('sContact').value};localStorage.setItem(SELLER_KEY,JSON.stringify(s));msg('Verkäufer gespeichert.');renderDoc()}
+function seller(){try{return NGTStore.sellerProfile()}catch(e){return {}}}
+function saveSeller(){var s={name:id('sName').value,street:id('sStreet').value,address:id('sStreet').value,city:id('sCity').value,contact:id('sContact').value};NGTStore.saveSellerProfile(s);msg('Verkäufer gespeichert.');renderDoc()}
 function loadSeller(){var s=seller();id('sName').value=s.name||'';id('sStreet').value=s.street||'';id('sCity').value=s.city||'';id('sContact').value=s.contact||''}
 function allAnimals(){try{return NGTStore.allAnimals().filter(function(x){return !x.a.status||x.a.status!=='Archiv'})}catch(e){return []}}
 function animalId(a){return String((a&&a.uuid)||(a&&a.id)||(a&&a.uid)||'')}
