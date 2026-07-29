@@ -269,6 +269,42 @@ try{
   assert(tortoise.includes('aria-label="Testudo"'),'SVG-Label fehlt');
  });
 
+ await test('Referenzbilder verwenden einen einheitlichen Icon-Rahmen',function(){
+  const python=NGTTaxonomyUI.illustrationFor('Python regius');
+  const gecko=NGTTaxonomyUI.illustrationFor('Leopardgecko');
+  const chameleon=NGTTaxonomyUI.illustrationFor('Chamäleon');
+
+  [python,gecko,chameleon].forEach(function(markup){
+   assert(markup.includes('class="tc2TaxIconFrame"'),'Einheitlicher Icon-Rahmen fehlt');
+   assert(markup.includes('class="tc2TaxReferenceIcon"'),'Referenzbildklasse fehlt');
+  });
+ });
+
+ await test('Vogelspinne und Schildkröte verwenden denselben Icon-Rahmen',function(){
+  const spider=NGTTaxonomyUI.illustrationFor('Vogelspinne');
+  const tortoise=NGTTaxonomyUI.illustrationFor('Landschildkröte');
+
+  assert(spider.includes('class="tc2TaxIconFrame"'),'Vogelspinnen-Rahmen fehlt');
+  assert(tortoise.includes('class="tc2TaxIconFrame"'),'Schildkröten-Rahmen fehlt');
+  assert(tortoise.includes('class="tc2TaxSilhouetteSvg"'),'Schildkröten-SVG fehlt');
+ });
+
+ await test('Weitere erkannte Tiergruppen werden einheitlich gerahmt',function(){
+  const scorpion=NGTTaxonomyUI.illustrationFor('Pandinus imperator');
+  const frog=NGTTaxonomyUI.illustrationFor('Dendrobates');
+
+  assert(scorpion.includes('class="tc2TaxIconFrame"'),'Skorpion-Rahmen fehlt');
+  assert(frog.includes('class="tc2TaxIconFrame"'),'Frosch-Rahmen fehlt');
+ });
+
+ await test('Unbekannte Gruppen bleiben bewusst ohne Tierbild',function(){
+  const unknown=NGTTaxonomyUI.illustrationFor('Test');
+
+  assert(unknown.includes('class="tc2TaxNoIcon"'),'Unbekannte Gruppe hat keinen leeren Zustand');
+  assert(!unknown.includes('class="tc2TaxIconFrame"'),'Unbekannte Gruppe zeigt einen Bildrahmen');
+  assert(!unknown.includes('<img'),'Unbekannte Gruppe zeigt ein erfundenes Tierbild');
+ });
+
  await test('Dekorationsstile werden genau einmal installiert',function(){
   NGTTaxonomyUI.decorate();
   NGTTaxonomyUI.decorate();

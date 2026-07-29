@@ -27,8 +27,31 @@ function esc(value){
   .replace(/'/g,'&#39;');
 }
 
+function iconFrame(content){
+ return (
+  '<span class="tc2TaxIconFrame">'+
+   content+
+  '</span>'
+ );
+}
+
+function referenceImage(src,label){
+ return iconFrame(
+  '<img '+
+   'class="tc2TaxReferenceIcon" '+
+   'src="'+esc(src)+'" '+
+   'alt="'+esc(label)+'" '+
+   'loading="eager" '+
+   'decoding="async"'+
+  '>'
+ );
+}
+
 function image(name,label){
- return '<img class="tc2TaxReferenceIcon" src="'+ICONS[name]+'" alt="'+esc(label)+'">';
+ return referenceImage(
+  ICONS[name],
+  label
+ );
 }
 
 function emptyIcon(label){
@@ -47,19 +70,14 @@ function spiderIcon(label){
   document.baseURI
  ).href;
 
- return (
-  '<img '+
-   'class="tc2TaxReferenceIcon" '+
-   'src="'+esc(src)+'" '+
-   'alt="'+esc(label)+'" '+
-   'loading="eager" '+
-   'decoding="async"'+
-  '>'
+ return referenceImage(
+  src,
+  label
  );
 }
 
 function tortoiseIcon(label){
- return `
+ return iconFrame(`
   <svg class="tc2TaxSilhouetteSvg" viewBox="0 0 160 120" role="img" aria-label="${esc(label)}">
    <defs>
     <radialGradient id="tc2TortoiseBg" cx="42%" cy="36%" r="72%">
@@ -96,7 +114,7 @@ function tortoiseIcon(label){
     <path d="M28 65 L18 70 L29 74Z" fill="url(#tc2TortoiseSkin)"/>
    </g>
    <path d="M24 103 C58 112 105 112 137 100" fill="none" stroke="#65c6ba" stroke-opacity=".19" stroke-width="2"/>
-  </svg>`;
+  </svg>`);
 }
 
 function illustrationFor(value){
@@ -108,7 +126,9 @@ function illustrationFor(value){
   case 'spider': return spiderIcon(label);
   case 'tortoise': return tortoiseIcon(label);
   case 'generic': return emptyIcon(label);
-  default: return fallback(label);
+  default: return iconFrame(
+   fallback(label)
+  );
  }
 }
 

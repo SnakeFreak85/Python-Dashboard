@@ -442,10 +442,10 @@ Aktueller automatisierter Umfang:
 | Schnelleingabe und Chat | 34 |
 | QR-Import | 26 |
 | Historien | 17 |
-| Taxonomie | 27 |
+| Taxonomie | 31 |
 | TC2-Oberfläche | 49 |
 | App-Smoke-Test | 100 |
-| **Summe Browserprüfungen** | **473** |
+| **Summe Browserprüfungen** | **477** |
 
 Zusätzlich besteht der eigenständige Node-Store-Test.
 
