@@ -118,6 +118,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     └── tests/
         ├── animal-engine.test.html
         ├── animals.test.html
+        ├── offspring.test.html
         ├── store.test.html
         ├── taxonomy.test.html
         ├── app-smoke.test.html
@@ -645,7 +646,17 @@ Prüft:
 - Modulregistrierung,
 - grundlegende AnimalEngine-Ausführung.
 
-### 12.3 Taxonomie
+### 12.3 Nachzuchten
+
+```text
+http://localhost:8000/v500/tests/offspring.test.html
+```
+
+Prüft aktive Nachzuchtenfilter, UUID-basiertes Bearbeiten, dynamische
+Futterverknüpfung, kompatible Aliasfelder, Historienerhalt und den eigenen
+Nachzuchten-Nummernkreis.
+
+### 12.4 Taxonomie
 
 ```text
 http://localhost:8000/v500/tests/taxonomy.test.html
@@ -656,7 +667,7 @@ Bild-Fallbacks sowie Klassifikation, Illustrationen, öffentliche
 `NGTTaxonomyUI`-Dekoration und die automatische Dekoration neu eingefügter
 Elemente durch den DOM-Beobachter.
 
-### 12.4 TC2-Oberfläche
+### 12.5 TC2-Oberfläche
 
 ```text
 http://localhost:8000/v500/tests/tc2-ui.test.html
@@ -664,7 +675,7 @@ http://localhost:8000/v500/tests/tc2-ui.test.html
 
 Prüft die TC2-Seitenrahmen der aktiven Routen, die öffentlichen HTML-Seiten, die gemeinsame Dialogsemantik, zentrale TC2-CSS-Regeln und das mobile Überlaufverhalten.
 
-### 12.5 Store und Migration
+### 12.6 Store und Migration
 
 ```text
 http://localhost:8000/v500/tests/store.test.html
@@ -680,7 +691,7 @@ Der gleiche Kernpfad kann ohne Browser ausgeführt werden:
 node tools/test-store.mjs
 ```
 
-### 12.6 Manuelle Mindestprüfung
+### 12.7 Manuelle Mindestprüfung
 
 - App startet ohne rote Konsolenfehler.
 - Drawer und Navigation funktionieren.

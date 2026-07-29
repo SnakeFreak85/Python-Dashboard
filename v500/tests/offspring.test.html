@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Offspring Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>Offspring Browser Tests</h1>
+<p class="muted">Charakterisiert Nachzuchtenfilter, UUID-Editor, Futterverknüpfung und Historienerhalt.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({name:name,passed:!!passed,detail:detail||''});
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+
+   ', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=
+  results.map(function(result){
+   return '<li class="'+
+    (result.passed?'pass':'fail')+
+    '">'+
+    (result.passed?'PASS':'FAIL')+
+    ' — '+result.name+
+    (
+     result.passed||!result.detail
+      ?''
+      :' <span class="muted">('+
+       result.detail+
+       ')</span>'
+    )+
+    '</li>';
+  }).join('');
+
+ document.title=
+  failed
+   ?'FAIL — Offspring Tests'
+   :'PASS — Offspring Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  let finished=false;
+
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener(
+   'load',
+   complete,
+   {once:true}
+  );
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'&&
+    /\/v500\.html(?:[?#]|$)/.test(
+     frame.contentWindow.location.href
+    )
+   ){
+    setTimeout(complete,0);
+   }
+  }catch(error){}
+ });
+}
+
+function setValue(win,id,value){
+ const element=win.document.getElementById(id);
+
+ if(!element){
+  throw new Error(
+   'Formularfeld fehlt: '+id
+  );
+ }
+
+ element.value=value;
+}
+
+async function run(){
+ const frame=document.getElementById('appFrame');
+ let win=null;
+ let localBackup=null;
+ let routeBackup=null;
+ let stackBackup=null;
+
+ try{
+  win=await waitForLoad(frame);
+
+  localBackup=
+   win.localStorage.getItem('spd_v53');
+  routeBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_current_route_v1'
+   );
+  stackBackup=
+   win.sessionStorage.getItem(
+    'terracontrol_route_stack_v1'
+   );
+
+  record(
+   'NGTOffspring verfügbar',
+   !!win.NGTOffspring
+  );
+  equal(
+   'öffentliche API: save',
+   typeof win.NGTOffspring.save,
+   'function'
+  );
+
+  win.NGTStore.clearLocal();
+
+  win.NGTStore.saveFoodInventoryItem({
+   id:'food-offspring',
+   category:'Nagetiere',
+   condition:'Frost',
+   itemName:'Maus',
+   variant:'20 g',
+   unit:'Stück',
+   qty:10,
+   minimum:3,
+   label:'Frost Maus 20 g'
+  });
+
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   name:'Bestandstier',
+   status:'Bestand',
+   collection:'stock'
+  });
+
+  const active=
+   win.NGTStore.addAnimal('',{
+    animalGroup:'Pythons',
+    genus:'Python',
+    species:'regius',
+    name:'Aktive Nachzucht',
+    status:'Nachzucht',
+    collection:'offspring',
+    feedIntervalDays:7,
+    defaultFeederId:'food-offspring',
+    foodInventoryId:'food-offspring',
+    defaultFeeder:'Frost Maus 20 g',
+    futterStandard:'Frost Maus 20 g',
+    standardFeed:'Frost Maus 20 g',
+    customField:'bleibt',
+    feeds:[{
+     id:'feed-existing',
+     date:'2026-07-20',
+     accepted:true
+    }],
+    weights:[{
+     id:'weight-existing',
+     date:'2026-07-20',
+     weight:30
+    }],
+    photos:[{
+     id:'photo-existing',
+     thumbUrl:'offspring-thumb.jpg',
+     url:'offspring.jpg',
+     cover:true
+    }]
+   });
+
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Pythons',
+   genus:'Python',
+   species:'regius',
+   name:'Archivierte Nachzucht',
+   status:'Archiv',
+   collection:'offspring'
+  });
+
+  const activeId=
+   win.NGTStore.animalId(active);
+
+  win.NGT500.route('offspring',{});
+
+  const rootText=
+   win.document
+    .getElementById('app')
+    .textContent
+    .replace(/\s+/g,' ');
+
+  record(
+   'aktive Nachzuchtgruppe wird angezeigt',
+   rootText.includes('Pythons')
+  );
+  record(
+   'Bestandstier wird nicht als Nachzucht gezählt',
+   rootText.includes('1 Nachzucht')
+  );
+
+  win.NGT500.route('offspring',{
+   group:'Pythons',
+   genus:'Python'
+  });
+
+  const listText=
+   win.document
+    .getElementById('app')
+    .textContent
+    .replace(/\s+/g,' ');
+
+  record(
+   'aktive Nachzucht wird angezeigt',
+   listText.includes('Aktive Nachzucht')
+  );
+  record(
+   'archivierte Nachzucht wird ausgeblendet',
+   !listText.includes('Archivierte Nachzucht')
+  );
+  record(
+   'Bestandstier wird ausgeblendet',
+   !listText.includes('Bestandstier')
+  );
+  equal(
+   'Thumbnail wird bevorzugt',
+   win.document
+    .querySelector('.tc2OffspringAnimal img')
+    .getAttribute('src'),
+   'offspring-thumb.jpg'
+  );
+
+  win.NGT500.route('offspring',{
+   editId:activeId
+  });
+
+  equal(
+   'UUID-Editor öffnet die richtige Nachzucht',
+   win.document.getElementById('edName').value,
+   'Aktive Nachzucht'
+  );
+  equal(
+   'Standardfutter ist per ID ausgewählt',
+   win.document
+    .getElementById('edFoodInventoryId')
+    .value,
+   'food-offspring'
+  );
+
+  win.NGTStore.data().animals.reverse();
+  win.NGTStore.save();
+
+  setValue(win,'edNote','UUID-Nachzuchttest');
+  setValue(win,'edFeedInterval','9');
+  setValue(win,'edFather','Vater-Test');
+  setValue(win,'edMother','Mutter-Test');
+
+  win.NGTOffspring.save(
+   '',
+   0,
+   activeId
+  );
+
+  const updated=
+   win.NGTStore.getAnimalById(activeId);
+
+  equal(
+   'UUID-Speichern aktualisiert die richtige Nachzucht',
+   updated.note,
+   'UUID-Nachzuchttest'
+  );
+  equal(
+   'Fütterungsintervall bleibt synchron',
+   updated.feedingInterval,
+   9
+  );
+  equal(
+   'Vater-Alias bleibt synchron',
+   updated.sire,
+   'Vater-Test'
+  );
+  equal(
+   'Mutter-Alias bleibt synchron',
+   updated.dam,
+   'Mutter-Test'
+  );
+  equal(
+   'Futter-ID bleibt synchron',
+   updated.defaultFeederId,
+   'food-offspring'
+  );
+  equal(
+   'Futterlabel bleibt synchron',
+   updated.standardFeed,
+   'Frost Maus 20 g'
+  );
+  equal(
+   'unbekanntes Feld bleibt erhalten',
+   updated.customField,
+   'bleibt'
+  );
+  equal(
+   'Fütterungshistorie bleibt erhalten',
+   updated.feeds.length,
+   1
+  );
+  equal(
+   'Gewichtshistorie bleibt erhalten',
+   updated.weights.length,
+   1
+  );
+  equal(
+   'Fotohistorie bleibt erhalten',
+   updated.photos.length,
+   1
+  );
+  equal(
+   'Nachzucht-Zuordnung bleibt erhalten',
+   updated.collection,
+   'offspring'
+  );
+
+  win.NGT500.route('offspring',{
+   create:true
+  });
+
+  setValue(win,'edAnimalGroup','Pythons');
+  setValue(win,'edGenus','Python');
+  setValue(win,'edSpecies','regius');
+  setValue(win,'edName','Neue Nachzucht');
+  setValue(
+   win,
+   'edFoodInventoryId',
+   'food-offspring'
+  );
+
+  win.NGTOffspring.save(
+   '',
+   null,
+   ''
+  );
+
+  const created=
+   win.NGTStore.findAnimal(
+    'Neue Nachzucht'
+   ).a;
+
+  equal(
+   'neuer Datensatz ist als Nachzucht markiert',
+   created.collection,
+   'offspring'
+  );
+  equal(
+   'Herkunft neuer Nachzucht ist synchron',
+   created.originType,
+   'Nachzucht'
+  );
+  record(
+   'Nachzucht erhält eigenen Nummernkreis',
+   String(created.publicId||'').includes('-NZ')
+  );
+
+ }catch(error){
+  record(
+   'Testlauf ohne Ausnahme',
+   false,
+   error&&error.stack
+    ?error.stack
+    :error.message
+  );
+
+ }finally{
+  if(win){
+   if(localBackup===null){
+    win.localStorage.removeItem('spd_v53');
+   }else{
+    win.localStorage.setItem(
+     'spd_v53',
+     localBackup
+    );
+   }
+
+   if(routeBackup===null){
+    win.sessionStorage.removeItem(
+     'terracontrol_current_route_v1'
+    );
+   }else{
+    win.sessionStorage.setItem(
+     'terracontrol_current_route_v1',
+     routeBackup
+    );
+   }
+
+   if(stackBackup===null){
+    win.sessionStorage.removeItem(
+     'terracontrol_route_stack_v1'
+    );
+   }else{
+    win.sessionStorage.setItem(
+     'terracontrol_route_stack_v1',
+     stackBackup
+    );
+   }
+  }
+
+  render();
+ }
+}
+
+run();
+
+})();
+</script>
+</body>
+</html>

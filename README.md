@@ -167,6 +167,12 @@ Tierbestandsmodule:
 http://localhost:8000/v500/tests/animals.test.html
 ```
 
+Nachzuchten:
+
+```text
+http://localhost:8000/v500/tests/offspring.test.html
+```
+
 Store, Migration und persistente Löschung:
 
 ```text
