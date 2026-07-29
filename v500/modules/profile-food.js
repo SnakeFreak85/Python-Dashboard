@@ -166,13 +166,15 @@ function feedList(a){
   <h3>Fütterungen</h3>
 
   ${
-   (a.feeds||[])
-    .map((f,i)=>({f,i}))
-    .reverse()
+   AnimalEngine
+    .indexedHistory(
+     a.feeds,
+     'desc'
+    )
     .map(x=>row(
-     x.f.date,
-     AnimalEngine.formatFeedEvent(x.f),
-     `NGTProfile.deleteEntry('feeds',${x.i})`
+     x.entry.date,
+     AnimalEngine.formatFeedEvent(x.entry),
+     `NGTProfile.deleteEntry('feeds',${x.index})`
     ))
     .join('')||
    '<p class="muted">Keine Fütterungen.</p>'

@@ -81,14 +81,10 @@ function animalRecommendations(
   }
  }
 
- const feeds=(animal.feeds||[])
-  .slice()
-  .sort(function(a,b){
-   return String(b.date||'')
-    .localeCompare(
-     String(a.date||'')
-    );
-  });
+ const feeds=AnimalEngine.sortHistory(
+  animal.feeds,
+  'desc'
+ );
  const lastThree=feeds.slice(0,3);
 
  if(
@@ -125,14 +121,10 @@ function animalRecommendations(
   );
  }
 
- const weights=(animal.weights||[])
-  .slice()
-  .sort(function(a,b){
-   return String(a.date||'')
-    .localeCompare(
-     String(b.date||'')
-    );
-  });
+ const weights=AnimalEngine.sortHistory(
+  animal.weights,
+  'asc'
+ );
 
  if(weightState.due){
   out.push(
@@ -177,14 +169,10 @@ function animalRecommendations(
   }
  }
 
- const health=(animal.health||[])
-  .slice()
-  .sort(function(a,b){
-   return String(b.date||'')
-    .localeCompare(
-     String(a.date||'')
-    );
-  });
+ const health=AnimalEngine.sortHistory(
+  animal.health,
+  'desc'
+ );
  const open=health.filter(function(entry){
   return String(
    entry.status||

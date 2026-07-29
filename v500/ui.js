@@ -112,45 +112,7 @@ function list(rows){
 }
 
 function timeline(a){
- let rows=[];
- if(a.birth)rows.push({d:a.birth,txt:'Schlupf'});
- if(a.acquiredDate)rows.push({d:a.acquiredDate,txt:'Erworben'});
-
- (a.feeds||[]).forEach(function(f){
-  rows.push({
-   d:f.date,
-   txt:AnimalEngine.formatFeedEvent(f)
-  });
- });
-
- (a.sheds||[]).forEach(function(s){
-  rows.push({d:s.date,txt:'Häutung'});
- });
-
- (a.weights||[]).forEach(function(w){
-  rows.push({d:w.date,txt:'Gewicht '+w.weight+'g'});
- });
-
- (a.health||[]).forEach(function(h){
-  rows.push({
-   d:h.date,
-   txt:
-    'Gesundheit '+
-    [
-     h.type,
-     h.title,
-     h.status
-    ].filter(Boolean).join(' ')
-  });
- });
-
- (a.photos||[]).forEach(function(p){
-  rows.push({d:p.date,txt:'Foto '+(p.type||'')+' '+(p.note||'')});
- });
-
- return rows.sort(function(x,y){
-  return String(y.d).localeCompare(String(x.d));
- });
+ return AnimalEngine.historyEvents(a);
 }
 
 window.NGTUI={animalCard,list,timeline};

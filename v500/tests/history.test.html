@@ -306,6 +306,62 @@ async function run(){
    )
   );
 
+  const analysisMarkup=
+   win.NGT500.modules.profile.render({
+    animalId:'history-animal',
+    tab:'analysis'
+   });
+  const analysisRoot=rootFor(analysisMarkup);
+
+  record(
+   'Profilanalyse berechnet Gewichtsänderung chronologisch',
+   analysisRoot.textContent.includes(
+    '30g'
+   )
+  );
+
+  const weightsMarkup=
+   win.NGT500.modules.profile.render({
+    animalId:'history-animal',
+    tab:'weights'
+   });
+  const weightsRoot=rootFor(weightsMarkup);
+  const weightRows=Array.from(
+   weightsRoot.querySelectorAll(
+    '.tc2ListRowFull'
+   )
+  );
+
+  record(
+   'Gewichtsliste zeigt den neuesten Eintrag zuerst',
+   weightRows[0].textContent.includes(
+    '980 g'
+   )
+  );
+  const storedAnimal=
+   win.NGTStore.resolveAnimal({
+    animalId:'history-animal'
+   }).a;
+  const latestWeightIndex=
+   storedAnimal.weights.findIndex(
+    function(entry){
+     return entry.date==='2026-07-26';
+    }
+   );
+
+  record(
+   'Sortierte Gewichtsliste behält den ursprünglichen Löschindex',
+   (
+    weightRows[0]
+     .querySelector('button')
+     .getAttribute('onclick')||
+    ''
+   ).includes(
+    "'weights',"+
+    latestWeightIndex
+   )
+  );
+
  }catch(error){
   record(
    'Testlauf ohne Ausnahme',

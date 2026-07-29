@@ -81,14 +81,11 @@ function healthForm(){
 function health(animal){
  return healthForm()+
   (
-   (animal.health||[])
-    .map(function(entry,index){
-     return {
-      entry:entry,
-      index:index
-     };
-    })
-    .reverse()
+   AnimalEngine
+    .indexedHistory(
+     animal.health,
+     'desc'
+    )
     .map(function(item){
      return `
       <div class="tc2SubCard">

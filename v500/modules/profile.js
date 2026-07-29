@@ -514,12 +514,19 @@ function analysis(animal){
    })
    .length;
 
+ const sortedWeights=
+  AnimalEngine.sortHistory(
+   animal.weights,
+   'asc'
+  );
+
  const firstWeight=
-  (animal.weights||[])[0];
+  sortedWeights[0];
 
  const lastWeight=
-  (animal.weights||[])
-   .slice(-1)[0];
+  sortedWeights[
+   sortedWeights.length-1
+  ];
 
  let difference='-';
 

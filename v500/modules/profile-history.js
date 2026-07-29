@@ -54,14 +54,11 @@ function weightForm(){
 }
 
 function shedList(animal){
- const rows=(animal.sheds||[])
-  .map(function(entry,index){
-   return {
-    entry:entry,
-    index:index
-   };
-  })
-  .reverse()
+ const rows=AnimalEngine
+  .indexedHistory(
+   animal.sheds,
+   'desc'
+  )
   .map(function(item){
    return P.row(
     item.entry.date,
@@ -85,14 +82,11 @@ function shedList(animal){
 }
 
 function weightList(animal){
- const rows=(animal.weights||[])
-  .map(function(entry,index){
-   return {
-    entry:entry,
-    index:index
-   };
-  })
-  .reverse()
+ const rows=AnimalEngine
+  .indexedHistory(
+   animal.weights,
+   'desc'
+  )
   .map(function(item){
    return P.row(
     item.entry.date,

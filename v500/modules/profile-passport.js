@@ -11,7 +11,11 @@ if(!P){
 
 function smallHistory(animal){
  return {
-  weights:(animal.weights||[])
+  weights:AnimalEngine
+   .sortHistory(
+    animal.weights,
+    'asc'
+   )
    .slice(-5)
    .map(function(entry){
     return {
@@ -20,7 +24,11 @@ function smallHistory(animal){
     };
    }),
 
-  feeds:(animal.feeds||[])
+  feeds:AnimalEngine
+   .sortHistory(
+    animal.feeds,
+    'asc'
+   )
    .slice(-5)
    .map(function(entry){
     const feed=
@@ -49,7 +57,11 @@ function smallHistory(animal){
     };
    }),
 
-  sheds:(animal.sheds||[])
+  sheds:AnimalEngine
+   .sortHistory(
+    animal.sheds,
+    'asc'
+   )
    .slice(-5)
    .map(function(entry){
     return {

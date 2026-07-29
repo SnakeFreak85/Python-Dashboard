@@ -285,73 +285,43 @@ function recentActivities(){
  activeAnimals().forEach(function(row){
   const animal=row.a;
 
-  (
-   animal.feeds||
-   []
-  )
-   .slice(-2)
-   .forEach(function(feed){
+  AnimalEngine
+   .historyEvents(
+    animal,
+    {
+     includeMilestones:false,
+     types:[
+      'feed',
+      'weight',
+      'shed'
+     ]
+    }
+   )
+   .forEach(function(event){
     rows.push({
-     icon:'🍽',
+     date:event.date,
+     icon:event.icon,
      title:
       animal.name||
       'Unbenannt',
 
      sub:
-      'Fütterung · '+
+      event.title+
+      ' · '+
       (
-       feed.date||
-       '-'
-      )
-    });
-   });
-
-  (
-   animal.weights||
-   []
-  )
-   .slice(-2)
-   .forEach(function(weight){
-    rows.push({
-     icon:'⚖',
-     title:
-      animal.name||
-      'Unbenannt',
-
-     sub:
-      'Gewicht · '+
-      (
-       weight.date||
-       '-'
-      )
-    });
-   });
-
-  (
-   animal.sheds||
-   []
-  )
-   .slice(-2)
-   .forEach(function(shed){
-    rows.push({
-     icon:'🧤',
-     title:
-      animal.name||
-      'Unbenannt',
-
-     sub:
-      'Häutung · '+
-      (
-       shed.date||
+       event.date||
        '-'
       )
     });
    });
  });
 
- return rows
-  .slice(-4)
-  .reverse();
+ return AnimalEngine
+  .sortHistory(
+   rows,
+   'desc'
+  )
+  .slice(0,4);
 }
 
 window.NGTDashboardData={

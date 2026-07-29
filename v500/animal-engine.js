@@ -105,12 +105,49 @@ function getAgeYearsText(animal,now){
 }
 
 function latest(list){
+    return sortHistory(list,"desc")[0]||null;
+}
+
+function historyDate(entry){
+    return String(
+        (
+            entry&&(
+                entry.date||
+                entry.d
+            )
+        )||
+        ""
+    );
+}
+
+function sortHistory(list,direction){
+    const factor=direction==="asc"
+        ?1
+        :-1;
+
     return (Array.isArray(list)?list:[])
         .slice()
         .sort(function(a,b){
-            return String((b&&b.date)||"")
-                .localeCompare(String((a&&a.date)||""));
-        })[0]||null;
+            return historyDate(a)
+                .localeCompare(
+                    historyDate(b)
+                )*
+                factor;
+        });
+}
+
+function indexedHistory(list,direction){
+    return sortHistory(
+        (Array.isArray(list)?list:[])
+            .map(function(entry,index){
+                return {
+                    entry:entry,
+                    index:index,
+                    date:historyDate(entry)
+                };
+            }),
+        direction
+    );
 }
 
 function daysSince(value,now){
@@ -379,6 +416,156 @@ function formatFeedEvent(entry,options){
     )+label;
 }
 
+function historyEvents(animal,options){
+    animal=animal||{};
+
+    const settings=options||{};
+    const types=Array.isArray(settings.types)
+        ?settings.types
+        :[
+            "milestone",
+            "feed",
+            "shed",
+            "weight",
+            "health",
+            "photo"
+        ];
+
+    const rows=[];
+
+    function enabled(type){
+        return types.includes(type);
+    }
+
+    function add(
+        kind,
+        date,
+        title,
+        textValue,
+        icon,
+        entry
+    ){
+        rows.push({
+            kind:kind,
+            d:text(date),
+            date:text(date),
+            title:title,
+            txt:textValue,
+            icon:icon,
+            entry:entry||null
+        });
+    }
+
+    if(
+        settings.includeMilestones!==false&&
+        enabled("milestone")
+    ){
+        if(animal.birth){
+            add(
+                "birth",
+                animal.birth,
+                "Schlupf",
+                "Schlupf",
+                "🐣"
+            );
+        }
+
+        if(animal.acquiredDate){
+            add(
+                "acquired",
+                animal.acquiredDate,
+                "Erworben",
+                "Erworben",
+                "📥"
+            );
+        }
+    }
+
+    if(enabled("feed")){
+        (animal.feeds||[])
+            .forEach(function(entry){
+                add(
+                    "feed",
+                    entry.date,
+                    "Fütterung",
+                    formatFeedEvent(entry),
+                    "🍽",
+                    entry
+                );
+            });
+    }
+
+    if(enabled("shed")){
+        (animal.sheds||[])
+            .forEach(function(entry){
+                add(
+                    "shed",
+                    entry.date,
+                    "Häutung",
+                    "Häutung",
+                    "🧤",
+                    entry
+                );
+            });
+    }
+
+    if(enabled("weight")){
+        (animal.weights||[])
+            .forEach(function(entry){
+                add(
+                    "weight",
+                    entry.date,
+                    "Gewicht",
+                    "Gewicht "+entry.weight+"g",
+                    "⚖",
+                    entry
+                );
+            });
+    }
+
+    if(enabled("health")){
+        (animal.health||[])
+            .forEach(function(entry){
+                add(
+                    "health",
+                    entry.date,
+                    "Gesundheit",
+                    (
+                        "Gesundheit "+
+                        [
+                            entry.type,
+                            entry.title,
+                            entry.status
+                        ].filter(Boolean).join(" ")
+                    ),
+                    "🩺",
+                    entry
+                );
+            });
+    }
+
+    if(enabled("photo")){
+        (animal.photos||[])
+            .forEach(function(entry){
+                add(
+                    "photo",
+                    entry.date,
+                    "Foto",
+                    (
+                        "Foto "+
+                        (entry.type||"")+
+                        " "+
+                        (entry.note||"")
+                    ),
+                    "📷",
+                    entry
+                );
+            });
+    }
+
+    return sortHistory(rows,"desc");
+}
+
 function getFeedInterval(animal){
     animal=animal||{};
 
@@ -461,6 +648,12 @@ window.AnimalEngine={
     getAgeYearsText,
 
     latest,
+
+    sortHistory,
+
+    indexedHistory,
+
+    historyEvents,
 
     daysSince,
 

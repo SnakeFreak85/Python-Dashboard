@@ -58,6 +58,35 @@ equal('Profil-Alter unter einem Jahr',AnimalEngine.getAgeYearsText(fullAnimal,'2
 equal('Profil-Alter in Jahren',AnimalEngine.getAgeYearsText(fullAnimal,'2027-02-01'),'2 Jahre');
 equal('Profil-Alter ohne Datum',AnimalEngine.getAgeYearsText({},'2027-02-01'),'-');
 equal('Neuester Historieneintrag',AnimalEngine.latest(fullAnimal.feeds).date,'2026-03-01');
+equal(
+ 'Historie wird aufsteigend sortiert',
+ AnimalEngine.sortHistory(fullAnimal.feeds,'asc')
+  .map(function(entry){return entry.date;})
+  .join('|'),
+ '2026-01-01|2026-02-01|2026-03-01'
+);
+equal(
+ 'Historie wird standardmäßig absteigend sortiert',
+ AnimalEngine.sortHistory(fullAnimal.feeds)
+  .map(function(entry){return entry.date;})
+  .join('|'),
+ '2026-03-01|2026-02-01|2026-01-01'
+);
+equal(
+ 'Sortierung verändert die gespeicherte Reihenfolge nicht',
+ fullAnimal.feeds
+  .map(function(entry){return entry.date;})
+  .join('|'),
+ '2026-01-01|2026-03-01|2026-02-01'
+);
+equal(
+ 'Indexierte Historie behält den ursprünglichen Löschindex',
+ AnimalEngine.indexedHistory(
+  fullAnimal.feeds,
+  'desc'
+ )[0].index,
+ 1
+);
 equal('Tage seit Datum',AnimalEngine.daysSince('2026-01-01','2026-01-11'),10);
 equal('Ungültiges Datum liefert null',AnimalEngine.daysSince('ungültig','2026-01-11'),null);
 equal('Profil-Fallback für ungültiges Datum',AnimalEngine.daysSinceOr('ungültig',9999,'2026-01-11'),9999);
@@ -229,6 +258,45 @@ const healthEvent=AnimalEngine.createHealthEvent({
 equal('Gesundheit erhält Standardtyp',healthEvent.type,'Gesundheit');
 equal('Gesundheit erhält Standardstatus',healthEvent.status,'offen');
 equal('Gesundheitsfelder bleiben erhalten',healthEvent.medication,'Medikament A');
+
+const historyEvents=AnimalEngine.historyEvents({
+ birth:'2025-01-01',
+ feeds:[legacyProfileFeed],
+ weights:[weightEvent],
+ sheds:[shedEvent],
+ health:[healthEvent],
+ photos:[{
+  date:'2026-07-25',
+  type:'Profil',
+  note:'Kontrolle'
+ }]
+});
+
+equal('Gemeinsame Chronik enthält alle Ereignistypen',historyEvents.length,6);
+equal('Gemeinsame Chronik sortiert nach Datum',historyEvents[0].date,'2026-07-28');
+equal('Gemeinsame Chronik kennzeichnet das Gewicht',historyEvents[0].kind,'weight');
+equal(
+ 'Gemeinsame Chronik formatiert Legacy-Futter einheitlich',
+ historyEvents.find(function(entry){
+  return entry.kind==='feed';
+ }).txt,
+ 'Gefressen Ratte 150 g'
+);
+equal(
+ 'Chronikfilter begrenzt Ereignistypen',
+ AnimalEngine.historyEvents(
+  {
+   birth:'2025-01-01',
+   feeds:[legacyProfileFeed],
+   health:[healthEvent]
+  },
+  {
+   includeMilestones:false,
+   types:['feed']
+  }
+ ).length,
+ 1
+);
 
 const legacyAnimal={name:'Altbestand'};
 const normalized=AnimalEngine.ensureHistories(legacyAnimal);

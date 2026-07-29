@@ -188,10 +188,25 @@ async function run(){
    collection:'stock',
    feedIntervalDays:7,
    weightIntervalDays:30,
-   feeds:[{
-    date:'2020-01-01',
-    accepted:true,
-    prey:'Ratte'
+   feeds:[
+    {
+     date:'2020-01-03',
+     accepted:true,
+     prey:'Ratte'
+    },
+    {
+     date:'2020-01-01',
+     accepted:true,
+     prey:'Maus'
+    }
+   ],
+   weights:[{
+    date:'2020-01-04',
+    weight:900
+   }],
+   sheds:[{
+    date:'2020-01-02',
+    complete:true
    }]
   });
 
@@ -411,13 +426,38 @@ async function run(){
    )
   );
 
+  const activityRows=Array.from(
+   smartRoot.querySelectorAll(
+    '.tc2SDactivity'
+   )
+  );
+
+  equal(
+   'Smart Dashboard begrenzt Aktivitäten auf vier Einträge',
+   activityRows.length,
+   4
+  );
+  equal(
+   'Aktivitäten werden unabhängig von Speicherreihenfolge chronologisch sortiert',
+   activityRows.map(function(row){
+    return row.querySelector('small')
+     .textContent.trim()
+     .split(' · ')[1];
+   }).join('|'),
+   '2020-01-04|2020-01-03|2020-01-02|2020-01-01'
+  );
   record(
    'Letzte Fütterung erscheint als Aktivität',
-   smartRoot.querySelector(
-    '.tc2SDactivity'
-   ).textContent.includes(
-    'Aktives Bestandstier'
-   )
+   activityRows.some(function(row){
+    return (
+     row.textContent.includes(
+      'Aktives Bestandstier'
+     )&&
+     row.textContent.includes(
+      'Fütterung'
+     )
+    );
+   })
   );
 
  }catch(error){

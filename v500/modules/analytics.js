@@ -11,11 +11,7 @@ function number(value){
 }
 
 function latest(list){
- return (list||[])
-  .slice()
-  .sort(function(a,b){
-   return String(b.date||'').localeCompare(String(a.date||''));
-  })[0]||null;
+ return AnimalEngine.latest(list);
 }
 
 function activeAnimals(){
@@ -111,11 +107,11 @@ function analyticsData(){
   const status=animal.status||'Unbekannt';
   result.status[status]=(result.status[status]||0)+1;
 
-  const sortedWeights=weights
-   .slice()
-   .sort(function(a,b){
-    return String(a.date||'').localeCompare(String(b.date||''));
-   });
+  const sortedWeights=
+   AnimalEngine.sortHistory(
+    weights,
+    'asc'
+   );
 
   if(sortedWeights.length>=2){
    const first=sortedWeights[0];
@@ -137,12 +133,12 @@ function analyticsData(){
     name:animal.name||animal.publicId||'Unbenannt',
     date:lastFeed.date||'',
     accepted:lastFeed.accepted!==false,
-    label:lastFeed.label||
-     [
-      lastFeed.state,
-      lastFeed.prey,
-      lastFeed.size
-     ].filter(Boolean).join(' ')
+    label:AnimalEngine.formatFeedEvent(
+     lastFeed,
+     {
+      includeStatus:false
+     }
+    )
    });
   }
  });
