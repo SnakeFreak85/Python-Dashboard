@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QR Import Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>QR Import Browser Tests</h1>
+<p class="muted">Prüft Tierpass-Felder, interne IDs, Gruppenzuordnung und Store-Normalisierung.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({name:name,passed:!!passed,detail:detail||''});
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function ok(name,value){
+ record(name,!!value,'Erwartet wurde ein wahrer Wert.');
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=results.map(function(result){
+  return '<li class="'+(result.passed?'pass':'fail')+'">'+
+   (result.passed?'PASS':'FAIL')+' — '+result.name+
+   (result.passed||!result.detail?'':' <span class="muted">('+result.detail+')</span>')+
+   '</li>';
+ }).join('');
+
+ document.title=failed?'FAIL — QR Import Tests':'PASS — QR Import Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  const timeout=setTimeout(function(){
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  frame.addEventListener('load',function(){
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  },{once:true});
+ });
+}
+
+async function run(){
+ const frame=document.getElementById('appFrame');
+ let win=null;
+ let localBackup=null;
+
+ try{
+  win=await waitForLoad(frame);
+  localBackup=win.localStorage.getItem('spd_v53');
+
+  win.NGTStore.importJson(JSON.stringify({
+   schemaVersion:2,
+   animals:[],
+   animalGroups:[],
+   foodInventory:[],
+   clutches:[],
+   sales:[],
+   archive:[],
+   documents:[],
+   settings:{}
+  }));
+
+  const json=win.NGTQR.parseTC(JSON.stringify({
+   app:'TerraControl',
+   type:'animal-passport',
+   v:4,
+   animal:{
+    id:'LS-017',
+    uuid:'source-uuid-17',
+    name:'Martha',
+    animalGroup:'Landschildkröten',
+    genus:'Testudo',
+    species:'hermanni',
+    sex:'Weiblich',
+    birth:'2020-05-10',
+    origin:'Nachzucht',
+    father:'Vater',
+    mother:'Mutter',
+    food:'Wildkräuter',
+    feedDays:3,
+    weightDays:30
+   }
+  }));
+
+  equal('JSON-Tierpass übernimmt interne UUID',json.uuid,'source-uuid-17');
+  equal('JSON-Tierpass übernimmt Tiergruppe',json.animalGroup,'Landschildkröten');
+  equal('JSON-Tierpass übernimmt Gattung und Art',json.genus+' '+json.species,'Testudo hermanni');
+
+  const compact=win.NGTQR.parseTC(
+   'TC2|KP-021|Kaa|Python|regius|Männlich|2022-04-03|compact-uuid|Königspythons'
+  );
+
+  equal('Kompakter TC2-Code liest interne UUID korrekt',compact.uuid,'compact-uuid');
+  equal('Kompakter TC2-Code liest Tiergruppe korrekt',compact.animalGroup,'Königspythons');
+  equal('Kompakter TC2-Code liest Gattung korrekt',compact.genus,'Python');
+  equal('Kompakter TC2-Code liest Art korrekt',compact.species,'regius');
+  equal('Kompakter TC2-Code liest Geschlecht korrekt',compact.sex,'Männlich');
+  equal('Kompakter TC2-Code liest Schlupfdatum korrekt',compact.birth,'2022-04-03');
+
+  const imported=win.NGTQR.importedAnimal(json);
+
+  equal('Interne UUID bleibt von sichtbarer ID getrennt',imported.uuid,'source-uuid-17');
+  equal('Quell-ID wird nur als Herkunftsinformation gespeichert',imported.sourcePublicId,'LS-017');
+  equal('Herkunft wird kompatibel gespiegelt',imported.originType,'Nachzucht');
+  equal('Elterndaten werden kompatibel gespiegelt',imported.sire+' / '+imported.dam,'Vater / Mutter');
+  equal('Pflegeintervalle werden übernommen',imported.feedIntervalDays+' / '+imported.weightIntervalDays,'3 / 30');
+  equal('Schildkröten werden keinem Legacy-Bestand zugeordnet',win.NGTQR.legacyTypeFor(json),'');
+
+  const saved=win.NGTStore.addAnimal(
+   win.NGTQR.legacyTypeFor(json),
+   imported
+  );
+
+  ok('Store erzeugt eine lokale sichtbare Tier-ID',saved.publicId);
+  record(
+   'Lokale Tier-ID überschreibt nicht die interne UUID',
+   saved.publicId!==saved.uuid,
+   'Öffentliche ID und UUID dürfen nicht identisch sein.'
+  );
+  equal('Gesundheitshistorie wird normalisiert',Array.isArray(saved.health),true);
+  equal('Import wird über UUID als vorhanden erkannt',win.NGTQR.existingImport(json).a.uuid,'source-uuid-17');
+
+  const samePublicId={
+   ...json,
+   uuid:'different-source-uuid'
+  };
+
+  equal(
+   'Gleiche Quell-ID mit anderer UUID ist kein falscher Dublettenfund',
+   win.NGTQR.existingImport(samePublicId),
+   null
+  );
+
+  const input=win.document.createElement('textarea');
+  const output=win.document.createElement('div');
+  input.id='qrInput';
+  output.id='qrResult';
+  input.value=JSON.stringify({
+   app:'TerraControl',
+   type:'animal-passport',
+   v:4,
+   animal:{
+    id:samePublicId.id,
+    uuid:samePublicId.uuid,
+    name:'Martha II',
+    animalGroup:samePublicId.animalGroup,
+    genus:samePublicId.genus,
+    species:samePublicId.species
+   }
+  });
+  win.document.body.append(input,output);
+  win.NGTQR.importTC();
+
+  equal('Importfunktion speichert über den gemeinsamen Store',win.NGTStore.getAnimalById('different-source-uuid').name,'Martha II');
+  ok('Importfunktion rendert die Bestätigung',output.textContent.includes('Tier übernommen'));
+  input.remove();
+  output.remove();
+
+  const unknown={
+   animalGroup:'',
+   genus:'',
+   species:'',
+   morph:'',
+   name:'Test'
+  };
+
+  equal('Unbekannte Tiere werden nicht Königspythons zugeordnet',win.NGTQR.legacyTypeFor(unknown),'');
+  equal('Unbekannte Tiere bleiben unsortiert',win.NGTQR.animalGroupFor(unknown),'Unsortiert');
+
+  const otherPython={
+   animalGroup:'',
+   genus:'Python',
+   species:'bivittatus',
+   morph:'',
+   name:'Tiger'
+  };
+
+  equal('Andere Python-Arten werden nicht als Königspython einsortiert',win.NGTQR.legacyTypeFor(otherPython),'');
+ }catch(error){
+  record('Testsuite konnte ausgeführt werden',false,error&&error.stack||String(error));
+ }finally{
+  if(win){
+   if(localBackup===null){
+    win.localStorage.removeItem('spd_v53');
+   }else{
+    win.localStorage.setItem('spd_v53',localBackup);
+   }
+  }
+
+  render();
+ }
+}
+
+run();
+})();
+</script>
+</body>
+</html>

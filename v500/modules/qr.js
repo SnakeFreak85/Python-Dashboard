@@ -51,14 +51,20 @@ function parseTC(v){
           format:'TC2',
           doc:'',
           id:a.id||'',
+          uuid:a.uuid||'',
           name:a.name||'',
+          animalGroup:a.animalGroup||'',
+          genus:a.genus||'',
+          species:a.species||'',
           morph:a.morph||'',
           sex:a.sex||'',
           birth:a.birth||'',
           origin:a.origin||'',
           father:a.father||'',
           mother:a.mother||'',
-          defaultFeeder:a.food||a.defaultFeeder||''
+          defaultFeeder:a.food||a.defaultFeeder||'',
+          feedDays:Number(a.feedDays)||null,
+          weightDays:Number(a.weightDays)||null
         };
       }
     }catch(e){}
@@ -70,14 +76,20 @@ function parseTC(v){
       format:p[0],
       doc:'',
       id:p[1]||'',
+      uuid:p[7]||'',
       name:p[2]||'',
-      morph:p[3]||'',
-      sex:p[4]||'',
-      birth:p[5]||'',
+      animalGroup:p[8]||'',
+      genus:p[3]||'',
+      species:p[4]||'',
+      morph:'',
+      sex:p[5]||'',
+      birth:p[6]||'',
       origin:'',
       father:'',
       mother:'',
-      defaultFeeder:''
+      defaultFeeder:'',
+      feedDays:null,
+      weightDays:null
     };
   }
 
@@ -88,23 +100,112 @@ function parseTC(v){
     format:p[0],
     doc:p[1]||'',
     id:p[2]||'',
+    uuid:'',
     name:p[3]||'',
+    animalGroup:'',
+    genus:'',
+    species:'',
     morph:p[4]||'',
     sex:p[5]||'',
     birth:p[6]||'',
     origin:p[7]||'',
     father:p[8]||'',
     mother:p[9]||'',
-    defaultFeeder:p[10]||''
+    defaultFeeder:p[10]||'',
+    feedDays:null,
+    weightDays:null
   };
 }
 
-function groupFor(data){
-  const txt=(data.morph+' '+data.name).toLowerCase();
+function legacyTypeFor(data){
+  const txt=[
+    data.animalGroup,
+    data.genus,
+    data.species,
+    data.morph,
+    data.name
+  ].join(' ').toLowerCase();
+
   if(txt.includes('boa'))return 'boas';
   if(txt.includes('gecko'))return 'geckos';
   if(txt.includes('spinne')||txt.includes('tarantel')||txt.includes('vogelspinne'))return 'spinnen';
-  return 'koenig';
+  if(
+    txt.includes('könig')||
+    txt.includes('koenig')||
+    txt.includes('ball python')||
+    txt.includes('python regius')
+  )return 'koenig';
+
+  return '';
+}
+
+function animalGroupFor(data){
+  if(data.animalGroup)return data.animalGroup;
+
+  const type=legacyTypeFor(data);
+
+  if(type==='boas')return 'Boas';
+  if(type==='geckos')return 'Geckos';
+  if(type==='spinnen')return 'Vogelspinnen';
+  if(type==='koenig')return 'Königspythons';
+
+  return 'Unsortiert';
+}
+
+function existingImport(data){
+  if(data.uuid){
+    return NGTStore.findAnimalById(data.uuid);
+  }
+
+  return data.id
+    ?NGTStore.findAnimal(data.id)
+    :null;
+}
+
+function importedAnimal(data){
+  const uuid=data.uuid||NGT500.uid();
+  const feedDays=Number(data.feedDays)||null;
+  const weightDays=Number(data.weightDays)||null;
+
+  return {
+    uuid:uuid,
+    uid:uuid,
+    sourcePublicId:data.id||'',
+    sourceDocumentId:data.doc||'',
+    animalGroup:animalGroupFor(data),
+    genus:data.genus||'',
+    species:data.species||'',
+    name:data.name||'Importiertes Tier',
+    morph:data.morph||'',
+    sex:data.sex||'',
+    birth:data.birth||'',
+    origin:data.origin||'',
+    originType:data.origin||'',
+    father:data.father||'',
+    vater:data.father||'',
+    sire:data.father||'',
+    mother:data.mother||'',
+    mutter:data.mother||'',
+    dam:data.mother||'',
+    defaultFeeder:data.defaultFeeder||'',
+    futterStandard:data.defaultFeeder||'',
+    standardFeed:data.defaultFeeder||'',
+    feedIntervalEnabled:!!feedDays,
+    feedIntervalDays:feedDays,
+    feedingInterval:feedDays,
+    feedInterval:feedDays,
+    weightIntervalEnabled:!!weightDays,
+    weightIntervalDays:weightDays,
+    weightInterval:weightDays,
+    status:'Bestand',
+    collection:'stock',
+    note:'Importiert per TerraControl-Tierpass',
+    feeds:[],
+    sheds:[],
+    weights:[],
+    health:[],
+    photos:[]
+  };
 }
 
 function passportCard(data,exists){
@@ -130,7 +231,7 @@ function passportCard(data,exists){
 }
 
 function previewImport(data){
-  const exists=NGTStore.findAnimal(data.id);
+  const exists=existingImport(data);
   const box=document.getElementById('qrResult');
   box.innerHTML=passportCard(data,exists);
 }
@@ -139,39 +240,26 @@ function importTC(){
   const data=parseTC(document.getElementById('qrInput').value);
   if(!data)return;
 
-  if(data.id&&NGTStore.findAnimal(data.id)){
+  if(existingImport(data)){
     document.getElementById('qrResult').innerHTML='<div class="tc2QREmpty"><h3>Bereits vorhanden</h3><p>Dieses Tier ist bereits im Bestand.</p></div>';
     return;
   }
 
-  const t=groupFor(data);
-  const a={
-    uuid:data.id||NGT500.uid(),
-    uid:data.id||'',
-    name:data.name||'Importiertes Tier',
-    morph:data.morph||'',
-    sex:data.sex||'',
-    birth:data.birth||'',
-    origin:data.origin||'',
-    father:data.father||'',
-    mother:data.mother||'',
-    defaultFeeder:data.defaultFeeder||'',
-    status:'Bestand',
-    note:'Importiert per TerraControl-Tierpass',
-    feeds:[],
-    sheds:[],
-    weights:[],
-    photos:[]
-  };
+  const t=legacyTypeFor(data);
+  const a=importedAnimal(data);
 
-  NGTStore.addAnimal(t,a);
+  const imported=NGTStore.addAnimal(t,a);
 
   document.getElementById('qrResult').innerHTML=`
     <div class="tc2QREmpty">
       <h3>✅ Tier übernommen</h3>
       <p>Der Tierpass wurde erfolgreich in den Bestand importiert.</p>
     </div>
-    ${NGTUI.animalCard(NGTStore.findAnimal(a.uuid))}
+    ${NGTUI.animalCard({
+      t:imported.legacyType||'',
+      i:NGTStore.data().animals.indexOf(imported),
+      a:imported
+    })}
   `;
 }
 
@@ -289,7 +377,17 @@ function afterRender(args){
   }
 }
 
-window.NGTQR={find,importTC,startScan,stopScan};
+window.NGTQR={
+  find,
+  importTC,
+  startScan,
+  stopScan,
+  parseTC,
+  legacyTypeFor,
+  animalGroupFor,
+  existingImport,
+  importedAnimal
+};
 NGT500.register('qr',{render,afterRender});
 
 })();

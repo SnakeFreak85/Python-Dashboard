@@ -230,6 +230,17 @@ function passportPayload(animal){
    P.s(
     animal.birth,
     10
+   ),
+
+   P.s(
+    animal.uuid||
+    animal.uid,
+    80
+   ),
+
+   P.s(
+    animal.animalGroup,
+    60
    )
   ].join('|');
 
