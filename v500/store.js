@@ -206,6 +206,62 @@ function cleanAllPhotoData(d){
   return d;
 }
 
+function normalizePhotos(photos){
+  const normalized=(
+    Array.isArray(photos)
+      ?photos
+      :[]
+  ).map(function(photo){
+    if(
+      !photo||
+      typeof photo!=='object'
+    ){
+      return photo;
+    }
+
+    return {
+      ...photo,
+      id:photo.id||NGT500.uid()
+    };
+  });
+
+  let hasCover=false;
+
+  normalized.forEach(function(photo){
+    if(
+      !photo||
+      typeof photo!=='object'
+    ){
+      return;
+    }
+
+    if(!storedPhotoSource(photo)){
+      photo.cover=false;
+      return;
+    }
+
+    if(photo.cover&&!hasCover){
+      hasCover=true;
+      photo.cover=true;
+      return;
+    }
+
+    photo.cover=false;
+  });
+
+  if(!hasCover){
+    const first=normalized.find(function(photo){
+      return storedPhotoSource(photo);
+    });
+
+    if(first){
+      first.cover=true;
+    }
+  }
+
+  return normalized;
+}
+
 function normalizeAnimal(a,t,i){
   a=a||{};
 
@@ -229,7 +285,7 @@ function normalizeAnimal(a,t,i){
   a.sheds=Array.isArray(a.sheds)?a.sheds:[];
   a.weights=Array.isArray(a.weights)?a.weights:[];
   a.health=Array.isArray(a.health)?a.health:[];
-  a.photos=Array.isArray(a.photos)?a.photos:[];
+  a.photos=normalizePhotos(a.photos);
 
   cleanPhotoData(a);
 
@@ -877,14 +933,7 @@ function replaceAnimalPhotos(ref,photos){
     return null;
   }
 
-  row.a.photos=photos.map(function(photo){
-    return (
-      photo&&
-      typeof photo==='object'
-        ?{...photo}
-        :photo
-    );
-  });
+  row.a.photos=normalizePhotos(photos);
 
   save();
 

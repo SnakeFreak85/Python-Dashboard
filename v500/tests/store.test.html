@@ -299,6 +299,38 @@ try{
   'Zweites Tier'
  );
 
+ NGTStore.replaceAnimalPhotos(
+  {animalId:'mixed-2'},
+  [
+   {data:'data:image/png;base64,AA',cover:true},
+   {url:'https://example.invalid/photo.jpg',cover:true}
+  ]
+ );
+
+ const normalizedPhotos=
+  NGTStore.getAnimalById('mixed-2').photos;
+
+ record(
+  'Importierte Fotos erhalten stabile IDs',
+  normalizedPhotos.every(function(photo){
+   return !!photo.id;
+  })
+ );
+
+ equal(
+  'Fotoliste erhaelt genau ein Titelbild',
+  normalizedPhotos.filter(function(photo){
+   return photo.cover;
+  }).length,
+  1
+ );
+
+ equal(
+  'Erstes nutzbares Foto wird Titelbild',
+  normalizedPhotos[0].cover,
+  true
+ );
+
  NGTStore.data().foodInventory.push({
   id:'food-150',
   category:'Nagetiere',

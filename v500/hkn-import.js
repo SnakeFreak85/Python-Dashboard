@@ -134,7 +134,7 @@ async function run(){
     );
     return;
    }
-   NGT500.route('animals',{t:'koenig',hkn:1});
+   NGT500.route('animals',{hkn:1});
   };
   reader.onerror=function(){
    NGT500.toast(

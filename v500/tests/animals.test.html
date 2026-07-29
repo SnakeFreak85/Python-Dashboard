@@ -324,6 +324,9 @@ async function run(){
   equal('HKN-Dateiname bleibt erhalten',imported.photos[0].note,'nachweis.png');
   equal('HKN-Zwischenspeicher wird entfernt',win.sessionStorage.getItem('terracontrol_hkn_import_v1'),null);
 
+  record('HKN-Foto hat eine stabile Foto-ID',!!imported.photos[0].id);
+  equal('Erstes HKN-Foto ist das Titelbild',imported.photos[0].cover,true);
+
   const beforeDelete=win.NGTStore.allAnimals().length;
   const originalConfirm=win.confirm;
   win.confirm=function(){return false;};
