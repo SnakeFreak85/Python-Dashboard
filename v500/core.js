@@ -6,10 +6,12 @@ const listeners={};
 
 const CURRENT_ROUTE_KEY='terracontrol_current_route_v1';
 const ROUTE_STACK_KEY='terracontrol_route_stack_v1';
+const BROWSER_ROUTE_MARKER='terracontrol-route-v1';
 
 let currentRoute=null;
 let pendingRoute=null;
 let isGoingBack=false;
+let browserDepth=0;
 let modalResolve=null;
 let modalPreviousFocus=null;
 let modalKeyHandler=null;
@@ -212,6 +214,125 @@ function clearHistory(){
  saveStack([]);
 }
 
+function browserHistory(){
+ return window&&window.history&&
+  typeof window.history.pushState==='function'&&
+  typeof window.history.replaceState==='function'
+   ?window.history
+   :null;
+}
+
+function browserRouteState(state){
+ if(
+  !state||
+  state.terraControl!==BROWSER_ROUTE_MARKER||
+  !state.route
+ ){
+  return null;
+ }
+
+ return {
+  route:normalizeRoute(state.route),
+  depth:
+   Number.isInteger(state.depth)&&state.depth>=0
+    ?state.depth
+    :0
+ };
+}
+
+function makeBrowserState(record,depth){
+ return {
+  terraControl:BROWSER_ROUTE_MARKER,
+  route:normalizeRoute(record),
+  depth:Math.max(0,Number(depth)||0)
+ };
+}
+
+function replaceBrowserRoute(record,depth){
+ const history=browserHistory();
+
+ if(!history){
+  return false;
+ }
+
+ browserDepth=Math.max(0,Number(depth)||0);
+
+ try{
+  history.replaceState(
+   makeBrowserState(record,browserDepth),
+   ''
+  );
+  return true;
+ }catch(e){
+  console.warn(
+   '[TerraControl] Browser-Verlauf konnte nicht ersetzt werden.',
+   e
+  );
+  return false;
+ }
+}
+
+function pushBrowserRoute(record){
+ const history=browserHistory();
+
+ if(!history){
+  return false;
+ }
+
+ const nextDepth=browserDepth+1;
+
+ try{
+  history.pushState(
+   makeBrowserState(record,nextDepth),
+   ''
+  );
+  browserDepth=nextDepth;
+  return true;
+ }catch(e){
+  console.warn(
+   '[TerraControl] Browser-Verlauf konnte nicht erweitert werden.',
+   e
+  );
+  return false;
+ }
+}
+
+function syncBrowserRoute(record,previous,options){
+ const opts=options||{};
+
+ if(opts.fromBrowserHistory){
+  return;
+ }
+
+ const history=browserHistory();
+
+ if(!history){
+  return;
+ }
+
+ const activeState=browserRouteState(history.state);
+
+ if(!activeState){
+  replaceBrowserRoute(record,0);
+  return;
+ }
+
+ browserDepth=activeState.depth;
+
+ if(
+  previous&&
+  !sameRoute(previous,record)&&
+  !opts.replace&&
+  !opts.noHistory&&
+  !isGoingBack
+ ){
+  pushBrowserRoute(record);
+  return;
+ }
+
+ replaceBrowserRoute(record,browserDepth);
+}
+
 function routeLabel(name){
  const labels={
   dashboard:'Startseite',
@@ -343,6 +464,7 @@ function renderRoute(record,options){
  pendingRoute=null;
 
  saveStoredRoute(normalized);
+ syncBrowserRoute(normalized,previous,opts);
 
  document
   .querySelectorAll('.drawer button')
@@ -453,6 +575,21 @@ function route(name,args,options){
 }
 
 function back(){
+ const history=browserHistory();
+ const activeState=history
+  ?browserRouteState(history.state)
+  :null;
+
+ if(
+  history&&
+  activeState&&
+  activeState.depth>0&&
+  typeof history.back==='function'
+ ){
+  history.back();
+  return;
+ }
+
  const previous=popHistory();
 
  if(!previous){
@@ -501,6 +638,51 @@ function restoreRoute(){
   return false;
  }
 
+ const history=browserHistory();
+ const activeState=history
+  ?browserRouteState(history.state)
+  :null;
+
+ if(activeState&&sameRoute(activeState.route,stored)){
+  browserDepth=activeState.depth;
+  renderRoute(
+   stored,
+   {
+    replace:true,
+    noHistory:true,
+    fromBrowserHistory:true
+   }
+  );
+  return true;
+ }
+
+ /*
+  * Wird die App auf einer Unterseite neu geÃ¶ffnet,
+  * bleibt die Startseite als erstes ZurÃ¼ck-Ziel erhalten.
+  */
+ if(stored.name!=='dashboard'){
+  const dashboard={
+   name:'dashboard',
+   args:{}
+  };
+
+  clearHistory();
+  currentRoute=dashboard;
+  replaceBrowserRoute(dashboard,0);
+  pushHistory(dashboard);
+  pushBrowserRoute(stored);
+
+  renderRoute(
+   stored,
+   {
+    replace:true,
+    noHistory:true,
+    fromBrowserHistory:true
+   }
+  );
+  return true;
+ }
+
  /*
   * Beim Neuladen darf die wiederhergestellte Route
   * nicht erneut in den Verlauf geschrieben werden.
@@ -519,11 +701,55 @@ function restoreRoute(){
 function resetNavigation(){
  currentRoute=null;
  pendingRoute=null;
+ browserDepth=0;
 
  try{
   sessionStorage.removeItem(CURRENT_ROUTE_KEY);
   sessionStorage.removeItem(ROUTE_STACK_KEY);
  }catch(e){}
+}
+
+function onBrowserBack(event){
+ const targetState=browserRouteState(
+  event&&event.state
+ );
+
+ if(!targetState){
+  return;
+ }
+
+ const previousDepth=browserDepth;
+
+ if(targetState.depth<previousDepth){
+  for(
+   let depth=targetState.depth;
+   depth<previousDepth;
+   depth+=1
+  ){
+   popHistory();
+  }
+ }else if(
+  targetState.depth>previousDepth&&
+  currentRoute
+ ){
+  pushHistory(currentRoute);
+ }
+
+ browserDepth=targetState.depth;
+ isGoingBack=true;
+
+ try{
+  renderRoute(
+   targetState.route,
+   {
+    replace:true,
+    noHistory:true,
+    fromBrowserHistory:true
+   }
+  );
+ }finally{
+  isGoingBack=false;
+ }
 }
 
 function current(){
@@ -822,5 +1048,9 @@ window.NGT500={
  closeMenu:closeMenu,
  toast:toast
 };
+
+if(window&&typeof window.addEventListener==='function'){
+ window.addEventListener('popstate',onBrowserBack);
+}
 
 })();

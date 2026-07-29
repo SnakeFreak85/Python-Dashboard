@@ -157,6 +157,43 @@ function testRuntime(){
     win.NGT500.closeModal(false);
     record('Abbrechen liefert false',(await confirmation)===false);
 
+    win.NGT500.resetNavigation();
+    win.NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+    win.NGT500.route('food');
+
+    const foodHistoryState=win.history.state||{};
+    record(
+     'Seitennavigation wird im Browser-Verlauf gespeichert',
+     foodHistoryState.terraControl==='terracontrol-route-v1'&&
+      foodHistoryState.route&&
+      foodHistoryState.route.name==='food'
+    );
+    record(
+     'Seitennavigation erhÃ¶ht die Verlaufstiefe',
+     Number(foodHistoryState.depth)>0
+    );
+
+    win.history.back();
+    await new Promise(function(resolve){
+     setTimeout(resolve,80);
+    });
+    record(
+     'Handy-ZurÃ¼ck wechselt zur vorherigen App-Seite',
+     win.NGT500.current()&&
+      win.NGT500.current().name==='dashboard'
+    );
+
+    win.NGT500.route('food');
+    win.NGT500.back();
+    await new Promise(function(resolve){
+     setTimeout(resolve,80);
+    });
+    record(
+     'Interner ZurÃ¼ck-Button nutzt denselben App-Verlauf',
+     win.NGT500.current()&&
+      win.NGT500.current().name==='dashboard'
+    );
+
     win.NGT500.route('dashboard',{}, {replace:true,noHistory:true});
     record(
      'Mobile Breite ohne horizontales Überlaufen',
