@@ -105,6 +105,13 @@ Dokumentzahlen, Gruppen, Aktivitäten und kritische Futterpositionen werden dort
 einheitlich ermittelt. Die beiden Dashboard-Dateien bleiben für Darstellung und
 Bedienaktionen verantwortlich.
 
+## Befehlsausführung
+
+`ai-actions.js` ist der gemeinsame schreibende Befehlsdienst für Schnelleingabe
+und App-Chat. Beide Oberflächen verwenden ihn für Fütterungen, Verweigerungen,
+Gewichte, Häutungen, Standardfutter und Futterbestandsänderungen. Darstellung,
+Fragebeantwortung und Chatverlauf bleiben in den jeweiligen UI-Modulen.
+
 ## Nachzuchtenmodule
 
 Der Nachzuchtenbereich wird in dieser Reihenfolge geladen:

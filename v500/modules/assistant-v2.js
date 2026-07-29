@@ -92,91 +92,14 @@ function closeHelp(){
  NGT500.closeModal(false);
 }
 
-function applyStock(p){
- const ft=p.feeder;
- const info=p.stock||NGTAIEngine.stockQty(p.raw);
- if(!ft||!info.qty)return null;
- const item=NGTStore.updateFoodStock(ft,info);
- if(!item)return null;
- return 'Bestand '+ft+': '+item.qty;
-}
-
 function applyParsed(p){
- if(p.intent==='context')return {text:'Kontext: '+p.animal.a.name,animal:p.animal.a};
- if(p.intent==='stock')return {text:applyStock(p),animal:null};
- if(!p.animal)return null;
-
- const a=p.animal.a;
- let txt='';
-
- if(p.intent==='defaultFeeder'){
-  if(!p.feeder)return null;
-  if(
-   !NGTStore.setAnimalDefaultFeeder(
-    {animalId:NGTStore.animalId(a)},
-    p.feeder
-   )
-  ){
-   return null;
+ return NGTAIActions.applyParsed(
+  p,
+  {
+   source:'assistant',
+   contextText:'Kontext: '
   }
-  txt=a.name+': Standardfutter '+p.feeder;
- }else if(p.intent==='shed'){
-  const result=NGTStore.recordShed(
-   {animalId:NGTStore.animalId(a)},
-   {
-    date:p.date,
-    complete:true,
-    source:'assistant',
-    note:'TerraControl KI'
-   }
-  );
-  if(!result)return null;
-  txt=a.name+': Häutung '+p.date;
- }else if(p.intent==='weight'){
-  if(!p.grams)return null;
-  const result=NGTStore.recordWeight(
-   {animalId:NGTStore.animalId(a)},
-   {
-    date:p.date,
-    weight:p.grams,
-    source:'assistant',
-    note:'TerraControl KI'
-   }
-  );
-  if(!result)return null;
-  txt=a.name+': Gewicht '+p.date+' '+p.grams+'g';
- }else if(p.intent==='feed'||p.intent==='feed_refused'){
-  const ft=p.feeder||a.defaultFeeder||a.futterStandard||'';
-  const f=NGTStore.parseFeeder(ft);
-  const result=NGTStore.recordFeed(
-   {animalId:NGTStore.animalId(a)},
-   {
-    date:p.date,
-    condition:f.state,
-    prey:f.prey,
-    variantLabel:f.size,
-    preyWeightGrams:f.amount,
-    quantity:1,
-    unit:'Stück',
-    displayLabel:f.label,
-    inventoryLabel:f.label,
-    accepted:p.intent!=='feed_refused',
-    source:'assistant',
-    note:'TerraControl KI',
-    deductStock:true
-   }
-  );
-
-  if(!result)return null;
-
-  txt=
-   a.name+': '+
-   p.date+' '+
-   AnimalEngine.formatFeedEvent(result.event);
- }else return null;
-
- const feedback=window.NGTAIManager?NGTAIManager.afterSave(p,a):'';
- return {text:txt+feedback,animal:a};
+ );
 }
 
 function rawText(){return document.getElementById('aiText').value}

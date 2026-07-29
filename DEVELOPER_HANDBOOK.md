@@ -95,6 +95,7 @@ Die Anwendung ist eine statische Webanwendung auf Basis von Vanilla JavaScript, 
     ├── photo-storage.js
     ├── firebase-sync.js
     ├── ai-*.js
+    ├── ai-actions.js
     ├── dashboard-data.js
     ├── smart-dashboard.js
     ├── modules/
@@ -365,7 +366,24 @@ offspring.js
 
 Die internen Teilmodule kommunizieren über `window.NGTOffspringInternal`. Nicht verwendete frühere APIs für direktes Editor-Einfügen und separates Löschen werden nicht mehr veröffentlicht; die Profil-Löschung bleibt beim zentralen Tierbestand.
 
-### 7.7 Taxonomie-Architektur
+### 7.7 Gemeinsame Befehlsausführung
+
+`ai-actions.js` ist der einzige ausführende Datenpfad für erkannte Befehle aus
+`modules/assistant-v2.js` und `modules/chat.js`.
+
+| Befehl | Zentral verwendete Store-Operation |
+|---|---|
+| Fütterung oder Verweigerung | `recordFeed()` |
+| Gewicht | `recordWeight()` |
+| Häutung | `recordShed()` |
+| Standardfutter | `setAnimalDefaultFeeder()` |
+| Futterbestand | `updateFoodStock()` |
+
+Die UI-Module übergeben nur ihre Herkunft (`assistant` oder `chat`) und
+formatieren die Rückmeldung. Fachfelder und Bestandswirkung dürfen dort nicht
+erneut zusammengesetzt werden.
+
+### 7.8 Taxonomie-Architektur
 
 Die Taxonomie wird in dieser Reihenfolge geladen:
 

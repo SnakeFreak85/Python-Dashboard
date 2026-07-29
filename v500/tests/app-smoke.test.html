@@ -150,6 +150,13 @@ function testRuntime(){
      )
     );
     record('NGTAIQuery verfügbar',!!win.NGTAIQuery);
+    record(
+     'Gemeinsamer AI-Befehlsdienst verfügbar',
+     !!(
+      win.NGTAIActions&&
+      typeof win.NGTAIActions.applyParsed==='function'
+     )
+    );
     record('NGTAnimals verfügbar',!!win.NGTAnimals);
     record(
      'Animals-Teilmodule verfügbar',

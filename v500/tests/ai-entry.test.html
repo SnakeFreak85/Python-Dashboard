@@ -154,6 +154,11 @@ async function run(){
    'function'
   );
   equal(
+   'Gemeinsamer Befehlsdienst verfügbar',
+   typeof win.NGTAIActions.applyParsed,
+   'function'
+  );
+  equal(
    'Chat-API verfügbar',
    typeof win.NGTChat.ask,
    'function'
@@ -355,6 +360,115 @@ async function run(){
    'Tieridentität bleibt bei allen Einträgen erhalten',
    win.NGTStore.animalId(animal)===
    win.NGTStore.animalId(afterRefusal)
+  );
+
+  win.NGTStore.saveFoodInventoryItem({
+   id:'ai-entry-food-mouse',
+   category:'Nagetiere',
+   condition:'Frost',
+   itemName:'Maus',
+   variant:'20 g',
+   unit:'Stück',
+   qty:6,
+   minimum:2,
+   label:'Frost Maus 20 g'
+  });
+
+  const animalRow=
+   win.NGTStore.resolveAnimal({
+    animalId:'ai-entry-animal'
+   });
+  const feederResult=
+   win.NGTAIActions.applyParsed(
+    {
+     intent:'defaultFeeder',
+     feeder:'Frost Maus 20 g',
+     animal:animalRow
+    },
+    {
+     source:'assistant'
+    }
+   );
+  const afterFeeder=
+   win.NGTStore.getAnimalById(
+    'ai-entry-animal'
+   );
+
+  record(
+   'Gemeinsamer Dienst bestätigt Standardfutter',
+   !!(
+    feederResult&&
+    feederResult.text.includes(
+     'Frost Maus 20 g'
+    )
+   )
+  );
+  equal(
+   'Standardfutter wird kanonisch gespeichert',
+   afterFeeder.defaultFeeder,
+   'Frost Maus 20 g'
+  );
+  equal(
+   'Standardfutter wird mit dem Bestand verknüpft',
+   afterFeeder.defaultFeederId,
+   'ai-entry-food-mouse'
+  );
+  equal(
+   'Legacy-Standardfutter bleibt synchron',
+   afterFeeder.futterStandard,
+   'Frost Maus 20 g'
+  );
+
+  const stockResult=
+   win.NGTAIActions.applyParsed(
+    {
+     intent:'stock',
+     feeder:'Frost Ratte 150 g',
+     stock:{
+      mode:'add',
+      qty:2
+     },
+     raw:''
+    },
+    {
+     source:'chat'
+    }
+   );
+
+  record(
+   'Gemeinsamer Dienst bestätigt Bestandsänderung',
+   !!(
+    stockResult&&
+    stockResult.text.includes(
+     'Bestand Frost Ratte 150 g: 6'
+    )
+   )
+  );
+  equal(
+   'Bestandsbefehl aktualisiert die vorhandene Position',
+   win.NGTStore.data().foodInventory
+    .find(function(item){
+     return item.id==='ai-entry-food';
+    }).qty,
+   6
+  );
+
+  const contextResult=
+   win.NGTAIActions.applyParsed(
+    {
+     intent:'context',
+     animal:animalRow
+    },
+    {
+     source:'chat',
+     contextText:'Kontext gesetzt: '
+    }
+   );
+
+  equal(
+   'Oberflächenspezifischer Kontexttext bleibt erhalten',
+   contextResult.text,
+   'Kontext gesetzt: Medusa'
   );
 
  }catch(error){
