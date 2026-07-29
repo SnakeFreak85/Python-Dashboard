@@ -31,17 +31,8 @@ function positiveInteger(value){
 }
 
 function isOffspringAnimal(animal){
- if(
-  window.NGTIdManager&&
-  NGTIdManager.isOffspring
- ){
-  return NGTIdManager.isOffspring(animal);
- }
-
- return (
-  String((animal&&animal.status)||'').toLowerCase()==='nachzucht'||
-  String((animal&&animal.collection)||'').toLowerCase()==='offspring'||
-  String((animal&&animal.collection)||'').toLowerCase()==='nachzuchten'
+ return AnimalEngine.isOffspringAnimal(
+  animal
  );
 }
 
@@ -82,12 +73,7 @@ function allActive(){
 
  return all.filter(function(row){
   return (
-   ![
-    'Archiv',
-    'Verkauft',
-    'Abgegeben',
-    'Verstorben'
-   ].includes(row.a.status)&&
+   AnimalEngine.isActiveAnimal(row.a)&&
    !isOffspringAnimal(row.a)
   );
  });

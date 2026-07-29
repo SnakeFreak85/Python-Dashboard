@@ -18,12 +18,9 @@ function activeAnimals(){
  try{
   return NGTStore.allAnimals()
    .filter(function(row){
-    return ![
-     'Archiv',
-     'Verkauft',
-     'Abgegeben',
-     'Verstorben'
-    ].includes(row.a.status);
+    return AnimalEngine.isActiveAnimal(
+     row.a
+    );
    });
  }catch(error){
   return [];

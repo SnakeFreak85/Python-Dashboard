@@ -113,6 +113,13 @@ function animalCode(a){
 }
 
 function isOffspring(a){
+  if(
+    window.AnimalEngine&&
+    AnimalEngine.isOffspringAnimal
+  ){
+    return AnimalEngine.isOffspringAnimal(a);
+  }
+
   const status=String((a&&a.status)||'').toLowerCase();
   const collection=String((a&&a.collection)||'').toLowerCase();
 

@@ -3,7 +3,7 @@
 function norm(s){return NGTAIEngine.norm(s)}
 function daysSince(date){const t=Date.parse(date||'');return t?Math.floor((Date.now()-t)/86400000):9999}
 function latest(list){return AnimalEngine.latest(list)}
-function animals(){return NGTStore.allAnimals().filter(x=>x.a.status!=='Archiv')}
+function animals(){return NGTStore.allAnimals().filter(x=>AnimalEngine.isActiveAnimal(x.a))}
 function line(x,txt){return {d:'',txt:x.a.name+(txt?': '+txt:'')}}
 function needsFeeding(){return animals().filter(x=>CareRulesEngine.isFeedDue(x.a)).map(x=>line(x,'Fütterung prüfen'))}
 function needsWeight(){return animals().filter(x=>CareRulesEngine.isWeightDue(x.a)).map(x=>line(x,'Gewicht aktualisieren'))}

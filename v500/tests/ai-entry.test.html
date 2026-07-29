@@ -188,6 +188,41 @@ async function run(){
    weightIntervalDays:30
   });
 
+  const soldAnimal=win.NGTStore.addAnimal('',{
+   uuid:'ai-entry-sold',
+   uid:'ai-entry-sold',
+   name:'Verkauftes Tier',
+   animalGroup:'Pythons',
+   status:' verkauft ',
+   collection:'stock',
+   feedIntervalDays:1,
+   weightIntervalDays:1
+  });
+
+  equal(
+   'Store normalisiert Statuswerte kanonisch',
+   soldAnimal.status,
+   'Verkauft'
+  );
+  record(
+   'KI-Abfragen ignorieren inaktive Tiere',
+   win.NGTAIQuery.needsFeeding().every(function(row){
+    return !row.txt.includes('Verkauftes Tier');
+   })
+  );
+  record(
+   'KI-Tagesübersicht ignoriert inaktive Tiere',
+   win.NGTAIManager.today().feed.every(function(label){
+    return !label.includes('Verkauftes Tier');
+   })
+  );
+  record(
+   'KI-Empfehlungen ignorieren inaktive Tiere',
+   win.NGTAIRecommendations.build().every(function(item){
+    return item.animal!=='Verkauftes Tier';
+   })
+  );
+
   win.NGTStore.saveFoodInventoryItem({
    id:'ai-entry-food',
    category:'Nagetiere',

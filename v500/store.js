@@ -280,7 +280,11 @@ function normalizeAnimal(a,t,i){
   a.species=a.species||a.spezies||a.subspecies||a.unterart||'';
 
   a.name=a.name||'';
-  a.status=a.status||'Bestand';
+  a.status=
+    AnimalEngine.canonicalStatus(
+      a.status
+    )||
+    'Bestand';
 
   a.feeds=Array.isArray(a.feeds)?a.feeds:[];
   a.sheds=Array.isArray(a.sheds)?a.sheds:[];
@@ -593,14 +597,10 @@ function allAnimals(){
 function allOffspring(){
   return allAnimals().filter(function(x){
     const a=x.a||{};
-    const status=String(a.status||'').toLowerCase();
-    const collection=String(a.collection||'').toLowerCase();
-    const id=String(a.publicId||a.displayId||'').toUpperCase();
 
-    return collection==='offspring' ||
-      collection==='nachzuchten' ||
-      status==='nachzucht' ||
-      id.includes('-NZ');
+    return AnimalEngine.isOffspringAnimal(
+      a
+    );
   });
 }
 

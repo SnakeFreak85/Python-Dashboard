@@ -10,6 +10,67 @@ function number(v){
     return Number.isFinite(n) ? n : null;
 }
 
+function normalizedStatus(status){
+    return text(status).toLowerCase();
+}
+
+function canonicalStatus(status){
+    const value=normalizedStatus(status);
+    const labels={
+        bestand:"Bestand",
+        nachzucht:"Nachzucht",
+        reserviert:"Reserviert",
+        archiv:"Archiv",
+        archiviert:"Archiv",
+        verkauft:"Verkauft",
+        abgegeben:"Abgegeben",
+        verstorben:"Verstorben"
+    };
+
+    return labels[value]||text(status);
+}
+
+function isInactiveStatus(status){
+    return [
+        "archiv",
+        "archiviert",
+        "verkauft",
+        "abgegeben",
+        "verstorben"
+    ].includes(
+        normalizedStatus(status)
+    );
+}
+
+function isActiveAnimal(animal){
+    return !isInactiveStatus(
+        animal&&animal.status
+    );
+}
+
+function isOffspringAnimal(animal){
+    animal=animal||{};
+
+    const status=normalizedStatus(
+        animal.status
+    );
+    const collection=text(
+        animal.collection
+    ).toLowerCase();
+    const publicId=text(
+        animal.publicId||
+        animal.displayId
+    ).toUpperCase();
+
+    return (
+        status==="nachzucht"||
+        collection==="offspring"||
+        collection==="nachzucht"||
+        collection==="nachzuchten"||
+        publicId.includes("-NZ")
+    );
+}
+
 function getName(animal){
     return text(animal && animal.name);
 }
@@ -685,6 +746,16 @@ function weightEnabled(animal){
 }
 
 window.AnimalEngine={
+
+    normalizedStatus,
+
+    canonicalStatus,
+
+    isInactiveStatus,
+
+    isActiveAnimal,
+
+    isOffspringAnimal,
 
     getName,
 

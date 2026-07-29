@@ -33,22 +33,15 @@ P.statusOptions=function(current){
 };
 
 P.isInactiveStatus=function(status){
- return [
-  'Archiv',
-  'Verkauft',
-  'Abgegeben',
-  'Verstorben'
- ].includes(status);
+ return AnimalEngine.isInactiveStatus(
+  status
+ );
 };
 
 P.isOffspringAnimal=function(animal){
- if(window.NGTIdManager&&NGTIdManager.isOffspring){
-  return NGTIdManager.isOffspring(animal);
- }
-
- return String((animal&&animal.status)||'').toLowerCase()==='nachzucht'||
-  String((animal&&animal.collection)||'').toLowerCase()==='offspring'||
-  String((animal&&animal.collection)||'').toLowerCase()==='nachzuchten';
+ return AnimalEngine.isOffspringAnimal(
+  animal
+ );
 };
 
 P.allOffspring=function(){

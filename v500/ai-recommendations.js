@@ -16,7 +16,9 @@ function animals(){
  return NGTStore
   .allAnimals()
   .filter(function(row){
-   return row.a.status!=='Archiv';
+   return AnimalEngine.isActiveAnimal(
+    row.a
+   );
   });
 }
 
