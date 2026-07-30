@@ -23,6 +23,16 @@ function cloud(){
  }
 }
 
+function selectedTheme(){
+ try{
+  return window.NGTTheme
+   ?NGTTheme.current()
+   :'dark';
+ }catch(error){
+  return 'dark';
+ }
+}
+
 function saveSettingsToStore(
  sellerData
 ){
@@ -192,6 +202,7 @@ function sellerEditor(profile){
 function render(){
  const profile=seller();
  const cloudMeta=cloud();
+ const theme=selectedTheme();
 
  const lastBackup=
   cloudMeta.lastBackupAt
@@ -209,6 +220,38 @@ function render(){
      <p>
       Profil, Cloud und App-Informationen.
      </p>
+    </div>
+   </div>
+
+   <div class="tc2SettingsSection">
+    <h3>Darstellung</h3>
+
+    <div class="tc2ThemeChoices">
+     <button
+      type="button"
+      class="tc2ThemeChoice ${theme==='dark'?'on':''}"
+      onclick="NGTSettings.setTheme('dark')"
+      aria-pressed="${theme==='dark'?'true':'false'}"
+     >
+      <span class="dark">☾</span>
+      <span>
+       <b>Dunkel</b>
+       <small>TC2 Dark</small>
+      </span>
+     </button>
+
+     <button
+      type="button"
+      class="tc2ThemeChoice ${theme==='light'?'on':''}"
+      onclick="NGTSettings.setTheme('light')"
+      aria-pressed="${theme==='light'?'true':'false'}"
+     >
+      <span class="light">☀</span>
+      <span>
+       <b>Hell</b>
+       <small>TC2 Light</small>
+      </span>
+     </button>
     </div>
    </div>
 
@@ -406,6 +449,19 @@ function feedback(){
  );
 }
 
+function setTheme(theme){
+ if(!window.NGTTheme){
+  message(
+   'Darstellung konnte nicht geladen werden.',
+   'danger'
+  );
+  return;
+ }
+
+ NGTTheme.set(theme);
+ rerender();
+}
+
 function about(){
  info(
   '<h4>Über TerraControl</h4>'+
@@ -420,6 +476,7 @@ window.NGTSettings={
  privacy:privacy,
  imprint:imprint,
  feedback:feedback,
+ setTheme:setTheme,
  about:about
 };
 

@@ -29,6 +29,7 @@ const publicPages=[
  '../../timeline2.html'
 ];
 const activeSources=[
+ '../theme.js',
  '../hkn-import.js',
  '../ai-actions.js',
  '../modules/account.js',
@@ -108,6 +109,21 @@ async function testActiveSources(){
  ].forEach(function(selector){
   record('TC2-Regel vorhanden: '+selector,css.includes(selector));
  });
+
+ const themeCssResponse=await fetch(
+  '../theme.css?v=1.0.4-rc.11',
+  {cache:'no-store'}
+ );
+ const themeCss=await themeCssResponse.text();
+ record(
+  'Helles TC2-Theme vorhanden',
+  themeCssResponse.ok&&
+   themeCss.includes('html[data-tc-theme="light"]')
+ );
+ record(
+  'Theme-Auswahl gestaltet',
+  themeCss.includes('.tc2ThemeChoice')
+ );
 }
 
 function testRuntime(){
@@ -132,6 +148,13 @@ function testRuntime(){
     const app=doc.getElementById('app');
 
     record('TC2-App geladen',!!(win.NGT500&&app));
+    record(
+     'Theme-Steuerung geladen',
+     !!(
+      win.NGTTheme&&
+      typeof win.NGTTheme.set==='function'
+     )
+    );
     record('TC2-Bestätigung verfügbar',typeof win.NGT500.confirmAction==='function');
     record('TC2-Hinweis verfügbar',typeof win.NGT500.notice==='function');
 
@@ -239,6 +262,26 @@ function testRuntime(){
      app.querySelector('.tc2GlobalBottomNav .on span')&&
       app.querySelector('.tc2GlobalBottomNav .on span').textContent==='System'
     );
+
+    const previousTheme=win.NGTTheme.current();
+    const lightThemeButton=app.querySelector(
+     '.tc2ThemeChoice[onclick*="light"]'
+    );
+    record(
+     'Einstellungen bieten Hell und Dunkel an',
+     app.querySelectorAll('.tc2ThemeChoice').length===2
+    );
+    if(lightThemeButton){
+     lightThemeButton.click();
+    }
+    record(
+     'Helles Theme wird sofort aktiviert',
+     doc.documentElement.dataset.tcTheme==='light'&&
+      win.localStorage.getItem(
+       'terracontrol_theme_v1'
+      )==='light'
+    );
+    win.NGTTheme.set(previousTheme);
 
     const confirmation=win.NGT500.confirmAction(
      'TC2-Testbestätigung',

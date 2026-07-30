@@ -162,6 +162,14 @@ function testRuntime(){
     const win=frame.contentWindow;
     record('NGT500 verfügbar',!!win.NGT500);
     record('NGTStore verfügbar',!!win.NGTStore);
+    record(
+     'Theme-Steuerung verfügbar',
+     !!(
+      win.NGTTheme&&
+      typeof win.NGTTheme.current==='function'&&
+      typeof win.NGTTheme.set==='function'
+     )
+    );
     record('AnimalEngine verfügbar',!!win.AnimalEngine);
     record('FoodInventoryEngine verfügbar',!!win.FoodInventoryEngine);
     record('CareRulesEngine verfügbar',!!win.CareRulesEngine);

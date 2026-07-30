@@ -9,6 +9,17 @@
 <meta name="apple-mobile-web-app-title" content="TerraControl">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<script>
+(function(){
+ try{
+  var theme=localStorage.getItem('terracontrol_theme_v1')==='light'?'light':'dark';
+  document.documentElement.dataset.tcTheme=theme;
+  document.documentElement.style.colorScheme=theme;
+ }catch(error){
+  document.documentElement.dataset.tcTheme='dark';
+ }
+})();
+</script>
 <title>TerraControl</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -16,6 +27,7 @@
 <link rel="stylesheet" href="./v500/styles.css?v=1.0.4-rc.11">
 <link rel="stylesheet" href="./v500/tc2.css?v=1.0.4-rc.11">
 <link rel="stylesheet" href="./v500/taxonomy-ui-color.css?v=1.0.4-rc.11">
+<link rel="stylesheet" href="./v500/theme.css?v=1.0.4-rc.11">
 <script src="./v500/vendor/qrcode.min.js?v=1.0.4-rc.11"></script>
 </head>
 <body class="tc2RefMode">
@@ -31,6 +43,7 @@
 if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./service-worker.js?v=1.0.4-rc.11').catch(function(error){console.warn('Service Worker registration failed',error);});});}
 </script>
 <script src="./v500/core.js?v=1.0.4-rc.11"></script>
+<script src="./v500/theme.js?v=1.0.4-rc.11"></script>
 <script src="./v500/id-manager.js?v=1.0.4-rc.11"></script>
 <script src="./v500/food-inventory-engine.js?v=1.0.4-rc.11"></script>
 <script src="./v500/animal-engine.js?v=1.0.4-rc.11"></script>

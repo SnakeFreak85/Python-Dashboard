@@ -1,0 +1,426 @@
+:root{
+ --tc-theme-bg:#07131e;
+ --tc-theme-surface:#182d3e;
+ --tc-theme-surface-strong:#0e1e2b;
+ --tc-theme-surface-soft:#102231;
+ --tc-theme-text:#f4f7fb;
+ --tc-theme-muted:#aeb9c4;
+ --tc-theme-border:rgba(125,170,210,.24);
+ --tc-theme-shadow:rgba(0,0,0,.22);
+ --tc-theme-overlay:rgba(2,8,13,.72);
+ --tc-theme-field:#071521;
+ --tc-theme-green:#69b936;
+}
+
+html[data-tc-theme="light"]{
+ color-scheme:light;
+ --bg:#eef4f6;
+ --bg2:#f7fafb;
+ --head:#dce8ed;
+ --card:#ffffff;
+ --card2:#f5f8fa;
+ --card3:#e9f0f3;
+ --line:#bdcdd5;
+ --text:#17242d;
+ --muted:#5f707b;
+ --shadow:0 14px 34px rgba(36,58,69,.13);
+ --tc-theme-bg:#eef4f6;
+ --tc-theme-surface:#ffffff;
+ --tc-theme-surface-strong:#e8f0f3;
+ --tc-theme-surface-soft:#f5f8fa;
+ --tc-theme-text:#17242d;
+ --tc-theme-muted:#5f707b;
+ --tc-theme-border:rgba(76,105,120,.24);
+ --tc-theme-shadow:rgba(36,58,69,.14);
+ --tc-theme-overlay:rgba(28,43,51,.42);
+ --tc-theme-field:#f8fbfc;
+ --tc-theme-green:#4a9824;
+}
+
+html[data-tc-theme="light"],
+html[data-tc-theme="light"] body,
+html[data-tc-theme="light"] body.tc2RefMode{
+ background:
+  radial-gradient(
+   circle at 50% -10%,
+   rgba(94,151,174,.18),
+   transparent 42%
+  ),
+  var(--tc-theme-bg)!important;
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] .tc2Screen,
+html[data-tc-theme="light"] .tc2Settings,
+html[data-tc-theme="light"] .tc2Account,
+html[data-tc-theme="light"] .tc2Support{
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] input,
+html[data-tc-theme="light"] select,
+html[data-tc-theme="light"] textarea{
+ background:var(--tc-theme-field)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] input::placeholder,
+html[data-tc-theme="light"] textarea::placeholder{
+ color:#778892!important;
+}
+
+html[data-tc-theme="light"] .card,
+html[data-tc-theme="light"] .subcard,
+html[data-tc-theme="light"] .animal,
+html[data-tc-theme="light"] .stat,
+html[data-tc-theme="light"] .modalBox,
+html[data-tc-theme="light"] .tc2Card,
+html[data-tc-theme="light"] .tc2PageCard,
+html[data-tc-theme="light"] .tc2SettingsSection,
+html[data-tc-theme="light"] .tc2AccountCard,
+html[data-tc-theme="light"] .tc2AccountProfile,
+html[data-tc-theme="light"] .tc2SupportHero,
+html[data-tc-theme="light"] .tc2SupportLogin,
+html[data-tc-theme="light"] .tc2SupportEmpty,
+html[data-tc-theme="light"] .tc2SupportThreads,
+html[data-tc-theme="light"] .tc2SupportChatHead,
+html[data-tc-theme="light"] .tc2SupportMessages,
+html[data-tc-theme="light"] .tc2SupportComposer,
+html[data-tc-theme="light"] .tc21StartStat,
+html[data-tc-theme="light"] .tc21StartQuick,
+html[data-tc-theme="light"] .tc21StartNavCard,
+html[data-tc-theme="light"] .tc21StartMigration{
+ background:var(--tc-theme-surface)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+ box-shadow:0 14px 32px var(--tc-theme-shadow)!important;
+}
+
+html[data-tc-theme="light"] .tc21Welcome,
+html[data-tc-theme="light"] .tc2SettingsHero,
+html[data-tc-theme="light"] .tc2AccountHero{
+ background:
+  radial-gradient(
+   circle at 100% 0,
+   rgba(74,152,36,.12),
+   transparent 44%
+  ),
+  linear-gradient(
+   145deg,
+   #ffffff,
+   #e5eef2
+  )!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+ box-shadow:0 14px 32px var(--tc-theme-shadow)!important;
+}
+
+html[data-tc-theme="light"] #drawer{
+ background:
+  linear-gradient(
+   180deg,
+   #ffffff,
+   #e9f0f3
+  )!important;
+ border-color:var(--tc-theme-border)!important;
+ box-shadow:20px 0 48px rgba(36,58,69,.2)!important;
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] #overlay{
+ background:var(--tc-theme-overlay)!important;
+}
+
+html[data-tc-theme="light"] .tc2DrawerHead,
+html[data-tc-theme="light"] .tc2DrawerItem{
+ background:rgba(255,255,255,.72)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] .tc2GlobalBottomNav,
+html[data-tc-theme="light"] .tc2BottomNav{
+ background:#ffffff!important;
+ border-color:var(--tc-theme-border)!important;
+ box-shadow:0 -10px 28px rgba(36,58,69,.12)!important;
+}
+
+html[data-tc-theme="light"] .tc2GlobalBottomNav button,
+html[data-tc-theme="light"] .tc2BottomNav button{
+ color:#637680!important;
+}
+
+html[data-tc-theme="light"] .tc2GlobalBottomNav button.on,
+html[data-tc-theme="light"] .tc2BottomNav button.on{
+ color:var(--tc-theme-green)!important;
+ background:rgba(74,152,36,.1)!important;
+}
+
+html[data-tc-theme="light"] .tc2Menu{
+ background:#ffffff!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+ box-shadow:0 8px 20px rgba(36,58,69,.12)!important;
+}
+
+html[data-tc-theme="light"] .tc2Sync,
+html[data-tc-theme="light"] .tc2Sync b{
+ color:#315b3a!important;
+}
+
+html[data-tc-theme="light"] .tc2Sync small,
+html[data-tc-theme="light"] .muted,
+html[data-tc-theme="light"] [class*="Subtitle"],
+html[data-tc-theme="light"] [class*="Meta"]{
+ color:var(--tc-theme-muted)!important;
+}
+
+html[data-tc-theme="light"] .tc2SettingsProfile,
+html[data-tc-theme="light"] .tc2SettingsEmpty,
+html[data-tc-theme="light"] .tc2SettingsStatus,
+html[data-tc-theme="light"] .tc2SettingsInlineInfo,
+html[data-tc-theme="light"] .tc2AccountRows,
+html[data-tc-theme="light"] .tc2SupportNotice,
+html[data-tc-theme="light"] .tc2SupportThread,
+html[data-tc-theme="light"] .tc2SupportMessage.other{
+ background:var(--tc-theme-surface-soft)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] .tc2FormCard,
+html[data-tc-theme="light"] .tc2EmptyState,
+html[data-tc-theme="light"] .tc2Empty,
+html[data-tc-theme="light"] .tc2AnimalCard,
+html[data-tc-theme="light"] .tc2AnimalStats div,
+html[data-tc-theme="light"] .tc2AnimalInfo,
+html[data-tc-theme="light"] .tc2ProfileIdentity,
+html[data-tc-theme="light"] .tc2ProfileStats>div,
+html[data-tc-theme="light"] .tc2ProfileOverviewGrid>div,
+html[data-tc-theme="light"] .tc2ProfileSummary,
+html[data-tc-theme="light"] .tc2SubCard,
+html[data-tc-theme="light"] .tc2InfoRows,
+html[data-tc-theme="light"] .tc2FoodManageCard,
+html[data-tc-theme="light"] .tc2FoodAdd,
+html[data-tc-theme="light"] .tc2FoodEmpty,
+html[data-tc-theme="light"] .tc2FoodProgress,
+html[data-tc-theme="light"] .tc2AssistantHero,
+html[data-tc-theme="light"] .tc2AssistantPage>.tc2PageHead,
+html[data-tc-theme="light"] .tc2AssistantPage .tc2FormCard,
+html[data-tc-theme="light"] .tc2ChatHero,
+html[data-tc-theme="light"] .tc2ChatPage>.tc2PageHead,
+html[data-tc-theme="light"] .tc2ChatLog,
+html[data-tc-theme="light"] .tc2ChatInput,
+html[data-tc-theme="light"] .tc2ChatMsg.aiMsg>div,
+html[data-tc-theme="light"] .tc2QRHero,
+html[data-tc-theme="light"] .tc2QRCard,
+html[data-tc-theme="light"] .tc2QRResult,
+html[data-tc-theme="light"] .tc2QREmpty,
+html[data-tc-theme="light"] .tc2AnimalsPage>.tc2PageHead,
+html[data-tc-theme="light"] .tc2TaxFolder,
+html[data-tc-theme="light"] .tc2TaxAnimal,
+html[data-tc-theme="light"] .tc2AnimalEditor,
+html[data-tc-theme="light"] .tc2AnimalEditorHead,
+html[data-tc-theme="light"] .tc2AnimalEditorBlock,
+html[data-tc-theme="light"] .tc2AnimalEditorActions,
+html[data-tc-theme="light"] .tc2OffspringHero,
+html[data-tc-theme="light"] .tc2SmartHero,
+html[data-tc-theme="light"] .tc2SmartPanel,
+html[data-tc-theme="light"] .tc2SmartKpis div,
+html[data-tc-theme="light"] .tc2SDtop,
+html[data-tc-theme="light"] .tc2SDkpi,
+html[data-tc-theme="light"] .tc2SDcard,
+html[data-tc-theme="light"] .tc2SDtask,
+html[data-tc-theme="light"] .tc2SDfood,
+html[data-tc-theme="light"] .tc2SDempty,
+html[data-tc-theme="light"] .tc2AnalyticsHero,
+html[data-tc-theme="light"] .tc2AnalyticsKpi,
+html[data-tc-theme="light"] .tc2AnalyticsCard,
+html[data-tc-theme="light"] .tc2ReleaseSummary article,
+html[data-tc-theme="light"] .tc2ReleaseStatus,
+html[data-tc-theme="light"] .tc2ReleaseGroup,
+html[data-tc-theme="light"] .tc2ReleaseFooter,
+html[data-tc-theme="light"] .tc2ModalBox{
+ background:var(--tc-theme-surface)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+ box-shadow:0 12px 28px var(--tc-theme-shadow)!important;
+}
+
+html[data-tc-theme="light"] .tc2ProfileHero,
+html[data-tc-theme="light"] .tc2ProfileV4 .tc2ProfileHero{
+ background-color:#dfe9ed!important;
+ border-color:var(--tc-theme-border)!important;
+}
+
+html[data-tc-theme="light"] .tc2ProfileHeroShade{
+ background:
+  linear-gradient(
+   180deg,
+   rgba(255,255,255,0),
+   rgba(25,40,48,.5)
+  )!important;
+}
+
+html[data-tc-theme="light"] .tc2BackBtn,
+html[data-tc-theme="light"] .tc2ProfileTopBack,
+html[data-tc-theme="light"] .tc2ProfileV4 .tc2ProfileTopBack,
+html[data-tc-theme="light"] .tc2ProfileTopStatus,
+html[data-tc-theme="light"] .tc2ProfileV4 .tc2ProfileTopStatus,
+html[data-tc-theme="light"] .tc2GlobalBackButton,
+html[data-tc-theme="light"] .tc2SDtop>button,
+html[data-tc-theme="light"] .tc2SDdueClose,
+html[data-tc-theme="light"] .tc2ModalClose{
+ background:rgba(255,255,255,.88)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+ box-shadow:0 8px 18px rgba(36,58,69,.12)!important;
+}
+
+html[data-tc-theme="light"] .tc2ProfileAction,
+html[data-tc-theme="light"] .tc2ProfileV4 .tc2ProfileAction,
+html[data-tc-theme="light"] .tc2SettingsActions button,
+html[data-tc-theme="light"] .tc2AccountActions button,
+html[data-tc-theme="light"] .tc2FoodManageAmount button,
+html[data-tc-theme="light"] .tc2AssistantChips button,
+html[data-tc-theme="light"] .tc2ChatPage .tc2AssistantChips button,
+html[data-tc-theme="light"] .tc2ExampleList span{
+ background:var(--tc-theme-surface-soft)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+ box-shadow:none!important;
+}
+
+html[data-tc-theme="light"] .tc2FormGrid input,
+html[data-tc-theme="light"] .tc2FormGrid select,
+html[data-tc-theme="light"] .tc2FormGrid textarea,
+html[data-tc-theme="light"] .tc2FormCard input,
+html[data-tc-theme="light"] .tc2FormCard select,
+html[data-tc-theme="light"] .tc2FormCard textarea,
+html[data-tc-theme="light"] .tc2ProfileBody input,
+html[data-tc-theme="light"] .tc2ProfileBody select,
+html[data-tc-theme="light"] .tc2ProfileBody textarea,
+html[data-tc-theme="light"] .tc2AnimalEditor input,
+html[data-tc-theme="light"] .tc2AnimalEditor select,
+html[data-tc-theme="light"] .tc2AnimalEditor textarea,
+html[data-tc-theme="light"] .tc2FoodAdd input,
+html[data-tc-theme="light"] .tc2FoodAdd select,
+html[data-tc-theme="light"] .tc2AssistantPage #aiText,
+html[data-tc-theme="light"] .tc2ChatInput textarea,
+html[data-tc-theme="light"] .tc2QR textarea,
+html[data-tc-theme="light"] .tc2SupportComposer textarea{
+ background:var(--tc-theme-field)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] .tc2TaxFolder>.tc2TaxVisual,
+html[data-tc-theme="light"] .tc2TaxAnimal>.tc2TaxAnimalVisual,
+html[data-tc-theme="light"] .tc2TaxCandidatePreview,
+html[data-tc-theme="light"] .tc2AnimalImageWrap{
+ background:var(--tc-theme-surface-strong)!important;
+ border-color:var(--tc-theme-border)!important;
+}
+
+html[data-tc-theme="light"] .tc2Donut:after,
+html[data-tc-theme="light"] .tc2SDdonut>div{
+ background:var(--tc-theme-surface)!important;
+}
+
+html[data-tc-theme="light"] .tc2ListRow,
+html[data-tc-theme="light"] .tc2SettingsSection>h3,
+html[data-tc-theme="light"] .tc2SettingsSectionHead,
+html[data-tc-theme="light"] .tc2FoodCategory>.tc2PageHead{
+ border-color:var(--tc-theme-border)!important;
+}
+
+html[data-tc-theme="light"] .tc2SettingsProfile>b,
+html[data-tc-theme="light"] .tc2SettingsRows b,
+html[data-tc-theme="light"] .tc2SettingsStatus b,
+html[data-tc-theme="light"] .tc21StartNavText>b,
+html[data-tc-theme="light"] .tc21StartQuick>b,
+html[data-tc-theme="light"] .tc21StartStat>b{
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] .tc2SettingsProfile>span,
+html[data-tc-theme="light"] .tc2SettingsRows span,
+html[data-tc-theme="light"] .tc2SettingsStatus span,
+html[data-tc-theme="light"] .tc2SettingsHero p,
+html[data-tc-theme="light"] .tc21Welcome p,
+html[data-tc-theme="light"] .tc21StartNavText>small,
+html[data-tc-theme="light"] .tc21StartStat>small{
+ color:var(--tc-theme-muted)!important;
+}
+
+.tc2ThemeChoices{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;
+}
+
+.tc2ThemeChoice{
+ display:grid!important;
+ grid-template-columns:38px minmax(0,1fr);
+ align-items:center;
+ gap:10px;
+ min-height:62px!important;
+ margin:0!important;
+ padding:11px!important;
+ border-radius:16px!important;
+ text-align:left!important;
+}
+
+.tc2ThemeChoice>span{
+ display:grid;
+ place-items:center;
+ width:38px;
+ height:38px;
+ border-radius:13px;
+ font-size:20px;
+}
+
+.tc2ThemeChoice>span.dark{
+ background:#102231;
+ color:#f4f7fb;
+}
+
+.tc2ThemeChoice>span.light{
+ background:#ffffff;
+ border:1px solid #c8d5da;
+ color:#30424d;
+}
+
+.tc2ThemeChoice b,
+.tc2ThemeChoice small{
+ display:block;
+}
+
+.tc2ThemeChoice small{
+ margin-top:3px;
+ color:var(--tc-theme-muted);
+ font-size:10px;
+}
+
+.tc2ThemeChoice.on{
+ border-color:#69b936!important;
+ box-shadow:0 0 0 2px rgba(105,185,54,.15)!important;
+}
+
+html[data-tc-theme="light"] .tc2ThemeChoice{
+ background:#f6f9fa!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
+}
+
+html[data-tc-theme="light"] .tc2ThemeChoice.on{
+ background:#f0f8eb!important;
+ border-color:#69b936!important;
+}
+
+@media(max-width:360px){
+ .tc2ThemeChoices{
+  grid-template-columns:1fr;
+ }
+}
