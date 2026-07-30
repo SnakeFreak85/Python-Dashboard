@@ -143,6 +143,24 @@ async function testActiveSources(){
    )
  );
  record(
+  'Light-Theme-Aktionsknöpfe bleiben lesbar',
+  themeCss.includes(
+   'html[data-tc-theme="light"] .tc2ProfileBody button'
+  )&&
+   themeCss.includes(
+    'html[data-tc-theme="light"] .tc2AnnouncementActions button.danger'
+   )
+ );
+ record(
+  'Support-Unterhaltungen sind klar abgegrenzt',
+  themeCss.includes(
+   'html[data-tc-theme="light"] .tc2SupportInboxHead'
+  )&&
+   themeCss.includes(
+    'html[data-tc-theme="light"] .tc2SupportThread'
+   )
+ );
+ record(
   'TC2-Texte verwenden Theme-Farben',
   css.includes('var(--tc-theme-text-primary')&&
    css.includes('var(--tc-theme-text-soft')&&

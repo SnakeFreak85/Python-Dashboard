@@ -223,7 +223,7 @@ html[data-tc-theme="light"] .tc2BottomNav button.on{
 html[data-tc-theme="light"] .tc2Menu{
  background:#ffffff!important;
  border-color:var(--tc-theme-border)!important;
- color:var(--tc-theme-text)!important;
+ color:#17242d!important;
  box-shadow:0 8px 20px rgba(36,58,69,.12)!important;
 }
 
@@ -353,6 +353,51 @@ html[data-tc-theme="light"] .tc2ExampleList span{
  border-color:var(--tc-theme-border)!important;
  color:var(--tc-theme-text)!important;
  box-shadow:none!important;
+}
+
+/*
+ * Die Aktionsknöpfe innerhalb eines Tierprofils behalten ihre dunkle
+ * TC2-Fläche. Ihre Beschriftung muss deshalb auch im hellen Theme hell sein.
+ */
+html[data-tc-theme="light"] .tc2ProfileBody button{
+ color:#f4f7fb!important;
+}
+
+/*
+ * Support-Unterhaltungen benötigen auf hellen Flächen eine klarere
+ * Abgrenzung. Der Posteingangskopf bleibt als dunkle TC2-Fläche erhalten.
+ */
+html[data-tc-theme="light"] .tc2SupportInboxHead{
+ background:#152b3b!important;
+ border-color:rgba(67,103,125,.56)!important;
+ color:#f4f7fb!important;
+}
+
+html[data-tc-theme="light"] .tc2SupportInboxHead small{
+ color:#c7d3da!important;
+}
+
+html[data-tc-theme="light"] .tc2SupportThreads{
+ border-color:#aebfc8!important;
+ box-shadow:
+  0 12px 28px rgba(36,58,69,.13),
+  inset 0 0 0 1px rgba(82,107,120,.08)!important;
+}
+
+html[data-tc-theme="light"] .tc2SupportThread{
+ background:#edf3f5!important;
+ border-color:#b4c4cc!important;
+ box-shadow:0 5px 13px rgba(36,58,69,.08)!important;
+}
+
+/*
+ * Die zweite Aktion der Tester-Mitteilungen ist eine destruktive Aktion und
+ * erhält deshalb eine eindeutige rote Fläche mit weißer Schrift.
+ */
+html[data-tc-theme="light"] .tc2AnnouncementActions button.danger{
+ color:#ffffff!important;
+ background:linear-gradient(180deg,#d63a3a,#b6222b)!important;
+ border-color:rgba(166,29,43,.68)!important;
 }
 
 html[data-tc-theme="light"] .tc2FormGrid input,
