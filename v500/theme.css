@@ -29,12 +29,49 @@ html[data-tc-theme="light"]{
  --tc-theme-surface-strong:#e8f0f3;
  --tc-theme-surface-soft:#f5f8fa;
  --tc-theme-text:#17242d;
+ --tc-theme-text-primary:#17242d;
+ --tc-theme-text-soft:#344a55;
  --tc-theme-muted:#5f707b;
+ --tc-theme-text-muted-warm:#5b707a;
+ --tc-theme-text-muted-bright:#4f6570;
+ --tc-theme-text-subtle:#5f707b;
+ --tc-theme-text-faint:#556b76;
+ --tc-theme-text-chevron:#526975;
  --tc-theme-border:rgba(76,105,120,.24);
  --tc-theme-shadow:rgba(36,58,69,.14);
  --tc-theme-overlay:rgba(28,43,51,.42);
  --tc-theme-field:#f8fbfc;
  --tc-theme-green:#4a9824;
+}
+
+/*
+ * Einige TC2-Flächen bleiben auch im hellen Theme bewusst dunkel.
+ * Innerhalb dieser Flächen gilt deshalb weiterhin die dunkle Textpalette.
+ */
+html[data-tc-theme="light"] .tc2AppTop,
+html[data-tc-theme="light"] .tc2FoodHero,
+html[data-tc-theme="light"] .tc2Welcome,
+html[data-tc-theme="light"] .tc2CloudBtns button,
+html[data-tc-theme="light"] .tc2ProfileAction.danger,
+html[data-tc-theme="light"] .tc2SupportMessage.mine,
+html[data-tc-theme="light"] .tc2PhotoViewer{
+ --tc-theme-text:#f4f7fb;
+ --tc-theme-text-primary:initial;
+ --tc-theme-text-soft:initial;
+ --tc-theme-muted:#aeb9c4;
+ --tc-theme-text-muted-warm:initial;
+ --tc-theme-text-muted-bright:initial;
+ --tc-theme-text-subtle:initial;
+ --tc-theme-text-faint:initial;
+ --tc-theme-text-chevron:initial;
+}
+
+html[data-tc-theme="light"] .tc2FoodHero h2,
+html[data-tc-theme="light"] .tc2Welcome h2,
+html[data-tc-theme="light"] .tc2ProfileAction.danger .tc2ProfileActionText,
+html[data-tc-theme="light"] .tc2ProfileAction.danger .tc2ProfileActionIcon,
+html[data-tc-theme="light"] .tc2SDdueClose{
+ color:#f4f7fb!important;
 }
 
 html[data-tc-theme="light"],

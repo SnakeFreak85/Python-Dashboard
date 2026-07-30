@@ -111,7 +111,7 @@ function installStyles(){
    max-width:100%!important;
    overflow:hidden!important;
 
-   color:#f0f5f7!important;
+   color:var(--tc-theme-text-primary,#f0f5f7)!important;
 
    font-size:18px!important;
    font-weight:850!important;
@@ -128,7 +128,7 @@ function installStyles(){
 
    align-self:start!important;
 
-   color:#9baeb6!important;
+   color:var(--tc-theme-text-subtle,#9baeb6)!important;
 
    font-size:12px!important;
    font-weight:700!important;
