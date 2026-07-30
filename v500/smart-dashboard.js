@@ -103,26 +103,41 @@ function kpi(
  number,
  label,
  sub,
- className
+ className,
+ action
 ){
+ const tag=action?'button':'div';
+
  return `
-  <div class="tc2SDkpi ${className||''}">
+  <${tag}
+   class="tc2SDkpi ${className||''} ${action?'tc2SDkpiAction':''}"
+   ${
+    action
+     ?`type="button" onclick="${action}" aria-label="${esc(label)} öffnen"`
+     :''
+   }
+  >
    <span>${icon}</span>
    <b>${number}</b>
    <small>${esc(label)}</small>
    ${sub?`<em>${esc(sub)}</em>`:''}
-  </div>
+  </${tag}>
  `;
 }
 
 function taskRow(
  row,
- index
+ index,
+ closeModal
 ){
  return `
   <button
    class="tc2SDtask"
-   onclick="NGT500.route('profile',${profileRouteArgs(row)})"
+   onclick="${
+    closeModal
+     ?'NGT500.closeModal(false);'
+     :''
+   }NGT500.route('profile',${profileRouteArgs(row)})"
   >
    <span>
     ${
@@ -143,6 +158,63 @@ function taskRow(
    <i>›</i>
   </button>
  `;
+}
+
+function dueTasks(){
+ return [
+  ...NGTDashboardData.plannedFeeds(0),
+  ...NGTDashboardData.plannedWeights(0)
+ ];
+}
+
+function openDueTasks(){
+ const today=dueTasks();
+
+ NGT500.modal(
+  `
+   <div class="tc2SDdueDialog">
+    <h2>Heute fällig</h2>
+    <p>
+     ${
+      today.length
+       ?today.length+
+        (
+         today.length===1
+          ?' Aufgabe benötigt heute deine Aufmerksamkeit.'
+          :' Aufgaben benötigen heute deine Aufmerksamkeit.'
+        )
+       :'Heute ist keine Aufgabe fällig.'
+     }
+    </p>
+
+    <div class="tc2SDdueList">
+     ${
+      today.length
+       ?today.map(function(row,index){
+        return taskRow(row,index,true);
+       }).join('')
+       :`
+        <div class="tc2SDempty">
+         Heute nichts fällig.
+        </div>
+       `
+     }
+    </div>
+
+    <button
+     class="tc2SDdueClose tc2ModalInitial"
+     type="button"
+     onclick="NGT500.closeModal(false)"
+    >
+     Schließen
+    </button>
+   </div>
+  `,
+  {
+   label:'Heute fällige Aufgaben',
+   className:'tc2SDdueModal'
+  }
+ );
 }
 
 function foodRow(item){
@@ -195,10 +267,7 @@ function render(){
  const groups=
   NGTDashboardData.groupRows();
 
- const today=[
-  ...NGTDashboardData.plannedFeeds(0),
-  ...NGTDashboardData.plannedWeights(0)
- ];
+ const today=dueTasks();
 
  const low=
   NGTDashboardData.lowFood();
@@ -243,7 +312,8 @@ function render(){
      today.length
       ?today.length+' Aufgaben'
       :'',
-     'orange'
+     'orange',
+     'NGTSmartDashboard.openDueTasks()'
     )}
 
     ${kpi(
@@ -268,6 +338,16 @@ function render(){
    <section class="tc2SDcard tc2SDactionCard tc2SDtasksCard">
     <div class="tc2SDcardHead">
      <h3>Heute fällig</h3>
+
+     ${
+      today.length
+       ?`
+        <button onclick="NGTSmartDashboard.openDueTasks()">
+         Alle anzeigen ›
+        </button>
+       `
+       :''
+     }
     </div>
 
     ${
@@ -279,9 +359,12 @@ function render(){
        (
         today.length>3
          ?`
-          <div class="tc2SDmore">
-           + ${today.length-3} weitere
-          </div>
+          <button
+           class="tc2SDmore"
+           onclick="NGTSmartDashboard.openDueTasks()"
+          >
+           + ${today.length-3} weitere anzeigen
+          </button>
          `
          :''
        )
@@ -395,6 +478,7 @@ function render(){
 
 window.NGTSmartDashboard={
  render:render,
+ openDueTasks:openDueTasks,
  feedEnabled:feedEnabled,
  weightEnabled:weightEnabled,
  feedInterval:feedInterval,

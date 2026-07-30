@@ -508,6 +508,67 @@ async function run(){
    taskActions.includes('dashboard-offspring')
   );
 
+  const dueKpi=smartRoot.querySelector(
+   '.tc2SDkpiAction'
+  );
+  const dueShowAll=smartRoot.querySelector(
+   '.tc2SDtasksCard .tc2SDcardHead button'
+  );
+
+  record(
+   'Kennzahl Heute fällig öffnet die vollständige Aufgabenliste',
+   !!(
+    dueKpi&&
+    dueKpi.tagName==='BUTTON'&&
+    dueKpi.getAttribute('onclick')
+     .includes('openDueTasks')
+   )
+  );
+  record(
+   'Heute-fällig-Karte bietet Alle anzeigen an',
+   !!(
+    dueShowAll&&
+    dueShowAll.textContent.includes('Alle anzeigen')&&
+    dueShowAll.getAttribute('onclick')
+     .includes('openDueTasks')
+   )
+  );
+
+  let dueModalMarkup='';
+  const modalBackup=win.NGT500.modal;
+
+  try{
+   win.NGT500.modal=function(markup){
+    dueModalMarkup=markup;
+   };
+   win.NGTSmartDashboard.openDueTasks();
+  }finally{
+   win.NGT500.modal=modalBackup;
+  }
+
+  const dueModalRoot=rootFor(
+   dueModalMarkup
+  );
+  const allDueRows=Array.from(
+   dueModalRoot.querySelectorAll(
+    '.tc2SDdueList .tc2SDtask'
+   )
+  );
+
+  equal(
+   'Separates Fenster zeigt alle fälligen Aufgaben',
+   allDueRows.length,
+   3
+  );
+  record(
+   'Aufgabe schließt das Fenster vor dem Tierprofil',
+   allDueRows.every(function(row){
+    return (
+     row.getAttribute('onclick')||''
+    ).includes('closeModal');
+   })
+  );
+
   const foodRows=Array.from(
    smartRoot.querySelectorAll(
     '.tc2SDfood'
