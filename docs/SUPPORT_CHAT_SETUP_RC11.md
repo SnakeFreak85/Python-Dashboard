@@ -19,15 +19,13 @@ und beantworten.
 1. Firebase-Konsole öffnen.
 2. Das Projekt `terracontrol-4c211` auswählen.
 3. `Firestore Database` und anschließend `Regeln` öffnen.
-4. Den Inhalt aus
-   `firebase/firestore-support.rules.snippet` innerhalb des vorhandenen Blocks
-   `match /databases/{database}/documents { ... }` ergänzen.
-5. Die bereits vorhandenen Regeln für Nutzerdaten, Cloud-Sicherung und
-   Taxonomie unverändert beibehalten.
-6. Regeln veröffentlichen.
+4. Für den dokumentierten RC11-Stand den vollständigen Inhalt aus
+   `firebase/firestore.rules` verwenden.
+5. Regeln veröffentlichen.
 
-Der Snippet ist absichtlich keine vollständige Regeldatei. Ein vollständiges
-Ersetzen der vorhandenen Regeln könnte bestehende Cloud-Funktionen sperren.
+`firebase/firestore-support.rules.snippet` bleibt zusätzlich als einzelner
+Supportblock erhalten, falls die Regeln später mit weiteren Firebase-Bereichen
+zusammengeführt werden müssen.
 
 ## Abnahmetest
 

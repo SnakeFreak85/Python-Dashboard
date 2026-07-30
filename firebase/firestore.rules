@@ -1,0 +1,98 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSupportAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'saschad1711@gmail.com';
+    }
+
+    function isSupportOwner(userId) {
+      return signedIn()
+        && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/{document=**} {
+      allow read, write:
+        if signedIn()
+        && request.auth.uid == userId;
+    }
+
+    match /taxonomy/{taxonId} {
+      allow get, list:
+        if signedIn();
+
+      allow create, update:
+        if signedIn();
+
+      allow delete:
+        if false;
+    }
+
+    match /supportThreads/{userId} {
+      allow read:
+        if isSupportOwner(userId)
+        || isSupportAdmin();
+
+      allow create:
+        if isSupportOwner(userId)
+        && request.resource.data.ownerUid == userId
+        && request.resource.data.ownerEmail == request.auth.token.email
+        && request.resource.data.status == 'open'
+        && request.resource.data.lastSenderRole == 'user'
+        && request.resource.data.lastMessage is string
+        && request.resource.data.lastMessage.size() <= 160;
+
+      allow update:
+        if isSupportAdmin()
+        || (
+          isSupportOwner(userId)
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.ownerEmail == resource.data.ownerEmail
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.createdAtMs == resource.data.createdAtMs
+          && request.resource.data.status == 'open'
+          && request.resource.data.lastSenderRole == 'user'
+          && request.resource.data.lastMessage is string
+          && request.resource.data.lastMessage.size() <= 160
+        );
+
+      allow delete:
+        if false;
+
+      match /messages/{messageId} {
+        allow read:
+          if isSupportOwner(userId)
+          || isSupportAdmin();
+
+        allow create:
+          if signedIn()
+          && request.resource.data.threadId == userId
+          && request.resource.data.senderUid == request.auth.uid
+          && request.resource.data.senderEmail == request.auth.token.email
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 2000
+          && (
+            (
+              isSupportOwner(userId)
+              && request.resource.data.senderRole == 'user'
+            )
+            ||
+            (
+              isSupportAdmin()
+              && request.resource.data.senderRole == 'admin'
+            )
+          );
+
+        allow update, delete:
+          if false;
+      }
+    }
+  }
+}
