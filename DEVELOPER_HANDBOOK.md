@@ -222,7 +222,14 @@ verwendet werden.
 
 `v500/firebase-sync.js` ist der aktive Adapter für Authentifizierung und
 Firestore-Synchronisation. `v500/photo-storage.js` kapselt Firebase Storage.
-UI-Code soll nicht verteilt direkt auf Firebase zugreifen.
+`v500/support-service.js` kapselt die getrennten Firestore-Unterhaltungen des
+Supportchats. UI-Code soll nicht verteilt direkt auf Firebase zugreifen.
+
+Supportnachrichten gehören nicht in den zentralen Tierdaten-Snapshot. Sie
+werden unter `supportThreads/{uid}/messages` gespeichert und ausschließlich
+über `support-service.js` gelesen oder geschrieben. Die zugehörigen
+Sicherheitsregeln liegen als einzufügender Block unter
+`firebase/firestore-support.rules.snippet`.
 
 `v500/sync-policy-engine.js` entscheidet vor jedem automatischen Cloud-Laden,
 welcher Datenstand verwendet werden darf:

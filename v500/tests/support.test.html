@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TerraControl Supportchat Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>TerraControl Supportchat Tests</h1>
+<p class="muted">Prüft Rollen, private Ansichten und den Firestore-Schreibpfad.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html?v=1.0.4-rc.11"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({
+  name:name,
+  passed:!!passed,
+  detail:detail||''
+ });
+}
+
+function equal(name,actual,expected){
+ record(
+  name,
+  Object.is(actual,expected),
+  'Erwartet: '+JSON.stringify(expected)+
+   ', erhalten: '+JSON.stringify(actual)
+ );
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=
+  results.map(function(result){
+   return '<li class="'+
+    (result.passed?'pass':'fail')+
+    '">'+
+    (result.passed?'PASS':'FAIL')+
+    ' — '+
+    result.name+
+    (
+     result.passed||!result.detail
+      ?''
+      :' <span class="muted">('+
+       result.detail+
+       ')</span>'
+    )+
+    '</li>';
+  }).join('');
+
+ document.title=
+  failed
+   ?'FAIL — Supportchat Tests'
+   :'PASS — Supportchat Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  let finished=false;
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener(
+   'load',
+   complete,
+   {once:true}
+  );
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'&&
+    /\/v500\.html(?:[?#]|$)/.test(
+     frame.contentWindow.location.href
+    )
+   ){
+    setTimeout(complete,0);
+   }
+  }catch(error){}
+ });
+}
+
+async function run(){
+ const frame=document.getElementById('appFrame');
+ let win=null;
+ let currentUserBackup=null;
+ let contextBackup=null;
+
+ try{
+  win=await waitForLoad(frame);
+
+  record(
+   'Supportmodul registriert',
+   !!(
+    win.NGT500.modules.support&&
+    typeof win.NGT500.modules.support.render==='function'
+   )
+  );
+  record(
+   'Support-Datenadapter verfügbar',
+   !!(
+    win.NGTSupportService&&
+    typeof win.NGTSupportService.sendMessage==='function'&&
+    typeof win.NGTSupportService.listenThreads==='function'&&
+    typeof win.NGTSupportService.listenMessages==='function'
+   )
+  );
+  equal(
+   'Administratorkonto festgelegt',
+   win.NGTSupportService.ADMIN_EMAIL,
+   'saschad1711@gmail.com'
+  );
+  record(
+   'Administratorkonto wird erkannt',
+   win.NGTSupportService.isAdminUser({
+    email:'SaschaD1711@gmail.com'
+   })
+  );
+  record(
+   'Normales Testerkonto ist kein Administrator',
+   !win.NGTSupportService.isAdminUser({
+    email:'tester@example.com'
+   })
+  );
+
+  const rulesResponse=await fetch(
+   '../../firebase/firestore-support.rules.snippet',
+   {
+    cache:'no-store'
+   }
+  );
+  const supportRules=rulesResponse.ok
+   ?await rulesResponse.text()
+   :'';
+
+  record(
+   'Support-Sicherheitsregeln sind erreichbar',
+   rulesResponse.ok
+  );
+  record(
+   'Regeln begrenzen Tester auf den eigenen Thread',
+   supportRules.includes(
+    'request.auth.uid == userId'
+   )&&
+   supportRules.includes(
+    'allow read: if supportOwner(userId) || supportAdmin()'
+   )
+  );
+  record(
+   'Gespeicherte Nachrichten sind unveränderlich',
+   supportRules.includes(
+    'allow update, delete: if false'
+   )
+  );
+
+  currentUserBackup=
+   win.NGTFirebaseSync.currentUser;
+  contextBackup=
+   win.NGTFirebaseSync.getContext;
+
+  let fakeUser=null;
+  let fakeThreadExists=false;
+  let writes=[];
+
+  const fakeFs={
+   doc:function(first){
+    const rest=Array.prototype.slice.call(
+     arguments,
+     1
+    );
+
+    if(
+     first&&
+     first.path&&
+     !rest.length
+    ){
+     return {
+      path:first.path+'/generated-message'
+     };
+    }
+
+    return {
+     path:rest.join('/')
+    };
+   },
+   collection:function(first,name){
+    return {
+     path:
+      (
+       first&&first.path
+        ?first.path+'/'
+        :''
+      )+
+      name
+    };
+   },
+   getDoc:async function(){
+    return {
+     exists:function(){
+      return fakeThreadExists;
+     },
+     data:function(){
+      return {
+       ownerUid:'tester-uid',
+       ownerEmail:'tester@example.com',
+       ownerName:'Testerin'
+      };
+     }
+    };
+   },
+   writeBatch:function(){
+    return {
+     set:function(reference,data,options){
+      writes.push({
+       path:reference.path,
+       data:data,
+       options:options||null
+      });
+     },
+     commit:async function(){
+      return true;
+     }
+    };
+   },
+   serverTimestamp:function(){
+    return {
+     serverTimestamp:true
+    };
+   }
+  };
+
+  win.NGTFirebaseSync.currentUser=function(){
+   return fakeUser;
+  };
+  win.NGTFirebaseSync.getContext=async function(){
+   return {
+    db:{},
+    user:fakeUser,
+    fsMod:fakeFs
+   };
+  };
+
+  fakeUser=null;
+
+  const loggedOutMarkup=
+   win.NGTSupport.render({});
+
+  record(
+   'Abgemeldete Nutzer erhalten die Anmeldeansicht',
+   loggedOutMarkup.includes('Anmeldung erforderlich')&&
+   loggedOutMarkup.includes('Mit Google anmelden')
+  );
+
+  fakeUser={
+   uid:'tester-uid',
+   email:'tester@example.com',
+   displayName:'Testerin'
+  };
+
+  const testerMarkup=
+   win.NGTSupport.render({});
+
+  record(
+   'Tester erhalten den privaten Supportchat',
+   testerMarkup.includes('Private Unterhaltung mit Sascha')&&
+   testerMarkup.includes('supportText')&&
+   !testerMarkup.includes('Support-Posteingang')
+  );
+  record(
+   'Nachrichtenlänge ist in der Oberfläche begrenzt',
+   testerMarkup.includes(
+    'maxlength="'+
+    win.NGTSupportService.MAX_MESSAGE_LENGTH+
+    '"'
+   )
+  );
+
+  fakeThreadExists=false;
+  writes=[];
+
+  await win.NGTSupportService.sendMessage(
+   '',
+   'Bitte um Hilfe'
+  );
+
+  equal(
+   'Testernachricht schreibt Nachricht und Unterhaltung atomar',
+   writes.length,
+   2
+  );
+  record(
+   'Testernachricht bleibt im eigenen Thread',
+   writes.some(function(write){
+    return (
+     write.path==='supportThreads/tester-uid/messages/generated-message'&&
+     write.data.senderRole==='user'&&
+     write.data.threadId==='tester-uid'
+    );
+   })
+  );
+  record(
+   'Neue Unterhaltung enthält die Eigentümerdaten',
+   writes.some(function(write){
+    return (
+     write.path==='supportThreads/tester-uid'&&
+     write.data.ownerUid==='tester-uid'&&
+     write.data.ownerEmail==='tester@example.com'
+    );
+   })
+  );
+
+  fakeUser={
+   uid:'admin-uid',
+   email:'saschad1711@gmail.com',
+   displayName:'Sascha'
+  };
+
+  const adminInboxMarkup=
+   win.NGTSupport.render({});
+  const adminChatMarkup=
+   win.NGTSupport.render({
+    threadId:'tester-uid'
+   });
+
+  record(
+   'Administrator erhält den Support-Posteingang',
+   adminInboxMarkup.includes('Support-Posteingang')&&
+   adminInboxMarkup.includes('Unterhaltungen')
+  );
+  record(
+   'Administrator kann eine private Unterhaltung öffnen',
+   adminChatMarkup.includes('Zum Support-Posteingang')&&
+   adminChatMarkup.includes('Private Unterhaltung')
+  );
+
+  fakeThreadExists=true;
+  writes=[];
+
+  await win.NGTSupportService.sendMessage(
+   'tester-uid',
+   'Ich kümmere mich darum.'
+  );
+
+  record(
+   'Supportantwort wird als Administratornachricht gespeichert',
+   writes.some(function(write){
+    return (
+     write.path==='supportThreads/tester-uid/messages/generated-message'&&
+     write.data.senderRole==='admin'&&
+     write.data.senderName==='TerraControl Support'
+    );
+   })
+  );
+
+  let longMessageRejected=false;
+
+  try{
+   await win.NGTSupportService.sendMessage(
+    'tester-uid',
+    'x'.repeat(
+     win.NGTSupportService.MAX_MESSAGE_LENGTH+1
+    )
+   );
+  }catch(error){
+   longMessageRejected=true;
+  }
+
+  record(
+   'Zu lange Nachrichten werden vor Firestore abgewiesen',
+   longMessageRejected
+  );
+
+ }catch(error){
+  record(
+   'Testlauf ohne Ausnahme',
+   false,
+   error&&error.stack
+    ?error.stack
+    :error.message
+  );
+
+ }finally{
+  if(win&&win.NGTFirebaseSync){
+   if(currentUserBackup){
+    win.NGTFirebaseSync.currentUser=
+     currentUserBackup;
+   }
+
+   if(contextBackup){
+    win.NGTFirebaseSync.getContext=
+     contextBackup;
+   }
+
+   if(
+    win.NGTSupport&&
+    win.NGTSupport.stop
+   ){
+    win.NGTSupport.stop();
+   }
+  }
+
+  render();
+ }
+}
+
+run();
+
+})();
+</script>
+</body>
+</html>

@@ -294,6 +294,10 @@ function render(){
       Feedback
      </button>
 
+     <button onclick="NGT500.route('support')">
+      Supportchat
+     </button>
+
      <button onclick="NGTSettings.about()">
       Über
      </button>
@@ -385,7 +389,7 @@ function info(html){
 function privacy(){
  info(
   '<h4>Datenschutz</h4>'+
-  '<p>TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account.</p>'
+  '<p>TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account. Nachrichten im Supportchat werden zur Bearbeitung der Anfrage in Firebase gespeichert und sind nur für den jeweiligen Nutzer und den TerraControl-Support bestimmt.</p>'
  );
 }
 

@@ -343,6 +343,7 @@ function routeLabel(name){
   food:'Futterbestand',
   qr:'QR / Tierpass',
   backup:'Backup',
+  support:'Support',
   assistant:'Schnelleingabe',
   chat:'TerraControl KI',
   settings:'Einstellungen',

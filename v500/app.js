@@ -62,6 +62,7 @@ function nav(){
    navButton('🥚','Nachzuchten',"NGT500.route('offspring')")
   ])}
   ${navGroup('Verwaltung',[
+   navButton('✉','Support',"NGT500.route('support')"),
    navButton('💾','Backup',"NGT500.route('backup')")
   ])}
   ${navGroup('KI',[

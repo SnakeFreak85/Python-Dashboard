@@ -89,6 +89,17 @@ const GROUPS=[
   ]
  },
  {
+  id:'support',
+  title:'Supportchat',
+  icon:'✉',
+  tests:[
+   'Supportchat als Tester öffnen',
+   'Testnachricht senden',
+   'Antwort des Supports empfangen',
+   'Trennung zwischen Testerkonten prüfen'
+  ]
+ },
+ {
   id:'system',
   title:'System und Synchronisation',
   icon:'☁️',

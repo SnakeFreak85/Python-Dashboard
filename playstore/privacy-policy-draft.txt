@@ -20,20 +20,22 @@ Die App speichert Daten lokal auf dem Gerät oder im App-Speicher. Dazu können 
 - Einstellungen
 - Backup-Daten
 
-4. Google Login und Google Drive
-Wenn der Nutzer Google Login oder Cloud-Backup aktiviert, werden ausgewählte Daten im Google Drive des angemeldeten Nutzers gespeichert. Dazu gehören TerraControl Backups und optional Foto-Dateien.
+4. Google Login und Firebase
+Wenn der Nutzer Google Login oder Cloud-Funktionen aktiviert, werden ausgewählte Daten im Firebase-Projekt von TerraControl gespeichert. Dazu können TerraControl-Daten, Foto-Dateien sowie Nachrichten an den Support gehören.
+
+Supportnachrichten sind nur für den angemeldeten Nutzer und den TerraControl-Support bestimmt. Zur Zuordnung der Unterhaltung werden die Nutzer-ID, der Name und die E-Mail-Adresse des angemeldeten Google-Kontos gespeichert.
 
 5. Kamera
 Die Kamera wird nur verwendet, wenn der Nutzer den QR-Scanner öffnet. Die Kamera dient ausschließlich dem Scannen von QR-Codes.
 
 6. Internet
-Internet wird für Google Login, Google Drive Backup und Cloud-Synchronisierung benötigt.
+Internet wird für Google Login, Firebase-Cloud-Synchronisierung, Foto-Uploads und den Supportchat benötigt.
 
 7. Weitergabe an Dritte
-TerraControl verkauft keine Nutzerdaten. Daten werden nur an Dienste übertragen, die der Nutzer aktiv verwendet, zum Beispiel Google Drive.
+TerraControl verkauft keine Nutzerdaten. Daten werden nur an Dienste übertragen, die für die vom Nutzer aktiv verwendeten Funktionen notwendig sind, insbesondere Google Firebase.
 
 8. Löschung
-Nutzer können lokale Daten in der App löschen oder App-Daten über das Betriebssystem entfernen. Google Drive Backups können im eigenen Google Drive gelöscht werden.
+Nutzer können lokale Daten in der App löschen oder App-Daten über das Betriebssystem entfernen. Die Löschung von Cloud- und Supportdaten kann über den TerraControl-Support angefordert werden.
 
 9. Medizinischer Hinweis
 TerraControl ersetzt keine tierärztliche Beratung.

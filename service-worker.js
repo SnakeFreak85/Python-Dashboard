@@ -15,7 +15,7 @@ const APP_SHELL=[
   './v500/modules/dashboard.js'+VERSION_QUERY,'./v500/hkn-import.js'+VERSION_QUERY,'./v500/modules/animals-core.js'+VERSION_QUERY,'./v500/modules/animals-food.js'+VERSION_QUERY,'./v500/modules/animals-stock.js'+VERSION_QUERY,'./v500/modules/animals-editor.js'+VERSION_QUERY,'./v500/modules/animals.js'+VERSION_QUERY,'./v500/modules/offspring-core.js'+VERSION_QUERY,'./v500/modules/offspring-editor.js'+VERSION_QUERY,'./v500/modules/offspring.js'+VERSION_QUERY,
   './v500/modules/profile-core.js'+VERSION_QUERY,'./v500/modules/profile-history.js'+VERSION_QUERY,'./v500/modules/profile-food.js'+VERSION_QUERY,'./v500/modules/profile-health.js'+VERSION_QUERY,'./v500/modules/profile-passport.js'+VERSION_QUERY,'./v500/modules/profile-photos.js'+VERSION_QUERY,'./v500/modules/profile.js'+VERSION_QUERY,
   './v500/modules/food.js'+VERSION_QUERY,'./v500/modules/qr.js'+VERSION_QUERY,'./v500/modules/backup.js'+VERSION_QUERY,'./v500/modules/assistant-v2.js'+VERSION_QUERY,'./v500/modules/chat.js'+VERSION_QUERY,
-  './v500/firebase-sync.js'+VERSION_QUERY,'./v500/app.js'+VERSION_QUERY
+  './v500/firebase-sync.js'+VERSION_QUERY,'./v500/support-service.js'+VERSION_QUERY,'./v500/modules/support.js'+VERSION_QUERY,'./v500/app.js'+VERSION_QUERY
 ];
 
 self.addEventListener('install',event=>{

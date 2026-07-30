@@ -21,7 +21,7 @@ h1{margin-bottom:8px}.muted{color:#94a3b8}.summary{font-weight:700;margin:20px 0
 
 const results=[];
 const expectedModules=[
- 'dashboard','animals','offspring','profile','food','qr','backup','assistant','chat'
+ 'dashboard','animals','offspring','profile','food','qr','backup','assistant','chat','support'
 ];
 
 function record(name,passed,detail){
@@ -214,6 +214,14 @@ function testRuntime(){
      )
     );
     record('NGTAIQuery verfügbar',!!win.NGTAIQuery);
+    record(
+     'Support-Datenadapter verfügbar',
+     !!(
+      win.NGTSupportService&&
+      typeof win.NGTSupportService.listenMessages==='function'&&
+      typeof win.NGTSupportService.sendMessage==='function'
+     )
+    );
     record(
      'Gemeinsamer AI-Befehlsdienst verfügbar',
      !!(

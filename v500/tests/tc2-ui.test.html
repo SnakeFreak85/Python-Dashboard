@@ -137,7 +137,7 @@ function testRuntime(){
 
     const routes=[
      'dashboard','smartDashboard','animals','offspring','profile',
-     'food','qr','backup','assistant','chat'
+     'food','qr','backup','assistant','chat','support'
     ];
 
     routes.forEach(function(name){
@@ -159,14 +159,14 @@ function testRuntime(){
     });
 
     record(
-     'Hamburger-Menü enthält sechs ergänzende Ziele',
-     drawerLabels.length===6,
+     'Hamburger-Menü enthält sieben ergänzende Ziele',
+     drawerLabels.length===7,
      String(drawerLabels.length)
     );
     record(
      'Hamburger-Menü ist auf ergänzende Bereiche reduziert',
      drawerLabels.join('|')===
-      'Bestand|Nachzuchten|Backup|TerraControl KI|Schnelleingabe|Konto',
+      'Bestand|Nachzuchten|Support|Backup|TerraControl KI|Schnelleingabe|Konto',
      drawerLabels.join('|')
     );
     record(
