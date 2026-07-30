@@ -1,7 +1,7 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE='terracontrol-'+TC_VERSION;
 const VERSION_QUERY='?v='+TC_VERSION;
-const LIGHT_THEME_QUERY=VERSION_QUERY+'&r=light-contrast-2';
+const LIGHT_THEME_QUERY=VERSION_QUERY+'&r=light-contrast-3';
 
 const APP_SHELL=[
   './','./index.html','./v500.html'+VERSION_QUERY,'./manifest.json','./icon.svg','./icon-192.png','./icon-512.png',

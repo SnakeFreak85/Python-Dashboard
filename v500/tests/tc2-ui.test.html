@@ -152,6 +152,36 @@ async function testActiveSources(){
    )
  );
  record(
+  'Helles Theme besitzt ein gemeinsames Buttonsystem',
+  themeCss.includes('--tc-button-primary-bg:')&&
+   themeCss.includes('--tc-button-secondary-bg:')&&
+   themeCss.includes('--tc-button-danger-bg:')
+ );
+ record(
+  'Futterverwaltung nutzt lesbare Buttonrollen',
+  themeCss.includes(
+   'html[data-tc-theme="light"] .tc2FoodManageActions button:first-child'
+  )&&
+   themeCss.includes(
+    'html[data-tc-theme="light"] .tc2FoodManageActions button.danger'
+   )
+ );
+ record(
+  'Formularaktionen verwenden gemeinsame Buttonrollen',
+  themeCss.includes(
+   'html[data-tc-theme="light"] .tc2AnimalEditorActions button:last-child'
+  )&&
+   themeCss.includes(
+    'html[data-tc-theme="light"] .tc2ProfileBody .tc2SubCard>button:not(.danger)'
+   )&&
+   themeCss.includes(
+    'html[data-tc-theme="light"] .tc2SupportComposer button'
+   )&&
+   themeCss.includes(
+    'html[data-tc-theme="light"] .tc2SupportLogin button'
+   )
+ );
+ record(
   'Support-Unterhaltungen sind klar abgegrenzt',
   themeCss.includes(
    'html[data-tc-theme="light"] .tc2SupportInboxHead'

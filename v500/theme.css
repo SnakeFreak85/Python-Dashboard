@@ -42,6 +42,14 @@ html[data-tc-theme="light"]{
  --tc-theme-overlay:rgba(28,43,51,.42);
  --tc-theme-field:#f8fbfc;
  --tc-theme-green:#4a9824;
+ --tc-button-primary-bg:linear-gradient(135deg,#69d2c4,#8bdc3f);
+ --tc-button-primary-text:#071521;
+ --tc-button-secondary-bg:#edf3f5;
+ --tc-button-secondary-text:#17242d;
+ --tc-button-secondary-border:#aebfc8;
+ --tc-button-danger-bg:linear-gradient(180deg,#d63a3a,#b6222b);
+ --tc-button-danger-text:#ffffff;
+ --tc-button-danger-border:#a61d2b;
 }
 
 /*
@@ -525,6 +533,102 @@ html[data-tc-theme="light"] .tc2ThemeChoice{
 html[data-tc-theme="light"] .tc2ThemeChoice.on{
  background:#f0f8eb!important;
  border-color:#69b936!important;
+}
+
+/*
+ * Einheitliches Aktionssystem im hellen Theme.
+ *
+ * Navigationskarten und kompakte Icon-Schalter behalten ihr eigenes Layout.
+ * Alle normalen Formular- und Verwaltungsaktionen verwenden dagegen dieselbe
+ * Höhe, Rundung, Typografie und eine von drei eindeutigen Rollen.
+ */
+html[data-tc-theme="light"] .tc2FoodManageActions button,
+html[data-tc-theme="light"] .tc2AnimalEditorActions button,
+html[data-tc-theme="light"] .tc2AssistantActions button,
+html[data-tc-theme="light"] .tc2QRActions button,
+html[data-tc-theme="light"] .tc2QRPrimary,
+html[data-tc-theme="light"] .tc2SettingsActions button,
+html[data-tc-theme="light"] .tc2SettingsSectionHead>button,
+html[data-tc-theme="light"] .tc2AccountActions button,
+html[data-tc-theme="light"] .tc2AccountDanger,
+html[data-tc-theme="light"] .tc2ChatInput button,
+html[data-tc-theme="light"] .tc2SupportLogin button,
+html[data-tc-theme="light"] .tc2SupportComposer button,
+html[data-tc-theme="light"] .tc2AnnouncementActions button,
+html[data-tc-theme="light"] .tc2ProfileBody .tc2SubCard>button,
+html[data-tc-theme="light"] .tc2ProfileBody .btnRow button,
+html[data-tc-theme="light"] .tc2ProfileBody .tc2ListRowFull button,
+html[data-tc-theme="light"] .tc2DialogActions button,
+html[data-tc-theme="light"] .tc2ReleaseActions button,
+html[data-tc-theme="light"] .tc2ReleaseFooter button{
+ min-height:48px!important;
+ border-radius:16px!important;
+ font-weight:900!important;
+ line-height:1.2!important;
+}
+
+/* Normale Nebenaktionen: helle Fläche mit klarer dunkler Beschriftung. */
+html[data-tc-theme="light"] .tc2FoodManageActions button:first-child,
+html[data-tc-theme="light"] .tc2AnimalEditorActions button:first-child,
+html[data-tc-theme="light"] .tc2AssistantActions button:first-child,
+html[data-tc-theme="light"] .tc2SettingsActions button,
+html[data-tc-theme="light"] .tc2SettingsSectionHead>button,
+html[data-tc-theme="light"] .tc2AccountActions button,
+html[data-tc-theme="light"] .tc2AssistantChips button,
+html[data-tc-theme="light"] .tc2ChatPage .tc2AssistantChips button,
+html[data-tc-theme="light"] .tc2ProfileBody .btnRow button,
+html[data-tc-theme="light"] .tc2ReleaseActions button,
+html[data-tc-theme="light"] .tc2ReleaseFooter button,
+html[data-tc-theme="light"] .tc2DialogCancel{
+ color:var(--tc-button-secondary-text)!important;
+ background:var(--tc-button-secondary-bg)!important;
+ background-image:none!important;
+ border:1px solid var(--tc-button-secondary-border)!important;
+ box-shadow:none!important;
+}
+
+/* Hauptaktionen: durchgängig derselbe TC2-Verlauf und dunkle Schrift. */
+html[data-tc-theme="light"] .tc2FoodSave,
+html[data-tc-theme="light"] .tc2AnimalEditorActions button:last-child,
+html[data-tc-theme="light"] .tc2AssistantActions button:last-child,
+html[data-tc-theme="light"] .tc2QRActions button:first-child,
+html[data-tc-theme="light"] .tc2QRPrimary,
+html[data-tc-theme="light"] .tc2SettingsActions button:only-child,
+html[data-tc-theme="light"] .tc2SettingsEdit .tc2SettingsActions button:last-child,
+html[data-tc-theme="light"] .tc2AccountActions button:first-child,
+html[data-tc-theme="light"] .tc2ChatInput button,
+html[data-tc-theme="light"] .tc2SupportLogin button,
+html[data-tc-theme="light"] .tc2SupportComposer button,
+html[data-tc-theme="light"] .tc2AnnouncementActions button:first-child,
+html[data-tc-theme="light"] .tc2ProfileBody .tc2SubCard>button:not(.danger),
+html[data-tc-theme="light"] .tc2DialogConfirm{
+ color:var(--tc-button-primary-text)!important;
+ background:var(--tc-button-primary-bg)!important;
+ background-image:var(--tc-button-primary-bg)!important;
+ border:1px solid rgba(58,126,79,.42)!important;
+ box-shadow:0 9px 20px rgba(55,116,65,.16)!important;
+}
+
+/*
+ * Destruktive Aktionen sind überall vollflächig rot. Das beseitigt auch
+ * schwach lesbare transparente Rot- und Blautöne aus älteren Modulen.
+ */
+html[data-tc-theme="light"] .tc2FoodManageActions button.danger,
+html[data-tc-theme="light"] .tc2QRActions button:last-child,
+html[data-tc-theme="light"] .tc2AccountDanger,
+html[data-tc-theme="light"] .tc2AnnouncementActions button.danger,
+html[data-tc-theme="light"] .tc2ProfileBody button.danger{
+ color:var(--tc-button-danger-text)!important;
+ background:var(--tc-button-danger-bg)!important;
+ background-image:var(--tc-button-danger-bg)!important;
+ border:1px solid var(--tc-button-danger-border)!important;
+ box-shadow:0 9px 20px rgba(166,29,43,.18)!important;
+}
+
+html[data-tc-theme="light"] button:disabled{
+ opacity:.54!important;
+ filter:saturate(.58)!important;
+ cursor:not-allowed!important;
 }
 
 @media(max-width:360px){
