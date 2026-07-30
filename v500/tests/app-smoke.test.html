@@ -21,7 +21,7 @@ h1{margin-bottom:8px}.muted{color:#94a3b8}.summary{font-weight:700;margin:20px 0
 
 const results=[];
 const expectedModules=[
- 'dashboard','animals','offspring','profile','food','qr','backup','assistant','chat','support'
+ 'dashboard','animals','offspring','profile','food','qr','backup','assistant','chat','support','announcements'
 ];
 
 function record(name,passed,detail){
@@ -228,6 +228,15 @@ function testRuntime(){
       win.NGTSupportService&&
       typeof win.NGTSupportService.listenMessages==='function'&&
       typeof win.NGTSupportService.sendMessage==='function'
+     )
+    );
+    record(
+     'Mitteilungs-Datenadapter verfügbar',
+     !!(
+      win.NGTAnnouncementService&&
+      typeof win.NGTAnnouncementService.listenCurrent==='function'&&
+      typeof win.NGTAnnouncementService.publish==='function'&&
+      typeof win.NGTAnnouncementService.close==='function'
      )
     );
     record(

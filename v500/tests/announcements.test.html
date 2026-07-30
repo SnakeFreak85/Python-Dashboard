@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TerraControl Mitteilungen Tests</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;background:#0d1722;color:#f8fafc}
+.pass{color:#86efac}.fail{color:#fca5a5}.muted{color:#94a3b8}li{margin:7px 0}iframe{width:1px;height:1px;border:0;position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<h1>TerraControl Mitteilungen Tests</h1>
+<p class="muted">Prüft Administratorrechte, Veröffentlichung und Startseitenanzeige.</p>
+<p id="summary">Test läuft …</p>
+<ol id="results"></ol>
+<iframe id="appFrame" src="../../v500.html?v=1.0.4-rc.11"></iframe>
+<script>
+(function(){
+'use strict';
+
+const results=[];
+
+function record(name,passed,detail){
+ results.push({
+  name:name,
+  passed:!!passed,
+  detail:detail||''
+ });
+}
+
+function render(){
+ const failed=results.filter(function(result){
+  return !result.passed;
+ }).length;
+
+ document.getElementById('summary').textContent=
+  failed
+   ?failed+' von '+results.length+' Prüfungen fehlgeschlagen.'
+   :results.length+' Prüfungen erfolgreich.';
+
+ document.getElementById('results').innerHTML=
+  results.map(function(result){
+   return '<li class="'+
+    (result.passed?'pass':'fail')+
+    '">'+
+    (result.passed?'PASS':'FAIL')+
+    ' — '+
+    result.name+
+    (
+     result.passed||!result.detail
+      ?''
+      :' <span class="muted">('+
+       result.detail+
+       ')</span>'
+    )+
+    '</li>';
+  }).join('');
+
+ document.title=
+  failed
+   ?'FAIL — Mitteilungen Tests'
+   :'PASS — Mitteilungen Tests';
+}
+
+function waitForLoad(frame){
+ return new Promise(function(resolve,reject){
+  let finished=false;
+  const timeout=setTimeout(function(){
+   if(finished)return;
+   finished=true;
+   reject(new Error('App-Frame Timeout'));
+  },15000);
+
+  function complete(){
+   if(finished)return;
+   finished=true;
+   clearTimeout(timeout);
+   resolve(frame.contentWindow);
+  }
+
+  frame.addEventListener(
+   'load',
+   complete,
+   {once:true}
+  );
+
+  try{
+   if(
+    frame.contentDocument&&
+    frame.contentDocument.readyState==='complete'
+   ){
+    setTimeout(complete,0);
+   }
+  }catch(error){}
+ });
+}
+
+async function run(){
+ let win=null;
+ let currentUserBackup=null;
+ let contextBackup=null;
+
+ try{
+  win=await waitForLoad(
+   document.getElementById('appFrame')
+  );
+
+  record(
+   'Mitteilungsmodul registriert',
+   !!(
+    win.NGT500.modules.announcements&&
+    typeof win.NGTAnnouncements.publish==='function'
+   )
+  );
+
+  record(
+   'Mitteilungsdienst verfügbar',
+   !!(
+    win.NGTAnnouncementService&&
+    typeof win.NGTAnnouncementService.listenCurrent==='function'&&
+    typeof win.NGTAnnouncementService.publish==='function'&&
+    typeof win.NGTAnnouncementService.close==='function'
+   )
+  );
+
+  record(
+   'Administratorkonto wird erkannt',
+   win.NGTAnnouncementService.isAdminUser({
+    email:'SaschaD1711@gmail.com'
+   })
+  );
+
+  record(
+   'Testerkonto ist kein Administrator',
+   !win.NGTAnnouncementService.isAdminUser({
+    email:'tester@example.com'
+   })
+  );
+
+  const rulesResponse=await fetch(
+   '../../firebase/firestore.rules',
+   {cache:'no-store'}
+  );
+  const rules=rulesResponse.ok
+   ?await rulesResponse.text()
+   :'';
+
+  record(
+   'Mitteilungsregeln sind erreichbar',
+   rulesResponse.ok
+  );
+  record(
+   'Tester dürfen Mitteilungen nur lesen',
+   rules.includes(
+    'match /appAnnouncements/{announcementId}'
+   )&&
+   rules.includes(
+    'if isSupportAdmin()'
+   )
+  );
+  record(
+   'Mitteilungslängen sind serverseitig begrenzt',
+   rules.includes(
+    'request.resource.data.title.size() <= 80'
+   )&&
+   rules.includes(
+    'request.resource.data.message.size() <= 1000'
+   )
+  );
+
+  currentUserBackup=
+   win.NGTFirebaseSync.currentUser;
+  contextBackup=
+   win.NGTFirebaseSync.getContext;
+
+  let fakeUser=null;
+  let writes=[];
+
+  const fakeFs={
+   doc:function(){
+    const parts=Array.prototype.slice.call(
+     arguments,
+     1
+    );
+    return {
+     path:parts.join('/')
+    };
+   },
+   setDoc:async function(reference,data){
+    writes.push({
+     type:'set',
+     path:reference.path,
+     data:data
+    });
+   },
+   updateDoc:async function(reference,data){
+    writes.push({
+     type:'update',
+     path:reference.path,
+     data:data
+    });
+   },
+   serverTimestamp:function(){
+    return {serverTimestamp:true};
+   }
+  };
+
+  win.NGTFirebaseSync.currentUser=function(){
+   return fakeUser;
+  };
+  win.NGTFirebaseSync.getContext=async function(){
+   return {
+    db:{},
+    user:fakeUser,
+    fsMod:fakeFs
+   };
+  };
+
+  fakeUser={
+   uid:'tester-uid',
+   email:'tester@example.com'
+  };
+
+  let testerRejected=false;
+  try{
+   await win.NGTAnnouncementService.publish({
+    title:'Test',
+    message:'Nicht erlaubt'
+   });
+  }catch(error){
+   testerRejected=true;
+  }
+
+  record(
+   'Tester können keine Mitteilung veröffentlichen',
+   testerRejected
+  );
+
+  fakeUser={
+   uid:'admin-uid',
+   email:'saschad1711@gmail.com'
+  };
+  writes=[];
+
+  await win.NGTAnnouncementService.publish({
+   title:'Neue Testversion',
+   message:'Bitte Futterbestand prüfen.',
+   important:true
+  });
+
+  record(
+   'Administrator veröffentlicht das aktuelle Dokument',
+   writes.length===1&&
+   writes[0].type==='set'&&
+   writes[0].path==='appAnnouncements/current'&&
+   writes[0].data.active===true&&
+   writes[0].data.important===true
+  );
+
+  writes=[];
+  await win.NGTAnnouncementService.close();
+
+  record(
+   'Administrator kann die Mitteilung beenden',
+   writes.length===1&&
+   writes[0].type==='update'&&
+   writes[0].data.active===false
+  );
+
+  const adminMarkup=
+   win.NGTAnnouncements.render();
+
+  record(
+   'Administrator erhält den Mitteilungseditor',
+   adminMarkup.includes('Mitteilung an Tester')&&
+   adminMarkup.includes('announcementTitle')&&
+   adminMarkup.includes('Veröffentlichen')
+  );
+
+  fakeUser={
+   uid:'tester-uid',
+   email:'tester@example.com'
+  };
+
+  const testerMarkup=
+   win.NGTAnnouncements.render();
+
+  record(
+   'Tester erhalten keinen Mitteilungseditor',
+   testerMarkup.includes(
+    'nur für den TerraControl-Administrator'
+   )&&
+   !testerMarkup.includes('announcementTitle')
+  );
+
+  win.localStorage.removeItem(
+   'terracontrol_announcement_seen_v1'
+  );
+
+  win.NGTAnnouncementService.listenCurrent=
+   async function(onValue){
+    onValue({
+     id:'current',
+     title:'Testhinweis',
+     message:'Bitte weiter testen.',
+     important:false,
+     active:true,
+     publishedAtMs:123456
+    });
+    return function(){};
+   };
+
+  win.NGT500.route(
+   'dashboard',
+   {},
+   {
+    replace:true,
+    noHistory:true
+   }
+  );
+
+  win.NGT500.emit(
+   'firebase:auth',
+   {
+    signedIn:true,
+    user:fakeUser
+   }
+  );
+
+  await new Promise(function(resolve){
+   setTimeout(resolve,60);
+  });
+
+  const app=win.document.getElementById('app');
+
+  record(
+   'Aktive Mitteilung erscheint auf der Startseite',
+   app.textContent.includes('Testhinweis')&&
+   app.textContent.includes('Bitte weiter testen.')
+  );
+
+  const readButton=app.querySelector(
+   '.tc2StartAnnouncement>button'
+  );
+
+  if(readButton){
+   readButton.click();
+  }
+
+  record(
+   'Gelesene Mitteilung wird auf diesem Gerät ausgeblendet',
+   win.localStorage.getItem(
+    'terracontrol_announcement_seen_v1'
+   )==='123456'&&
+   !app.textContent.includes('Testhinweis')
+  );
+
+ }catch(error){
+  record(
+   'Testlauf ohne Ausnahme',
+   false,
+   error&&error.stack
+    ?error.stack
+    :error.message
+  );
+ }finally{
+  if(win&&win.NGTFirebaseSync){
+   if(currentUserBackup){
+    win.NGTFirebaseSync.currentUser=
+     currentUserBackup;
+   }
+
+   if(contextBackup){
+    win.NGTFirebaseSync.getContext=
+     contextBackup;
+   }
+
+   win.localStorage.removeItem(
+    'terracontrol_announcement_seen_v1'
+   );
+  }
+
+  render();
+ }
+}
+
+run();
+
+})();
+</script>
+</body>
+</html>

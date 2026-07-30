@@ -344,6 +344,7 @@ function routeLabel(name){
   qr:'QR / Tierpass',
   backup:'Backup',
   support:'Support',
+  announcements:'Mitteilungen',
   assistant:'Schnelleingabe',
   chat:'TerraControl KI',
   settings:'Einstellungen',
@@ -437,9 +438,29 @@ function primaryNavigation(name){
     return `
      <button
       type="button"
-      class="${name===entry.route?'on':''}"
+     class="${
+      (
+       name===entry.route||
+       (
+        name==='announcements'&&
+        entry.route==='settings'
+       )
+      )
+       ?'on'
+       :''
+     }"
       onclick="NGT500.route('${entry.route}')"
-      ${name===entry.route?'aria-current="page"':''}
+      ${
+       (
+        name===entry.route||
+        (
+         name==='announcements'&&
+         entry.route==='settings'
+        )
+       )
+        ?'aria-current="page"'
+        :''
+      }
      >
       ${entry.icon}
       <span>${entry.label}</span>

@@ -34,6 +34,35 @@ service cloud.firestore {
         if false;
     }
 
+    match /appAnnouncements/{announcementId} {
+      allow read:
+        if signedIn();
+
+      allow create, update:
+        if isSupportAdmin()
+        && announcementId == 'current'
+        && request.resource.data.keys().hasOnly([
+          'title',
+          'message',
+          'important',
+          'active',
+          'publishedAt',
+          'publishedAtMs'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 1000
+        && request.resource.data.important is bool
+        && request.resource.data.active is bool
+        && request.resource.data.publishedAtMs is int;
+
+      allow delete:
+        if false;
+    }
+
     match /supportThreads/{userId} {
       allow read:
         if isSupportOwner(userId)

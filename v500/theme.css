@@ -87,6 +87,11 @@ html[data-tc-theme="light"] .tc2SupportThreads,
 html[data-tc-theme="light"] .tc2SupportChatHead,
 html[data-tc-theme="light"] .tc2SupportMessages,
 html[data-tc-theme="light"] .tc2SupportComposer,
+html[data-tc-theme="light"] .tc2AnnouncementCard,
+html[data-tc-theme="light"] .tc2AnnouncementAdminHero,
+html[data-tc-theme="light"] .tc2AnnouncementEditor,
+html[data-tc-theme="light"] .tc2AnnouncementEmpty,
+html[data-tc-theme="light"] .tc2SupportAnnouncementLink,
 html[data-tc-theme="light"] .tc21StartStat,
 html[data-tc-theme="light"] .tc21StartQuick,
 html[data-tc-theme="light"] .tc21StartNavCard,
@@ -95,6 +100,27 @@ html[data-tc-theme="light"] .tc21StartMigration{
  border-color:var(--tc-theme-border)!important;
  color:var(--tc-theme-text)!important;
  box-shadow:0 14px 32px var(--tc-theme-shadow)!important;
+}
+
+html[data-tc-theme="light"] .tc2AnnouncementCard.important{
+ background:#fff9ec!important;
+ border-color:rgba(174,126,30,.35)!important;
+}
+
+html[data-tc-theme="light"] .tc2AnnouncementCard p,
+html[data-tc-theme="light"] .tc2AnnouncementAdminHero p,
+html[data-tc-theme="light"] .tc2SupportAnnouncementLink small,
+html[data-tc-theme="light"] .tc2AnnouncementEmpty span{
+ color:var(--tc-theme-muted)!important;
+}
+
+html[data-tc-theme="light"] .tc2StartAnnouncement>button,
+html[data-tc-theme="light"] .tc2AnnouncementEditor input,
+html[data-tc-theme="light"] .tc2AnnouncementEditor textarea,
+html[data-tc-theme="light"] .tc2AnnouncementImportant{
+ background:var(--tc-theme-field)!important;
+ border-color:var(--tc-theme-border)!important;
+ color:var(--tc-theme-text)!important;
 }
 
 html[data-tc-theme="light"] .tc21Welcome,

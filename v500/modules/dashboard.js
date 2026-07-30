@@ -3,6 +3,13 @@
 
 let statusTimer=null;
 let dataRefreshTimer=null;
+let announcement=null;
+let announcementUnsubscribe=null;
+let announcementListening=false;
+let announcementRevision=0;
+
+const ANNOUNCEMENT_SEEN_KEY=
+ 'terracontrol_announcement_seen_v1';
 
 function tc2(on){
  document.body.classList.toggle(
@@ -103,6 +110,164 @@ function updateCloudStatus(){
  if(element){
   element.textContent=cloudLabel();
  }
+}
+
+function announcementKey(value){
+ if(!value){
+  return '';
+ }
+
+ return String(
+  value.publishedAtMs||
+  ''
+ );
+}
+
+function announcementSeen(value){
+ try{
+  return (
+   announcementKey(value)&&
+   localStorage.getItem(
+    ANNOUNCEMENT_SEEN_KEY
+   )===announcementKey(value)
+  );
+ }catch(error){
+  return false;
+ }
+}
+
+function renderAnnouncement(){
+ if(
+  !announcement||
+  announcementSeen(announcement)
+ ){
+  return '';
+ }
+
+ return `
+  <section class="tc2AnnouncementCard tc2StartAnnouncement ${announcement.important?'important':''}">
+   <span class="tc2AnnouncementIcon">${announcement.important?'!':'i'}</span>
+
+   <div>
+    <small>${announcement.important?'Wichtige Mitteilung':'Mitteilung'}</small>
+    <h3>${esc(announcement.title)}</h3>
+    <p>${esc(announcement.message).replace(/\n/g,'<br>')}</p>
+   </div>
+
+   <button
+    type="button"
+    onclick="NGTDashboard.acknowledgeAnnouncement()"
+    aria-label="Mitteilung als gelesen markieren"
+   >
+    Gelesen
+   </button>
+  </section>
+ `;
+}
+
+function stopAnnouncementListener(){
+ announcementRevision++;
+
+ if(announcementUnsubscribe){
+  try{
+   announcementUnsubscribe();
+  }catch(error){}
+ }
+
+ announcementUnsubscribe=null;
+ announcementListening=false;
+ announcement=null;
+}
+
+async function startAnnouncementListener(){
+ if(
+  announcementListening||
+  announcementUnsubscribe||
+  !window.NGTAnnouncementService||
+  !window.NGTFirebaseSync||
+  !NGTFirebaseSync.currentUser||
+  !NGTFirebaseSync.currentUser()
+ ){
+  return;
+ }
+
+ const revision=++announcementRevision;
+ announcementListening=true;
+
+ try{
+  const listener=
+   await NGTAnnouncementService.listenCurrent(
+    function(value){
+     if(revision!==announcementRevision){
+      return;
+     }
+
+     announcement=value;
+
+     const current=
+      NGT500.current&&
+      NGT500.current();
+
+     if(
+      current&&
+      current.name==='dashboard'
+     ){
+      NGT500.route(
+       'dashboard',
+       {},
+       {
+        replace:true,
+        noHistory:true
+       }
+      );
+     }
+    },
+    function(message,error){
+     console.warn(
+      message,
+      error||''
+     );
+    }
+   );
+
+  if(revision===announcementRevision){
+   announcementUnsubscribe=listener;
+   announcementListening=false;
+  }else if(listener){
+   listener();
+  }
+ }catch(error){
+  if(revision===announcementRevision){
+   announcementListening=false;
+  }
+
+  console.warn(
+   'Mitteilungen konnten nicht geladen werden.',
+   error
+  );
+ }
+}
+
+function acknowledgeAnnouncement(){
+ if(!announcement){
+  return;
+ }
+
+ try{
+  localStorage.setItem(
+   ANNOUNCEMENT_SEEN_KEY,
+   announcementKey(announcement)
+  );
+ }catch(error){}
+
+ NGT500.route(
+  'dashboard',
+  {},
+  {
+   replace:true,
+   noHistory:true
+  }
+ );
 }
 
 function refreshVisibleDashboard(){
@@ -477,6 +642,8 @@ function render(){
     <span>🐍</span>
    </section>
 
+   ${renderAnnouncement()}
+
    <section class="tc21StartStats">
     ${stat(
      '🐾',
@@ -613,6 +780,8 @@ function afterRender(){
   updateCloudStatus,
   1500
  );
+
+ startAnnouncementListener();
 }
 
 window.NGTDashboard={
@@ -622,7 +791,9 @@ window.NGTDashboard={
  toggleBestand:toggleBestand,
  toggleOffspring:toggleOffspring,
  openSmartDashboard:openSmartDashboard,
- migrateAllPhotos:migrateAllPhotos
+ migrateAllPhotos:migrateAllPhotos,
+ acknowledgeAnnouncement:
+  acknowledgeAnnouncement
 };
 
 NGT500.register(
@@ -644,6 +815,21 @@ if(NGT500.on){
  NGT500.on(
   'store:changed',
   scheduleDataRefresh
+ );
+
+ NGT500.on(
+  'firebase:auth',
+  function(event){
+   if(
+    !event||
+    !event.signedIn
+   ){
+    stopAnnouncementListener();
+    return;
+   }
+
+   startAnnouncementListener();
+  }
  );
 }
 

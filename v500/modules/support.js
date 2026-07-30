@@ -201,6 +201,19 @@ function adminInbox(){
 
    ${statusCard()}
 
+   <button
+    type="button"
+    class="tc2SupportAnnouncementLink"
+    onclick="NGT500.route('announcements')"
+   >
+    <span>i</span>
+    <span>
+     <b>Mitteilung an Tester</b>
+     <small>Information auf allen Startseiten veröffentlichen</small>
+    </span>
+    <strong>›</strong>
+   </button>
+
    <div class="tc2SupportInboxHead">
     <div>
      <small>Unterhaltungen</small>
