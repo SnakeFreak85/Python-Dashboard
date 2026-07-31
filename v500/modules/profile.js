@@ -76,6 +76,31 @@ function render(args){
 
  const scientificName=
   P.scientificName(animal);
+ const inactive=
+  !AnimalEngine.isActiveAnimal(animal)&&
+  !AnimalEngine.isOffspringAnimal(animal);
+ const backRoute=inactive
+  ?`
+   NGT500.route(
+    'animals',
+    {
+     view:'archive',
+     status:'${P.jsArg(AnimalEngine.canonicalStatus(animal.status))}'
+    }
+   )
+  `
+  :`
+   NGT500.route(
+    'animals',
+    {
+     group:'${P.jsArg(animal.animalGroup)}',
+     genus:'${P.jsArg(
+      animal.genus||
+      'Ohne Gattung'
+     )}'
+    }
+   )
+  `;
 
  return `
   <div
@@ -88,20 +113,9 @@ function render(args){
    <div class="tc2ProfileTopBar">
     <button
      class="tc2ProfileTopBack"
-     onclick="
-      NGT500.route(
-       'animals',
-       {
-        group:'${P.jsArg(animal.animalGroup)}',
-        genus:'${P.jsArg(
-         animal.genus||
-         'Ohne Gattung'
-        )}'
-       }
-      )
-     "
+     onclick="${backRoute}"
     >
-     ‹ Bestand
+     ‹ ${inactive?'Archiv':'Bestand'}
     </button>
 
     <div
@@ -147,6 +161,23 @@ function render(args){
      )}
     </small>
    </section>
+
+   ${
+    inactive
+     ?`
+      <div class="tc2ProfileArchiveNotice">
+       <span>Archiviert</span>
+
+       <div>
+        <b>${P.esc(AnimalEngine.canonicalStatus(animal.status))}</b>
+        <small>
+         Das Profil und alle bisherigen Einträge bleiben erhalten.
+        </small>
+       </div>
+      </div>
+     `
+     :''
+   }
 
    <div
     class="tc2ProfileHero"
@@ -222,6 +253,8 @@ function render(args){
      'Gesundheit',
      "NGTProfile.setTab('health')"
     )}
+
+    ${P.managementActions(animal)}
    </section>
 
    <div class="tc2ProfileStats">

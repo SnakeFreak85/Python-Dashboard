@@ -363,6 +363,31 @@ html[data-tc-theme="light"] .tc2ExampleList span{
  box-shadow:none!important;
 }
 
+html[data-tc-theme="light"] .tc2AnimalsViewSwitch{
+ background:#e7eef1!important;
+ border-color:var(--tc-theme-border)!important;
+ box-shadow:none!important;
+}
+
+html[data-tc-theme="light"] .tc2AnimalsViewSwitch button:not(.active),
+html[data-tc-theme="light"] .tc2ArchiveFilters button:not(.active){
+ color:var(--tc-theme-text)!important;
+ background:var(--tc-theme-surface-soft)!important;
+ border-color:var(--tc-theme-border)!important;
+}
+
+html[data-tc-theme="light"] .tc2TaxAnimalStatus{
+ color:#263b46!important;
+ background:#e4ecef!important;
+ border-color:#b8c9d1!important;
+}
+
+html[data-tc-theme="light"] .tc2ProfileArchiveNotice{
+ color:var(--tc-theme-text)!important;
+ background:#edf3f5!important;
+ border-color:var(--tc-theme-border)!important;
+}
+
 /*
  * Die Aktionsknöpfe innerhalb eines Tierprofils behalten ihre dunkle
  * TC2-Fläche. Ihre Beschriftung muss deshalb auch im hellen Theme hell sein.

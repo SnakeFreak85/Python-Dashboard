@@ -11,6 +11,14 @@ if(!P){
 }
 
 function backButton(args){
+ if(args&&args.view==='archive'){
+  return `
+   <button onclick="NGT500.route('animals')">
+    ‹ Bestand
+   </button>
+  `;
+ }
+
  if(args&&args.genus){
   return `
    <button
@@ -25,6 +33,34 @@ function backButton(args){
   <button onclick="NGT500.route('dashboard')">
    ‹ Start
   </button>
+ `;
+}
+
+function viewSwitch(view){
+ const archive=view==='archive';
+
+ return `
+  <div
+   class="tc2AnimalsViewSwitch"
+   role="group"
+   aria-label="Bestandsansicht"
+  >
+   <button
+    class="${archive?'':'active'}"
+    aria-pressed="${archive?'false':'true'}"
+    onclick="NGT500.route('animals')"
+   >
+    Aktiv
+   </button>
+
+   <button
+    class="${archive?'active':''}"
+    aria-pressed="${archive?'true':'false'}"
+    onclick="NGT500.route('animals',{view:'archive'})"
+   >
+    Archiv
+   </button>
+  </div>
  `;
 }
 
@@ -63,7 +99,9 @@ function folderGrid(items,onclick){
  `;
 }
 
-function animalIconGrid(rows){
+function animalIconGrid(rows,options){
+ options=options||{};
+
  if(!rows.length){
   return `
    <div class="tc2EmptyState">
@@ -97,6 +135,9 @@ function animalIconGrid(rows){
      animal.genus,
      animal.species
     ].filter(Boolean).join(' ');
+    const status=options.showStatus
+     ?P.archiveStatus(animal)
+     :'';
 
     return `
      <button
@@ -107,6 +148,7 @@ function animalIconGrid(rows){
       <b>${P.esc(animal.publicId||animal.displayId||'')}</b>
       <strong>${P.esc(animal.name||'Unbenannt')}</strong>
       <small>${P.esc(taxonomy||animal.animalGroup||'')}</small>
+      ${status?`<span class="tc2TaxAnimalStatus">${P.esc(status)}</span>`:''}
      </button>
     `;
    }).join('')}
@@ -114,7 +156,109 @@ function animalIconGrid(rows){
  `;
 }
 
+function archiveFilters(rows,current){
+ const statuses=[
+  'Verstorben',
+  'Verkauft',
+  'Abgegeben',
+  'Archiv'
+ ];
+
+ return `
+  <div
+   class="tc2ArchiveFilters"
+   role="group"
+   aria-label="Archiv nach Status filtern"
+  >
+   <button
+    class="${current?'':'active'}"
+    onclick="NGT500.route('animals',{view:'archive'})"
+   >
+    Alle <span>${rows.length}</span>
+   </button>
+
+   ${statuses.map(function(status){
+    const count=rows.filter(function(row){
+     return P.archiveStatus(row.a)===status;
+    }).length;
+
+    return `
+     <button
+      class="${current===status?'active':''}"
+      onclick="NGT500.route('animals',{view:'archive',status:'${P.jsArg(status)}'})"
+     >
+      ${P.esc(status)} <span>${count}</span>
+     </button>
+    `;
+   }).join('')}
+  </div>
+ `;
+}
+
+function archiveView(args){
+ const all=P.allArchived();
+ const requested=AnimalEngine.canonicalStatus(
+  args.status||''
+ );
+ const status=[
+  'Verstorben',
+  'Verkauft',
+  'Abgegeben',
+  'Archiv'
+ ].includes(requested)
+  ?requested
+  :'';
+ const rows=status
+  ?all.filter(function(row){
+   return P.archiveStatus(row.a)===status;
+  })
+  :all;
+
+ return `
+  <div class="tc2PageCard tc2AnimalsPage tc2AnimalsArchive">
+   <div class="tc2PageHead">
+    <div>
+     ${backButton({view:'archive'})}
+     <h2>Tierarchiv</h2>
+
+     <p class="muted">
+      Verstorbene, verkaufte und abgegebene Tiere
+      bleiben mit ihrer vollständigen Historie erhalten.
+     </p>
+    </div>
+   </div>
+
+   ${viewSwitch('archive')}
+   ${archiveFilters(all,status)}
+
+   ${
+    rows.length
+     ?animalIconGrid(rows,{showStatus:true})
+     :`
+      <div class="tc2EmptyState">
+       <h3>${status?'Keine Tiere mit diesem Status':'Archiv ist leer'}</h3>
+
+       <p class="muted">
+        ${
+         status
+          ?'Für „'+P.esc(status)+'“ sind keine Tiere gespeichert.'
+          :'Sobald ein Tier als verstorben, verkauft, abgegeben oder archiviert markiert wird, erscheint es hier.'
+        }
+       </p>
+      </div>
+     `
+   }
+  </div>
+ `;
+}
+
 function render(args){
+ args=args||{};
+
+ if(args.view==='archive'){
+  return archiveView(args);
+ }
+
  const group=args.group||'';
  const genus=args.genus||'';
  const all=P.allActive();
@@ -138,6 +282,8 @@ function render(args){
       </p>
      </div>
     </div>
+
+    ${viewSwitch('active')}
 
     ${folderGrid(
      groups,
@@ -181,6 +327,8 @@ function render(args){
      </div>
     </div>
 
+    ${viewSwitch('active')}
+
     ${folderGrid(
      genusRows,
      function(item){
@@ -222,13 +370,16 @@ function render(args){
     </div>
    </div>
 
+   ${viewSwitch('active')}
+
    ${animalIconGrid(animalRows)}
   </div>
  `;
 }
 
 P.stock={
- render:render
+ render:render,
+ archiveView:archiveView
 };
 
 })();

@@ -113,6 +113,7 @@ async function run(){
   equal('öffentliche API: save',typeof win.NGTAnimals.save,'function');
   equal('öffentliche API: remove',typeof win.NGTAnimals.remove,'function');
   equal('öffentliche API: removeById',typeof win.NGTAnimals.removeById,'function');
+  equal('öffentliche API: restoreById',typeof win.NGTAnimals.restoreById,'function');
   equal('öffentliche API: updateIntervalFields',typeof win.NGTAnimals.updateIntervalFields,'function');
 
   win.NGTStore.clearLocal();
@@ -145,6 +146,8 @@ async function run(){
 
   const luna=win.NGTStore.findAnimal('Luna');
   const lunaId=win.NGTStore.animalId(luna.a);
+  const archived=win.NGTStore.findAnimal('Archiviert');
+  const archivedId=win.NGTStore.animalId(archived.a);
   const offspring=win.NGTStore.findAnimal('Nachzucht');
   const offspringId=win.NGTStore.animalId(offspring.a);
 
@@ -215,6 +218,58 @@ async function run(){
   const inventoryText=win.document.getElementById('app').textContent;
   record('aktive Tiergruppe wird angezeigt',inventoryText.includes('Pythons'));
   record('archivierte Tiergruppe wird ausgeblendet',!inventoryText.includes('Boas'));
+  record('Bestand bietet eine Archivansicht an',inventoryText.includes('Archiv'));
+
+  win.NGT500.route('animals',{view:'archive'});
+
+  const archiveText=win.document.getElementById('app').textContent;
+  record('archiviertes Tier bleibt im Archiv sichtbar',archiveText.includes('Archiviert'));
+  record('aktives Tier wird im Archiv ausgeblendet',!archiveText.includes('Luna'));
+  record('Nachzucht wird im Tierarchiv ausgeblendet',!archiveText.includes('Nachzucht'));
+  record(
+   'Archiv zeigt Statusfilter und Zählwerte',
+   archiveText.includes('Verstorben')&&
+   archiveText.includes('Verkauft')&&
+   archiveText.includes('Abgegeben')
+  );
+
+  win.NGT500.route('animals',{view:'archive',status:'Archiv'});
+
+  record(
+   'Archivfilter zeigt den Status des Tieres',
+   win.document.querySelector('.tc2TaxAnimalStatus').textContent.includes('Archiv')
+  );
+
+  win.NGT500.route('profile',{animalId:archivedId});
+
+  record(
+   'archiviertes Profil zeigt Archivhinweis',
+   !!win.document.querySelector('.tc2ProfileArchiveNotice')
+  );
+  record(
+   'archiviertes Profil bietet Wiederaufnahme an',
+   !!win.document.querySelector('.tc2ProfileRestore')
+  );
+  record(
+   'Zurück-Schaltfläche führt aus dem Profil ins Archiv',
+   win.document.querySelector('.tc2ProfileTopBack').textContent.includes('Archiv')
+  );
+
+  equal(
+   'Wiederaufnahme ist erfolgreich',
+   win.NGTAnimals.restoreById(archivedId),
+   true
+  );
+  equal(
+   'Wiederaufnahme setzt den Status auf Bestand',
+   win.NGTStore.getAnimalById(archivedId).status,
+   'Bestand'
+  );
+
+  win.NGTStore.updateAnimalById(
+   archivedId,
+   {status:'Archiv'}
+  );
 
   win.NGT500.route('animals',{group:'Pythons',genus:'Python'});
 

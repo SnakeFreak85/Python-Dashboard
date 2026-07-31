@@ -6432,6 +6432,152 @@ body:not(.tc2RefMode) .wrap {
  font-weight:850!important;
 }
 
+/* Aktiver Bestand / dauerhaftes Tierarchiv */
+
+.tc2AnimalsViewSwitch{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:5px;
+ width:100%;
+ padding:5px;
+ border-radius:18px;
+ background:rgba(7,21,33,.72);
+ border:1px solid rgba(125,170,210,.25);
+ box-shadow:0 11px 25px rgba(0,0,0,.14);
+}
+
+.tc2AnimalsViewSwitch button{
+ min-height:46px;
+ margin:0!important;
+ padding:10px 14px!important;
+ border-radius:14px!important;
+ color:var(--tc-theme-muted,#aeb9c4)!important;
+ background:transparent!important;
+ border:0!important;
+ box-shadow:none!important;
+ font-weight:850!important;
+}
+
+.tc2AnimalsViewSwitch button.active{
+ color:#071521!important;
+ background:linear-gradient(135deg,#69d2c4,#8bdc3f)!important;
+ box-shadow:0 8px 18px rgba(0,0,0,.18)!important;
+}
+
+.tc2ArchiveFilters{
+ display:flex;
+ gap:8px;
+ width:100%;
+ overflow-x:auto;
+ padding:2px 1px 7px;
+ scrollbar-width:thin;
+}
+
+.tc2ArchiveFilters button{
+ flex:0 0 auto;
+ min-height:40px;
+ margin:0!important;
+ padding:8px 12px!important;
+ border-radius:999px!important;
+ color:var(--tc-theme-text-soft,#dce7ef)!important;
+ background:rgba(16,34,49,.94)!important;
+ border:1px solid rgba(125,170,210,.28)!important;
+ box-shadow:none!important;
+ font-size:12px!important;
+ font-weight:800!important;
+}
+
+.tc2ArchiveFilters button span{
+ display:inline-grid;
+ place-items:center;
+ min-width:23px;
+ min-height:23px;
+ margin-left:5px;
+ padding:0 6px;
+ border-radius:999px;
+ background:rgba(255,255,255,.08);
+ font-size:10px;
+}
+
+.tc2ArchiveFilters button.active{
+ color:#071521!important;
+ background:#8bdc3f!important;
+ border-color:#8bdc3f!important;
+}
+
+.tc2ArchiveFilters button.active span{
+ background:rgba(7,21,33,.13);
+}
+
+.tc2TaxAnimalStatus{
+ align-self:flex-start;
+ margin:10px 14px 0;
+ padding:5px 8px;
+ border-radius:999px;
+ color:#f4f7fb;
+ background:rgba(92,111,124,.45);
+ border:1px solid rgba(179,197,207,.22);
+ font-size:10px;
+ font-style:normal;
+ font-weight:850;
+ line-height:1;
+}
+
+.tc2ProfileArchiveNotice{
+ display:flex;
+ align-items:center;
+ gap:12px;
+ margin-bottom:14px;
+ padding:14px 16px;
+ border-radius:18px;
+ color:var(--tc-theme-text-primary,#f4f7fb);
+ background:rgba(74,95,108,.2);
+ border:1px solid rgba(151,172,184,.28);
+}
+
+.tc2ProfileArchiveNotice>span{
+ flex:0 0 auto;
+ padding:6px 9px;
+ border-radius:999px;
+ color:#f4f7fb;
+ background:#536b78;
+ font-size:10px;
+ font-weight:900;
+ text-transform:uppercase;
+ letter-spacing:.35px;
+}
+
+.tc2ProfileArchiveNotice div{
+ display:flex;
+ flex-direction:column;
+ min-width:0;
+ gap:3px;
+}
+
+.tc2ProfileArchiveNotice b{
+ font-size:14px;
+}
+
+.tc2ProfileArchiveNotice small{
+ color:var(--tc-theme-muted,#aeb9c4);
+ line-height:1.35;
+}
+
+.tc2ProfileAction.tc2ProfileRestore{
+ width:100%;
+ min-height:68px;
+ color:#071521!important;
+ background:linear-gradient(135deg,#69d2c4,#8bdc3f)!important;
+ border:0!important;
+ box-shadow:0 12px 26px rgba(76,150,50,.2)!important;
+}
+
+.tc2ProfileAction.tc2ProfileRestore .tc2ProfileActionText,
+.tc2ProfileAction.tc2ProfileRestore .tc2ProfileActionIcon,
+.tc2ProfileAction.tc2ProfileRestore .tc2ProfileActionArrow{
+ color:#071521!important;
+}
+
 /* Taxonomie-Ordner */
 
 .tc2TaxGrid{
@@ -7009,6 +7155,11 @@ body:not(.tc2RefMode) .wrap {
   align-self:start;
   margin-top:2px;
   margin-bottom:17px;
+ }
+
+ .tc2TaxAnimalStatus{
+  grid-column:2;
+  margin:0 0 15px;
  }
 }
 /* =========================================================
@@ -13590,4 +13741,11 @@ body.tc2StandaloneBody{
 
 .tc2ModuleTop .tc2Sync>b{
  color:#cffff2;
+}
+
+@media(max-width:420px){
+ .tc2TaxAnimal>.tc2TaxAnimalStatus{
+  grid-column:2;
+  margin:0 0 15px;
+ }
 }

@@ -81,6 +81,8 @@ async function removeResolved(row){
 
  const group=animal.animalGroup||'Unsortiert';
  const genus=animal.genus||'Ohne Gattung';
+ const archived=!AnimalEngine.isActiveAnimal(animal);
+ const status=P.archiveStatus(animal);
 
  if(!NGTStore.deleteAnimalById(NGTStore.animalId(animal))){
   if(NGT500.toast){
@@ -98,10 +100,15 @@ async function removeResolved(row){
 
  NGT500.route(
   'animals',
-  {
-   group:group,
-   genus:genus
-  }
+  archived
+   ?{
+    view:'archive',
+    status:status
+   }
+   :{
+    group:group,
+    genus:genus
+   }
  );
 }
 
@@ -120,6 +127,43 @@ function removeById(animalId){
    animalId:animalId
   })
  );
+}
+
+function restoreById(animalId){
+ const animal=NGTStore.getAnimalById(animalId);
+
+ if(!animal){
+  if(NGT500.toast){
+   NGT500.toast(
+    'Das Tier wurde nicht gefunden.',
+    'danger'
+   );
+  }
+  return false;
+ }
+
+ const restored=NGTStore.updateAnimalById(
+  animalId,
+  {status:'Bestand'}
+ );
+
+ if(!restored){
+  return false;
+ }
+
+ if(NGT500.toast){
+  NGT500.toast(
+   'Tier ist wieder im aktiven Bestand.',
+   'success'
+  );
+ }
+
+ NGT500.route(
+  'profile',
+  {animalId:animalId}
+ );
+
+ return true;
 }
 
 function render(args){
@@ -160,6 +204,7 @@ window.NGTAnimals={
  save:P.editor.save,
  remove:remove,
  removeById:removeById,
+ restoreById:restoreById,
  updateIntervalFields:
   P.editor.updateIntervalFields
 };

@@ -79,6 +79,35 @@ function allActive(){
  });
 }
 
+function allArchived(){
+ const all=
+  NGTStore.allAnimals
+   ?NGTStore.allAnimals()
+   :[];
+
+ return all.filter(function(row){
+  return (
+   !AnimalEngine.isActiveAnimal(row.a)&&
+   !isOffspringAnimal(row.a)
+  );
+ });
+}
+
+function archiveStatus(animal){
+ const status=AnimalEngine.canonicalStatus(
+  animal&&animal.status
+ );
+
+ return [
+  'Verstorben',
+  'Verkauft',
+  'Abgegeben',
+  'Archiv'
+ ].includes(status)
+  ?status
+  :'Archiv';
+}
+
 function countBy(rows,keyFunction){
  const map={};
 
@@ -109,6 +138,8 @@ P.statusOptions=statusOptions;
 P.photoSrc=photoSrc;
 P.coverPhoto=coverPhoto;
 P.allActive=allActive;
+P.allArchived=allArchived;
+P.archiveStatus=archiveStatus;
 P.countBy=countBy;
 
 window.NGTAnimalsInternal=P;

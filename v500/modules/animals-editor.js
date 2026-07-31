@@ -553,7 +553,12 @@ function save(t,i,animalId){
 
  NGT500.route(
   'animals',
-  {group:animal.animalGroup,genus:animal.genus}
+  AnimalEngine.isActiveAnimal(animal)
+   ?{group:animal.animalGroup,genus:animal.genus}
+   :{
+    view:'archive',
+    status:P.archiveStatus(animal)
+   }
  );
 }
 
