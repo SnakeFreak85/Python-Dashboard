@@ -308,6 +308,16 @@ function animalKind(animal){
   return 'veiled-chameleon';
  }
 
+ if(/chamäleon|chamaeleon|chameleon/.test(value)){
+  return 'chameleon';
+ }
+
+ if(
+  /spinne|tarantel|tarantula|theraphosidae|brachypelma|tliltocatl|grammostola|avicularia|caribena|psalmopoeus|poecilotheria|chromatopelma|lasiodora|theraphosa|acanthoscurria/.test(value)
+ ){
+  return 'tarantula';
+ }
+
  if(
   /schlange|python|natter|viper|kobra|cobra/.test(value)
  ){
@@ -491,12 +501,12 @@ function leopardGeckoRule(months){
 
  return {
   primary:
-   'Abwechslungsreiche, gut ernährte Futterinsekten',
+   'Schaben, Grillen, Heuschrecken und andere geeignete Futterinsekten',
   minimumDays:juvenile?1:2,
   maximumDays:juvenile?2:3,
   dueDays:juvenile?2:3,
   detail:
-   'Futtertiere passend zur Größe des Geckos wählen',
+   'Abwechslungsreich und gut ernährt anbieten; nicht breiter als der Kopf',
   basis:
    'Leopardgecko · '+
    (juvenile?'Jungtier':'Adult')+
@@ -512,18 +522,53 @@ function veiledChameleonRule(months){
  const juvenile=months<12;
 
  return {
-  primary:juvenile
-   ?'12–20 kleine, gut ernährte Futterinsekten'
-   :'Etwa 12 große Grillen oder 5–6 Superwürmer',
+  primary:
+   'Schaben, Grillen, Heuschrecken und weitere geeignete Futterinsekten',
   minimumDays:juvenile?1:2,
   maximumDays:juvenile?1:2,
   dueDays:juvenile?1:2,
-  detail:
-   'Futterinsekten nicht breiter als der Kopf',
+  detail:juvenile
+   ?'Jungtier: täglich eine passende Menge kleiner Futterinsekten; abwechslungsreich und gut ernährt'
+   :'Adult: etwa jeden zweiten Tag; abwechslungsreich und nicht breiter als der Kopf',
   basis:
    'Jemenchamäleon · '+
    (juvenile?'Jungtier':'Adult')+
    ' · Alter '+months+' Monate'
+ };
+}
+
+function genericChameleonRule(months){
+ const juvenile=months!==null&&months<12;
+
+ return {
+  primary:
+   'Schaben, Grillen, Heuschrecken und weitere geeignete Futterinsekten',
+  minimumDays:juvenile?1:2,
+  maximumDays:juvenile?1:3,
+  dueDays:juvenile?1:3,
+  detail:
+   'Artgerecht abwechslungsreich und gut ernährt anbieten; Futtergröße an Kopfbreite anpassen',
+  basis:
+   'Chamäleon · '+
+   (months===null
+    ?'genaue Art und Lebensphase beachten'
+    :(juvenile?'Jungtier':'Adult')+' · Alter '+months+' Monate')
+ };
+}
+
+function tarantulaRule(){
+ return {
+  primary:
+   '1 passend großes Futterinsekt, zum Beispiel Schabe, Grille oder Heuschrecke',
+  minimumDays:7,
+  maximumDays:14,
+  dueDays:null,
+  conditionText:
+   'Hinterleib und Häutungszustand prüfen',
+  detail:
+   'Beute höchstens etwa in Hinterleibsgröße; bei Vorhäutung und nach frischer Häutung nicht füttern',
+  basis:
+   'Vogelspinne · Größe, Art und Häutungszustand beachten'
  };
 }
 
@@ -544,7 +589,6 @@ function genericSnakeRule(months){
 
 function speciesRule(animal,inventory,options){
  const kind=animalKind(animal);
- const weight=latestWeight(animal);
  const months=ageMonths(
   animal,
   options&&options.now
@@ -552,14 +596,14 @@ function speciesRule(animal,inventory,options){
 
  if(kind==='ball-python'){
   return ballPythonRule(
-   weight,
+   latestWeight(animal),
    inventory
   );
  }
 
  if(kind==='boa'){
   return boaRule(
-   weight,
+   latestWeight(animal),
    months,
    inventory
   );
@@ -571,6 +615,14 @@ function speciesRule(animal,inventory,options){
 
  if(kind==='veiled-chameleon'){
   return veiledChameleonRule(months);
+ }
+
+ if(kind==='chameleon'){
+  return genericChameleonRule(months);
+ }
+
+ if(kind==='tarantula'){
+  return tarantulaRule();
  }
 
  if(kind==='snake'){
@@ -727,7 +779,7 @@ function recommendation(
   isoDate(latestAny.date);
 
  const nextDate=
-  latestDate&&rule
+  latestDate&&rule&&rule.dueDays
    ?addDays(
     latestDate,
     rule.dueDays
@@ -772,7 +824,10 @@ function recommendation(
   };
  }
 
- if(!latestDate){
+ if(rule.conditionText){
+  state='warn';
+  nextText=rule.conditionText;
+ }else if(!latestDate){
   state='warn';
   nextText='Erste Fütterung eintragen';
  }else if(nextDate){

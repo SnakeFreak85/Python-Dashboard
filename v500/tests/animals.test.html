@@ -372,6 +372,48 @@ async function run(){
    'alle 28–56 Tage'
   );
 
+  const chameleonRecommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     {
+      animalGroup:'Chamäleons',
+      genus:'Chamaeleo',
+      species:'calyptratus',
+      birth:'2024-01-01',
+      feeds:[]
+     },
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  record(
+   'Chamäleon-Empfehlung nennt Schaben und benötigt kein Gewicht',
+   chameleonRecommendation.available&&
+   chameleonRecommendation.primary.includes('Schaben')&&
+   !chameleonRecommendation.basis.includes('Gewicht')
+  );
+
+  const spiderRecommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     {
+      animalGroup:'Vogelspinnen',
+      genus:'Brachypelma',
+      species:'hamorii',
+      feeds:[]
+     },
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  record(
+   'Vogelspinnen erhalten eine größen- und häutungsabhängige Regel ohne Gewicht',
+   spiderRecommendation.available&&
+   spiderRecommendation.primary.includes('Futterinsekt')&&
+   spiderRecommendation.detail.includes('Häutung')&&
+   !spiderRecommendation.basis.includes('Gewicht')
+  );
+
   record(
    'Futterempfehlung wird im Tierprofil angezeigt',
    win.document
