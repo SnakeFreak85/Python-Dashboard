@@ -422,6 +422,14 @@ async function run(){
     .includes('Futterempfehlung')
   );
 
+  record(
+   'Futterempfehlung zeigt den Hinweis zu individuellen Futtergewohnheiten',
+   win.document
+    .getElementById('app')
+    .textContent
+    .includes('ersetzt nicht die individuellen Futtergewohnheiten')
+  );
+
   win.NGT500.route('animals',{edit:0});
 
   equal('Legacy-Fütterungsintervall wird gelesen',win.document.getElementById('edFeedInterval').value,'13');

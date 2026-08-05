@@ -459,6 +459,19 @@ stop:nth-child(3) {
   color: #ffad66 !important;
 }
 
+.tc2FeedingRecommendationWarning {
+  display: block !important;
+  margin: 0 0 10px !important;
+  padding: 7px 9px !important;
+  border: 1px solid rgba(255, 92, 101, .62) !important;
+  border-radius: 9px !important;
+  background: rgba(153, 22, 32, .28) !important;
+  color: #ff969d !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  font-weight: 850 !important;
+}
+
 .tc2FeedingRecommendationPrimary {
   display: block !important;
   color: #ffffff !important;
@@ -562,6 +575,13 @@ html[data-tc-theme="light"]
 html[data-tc-theme="light"]
 .tc2FeedingRecommendationPrimary {
   color: #10241c !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationWarning {
+  border-color: rgba(174, 28, 40, .46) !important;
+  background: #ffe6e8 !important;
+  color: #a31521 !important;
 }
 
 html[data-tc-theme="light"]

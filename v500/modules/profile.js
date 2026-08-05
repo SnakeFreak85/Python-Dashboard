@@ -68,6 +68,10 @@ function feedingRecommendationCard(
      )}
     </h3>
 
+    <div class="tc2FeedingRecommendationWarning" role="note">
+     Hinweis: Diese Empfehlung ersetzt nicht die individuellen Futtergewohnheiten deines Tieres.
+    </div>
+
     <strong class="tc2FeedingRecommendationPrimary">
      ${P.esc(value.primary||'-')}
     </strong>
