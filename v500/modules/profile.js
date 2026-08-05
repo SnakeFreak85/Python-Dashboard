@@ -191,6 +191,14 @@ function render(args){
      image
       ?`
        <img
+        class="tc2ProfileHeroBackdrop"
+        src="${P.esc(image)}"
+        alt=""
+        aria-hidden="true"
+       >
+
+       <img
+        class="tc2ProfileHeroImage"
         src="${P.esc(image)}"
         alt="Tierfoto"
        >
