@@ -427,7 +427,7 @@ function ballPythonRule(weight,inventory){
  return {
   primary:match
    ?'1 × '+match.label
-   :'1 Beutetier mit etwa '+target+' g',
+   :'1 Futtertier mit etwa '+target+' g',
   minimumDays:minimumDays,
   maximumDays:maximumDays,
   dueDays:maximumDays,
@@ -481,12 +481,12 @@ function boaRule(weight,months,inventory){
  return {
   primary:match
    ?'1 × '+match.label
-   :'1 Beutetier bis etwa '+maximumWeight+' g',
+   :'1 Futtertier bis etwa '+maximumWeight+' g',
   minimumDays:minimumDays,
   maximumDays:maximumDays,
   dueDays:maximumDays,
   detail:
-   'Beutetier höchstens etwa 10 % des Körpergewichts',
+   'Futtertier höchstens etwa 10 % des Körpergewichts',
   basis:
    'Boa · '+weight+' g · Alter '+months+' Monate'
  };
@@ -566,7 +566,7 @@ function tarantulaRule(){
   conditionText:
    'Hinterleib und Häutungszustand prüfen',
   detail:
-   'Beute höchstens etwa in Hinterleibsgröße; bei Vorhäutung und nach frischer Häutung nicht füttern',
+   'Futterinsekt höchstens etwa in Hinterleibsgröße; bei Vorhäutung und nach frischer Häutung nicht füttern',
   basis:
    'Vogelspinne · Größe, Art und Häutungszustand beachten'
  };
@@ -575,12 +575,12 @@ function tarantulaRule(){
 function genericSnakeRule(months){
  return {
   primary:
-   '1 Beutetier passend zur Körperbreite',
+   '1 Futtertier passend zur Körperbreite',
   minimumDays:7,
   maximumDays:14,
   dueDays:14,
   detail:
-   'Beutetier nicht deutlich breiter als Kopf beziehungsweise Körpermitte',
+   'Futtertier nicht deutlich breiter als Kopf beziehungsweise Körpermitte',
   basis:
    'Allgemeine Schlangenorientierung'+
    (months===null?'':' · Alter '+months+' Monate')
