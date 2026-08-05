@@ -125,8 +125,8 @@ stop:nth-child(3) {
 }
 
 /*
- * Hochgeladene Tierfotos bleiben innerhalb
- * der vorgesehenen Bestandskarte.
+ * Bestandskarten:
+ * Das vollständige Tierfoto bleibt sichtbar.
  */
 .tc2TaxAnimal {
   min-width: 0 !important;
@@ -146,7 +146,13 @@ stop:nth-child(3) {
   padding: 0 !important;
   overflow: hidden !important;
   border-radius: 18px !important;
-  background: #071521 !important;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(48, 79, 95, .24),
+      transparent 70%
+    ),
+    #071521 !important;
 }
 
 .tc2TaxAnimal > div:first-child > img {
@@ -159,27 +165,32 @@ stop:nth-child(3) {
   max-height: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
-  object-fit: cover !important;
-  object-position: center !important;
+  object-fit: contain !important;
+  object-position: center center !important;
   border-radius: 0 !important;
 }
 
 /*
  * Profilfoto:
- * Hochformatfotos dürfen nicht mehr ihre vollständige
- * Höhe in die Profilseite übertragen.
+ * Kompakter Rahmen, aber ohne Beschneiden des Tieres.
  */
 .tc2ProfileV4 .tc2ProfileHero {
   display: grid !important;
   place-items: center !important;
   width: 100% !important;
-  height: clamp(210px, 52vw, 280px) !important;
-  min-height: 210px !important;
-  max-height: 280px !important;
+  height: clamp(240px, 62vw, 300px) !important;
+  min-height: 240px !important;
+  max-height: 300px !important;
   padding: 0 !important;
   overflow: hidden !important;
   border-radius: 24px !important;
-  background: #071521 !important;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(48, 79, 95, .24),
+      transparent 72%
+    ),
+    #071521 !important;
 }
 
 .tc2ProfileV4 .tc2ProfileHero > img {
@@ -192,7 +203,7 @@ stop:nth-child(3) {
   max-height: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
   object-position: center center !important;
   border-radius: 24px !important;
 }
@@ -207,8 +218,8 @@ stop:nth-child(3) {
 }
 
 /*
- * Auf schmalen Smartphones wird die Tierkarte
- * als kompakte horizontale Karte dargestellt.
+ * Kompakte horizontale Tierkarten
+ * auf schmalen Smartphones.
  */
 @media (max-width: 420px) {
   .tc2TaxAnimal {
@@ -253,8 +264,8 @@ stop:nth-child(3) {
     height: 116px !important;
     min-height: 116px !important;
     max-height: 116px !important;
-    object-fit: cover !important;
-    object-position: center !important;
+    object-fit: contain !important;
+    object-position: center center !important;
   }
 
   .tc2TaxAnimal > b,
