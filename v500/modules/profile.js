@@ -26,6 +26,79 @@ requiredModules.forEach(function(name){
  }
 });
 
+function feedingRecommendationCard(
+ recommendation
+){
+ const value=
+  recommendation||{
+   available:false,
+   state:'incomplete',
+   icon:'🍽️',
+   heading:'Futterempfehlung',
+   primary:'Noch nicht verfügbar',
+   intervalText:
+    'Standardfutter oder erste Fütterung hinterlegen',
+   nextLabel:'Nächste Fütterung',
+   nextText:'Noch nicht berechenbar',
+   basis:
+    'Die App verwendet deine hinterlegten Tier- und Verlaufsdaten.'
+  };
+
+ return `
+  <section
+   class="
+    tc2FeedingRecommendation
+    ${P.esc(value.state||'incomplete')}
+   "
+  >
+   <div
+    class="tc2FeedingRecommendationIcon"
+    aria-hidden="true"
+   >
+    ${P.esc(value.icon||'🍽️')}
+   </div>
+
+   <div class="tc2FeedingRecommendationMain">
+    <h3>
+     ${P.esc(
+      value.heading||
+      'Futterempfehlung'
+     )}
+    </h3>
+
+    <strong class="tc2FeedingRecommendationPrimary">
+     ${P.esc(value.primary||'-')}
+    </strong>
+
+    <span class="tc2FeedingRecommendationInterval">
+     ${P.esc(value.intervalText||'-')}
+    </span>
+   </div>
+
+   <div class="tc2FeedingRecommendationMeta">
+    <div class="tc2FeedingRecommendationNext">
+     <span aria-hidden="true">🗓️</span>
+
+     <span>
+      ${P.esc(
+       value.nextLabel||
+       'Nächste Fütterung'
+      )}:
+     </span>
+
+     <b>
+      ${P.esc(value.nextText||'-')}
+     </b>
+    </div>
+
+    <small class="tc2FeedingRecommendationBasis">
+     ${P.esc(value.basis||'')}
+    </small>
+   </div>
+  </section>
+ `;
+}
+
 function render(args){
  P.photos.closePhotoViewer();
  P.setContext(args);
@@ -67,6 +140,14 @@ function render(args){
 
  const feedInterval=
   CareRulesEngine.feedInterval(animal);
+
+ const feedingRecommendation=
+  window.FeedingRecommendationEngine
+   ?FeedingRecommendationEngine.recommendation(
+    animal,
+    NGTStore.foodInventory()
+   )
+   :null;
 
  const id=
   animal.publicId||
@@ -210,6 +291,14 @@ function render(args){
       `
     }
    </div>
+
+   ${
+    !inactive
+     ?feedingRecommendationCard(
+      feedingRecommendation
+     )
+     :''
+   }
 
    <section class="tc2ProfileActionGrid">
     ${P.action(
