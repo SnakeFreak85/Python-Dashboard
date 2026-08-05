@@ -125,8 +125,8 @@ stop:nth-child(3) {
 }
 
 /*
- * Hochgeladene Tierfotos bleiben immer innerhalb
- * der vorgesehenen Tierkarte.
+ * Hochgeladene Tierfotos bleiben innerhalb
+ * der vorgesehenen Bestandskarte.
  */
 .tc2TaxAnimal {
   min-width: 0 !important;
@@ -162,6 +162,48 @@ stop:nth-child(3) {
   object-fit: cover !important;
   object-position: center !important;
   border-radius: 0 !important;
+}
+
+/*
+ * Profilfoto:
+ * Hochformatfotos dürfen nicht mehr ihre vollständige
+ * Höhe in die Profilseite übertragen.
+ */
+.tc2ProfileV4 .tc2ProfileHero {
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  height: clamp(210px, 52vw, 280px) !important;
+  min-height: 210px !important;
+  max-height: 280px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 24px !important;
+  background: #071521 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero > img {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: 24px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHeroEmpty {
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
 }
 
 /*
