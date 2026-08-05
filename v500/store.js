@@ -1,12 +1,22 @@
 (function(){
 'use strict';
 
-const KEY='spd_v53';
+const TEST_MODE=
+  new URLSearchParams(window.location.search)
+    .get('tcTest')==='1';
+const KEY=TEST_MODE
+  ?'terracontrol_test_data_v1'
+  :'spd_v53';
+const LAST_SAVE_KEY=TEST_MODE
+  ?'terracontrol_test_last_local_save_v1'
+  :'terracontrol_last_local_save_v1';
 const APP_VERSION='1.0.4-rc.11';
-const LEGACY_SETTINGS_KEY=
-  'terracontrol_settings_v1';
-const LEGACY_SELLER_KEY=
-  'ngt_seller_profile_v1';
+const LEGACY_SETTINGS_KEY=TEST_MODE
+  ?'terracontrol_test_settings_v1'
+  :'terracontrol_settings_v1';
+const LEGACY_SELLER_KEY=TEST_MODE
+  ?'terracontrol_test_seller_profile_v1'
+  :'ngt_seller_profile_v1';
 
 const LEGACY_TYPES=['koenig','boas','geckos','spinnen'];
 
@@ -461,8 +471,9 @@ function load(){
     ?normalize(d,{importLegacy:true})
     :base();
 
-  const legacySeller=
-    readJson(LEGACY_SELLER_KEY);
+  const legacySeller=TEST_MODE
+    ?null
+    :readJson(LEGACY_SELLER_KEY);
 
   if(
     !loaded.settings.seller&&
@@ -489,7 +500,7 @@ function save(){
   localStorage.setItem(KEY,txt);
 
   try{
-    localStorage.setItem('terracontrol_last_local_save_v1',JSON.stringify({
+    localStorage.setItem(LAST_SAVE_KEY,JSON.stringify({
       at:new Date().toISOString(),
       animals:allAnimals().length
     }));
@@ -502,10 +513,13 @@ function clearLocal(){
   db=base();
 
   localStorage.removeItem(KEY);
-  localStorage.removeItem('ngt_v500_data');
-  localStorage.removeItem('terracontrol_data_v1');
-  localStorage.removeItem('terracontrol_data_shadow_v1');
-  localStorage.removeItem('terracontrol_last_migration_v1');
+
+  if(!TEST_MODE){
+    localStorage.removeItem('ngt_v500_data');
+    localStorage.removeItem('terracontrol_data_v1');
+    localStorage.removeItem('terracontrol_data_shadow_v1');
+    localStorage.removeItem('terracontrol_last_migration_v1');
+  }
 
   save();
 }

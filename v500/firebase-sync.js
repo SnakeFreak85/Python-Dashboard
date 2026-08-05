@@ -10,11 +10,17 @@ const CONFIG={
  appId:"1:641374151767:web:d4c9546e349aeb4d142f12"
 };
 
-const STATE_KEY=
- "terracontrol_firebase_sync_state_v1";
+const TEST_MODE=
+ new URLSearchParams(window.location.search)
+  .get('tcTest')==='1';
 
-const PROFILE_KEY=
- "tc_user_profile";
+const STATE_KEY=TEST_MODE
+ ?"terracontrol_test_firebase_sync_state_v1"
+ :"terracontrol_firebase_sync_state_v1";
+
+const PROFILE_KEY=TEST_MODE
+ ?"terracontrol_test_user_profile"
+ :"tc_user_profile";
 
 let app=null;
 let auth=null;
@@ -642,6 +648,15 @@ async function start(){
  }
 
  started=true;
+
+ if(TEST_MODE){
+  autoSaveReady=false;
+  setStatus(
+   "test",
+   "Cloud-Synchronisierung im Testmodus deaktiviert"
+  );
+  return;
+ }
 
  setStatus(
   "starting",
