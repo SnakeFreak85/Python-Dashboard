@@ -321,6 +321,277 @@ stop:nth-child(3) {
   }
 }
 
+/* TC2 Futterempfehlung im Tierprofil */
+.tc2ProfileV4 .tc2ProfileIdentity {
+  padding: 8px 12px 6px !important;
+}
+
+.tc2ProfileV4 .tc2ProfilePublicId {
+  min-height: 30px !important;
+  padding: 4px 13px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h2 {
+  margin: 9px 0 4px !important;
+  font-size: 29px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h3 {
+  margin: 3px 0 0 !important;
+  font-size: 18px !important;
+  line-height: 1.12 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileScientific {
+  font-size: 18px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity p {
+  margin: 7px 0 0 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity small {
+  margin-top: 6px !important;
+}
+
+.tc2FeedingRecommendation {
+  display: grid !important;
+  grid-template-columns: 66px minmax(0, 1fr) !important;
+  gap: 12px 16px !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 18px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(139, 220, 63, .92) !important;
+  border-radius: 23px !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(139, 220, 63, .18),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(15, 61, 45, .98),
+      rgba(5, 35, 39, .98)
+    ) !important;
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, .26),
+    inset 0 1px 0 rgba(255, 255, 255, .05) !important;
+  color: #f4f8f5 !important;
+}
+
+.tc2FeedingRecommendation.warn,
+.tc2FeedingRecommendation.incomplete {
+  border-color: rgba(246, 198, 78, .78) !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(246, 198, 78, .16),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(66, 53, 25, .98),
+      rgba(35, 35, 28, .98)
+    ) !important;
+}
+
+.tc2FeedingRecommendation.due {
+  border-color: rgba(255, 145, 58, .88) !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(255, 145, 58, .18),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(73, 43, 24, .98),
+      rgba(42, 30, 27, .98)
+    ) !important;
+}
+
+.tc2FeedingRecommendationIcon {
+  display: grid !important;
+  place-items: center !important;
+  align-self: start !important;
+  width: 66px !important;
+  height: 66px !important;
+  border: 1px solid rgba(139, 220, 63, .28) !important;
+  border-radius: 50% !important;
+  background: rgba(139, 220, 63, .13) !important;
+  font-size: 31px !important;
+  line-height: 1 !important;
+}
+
+.tc2FeedingRecommendation.warn
+.tc2FeedingRecommendationIcon,
+.tc2FeedingRecommendation.incomplete
+.tc2FeedingRecommendationIcon {
+  border-color: rgba(246, 198, 78, .30) !important;
+  background: rgba(246, 198, 78, .13) !important;
+}
+
+.tc2FeedingRecommendationMain {
+  min-width: 0 !important;
+}
+
+.tc2FeedingRecommendationMain h3 {
+  margin: 0 0 7px !important;
+  color: #9cf05b !important;
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+  font-weight: 1000 !important;
+}
+
+.tc2FeedingRecommendation.warn
+.tc2FeedingRecommendationMain h3,
+.tc2FeedingRecommendation.incomplete
+.tc2FeedingRecommendationMain h3 {
+  color: #f6c64e !important;
+}
+
+.tc2FeedingRecommendation.due
+.tc2FeedingRecommendationMain h3 {
+  color: #ffad66 !important;
+}
+
+.tc2FeedingRecommendationPrimary {
+  display: block !important;
+  color: #ffffff !important;
+  font-size: 21px !important;
+  line-height: 1.18 !important;
+  font-weight: 1000 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.tc2FeedingRecommendationInterval {
+  display: block !important;
+  margin-top: 5px !important;
+  color: rgba(235, 243, 239, .80) !important;
+  font-size: 14px !important;
+  line-height: 1.25 !important;
+}
+
+.tc2FeedingRecommendationMeta {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  padding-top: 12px !important;
+  border-top: 1px solid rgba(188, 222, 207, .16) !important;
+}
+
+.tc2FeedingRecommendationNext {
+  display: flex !important;
+  gap: 7px !important;
+  align-items: baseline !important;
+  flex-wrap: wrap !important;
+  color: rgba(235, 243, 239, .76) !important;
+  font-size: 13px !important;
+}
+
+.tc2FeedingRecommendationNext b {
+  color: #9cf05b !important;
+  font-size: 15px !important;
+}
+
+.tc2FeedingRecommendation.warn
+.tc2FeedingRecommendationNext b,
+.tc2FeedingRecommendation.incomplete
+.tc2FeedingRecommendationNext b {
+  color: #f6c64e !important;
+}
+
+.tc2FeedingRecommendation.due
+.tc2FeedingRecommendationNext b {
+  color: #ffad66 !important;
+}
+
+.tc2FeedingRecommendationBasis {
+  display: block !important;
+  margin-top: 7px !important;
+  color: rgba(235, 243, 239, .62) !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendation {
+  border-color: rgba(72, 145, 52, .72) !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(116, 190, 72, .20),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(225, 244, 224, .99),
+      rgba(211, 237, 228, .99)
+    ) !important;
+  box-shadow:
+    0 14px 28px rgba(39, 81, 61, .16),
+    inset 0 1px 0 rgba(255, 255, 255, .75) !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationMain h3,
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationNext b {
+  color: #2f7d32 !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationPrimary {
+  color: #10241c !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationInterval,
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationNext {
+  color: #3f5f52 !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationBasis {
+  color: #5b766a !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationMeta {
+  border-top-color: rgba(48, 96, 73, .18) !important;
+}
+
+@media (max-width: 420px) {
+  .tc2FeedingRecommendation {
+    grid-template-columns: 54px minmax(0, 1fr) !important;
+    gap: 10px 12px !important;
+    padding: 15px !important;
+    border-radius: 20px !important;
+  }
+
+  .tc2FeedingRecommendationIcon {
+    width: 54px !important;
+    height: 54px !important;
+    font-size: 26px !important;
+  }
+
+  .tc2FeedingRecommendationMain h3 {
+    font-size: 16px !important;
+  }
+
+  .tc2FeedingRecommendationPrimary {
+    font-size: 18px !important;
+  }
+
+  .tc2FeedingRecommendationMeta {
+    padding-top: 10px !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tc2TaxSilhouetteCreature {
     filter: none !important;
