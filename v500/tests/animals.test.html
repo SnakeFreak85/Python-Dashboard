@@ -315,6 +315,34 @@ async function run(){
    win.document.getElementById('app').textContent.includes('Gefressen Frost Ratte 50 g')
   );
 
+  const recommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     win.NGTStore.getAnimalById(lunaId),
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  equal(
+   'Futterempfehlung übernimmt die zuletzt gefütterte Position',
+   recommendation.primary,
+   '1 × Frost Ratte 50 g'
+  );
+
+  equal(
+   'Futterempfehlung übernimmt das Tierintervall',
+   recommendation.intervalText,
+   'alle 13 Tage'
+  );
+
+  record(
+   'Futterempfehlung wird im Tierprofil angezeigt',
+   win.document
+    .getElementById('app')
+    .textContent
+    .includes('Futterempfehlung')
+  );
+
   win.NGT500.route('animals',{edit:0});
 
   equal('Legacy-Fütterungsintervall wird gelesen',win.document.getElementById('edFeedInterval').value,'13');
