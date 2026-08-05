@@ -35,13 +35,15 @@ function feedingRecommendationCard(
    state:'incomplete',
    icon:'🍽️',
    heading:'Futterempfehlung',
-   primary:'Noch nicht verfügbar',
+   primary:'Noch nicht sicher berechenbar',
    intervalText:
-    'Standardfutter oder erste Fütterung hinterlegen',
+    'Tierart, Gewicht oder Schlupfdatum ergänzen',
    nextLabel:'Nächste Fütterung',
    nextText:'Noch nicht berechenbar',
    basis:
-    'Die App verwendet deine hinterlegten Tier- und Verlaufsdaten.'
+    'Erforderliche Tierdaten ergänzen.',
+   note:
+    'Orientierung ersetzt keine individuelle tierärztliche Beratung.'
   };
 
  return `
@@ -73,6 +75,12 @@ function feedingRecommendationCard(
     <span class="tc2FeedingRecommendationInterval">
      ${P.esc(value.intervalText||'-')}
     </span>
+
+    ${
+     value.detail
+      ?`<small class="tc2FeedingRecommendationDetail">${P.esc(value.detail)}</small>`
+      :''
+    }
    </div>
 
    <div class="tc2FeedingRecommendationMeta">
@@ -94,6 +102,12 @@ function feedingRecommendationCard(
     <small class="tc2FeedingRecommendationBasis">
      ${P.esc(value.basis||'')}
     </small>
+
+    ${
+     value.note
+      ?`<small class="tc2FeedingRecommendationNote">${P.esc(value.note)}</small>`
+      :''
+    }
    </div>
   </section>
  `;

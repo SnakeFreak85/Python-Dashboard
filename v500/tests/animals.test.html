@@ -124,6 +124,7 @@ async function run(){
    species:'regius',
    name:'Luna',
    status:'Bestand',
+   weight:500,
    feedingInterval:13,
    customField:'bleibt',
    photos:[{thumbUrl:'thumb.jpg',url:'full.jpg',cover:true}]
@@ -324,15 +325,51 @@ async function run(){
     );
 
   equal(
-   'Futterempfehlung übernimmt die zuletzt gefütterte Position',
+   'Futterempfehlung wählt ein zum Gewicht passendes Bestandsfutter',
    recommendation.primary,
    '1 × Frost Ratte 50 g'
   );
 
   equal(
-   'Futterempfehlung übernimmt das Tierintervall',
+   'Futterempfehlung berechnet das Intervall aus Tierart und Gewicht',
    recommendation.intervalText,
-   'alle 13 Tage'
+   'alle 14–21 Tage'
+  );
+
+  record(
+   'Futterempfehlung nennt Tierart und Gewicht als Grundlage',
+   recommendation.basis.includes('Python regius')&&
+   recommendation.basis.includes('500 g')
+  );
+
+  record(
+   'Futterempfehlung wird nicht aus Standardfutter oder Verlauf abgeleitet',
+   !recommendation.basis.includes('Standardfutter')&&
+   !recommendation.basis.includes('Verlauf')
+  );
+
+  const grownRecommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     Object.assign(
+      {},
+      win.NGTStore.getAnimalById(lunaId),
+      {weight:1600,weights:[]}
+     ),
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  equal(
+   'Futterempfehlung wächst mit dem aktuellen Tiergewicht',
+   grownRecommendation.primary,
+   '1 Beutetier mit etwa 160 g'
+  );
+
+  equal(
+   'Futterintervall passt sich an das höhere Gewicht an',
+   grownRecommendation.intervalText,
+   'alle 28–56 Tage'
   );
 
   record(
