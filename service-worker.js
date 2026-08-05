@@ -10,6 +10,12 @@ const ANIMAL_ARCHIVE_QUERY=
 const DATE_DISPLAY_QUERY=
  VERSION_QUERY+
  '&r=date-display-1';
+const PROFILE_RECOMMENDATION_QUERY=
+ VERSION_QUERY+
+ '&r=profile-recommendation-1';
+const PROFILE_MODULE_QUERY=
+ VERSION_QUERY+
+ '&r=animal-archive-1-profile-recommendation-1';
 
 const APP_SHELL=[
  './',
@@ -22,7 +28,7 @@ const APP_SHELL=[
 
  './v500/styles.css'+VERSION_QUERY,
  './v500/tc2.css'+LIGHT_THEME_QUERY,
- './v500/taxonomy-ui-color.css'+VERSION_QUERY,
+ './v500/taxonomy-ui-color.css'+PROFILE_RECOMMENDATION_QUERY,
  './v500/theme.css'+LIGHT_THEME_QUERY,
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
@@ -46,6 +52,7 @@ const APP_SHELL=[
  './v500/taxonomy-ui.js'+VERSION_QUERY,
 
  './v500/care-rules-engine.js'+VERSION_QUERY,
+ './v500/feeding-recommendation-engine.js'+PROFILE_RECOMMENDATION_QUERY,
  './v500/sync-policy-engine.js'+VERSION_QUERY,
 
  './v500/assets/taxonomy/chameleon.png',
@@ -83,7 +90,7 @@ const APP_SHELL=[
  './v500/modules/profile-health.js'+VERSION_QUERY,
  './v500/modules/profile-passport.js'+VERSION_QUERY,
  './v500/modules/profile-photos.js'+VERSION_QUERY,
- './v500/modules/profile.js'+ANIMAL_ARCHIVE_QUERY,
+ './v500/modules/profile.js'+PROFILE_MODULE_QUERY,
 
  './v500/modules/food.js'+VERSION_QUERY,
  './v500/modules/qr.js'+VERSION_QUERY,
