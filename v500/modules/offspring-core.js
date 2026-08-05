@@ -73,7 +73,7 @@ P.parentStoredLabel=function(animal){
  );
 
  if(publicId&&name&&publicId!==name){
-  return publicId+' Â· '+name;
+ return publicId+' · '+name;
  }
 
  return publicId||name||'Unbenanntes Tier';
@@ -86,7 +86,7 @@ P.parentOptionLabel=function(animal){
  const sex=P.text(animal.sex);
 
  return sex
-  ?label+' Â· '+sex
+   ?label+' · '+sex
   :label;
 };
 
@@ -138,8 +138,8 @@ P.parentOptions=function(animal,role,currentAnimalId){
  const selectedId=P.parentId(animal,role);
  const candidates=P.parentCandidates(currentAnimalId);
  const emptyLabel=role==='father'
-  ?'Kein Vatertier ausgewÃ¤hlt'
-  :'Kein Muttertier ausgewÃ¤hlt';
+  ?'Kein Vatertier ausgewählt'
+  :'Kein Muttertier ausgewählt';
  let selectedFound=false;
  let options=`<option value="">${emptyLabel}</option>`;
 
@@ -175,7 +175,7 @@ P.parentOptions=function(animal,role,currentAnimalId){
     selectedRow
      ?P.parentOptionLabel(selectedRow.a)
      :legacyLabel||'Bisheriges Elterntier'
-   )} Â· bisher zugeordnet
+      )} · bisher zugeordnet
   </option>`;
  }
 

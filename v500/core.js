@@ -711,8 +711,8 @@ function restoreRoute(){
  }
 
  /*
-  * Wird die App auf einer Unterseite neu geÃ¶ffnet,
-  * bleibt die Startseite als erstes ZurÃ¼ck-Ziel erhalten.
+ * Wird die App auf einer Unterseite neu geöffnet,
+ * bleibt die Startseite als erstes Zurück-Ziel erhalten.
   */
  if(stored.name!=='dashboard'){
   const dashboard={

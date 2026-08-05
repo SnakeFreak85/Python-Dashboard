@@ -185,7 +185,7 @@ function editor(t,index){
     </label>
 
     <label>
-     <span>Vatertier auÃŸerhalb des Bestands</span>
+      <span>Vatertier außerhalb des Bestands</span>
 
      <input
       id="edFather"
@@ -199,7 +199,7 @@ function editor(t,index){
     </label>
 
     <label>
-     <span>Muttertier auÃŸerhalb des Bestands</span>
+      <span>Muttertier außerhalb des Bestands</span>
 
      <input
       id="edMother"

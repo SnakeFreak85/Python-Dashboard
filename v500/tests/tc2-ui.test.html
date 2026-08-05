@@ -376,7 +376,7 @@ function testRuntime(){
       foodHistoryState.route.name==='food'
     );
     record(
-     'Seitennavigation erhÃ¶ht die Verlaufstiefe',
+   'Seitennavigation erhöht die Verlaufstiefe',
      Number(foodHistoryState.depth)>0
     );
 
@@ -385,7 +385,7 @@ function testRuntime(){
      setTimeout(resolve,80);
     });
     record(
-     'Handy-ZurÃ¼ck wechselt zur vorherigen App-Seite',
+   'Handy-Zurück wechselt zur vorherigen App-Seite',
      win.NGT500.current()&&
       win.NGT500.current().name==='dashboard'
     );
@@ -396,7 +396,7 @@ function testRuntime(){
      setTimeout(resolve,80);
     });
     record(
-     'Interner ZurÃ¼ck-Button nutzt denselben App-Verlauf',
+   'Interner Zurück-Button nutzt denselben App-Verlauf',
      win.NGT500.current()&&
       win.NGT500.current().name==='dashboard'
     );
