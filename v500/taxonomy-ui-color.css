@@ -172,28 +172,62 @@ stop:nth-child(3) {
 
 /*
  * Profilfoto:
- * Kompakter Rahmen, aber ohne Beschneiden des Tieres.
+ * Das Original bleibt vollständig sichtbar.
+ * Eine weichgezeichnete Kopie füllt automatisch
+ * den freien Platz hinter Hoch- und Querformaten.
  */
 .tc2ProfileV4 .tc2ProfileHero {
+  position: relative !important;
+  isolation: isolate !important;
   display: grid !important;
   place-items: center !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
   width: 100% !important;
-  height: clamp(240px, 62vw, 300px) !important;
-  min-height: 240px !important;
-  max-height: 300px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: clamp(270px, 78vw, 335px) !important;
+  min-height: 270px !important;
+  max-height: 335px !important;
+  margin: 0 !important;
   padding: 0 !important;
   overflow: hidden !important;
   border-radius: 24px !important;
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(48, 79, 95, .24),
-      transparent 72%
-    ),
-    #071521 !important;
+  background: #071521 !important;
 }
 
-.tc2ProfileV4 .tc2ProfileHero > img {
+.tc2ProfileV4
+.tc2ProfileHero >
+.tc2ProfileHeroBackdrop {
+  position: absolute !important;
+  inset: -20px !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: calc(100% + 40px) !important;
+  min-width: calc(100% + 40px) !important;
+  max-width: none !important;
+  height: calc(100% + 40px) !important;
+  min-height: calc(100% + 40px) !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: 0 !important;
+  filter:
+    blur(16px)
+    brightness(.48)
+    saturate(1.08) !important;
+  opacity: .88 !important;
+  transform: scale(1.06) !important;
+  pointer-events: none !important;
+}
+
+.tc2ProfileV4
+.tc2ProfileHero >
+.tc2ProfileHeroImage {
+  position: relative !important;
+  z-index: 1 !important;
   display: block !important;
   width: 100% !important;
   min-width: 0 !important;
@@ -205,10 +239,16 @@ stop:nth-child(3) {
   padding: 0 !important;
   object-fit: contain !important;
   object-position: center center !important;
-  border-radius: 24px !important;
+  border-radius: 23px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero::after {
+  z-index: 2 !important;
 }
 
 .tc2ProfileV4 .tc2ProfileHeroEmpty {
+  position: relative !important;
+  z-index: 1 !important;
   display: grid !important;
   place-items: center !important;
   width: 100% !important;
