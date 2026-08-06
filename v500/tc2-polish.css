@@ -287,7 +287,7 @@ html[data-tc-theme="light"] .tc2Menu{
  font-size:27px!important;
 }
 
-.tc21StartNavCard.dashboard{
+.tc21StartNavCard.breeding{
  border-color:var(--tc-polish-accent)!important;
  box-shadow:0 0 0 1px rgba(145,239,73,.12),0 0 28px rgba(114,213,47,.10)!important;
 }
@@ -685,5 +685,520 @@ html[data-tc-theme="light"] .tc2Screen textarea{
  .tc21StartNavText>small{
   display:block!important;
   font-size:9px!important;
+ }
+}
+
+/* Verpaarungsplanung */
+
+.tc2BreedingPage{
+ display:grid;
+ gap:16px;
+}
+
+.tc2BreedingHead{
+ display:flex;
+ align-items:flex-start;
+ justify-content:space-between;
+ gap:12px;
+}
+
+.tc2BreedingHead h2{
+ margin:0;
+ color:var(--tc-polish-text);
+ font-size:25px;
+}
+
+.tc2BreedingHead p{
+ margin:6px 0 0;
+ color:var(--tc-polish-muted);
+ line-height:1.5;
+}
+
+.tc2BreedingCreate{
+ display:grid;
+ grid-template-columns:54px 1fr auto;
+ align-items:center;
+ gap:14px;
+ width:100%;
+ min-height:84px;
+ padding:14px 18px;
+ color:var(--tc-polish-text)!important;
+ text-align:left;
+ background:linear-gradient(145deg,#092233,#04131f)!important;
+ border:1px solid var(--tc-polish-accent)!important;
+ border-radius:18px!important;
+ box-shadow:0 0 26px rgba(114,213,47,.08)!important;
+}
+
+.tc2BreedingCreate>span{
+ display:grid;
+ place-items:center;
+ width:52px;
+ height:52px;
+ color:var(--tc-polish-accent);
+ font-size:35px;
+ line-height:1;
+ border:2px solid var(--tc-polish-accent);
+ border-radius:50%;
+}
+
+.tc2BreedingCreate>b{
+ font-size:18px;
+}
+
+.tc2BreedingCreate>em{
+ color:var(--tc-polish-text-soft);
+ font-size:28px;
+ font-style:normal;
+}
+
+.tc2BreedingKpis{
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:10px;
+}
+
+.tc2BreedingKpis>button{
+ display:grid;
+ grid-template-columns:auto 1fr;
+ grid-template-rows:auto auto;
+ align-items:center;
+ gap:4px 7px;
+ min-height:92px;
+ padding:13px;
+ color:var(--tc-polish-text)!important;
+ text-align:left;
+ background:linear-gradient(145deg,#081d2c,#03131f)!important;
+ border:1px solid var(--tc-polish-line)!important;
+ border-radius:17px!important;
+}
+
+.tc2BreedingKpis span{
+ color:#7abdf0;
+ font-size:20px;
+}
+
+.tc2BreedingKpis small{
+ color:var(--tc-polish-text-soft)!important;
+ font-size:11px;
+}
+
+.tc2BreedingKpis b{
+ grid-column:1/-1;
+ color:var(--tc-polish-accent)!important;
+ font-size:28px;
+ text-align:center;
+}
+
+.tc2BreedingTabs{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px;
+ padding:5px;
+ background:rgba(3,14,23,.72);
+ border:1px solid var(--tc-polish-line);
+ border-radius:16px;
+}
+
+.tc2BreedingTabs button{
+ min-height:40px;
+ color:var(--tc-polish-muted)!important;
+ background:transparent!important;
+ border:0!important;
+ border-radius:12px!important;
+}
+
+.tc2BreedingTabs button.on{
+ color:var(--tc-polish-accent)!important;
+ background:var(--tc-polish-accent-soft)!important;
+ box-shadow:inset 0 0 0 1px rgba(145,239,73,.20)!important;
+}
+
+.tc2BreedingProjects{
+ display:grid;
+ gap:11px;
+}
+
+.tc2BreedingProject{
+ display:grid;
+ grid-template-columns:56px minmax(0,1fr) auto 16px;
+ align-items:center;
+ gap:12px;
+ width:100%;
+ min-height:104px;
+ padding:14px 16px;
+ color:var(--tc-polish-text)!important;
+ text-align:left;
+ background:linear-gradient(145deg,#081d2c,#03131f)!important;
+ border:1px solid var(--tc-polish-line)!important;
+ border-radius:18px!important;
+}
+
+.tc2BreedingProject.active,
+.tc2BreedingProject.incubation{
+ border-color:rgba(145,239,73,.54)!important;
+}
+
+.tc2BreedingProjectIcon{
+ display:grid;
+ place-items:center;
+ width:54px;
+ height:54px;
+ color:var(--tc-polish-accent);
+ font-size:28px;
+ background:var(--tc-polish-accent-soft);
+ border:1px solid rgba(145,239,73,.24);
+ border-radius:50%;
+}
+
+.tc2BreedingProjectText{
+ display:grid;
+ gap:3px;
+ min-width:0;
+}
+
+.tc2BreedingProjectText b{
+ overflow:hidden;
+ color:var(--tc-polish-text)!important;
+ font-size:17px;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.tc2BreedingProjectText small{
+ overflow:hidden;
+ color:var(--tc-polish-muted)!important;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.tc2BreedingProjectText em{
+ color:var(--tc-polish-accent);
+ font-size:11px;
+ font-style:normal;
+ font-weight:800;
+}
+
+.tc2BreedingProjectCode{
+ padding:5px 7px;
+ color:var(--tc-polish-text-soft);
+ font-size:10px;
+ border:1px solid var(--tc-polish-line);
+ border-radius:7px;
+}
+
+.tc2BreedingProject>strong{
+ color:var(--tc-polish-text-soft);
+ font-size:24px;
+}
+
+.tc2BreedingEditor{
+ display:grid;
+ gap:14px;
+ padding:0!important;
+ background:transparent!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+
+.tc2BreedingNotes{
+ display:grid;
+ gap:7px;
+ margin-top:12px;
+ color:var(--tc-polish-text-soft);
+ font-size:12px;
+ font-weight:800;
+}
+
+.tc2BreedingDetailHead{
+ display:grid;
+ grid-template-columns:64px 1fr;
+ align-items:center;
+ gap:14px;
+ padding:18px;
+ background:linear-gradient(145deg,#092233,#04131f);
+ border:1px solid var(--tc-polish-line);
+ border-radius:18px;
+}
+
+.tc2BreedingDetailHead>span{
+ display:grid;
+ place-items:center;
+ width:62px;
+ height:62px;
+ color:var(--tc-polish-accent);
+ font-size:32px;
+ background:var(--tc-polish-accent-soft);
+ border:1px solid rgba(145,239,73,.28);
+ border-radius:50%;
+}
+
+.tc2BreedingDetailHead small,
+.tc2BreedingDetailHead p{
+ color:var(--tc-polish-muted);
+}
+
+.tc2BreedingDetailHead h2{
+ margin:3px 0;
+ color:var(--tc-polish-text);
+ font-size:23px;
+}
+
+.tc2BreedingDetailHead p{
+ margin:0;
+}
+
+.tc2BreedingParents{
+ display:grid;
+ grid-template-columns:1fr auto 1fr;
+ align-items:stretch;
+ gap:8px;
+}
+
+.tc2BreedingParents>div{
+ display:grid;
+ align-content:center;
+ gap:5px;
+ min-height:88px;
+ padding:13px;
+ background:linear-gradient(145deg,#081d2c,#03131f);
+ border:1px solid var(--tc-polish-line);
+ border-radius:16px;
+}
+
+.tc2BreedingParents>span{
+ align-self:center;
+ color:var(--tc-polish-accent);
+ font-size:24px;
+ font-weight:900;
+}
+
+.tc2BreedingParents small{
+ color:var(--tc-polish-muted);
+}
+
+.tc2BreedingParents b{
+ color:var(--tc-polish-text);
+ font-size:12px;
+ line-height:1.35;
+}
+
+.tc2BreedingStatusEditor{
+ display:grid;
+ grid-template-columns:1fr auto;
+ align-items:end;
+ gap:10px;
+ padding:14px;
+ background:linear-gradient(145deg,#081d2c,#03131f);
+ border:1px solid var(--tc-polish-line);
+ border-radius:16px;
+}
+
+.tc2BreedingStatusEditor label{
+ display:grid;
+ gap:6px;
+ color:var(--tc-polish-muted);
+ font-size:11px;
+ font-weight:800;
+}
+
+.tc2BreedingStatusEditor button,
+.tc2BreedingEventForm button,
+.tc2BreedingSectionHead button{
+ min-height:46px;
+ padding:0 14px;
+ color:#07140b!important;
+ font-weight:900;
+ background:linear-gradient(135deg,#6fd753,#9bea55)!important;
+ border:1px solid #92e957!important;
+ border-radius:14px!important;
+}
+
+.tc2BreedingSection{
+ display:grid;
+ gap:12px;
+ padding:16px;
+ background:linear-gradient(145deg,#081d2c,#03131f);
+ border:1px solid var(--tc-polish-line);
+ border-radius:18px;
+}
+
+.tc2BreedingSection h3{
+ margin:0;
+ color:var(--tc-polish-text);
+}
+
+.tc2BreedingSectionHead{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+}
+
+.tc2BreedingSectionHead small{
+ color:var(--tc-polish-muted);
+}
+
+.tc2BreedingEventForm{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:9px;
+}
+
+.tc2BreedingEventForm input:nth-of-type(3),
+.tc2BreedingEventForm button{
+ grid-column:1/-1;
+}
+
+.tc2BreedingTimeline{
+ display:grid;
+ gap:0;
+}
+
+.tc2BreedingTimeline>div{
+ display:grid;
+ grid-template-columns:15px 1fr;
+ gap:10px;
+ min-height:68px;
+}
+
+.tc2BreedingTimeline>div>span{
+ position:relative;
+ width:11px;
+ height:11px;
+ margin-top:5px;
+ background:var(--tc-polish-accent);
+ border-radius:50%;
+ box-shadow:0 0 14px rgba(145,239,73,.34);
+}
+
+.tc2BreedingTimeline>div>span::after{
+ position:absolute;
+ top:13px;
+ left:5px;
+ width:1px;
+ height:48px;
+ content:"";
+ background:var(--tc-polish-line);
+}
+
+.tc2BreedingTimeline>div:last-child>span::after{
+ display:none;
+}
+
+.tc2BreedingTimeline section{
+ display:grid;
+ align-content:start;
+ gap:3px;
+}
+
+.tc2BreedingTimeline small,
+.tc2BreedingTimeline p{
+ margin:0;
+ color:var(--tc-polish-muted);
+}
+
+.tc2BreedingTimeline b{
+ color:var(--tc-polish-text);
+}
+
+.tc2BreedingOffspring{
+ display:grid;
+ gap:8px;
+}
+
+.tc2BreedingOffspring button{
+ display:grid;
+ grid-template-columns:auto 1fr auto;
+ align-items:center;
+ gap:8px;
+ min-height:50px;
+ color:var(--tc-polish-text)!important;
+ text-align:left;
+ background:rgba(3,15,24,.72)!important;
+ border:1px solid var(--tc-polish-line)!important;
+ border-radius:13px!important;
+}
+
+.tc2BreedingOffspring span{
+ overflow:hidden;
+ color:var(--tc-polish-muted);
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.tc2BreedingOffspring em{
+ color:var(--tc-polish-accent);
+ font-size:20px;
+ font-style:normal;
+}
+
+.tc2BreedingDetailActions{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:9px;
+}
+
+.tc2BreedingDetailActions button{
+ min-height:48px;
+ color:var(--tc-polish-text)!important;
+ background:linear-gradient(145deg,#081d2c,#03131f)!important;
+ border:1px solid var(--tc-polish-line)!important;
+ border-radius:14px!important;
+}
+
+.tc2BreedingDetailActions .danger{
+ grid-column:1/-1;
+ color:#fff!important;
+ background:linear-gradient(135deg,#dc3542,#b91f2b)!important;
+ border-color:#ef6671!important;
+}
+
+html[data-tc-theme="light"] .tc2BreedingCreate,
+html[data-tc-theme="light"] .tc2BreedingKpis>button,
+html[data-tc-theme="light"] .tc2BreedingProject,
+html[data-tc-theme="light"] .tc2BreedingDetailHead,
+html[data-tc-theme="light"] .tc2BreedingParents>div,
+html[data-tc-theme="light"] .tc2BreedingStatusEditor,
+html[data-tc-theme="light"] .tc2BreedingSection,
+html[data-tc-theme="light"] .tc2BreedingDetailActions button{
+ color:#12232d!important;
+ background:linear-gradient(145deg,#fff,#f7fafb)!important;
+ border-color:rgba(65,99,117,.24)!important;
+}
+
+html[data-tc-theme="light"] .tc2BreedingCreate{
+ border-color:#4d9f24!important;
+}
+
+html[data-tc-theme="light"] .tc2BreedingHead h2,
+html[data-tc-theme="light"] .tc2BreedingProjectText b,
+html[data-tc-theme="light"] .tc2BreedingDetailHead h2,
+html[data-tc-theme="light"] .tc2BreedingParents b,
+html[data-tc-theme="light"] .tc2BreedingSection h3,
+html[data-tc-theme="light"] .tc2BreedingTimeline b{
+ color:#12232d!important;
+}
+
+html[data-tc-theme="light"] .tc2BreedingTabs{
+ background:#eef4f6;
+}
+
+@media(max-width:390px){
+ .tc2BreedingProject{
+  grid-template-columns:50px minmax(0,1fr) 14px;
+ }
+
+ .tc2BreedingProjectCode{
+  display:none;
+ }
+
+ .tc2BreedingStatusEditor,
+ .tc2BreedingEventForm{
+  grid-template-columns:1fr;
+ }
+
+ .tc2BreedingEventForm>*{
+  grid-column:1!important;
  }
 }

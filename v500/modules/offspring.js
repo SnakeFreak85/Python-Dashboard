@@ -178,8 +178,17 @@ function render(args){
  const create=!!args.create;
 
  if(create){
+  const preset=
+   args.breedingPlanId&&
+   window.NGTBreeding&&
+   NGTBreeding.offspringPreset
+    ?NGTBreeding.offspringPreset(
+      args.breedingPlanId
+     )
+    :{};
+
   return `<section class="tc2PageCard tc2AnimalsPage tc2OffspringPage">
-   ${P.editor.render('',undefined)}
+   ${P.editor.render('',undefined,preset)}
   </section>`;
  }
 

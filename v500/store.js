@@ -53,6 +53,7 @@ function base(){
     animalGroups:[],
     foodCatalog:[],
     foodInventory:[],
+    breedingPlans:[],
     clutches:[],
     sales:[],
     archive:[],
@@ -426,7 +427,8 @@ function normalize(d,options){
     'sales',
     'archive',
     'documents',
-    'foodInventory'
+    'foodInventory',
+    'breedingPlans'
   ].forEach(k=>{
     if(!Array.isArray(d[k]))d[k]=[];
   });
@@ -551,6 +553,89 @@ function documents(){
     db.documents,
     []
   );
+}
+
+function breedingPlans(){
+  return detached(
+    db.breedingPlans,
+    []
+  );
+}
+
+function breedingPlanById(id){
+  id=String(id||'').trim();
+
+  if(!id){
+    return null;
+  }
+
+  const plan=(db.breedingPlans||[]).find(function(item){
+    return String(item&&item.id||'')===id;
+  });
+
+  return plan
+    ?detached(plan,null)
+    :null;
+}
+
+function saveBreedingPlan(input){
+  input=input||{};
+
+  const id=String(
+    input.id||
+    NGT500.uid()
+  ).trim();
+  const index=(db.breedingPlans||[]).findIndex(function(item){
+    return String(item&&item.id||'')===id;
+  });
+  const current=index>=0
+    ?db.breedingPlans[index]
+    :{};
+  const now=new Date().toISOString();
+  const plan={
+    ...current,
+    ...detached(input,{}),
+    id:id,
+    events:Array.isArray(input.events)
+      ?detached(input.events,[])
+      :Array.isArray(current.events)
+       ?detached(current.events,[])
+       :[],
+    offspringIds:Array.isArray(input.offspringIds)
+      ?Array.from(new Set(input.offspringIds.map(String)))
+      :Array.isArray(current.offspringIds)
+       ?Array.from(new Set(current.offspringIds.map(String)))
+       :[],
+    createdAt:current.createdAt||input.createdAt||now,
+    updatedAt:now
+  };
+
+  if(index>=0){
+    db.breedingPlans[index]=plan;
+  }else{
+    db.breedingPlans.push(plan);
+  }
+
+  save();
+
+  return detached(plan,null);
+}
+
+function deleteBreedingPlan(id){
+  id=String(id||'').trim();
+
+  const index=(db.breedingPlans||[]).findIndex(function(item){
+    return String(item&&item.id||'')===id;
+  });
+
+  if(index<0){
+    return null;
+  }
+
+  const removed=db.breedingPlans.splice(index,1)[0];
+  save();
+
+  return detached(removed,null);
 }
 
 function settings(){
@@ -1517,8 +1602,9 @@ function importBackup(txt){
     'animals',
     'animalGroups',
     'foodCatalog',
-    'foodInventory',
-    'clutches',
+     'foodInventory',
+     'breedingPlans',
+     'clutches',
     'sales',
     'archive',
     'documents',
@@ -1570,6 +1656,10 @@ window.NGTStore={
   data,
   foodInventory,
   documents,
+  breedingPlans,
+  breedingPlanById,
+  saveBreedingPlan,
+  deleteBreedingPlan,
   settings,
   save,
   clearLocal,

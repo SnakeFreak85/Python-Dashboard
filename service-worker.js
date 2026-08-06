@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-tc2-polish-2';
+ 'terracontrol-'+TC_VERSION+'-breeding-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -19,7 +19,13 @@ const PROFILE_MODULE_QUERY=
  '&r=animal-archive-2-profile-recommendation-1';
 const TC2_POLISH_QUERY=
  VERSION_QUERY+
- '&r=tc2-polish-2';
+ '&r=tc2-polish-2-breeding-1';
+const BREEDING_QUERY=
+ VERSION_QUERY+
+ '&r=breeding-1';
+const OFFSPRING_BREEDING_QUERY=
+ VERSION_QUERY+
+ '&r=animal-archive-2-breeding-1';
 
 const APP_SHELL=[
  './',
@@ -38,13 +44,13 @@ const APP_SHELL=[
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
 
- './v500/core.js'+VERSION_QUERY,
+ './v500/core.js'+BREEDING_QUERY,
  './v500/date-display.js'+DATE_DISPLAY_QUERY,
  './v500/theme.js'+VERSION_QUERY,
  './v500/id-manager.js'+VERSION_QUERY,
  './v500/food-inventory-engine.js'+VERSION_QUERY,
  './v500/animal-engine.js'+ANIMAL_ARCHIVE_QUERY,
- './v500/store.js'+VERSION_QUERY,
+ './v500/store.js'+BREEDING_QUERY,
  './v500/ui.js'+VERSION_QUERY,
 
  './v500/taxonomy-core.js'+VERSION_QUERY,
@@ -58,7 +64,7 @@ const APP_SHELL=[
 
  './v500/care-rules-engine.js'+VERSION_QUERY,
  './v500/feeding-recommendation-engine.js'+PROFILE_RECOMMENDATION_QUERY,
- './v500/sync-policy-engine.js'+VERSION_QUERY,
+ './v500/sync-policy-engine.js'+BREEDING_QUERY,
 
  './v500/assets/taxonomy/chameleon.png',
  './v500/assets/taxonomy/gecko.png',
@@ -76,7 +82,7 @@ const APP_SHELL=[
  './v500/smart-dashboard.js'+VERSION_QUERY,
  './v500/photo-storage.js'+VERSION_QUERY,
 
- './v500/modules/dashboard.js'+VERSION_QUERY,
+ './v500/modules/dashboard.js'+BREEDING_QUERY,
  './v500/hkn-import.js'+VERSION_QUERY,
 
  './v500/modules/animals-core.js'+ANIMAL_ARCHIVE_QUERY,
@@ -86,8 +92,9 @@ const APP_SHELL=[
  './v500/modules/animals.js'+ANIMAL_ARCHIVE_QUERY,
 
  './v500/modules/offspring-core.js'+ANIMAL_ARCHIVE_QUERY,
- './v500/modules/offspring-editor.js'+ANIMAL_ARCHIVE_QUERY,
- './v500/modules/offspring.js'+ANIMAL_ARCHIVE_QUERY,
+ './v500/modules/offspring-editor.js'+OFFSPRING_BREEDING_QUERY,
+ './v500/modules/offspring.js'+OFFSPRING_BREEDING_QUERY,
+ './v500/modules/breeding.js'+BREEDING_QUERY,
 
  './v500/modules/profile-core.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/profile-history.js'+VERSION_QUERY,
@@ -99,7 +106,7 @@ const APP_SHELL=[
 
  './v500/modules/food.js'+VERSION_QUERY,
  './v500/modules/qr.js'+VERSION_QUERY,
- './v500/modules/backup.js'+VERSION_QUERY,
+ './v500/modules/backup.js'+BREEDING_QUERY,
  './v500/modules/assistant-v2.js'+VERSION_QUERY,
  './v500/modules/chat.js'+VERSION_QUERY,
 

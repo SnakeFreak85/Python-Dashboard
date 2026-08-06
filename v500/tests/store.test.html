@@ -451,6 +451,59 @@ try{
  );
 
  equal(
+  'Verpaarungsdaten werden additiv initialisiert',
+  Array.isArray(NGTStore.data().breedingPlans),
+  true
+ );
+
+ const breedingPlan=NGTStore.saveBreedingPlan({
+  id:'breeding-test-1',
+  projectCode:'KP-2026-01',
+  status:'planned',
+  fatherId:'father-1',
+  motherId:'mother-1',
+  events:[]
+ });
+
+ equal(
+  'Verpaarung wird UUID-basiert gespeichert',
+  breedingPlan.id,
+  'breeding-test-1'
+ );
+
+ equal(
+  'Verpaarung ist getrennt abrufbar',
+  NGTStore.breedingPlanById('breeding-test-1').projectCode,
+  'KP-2026-01'
+ );
+
+ breedingPlan.events.push({
+  id:'event-1',
+  type:'pairing',
+  date:'2026-08-06'
+ });
+
+ NGTStore.saveBreedingPlan(breedingPlan);
+
+ equal(
+  'Verpaarungsverlauf bleibt beim Aktualisieren erhalten',
+  NGTStore.breedingPlanById('breeding-test-1').events.length,
+  1
+ );
+
+ equal(
+  'Verpaarungsdaten sind im Cloud- und Backup-Snapshot enthalten',
+  NGTStore.snapshot().breedingPlans.length,
+  1
+ );
+
+ equal(
+  'Verpaarung kann gezielt entfernt werden',
+  NGTStore.deleteBreedingPlan('breeding-test-1').id,
+  'breeding-test-1'
+ );
+
+ equal(
   'Ungültiger Index löst keine Löschung aus',
   NGTStore.deleteAnimal('',-1),
   false

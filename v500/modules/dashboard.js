@@ -587,7 +587,17 @@ function render(){
  const lowCount=
   NGTDashboardData.lowFood().length;
  const tasks=
-  NGTDashboardData.dueTaskCount(0);
+   NGTDashboardData.dueTaskCount(0);
+ const breedingCount=
+  NGTStore.breedingPlans
+   ?NGTStore.breedingPlans().filter(function(plan){
+     return ![
+      'completed',
+      'cancelled',
+      'archived'
+     ].includes(plan.status);
+    }).length
+   :0;
 
  return `
   <section class="tc2Screen tc2Start tc21Start">
@@ -740,6 +750,15 @@ function render(){
       null,
       'NGTDashboard.openSmartDashboard()',
       'dashboard'
+     )}
+
+     ${navigationCard(
+      '⚭',
+      'Verpaarungsplanung',
+      'Verpaarungen, Gelege, Würfe und Inkubation',
+      breedingCount,
+      "NGT500.route('breeding')",
+      'breeding'
      )}
 
     </div>

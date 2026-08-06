@@ -21,7 +21,7 @@ h1{margin-bottom:8px}.muted{color:#94a3b8}.summary{font-weight:700;margin:20px 0
 
 const results=[];
 const expectedModules=[
- 'dashboard','animals','offspring','profile','food','qr','backup','assistant','chat','support','announcements'
+ 'dashboard','animals','offspring','breeding','profile','food','qr','backup','assistant','chat','support','announcements'
 ];
 
 function record(name,passed,detail){
@@ -265,6 +265,18 @@ function testRuntime(){
       typeof win.NGTOffspring.remove==='undefined'&&
       win.NGTOffspringInternal&&
       win.NGTOffspringInternal.editor
+     )
+    );
+    record(
+     'Verpaarungsplanung verfügbar',
+     !!(
+      win.NGTBreeding&&
+      typeof win.NGTBreeding.savePlan==='function'&&
+      typeof win.NGTBreeding.addEvent==='function'&&
+      typeof win.NGTBreeding.offspringPreset==='function'&&
+      win.NGTStore&&
+      typeof win.NGTStore.breedingPlans==='function'&&
+      typeof win.NGTStore.saveBreedingPlan==='function'
      )
     );
 

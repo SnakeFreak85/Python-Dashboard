@@ -116,8 +116,8 @@ function render(){
     <div>
      <b>Enthalten</b>
      <span>
-      Tiere, Fütterungen, Gewichte, Fotos-Metadaten,
-      Futterbestand und Einstellungen
+      Tiere, Fütterungen, Gewichte, Zuchtprojekte,
+      Fotos-Metadaten, Futterbestand und Einstellungen
      </span>
     </div>
 

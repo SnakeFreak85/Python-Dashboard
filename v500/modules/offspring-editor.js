@@ -7,10 +7,10 @@ if(!P){
  throw new Error('NGTOffspringInternal fehlt');
 }
 
-function editor(t,index){
+function editor(t,index,preset){
  const animal=index!==undefined
   ?NGTStore.animal(t,index)
-  :{};
+  :(preset||{});
  const animalId=index!==undefined
   ?NGTStore.animalId(animal)
   :'';
@@ -25,6 +25,12 @@ function editor(t,index){
   P.normalizedFoodInventory().length>0;
 
  return `<section class="tc2AnimalEditor tc2OffspringEditor">
+  <input
+   id="edBreedingPlanId"
+   type="hidden"
+   value="${P.esc(animal.breedingPlanId||'')}"
+  >
+
   <div class="tc2AnimalEditorHead">
    <div>
     <h3>
@@ -409,6 +415,9 @@ function save(t,index,animalId){
      :''
    );
  const salePrice=inputValue('edBuy');
+ const breedingPlanId=inputValue(
+  'edBreedingPlanId'
+ );
 
  const animal={
   ...old,
@@ -473,7 +482,8 @@ function save(t,index,animalId){
    inputValue('edStatus')||
    'Nachzucht',
 
-  collection:'offspring',
+   collection:'offspring',
+   breedingPlanId:breedingPlanId,
 
   defaultFeederId:feederId,
   foodInventoryId:feederId,
@@ -512,24 +522,48 @@ function save(t,index,animalId){
   ?animal.health
   :[];
 
+ let savedAnimal=null;
+
  if(index===null){
-  NGTStore.addAnimal(
+  savedAnimal=NGTStore.addAnimal(
    t,
    animal
   );
  }else{
   if(animalId){
-   NGTStore.updateAnimalById(
+   savedAnimal=NGTStore.updateAnimalById(
     animalId,
     animal
    );
   }else{
-   NGTStore.updateAnimal(
+   savedAnimal=NGTStore.updateAnimal(
     t,
     index,
     animal
    );
   }
+ }
+
+ if(
+  breedingPlanId&&
+  savedAnimal&&
+  window.NGTBreeding&&
+  NGTBreeding.linkOffspring
+ ){
+  NGTBreeding.linkOffspring(
+   breedingPlanId,
+   NGTStore.animalId(savedAnimal)
+  );
+
+  NGT500.toast(
+   'Nachzucht wurde dem Zuchtprojekt zugeordnet.'
+  );
+
+  NGT500.route('breeding',{
+   id:breedingPlanId
+  });
+
+  return;
  }
 
  if(AnimalEngine.isActiveAnimal(animal)){

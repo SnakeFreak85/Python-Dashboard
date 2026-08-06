@@ -337,6 +337,7 @@ function routeLabel(name){
  const labels={
   dashboard:'Startseite',
   smartDashboard:'Smart Dashboard',
+  breeding:'Verpaarungsplanung',
   animals:'Bestand',
   offspring:'Nachzuchten',
   profile:'Tierprofil',
