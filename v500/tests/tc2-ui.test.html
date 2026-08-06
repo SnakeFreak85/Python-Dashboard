@@ -14,7 +14,7 @@ h1{margin-bottom:8px}.muted{color:#94a3b8}.summary{font-weight:700;margin:20px 0
 <p class="muted">Prüft TC2-Seitenrahmen, öffentliche Seiten und Dialogverträge.</p>
 <div id="summary" class="summary">Test läuft …</div>
 <ol id="results"></ol>
-<iframe id="appFrame" src="../../v500.html?v=1.0.4-rc.11"></iframe>
+<iframe id="appFrame" src="../../v500.html?v=1.0.4-rc.11&amp;tcTest=1"></iframe>
 <script>
 (function(){
 'use strict';
@@ -231,7 +231,7 @@ function testRuntime(){
     record('TC2-Hinweis verfügbar',typeof win.NGT500.notice==='function');
 
     const routes=[
-     'dashboard','smartDashboard','animals','offspring','profile',
+     'dashboard','smartDashboard','animals','offspring','breeding','profile',
      'food','qr','backup','assistant','chat','support','announcements'
     ];
 
@@ -376,7 +376,7 @@ function testRuntime(){
       foodHistoryState.route.name==='food'
     );
     record(
-     'Seitennavigation erhÃ¶ht die Verlaufstiefe',
+   'Seitennavigation erhöht die Verlaufstiefe',
      Number(foodHistoryState.depth)>0
     );
 
@@ -385,7 +385,7 @@ function testRuntime(){
      setTimeout(resolve,80);
     });
     record(
-     'Handy-ZurÃ¼ck wechselt zur vorherigen App-Seite',
+   'Handy-Zurück wechselt zur vorherigen App-Seite',
      win.NGT500.current()&&
       win.NGT500.current().name==='dashboard'
     );
@@ -396,7 +396,7 @@ function testRuntime(){
      setTimeout(resolve,80);
     });
     record(
-     'Interner ZurÃ¼ck-Button nutzt denselben App-Verlauf',
+   'Interner Zurück-Button nutzt denselben App-Verlauf',
      win.NGT500.current()&&
       win.NGT500.current().name==='dashboard'
     );

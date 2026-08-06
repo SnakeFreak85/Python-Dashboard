@@ -14,7 +14,7 @@ body{font-family:system-ui,sans-serif;max-width:900px;margin:32px auto;padding:0
 <p class="muted">Charakterisiert Bestandsfilter, Editor, Legacy-Felder und öffentliche API.</p>
 <p id="summary">Test läuft …</p>
 <ol id="results"></ol>
-<iframe id="appFrame" src="../../v500.html"></iframe>
+<iframe id="appFrame" src="../../v500.html?tcTest=1"></iframe>
 <script>
 (function(){
 'use strict';
@@ -124,6 +124,7 @@ async function run(){
    species:'regius',
    name:'Luna',
    status:'Bestand',
+   weight:500,
    feedingInterval:13,
    customField:'bleibt',
    photos:[{thumbUrl:'thumb.jpg',url:'full.jpg',cover:true}]
@@ -144,12 +145,22 @@ async function run(){
    collection:'offspring'
   });
 
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Geckos',
+   genus:'Eublepharis',
+   name:'Reservierte Nachzucht',
+   status:'Reserviert',
+   collection:'offspring'
+  });
+
   const luna=win.NGTStore.findAnimal('Luna');
   const lunaId=win.NGTStore.animalId(luna.a);
   const archived=win.NGTStore.findAnimal('Archiviert');
   const archivedId=win.NGTStore.animalId(archived.a);
   const offspring=win.NGTStore.findAnimal('Nachzucht');
   const offspringId=win.NGTStore.animalId(offspring.a);
+  const reservedOffspring=win.NGTStore.findAnimal('Reservierte Nachzucht');
+  const reservedOffspringId=win.NGTStore.animalId(reservedOffspring.a);
 
   win.NGT500.route('profile',{animalId:offspringId});
 
@@ -223,14 +234,15 @@ async function run(){
   win.NGT500.route('animals',{view:'archive'});
 
   const archiveText=win.document.getElementById('app').textContent;
-  record('archiviertes Tier bleibt im Archiv sichtbar',archiveText.includes('Archiviert'));
+  record('Archiv zeigt den dynamischen Ordner Archiv',archiveText.includes('Archiv'));
+  record('Archiv zeigt den dynamischen Ordner Reserviert',archiveText.includes('Reserviert'));
   record('aktives Tier wird im Archiv ausgeblendet',!archiveText.includes('Luna'));
   record('Nachzucht wird im Tierarchiv ausgeblendet',!archiveText.includes('Nachzucht'));
   record(
-   'Archiv zeigt Statusfilter und Zählwerte',
-   archiveText.includes('Verstorben')&&
-   archiveText.includes('Verkauft')&&
-   archiveText.includes('Abgegeben')
+   'Archiv erzeugt nur Ordner für tatsächlich vorhandene Status',
+   !archiveText.includes('Verstorben')&&
+   !archiveText.includes('Verkauft')&&
+   !archiveText.includes('Abgegeben')
   );
 
   win.NGT500.route('animals',{view:'archive',status:'Archiv'});
@@ -238,6 +250,45 @@ async function run(){
   record(
    'Archivfilter zeigt den Status des Tieres',
    win.document.querySelector('.tc2TaxAnimalStatus').textContent.includes('Archiv')
+  );
+
+  win.NGT500.route('animals',{view:'archive',status:'Reserviert'});
+
+  record(
+   'Reserviert-Ordner zeigt die reservierte Nachzucht',
+   win.document.getElementById('app').textContent.includes('Reservierte Nachzucht')
+  );
+  equal(
+   'Reserviert-Status ist an der Archivkarte ausgezeichnet',
+   win.document.querySelector('.tc2TaxAnimalStatus').getAttribute('data-status'),
+   'Reserviert'
+  );
+
+  win.NGT500.route('profile',{animalId:reservedOffspringId});
+
+  record(
+   'reservierte Nachzucht zeigt den Archivhinweis',
+   !!win.document.querySelector('.tc2ProfileArchiveNotice[data-status="Reserviert"]')
+  );
+  record(
+   'reservierte Nachzucht kann zu den Nachzuchten zurückkehren',
+   win.document.querySelector('.tc2ProfileRestore').textContent.includes('Nachzuchten')
+  );
+
+  equal(
+   'Wiederaufnahme der reservierten Nachzucht ist erfolgreich',
+   win.NGTAnimals.restoreById(reservedOffspringId),
+   true
+  );
+  equal(
+   'Reservierte Nachzucht erhält wieder den Status Nachzucht',
+   win.NGTStore.getAnimalById(reservedOffspringId).status,
+   'Nachzucht'
+  );
+  equal(
+   'Nachzucht-Zuordnung bleibt bei Wiederaufnahme erhalten',
+   win.NGTStore.getAnimalById(reservedOffspringId).collection,
+   'offspring'
   );
 
   win.NGT500.route('profile',{animalId:archivedId});
@@ -313,6 +364,120 @@ async function run(){
   record(
    'Profil zeigt die kanonische Fütterungsangabe',
    win.document.getElementById('app').textContent.includes('Gefressen Frost Ratte 50 g')
+  );
+
+  const recommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     win.NGTStore.getAnimalById(lunaId),
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  equal(
+   'Futterempfehlung wählt ein zum Gewicht passendes Bestandsfutter',
+   recommendation.primary,
+   '1 × Frost Ratte 50 g'
+  );
+
+  equal(
+   'Futterempfehlung berechnet das Intervall aus Tierart und Gewicht',
+   recommendation.intervalText,
+   'alle 14–21 Tage'
+  );
+
+  record(
+   'Futterempfehlung nennt Tierart und Gewicht als Grundlage',
+   recommendation.basis.includes('Python regius')&&
+   recommendation.basis.includes('500 g')
+  );
+
+  record(
+   'Futterempfehlung wird nicht aus Standardfutter oder Verlauf abgeleitet',
+   !recommendation.basis.includes('Standardfutter')&&
+   !recommendation.basis.includes('Verlauf')
+  );
+
+  const grownRecommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     Object.assign(
+      {},
+      win.NGTStore.getAnimalById(lunaId),
+      {weight:1600,weights:[]}
+     ),
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  equal(
+   'Futterempfehlung wächst mit dem aktuellen Tiergewicht',
+   grownRecommendation.primary,
+   '1 Futtertier mit etwa 160 g'
+  );
+
+  equal(
+   'Futterintervall passt sich an das höhere Gewicht an',
+   grownRecommendation.intervalText,
+   'alle 28–56 Tage'
+  );
+
+  const chameleonRecommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     {
+      animalGroup:'Chamäleons',
+      genus:'Chamaeleo',
+      species:'calyptratus',
+      birth:'2024-01-01',
+      feeds:[]
+     },
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  record(
+   'Chamäleon-Empfehlung nennt Schaben und benötigt kein Gewicht',
+   chameleonRecommendation.available&&
+   chameleonRecommendation.primary.includes('Schaben')&&
+   !chameleonRecommendation.basis.includes('Gewicht')
+  );
+
+  const spiderRecommendation=
+   win.FeedingRecommendationEngine
+    .recommendation(
+     {
+      animalGroup:'Vogelspinnen',
+      genus:'Brachypelma',
+      species:'hamorii',
+      feeds:[]
+     },
+     win.NGTStore.foodInventory(),
+     {now:'2026-08-05'}
+    );
+
+  record(
+   'Vogelspinnen erhalten eine größen- und häutungsabhängige Regel ohne Gewicht',
+   spiderRecommendation.available&&
+   spiderRecommendation.primary.includes('Futterinsekt')&&
+   spiderRecommendation.detail.includes('Häutung')&&
+   !spiderRecommendation.basis.includes('Gewicht')
+  );
+
+  record(
+   'Futterempfehlung wird im Tierprofil angezeigt',
+   win.document
+    .getElementById('app')
+    .textContent
+    .includes('Futterempfehlung')
+  );
+
+  record(
+   'Futterempfehlung zeigt den Hinweis zu individuellen Futtergewohnheiten',
+   win.document
+    .getElementById('app')
+    .textContent
+    .includes('ersetzt nicht die individuellen Futtergewohnheiten')
   );
 
   win.NGT500.route('animals',{edit:0});

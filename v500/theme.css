@@ -382,10 +382,50 @@ html[data-tc-theme="light"] .tc2TaxAnimalStatus{
  border-color:#b8c9d1!important;
 }
 
+html[data-tc-theme="light"] .tc2ArchiveFolder{
+ color:var(--tc-theme-text)!important;
+ background:var(--tc-theme-surface-soft)!important;
+ border-color:var(--tc-theme-border)!important;
+ box-shadow:0 8px 18px rgba(36,58,69,.10)!important;
+}
+
+html[data-tc-theme="light"] .tc2ArchiveFolder[data-status="Reserviert"],
+html[data-tc-theme="light"] .tc2TaxAnimal[data-status="Reserviert"]{
+ border-color:#dc8b19!important;
+ box-shadow:0 10px 22px rgba(153,90,0,.16)!important;
+}
+
+html[data-tc-theme="light"] .tc2ArchiveFolder[data-status="Reserviert"]{
+ background:#fff2dc!important;
+}
+
+html[data-tc-theme="light"] .tc2TaxAnimalStatus[data-status="Reserviert"]{
+ color:#2b1900!important;
+ background:#ffb648!important;
+ border-color:#d88612!important;
+}
+
+html[data-tc-theme="light"] .tc2TaxAnimalStatus[data-status="Verkauft"]{
+ color:#082015!important;
+ background:#69d2a0!important;
+ border-color:#3caf7a!important;
+}
+
+html[data-tc-theme="light"] .tc2TaxAnimalStatus[data-status="Verstorben"]{
+ color:#fff!important;
+ background:#596772!important;
+ border-color:#46535d!important;
+}
+
 html[data-tc-theme="light"] .tc2ProfileArchiveNotice{
  color:var(--tc-theme-text)!important;
  background:#edf3f5!important;
  border-color:var(--tc-theme-border)!important;
+}
+
+html[data-tc-theme="light"] .tc2ProfileArchiveNotice[data-status="Reserviert"]{
+ background:#fff2dc!important;
+ border-color:#dc8b19!important;
 }
 
 /*

@@ -9,6 +9,7 @@ const COLLECTION_KEYS=[
  'spinnen',
  'foodInventory',
  'foodCatalog',
+ 'breedingPlans',
  'clutches',
  'sales',
  'archive',

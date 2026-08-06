@@ -2,8 +2,16 @@
 .tc2TaxSilhouetteHost {
   border-color: rgba(83, 210, 150, .46) !important;
   background:
-    radial-gradient(circle at 42% 36%, rgba(57, 158, 98, .24), transparent 58%),
-    linear-gradient(145deg, rgba(11, 43, 48, .98), rgba(3, 17, 27, .99)) !important;
+    radial-gradient(
+      circle at 42% 36%,
+      rgba(57, 158, 98, .24),
+      transparent 58%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(11, 43, 48, .98),
+      rgba(3, 17, 27, .99)
+    ) !important;
 }
 
 .tc2TaxReferenceIcon {
@@ -24,8 +32,16 @@
   overflow: hidden !important;
   border-radius: 19px !important;
   background:
-    radial-gradient(circle at 43% 34%, rgba(91, 189, 91, .18), transparent 56%),
-    linear-gradient(145deg, rgba(11, 41, 46, .98), rgba(4, 17, 27, .99)) !important;
+    radial-gradient(
+      circle at 43% 34%,
+      rgba(91, 189, 91, .18),
+      transparent 56%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(11, 41, 46, .98),
+      rgba(4, 17, 27, .99)
+    ) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, .045),
     inset 0 0 0 1px rgba(104, 192, 130, .12) !important;
@@ -44,35 +60,50 @@
   overflow: visible;
 }
 
-.tc2TaxSilhouetteSvg linearGradient[id="tc2TaxBody"] stop:nth-child(1) {
+.tc2TaxSilhouetteSvg
+linearGradient[id="tc2TaxBody"]
+stop:nth-child(1) {
   stop-color: #d9ff79 !important;
 }
 
-.tc2TaxSilhouetteSvg linearGradient[id="tc2TaxBody"] stop:nth-child(2) {
+.tc2TaxSilhouetteSvg
+linearGradient[id="tc2TaxBody"]
+stop:nth-child(2) {
   stop-color: #68d65f !important;
 }
 
-.tc2TaxSilhouetteSvg linearGradient[id="tc2TaxBody"] stop:nth-child(3) {
+.tc2TaxSilhouetteSvg
+linearGradient[id="tc2TaxBody"]
+stop:nth-child(3) {
   stop-color: #21864d !important;
 }
 
-.tc2TaxSilhouetteSvg radialGradient[id="tc2TaxBackground"] stop:nth-child(1) {
+.tc2TaxSilhouetteSvg
+radialGradient[id="tc2TaxBackground"]
+stop:nth-child(1) {
   stop-color: #236a48 !important;
   stop-opacity: .58 !important;
 }
 
-.tc2TaxSilhouetteSvg radialGradient[id="tc2TaxBackground"] stop:nth-child(2) {
+.tc2TaxSilhouetteSvg
+radialGradient[id="tc2TaxBackground"]
+stop:nth-child(2) {
   stop-color: #123c35 !important;
   stop-opacity: .38 !important;
 }
 
-.tc2TaxSilhouetteSvg radialGradient[id="tc2TaxBackground"] stop:nth-child(3) {
+.tc2TaxSilhouetteSvg
+radialGradient[id="tc2TaxBackground"]
+stop:nth-child(3) {
   stop-color: #06121d !important;
   stop-opacity: 0 !important;
 }
 
 .tc2TaxSilhouetteCreature {
-  filter: drop-shadow(0 5px 7px rgba(77, 210, 91, .30)) !important;
+  filter:
+    drop-shadow(
+      0 5px 7px rgba(77, 210, 91, .30)
+    ) !important;
 }
 
 .tc2TaxSilhouetteCreature circle[fill="#08141c"],
@@ -91,6 +122,517 @@
 
 .tc2TaxFolder::after {
   color: #8bdc3f !important;
+}
+
+/*
+ * Bestandskarten:
+ * Das vollständige Tierfoto bleibt sichtbar.
+ */
+.tc2TaxAnimal {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.tc2TaxAnimal > div:first-child {
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: clamp(132px, 28vw, 180px) !important;
+  min-height: 0 !important;
+  max-height: 180px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(48, 79, 95, .24),
+      transparent 70%
+    ),
+    #071521 !important;
+}
+
+.tc2TaxAnimal > div:first-child > img {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  border-radius: 0 !important;
+}
+
+/*
+ * Profilfoto:
+ * Das Original bleibt vollständig sichtbar.
+ * Eine weichgezeichnete Kopie füllt automatisch
+ * den freien Platz hinter Hoch- und Querformaten.
+ */
+.tc2ProfileV4 .tc2ProfileHero {
+  position: relative !important;
+  isolation: isolate !important;
+  display: grid !important;
+  place-items: center !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: clamp(270px, 78vw, 335px) !important;
+  min-height: 270px !important;
+  max-height: 335px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 24px !important;
+  background: #071521 !important;
+}
+
+.tc2ProfileV4
+.tc2ProfileHero >
+.tc2ProfileHeroBackdrop {
+  position: absolute !important;
+  inset: -20px !important;
+  z-index: 0 !important;
+  display: block !important;
+  width: calc(100% + 40px) !important;
+  min-width: calc(100% + 40px) !important;
+  max-width: none !important;
+  height: calc(100% + 40px) !important;
+  min-height: calc(100% + 40px) !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: 0 !important;
+  filter:
+    blur(16px)
+    brightness(.48)
+    saturate(1.08) !important;
+  opacity: .88 !important;
+  transform: scale(1.06) !important;
+  pointer-events: none !important;
+}
+
+.tc2ProfileV4
+.tc2ProfileHero >
+.tc2ProfileHeroImage {
+  position: relative !important;
+  z-index: 1 !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  border-radius: 23px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHero::after {
+  z-index: 2 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileHeroEmpty {
+  position: relative !important;
+  z-index: 1 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+}
+
+/*
+ * Kompakte horizontale Tierkarten
+ * auf schmalen Smartphones.
+ */
+@media (max-width: 420px) {
+  .tc2TaxAnimal {
+    display: grid !important;
+    grid-template-columns:
+      104px
+      minmax(0, 1fr) !important;
+    grid-template-rows:
+      auto
+      auto
+      auto
+      auto !important;
+    column-gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 0 12px 0 0 !important;
+    overflow: hidden !important;
+  }
+
+  .tc2TaxAnimal > div:first-child {
+    grid-column: 1 !important;
+    grid-row: 1 / 5 !important;
+    align-self: stretch !important;
+    width: 104px !important;
+    min-width: 104px !important;
+    max-width: 104px !important;
+    height: 116px !important;
+    min-height: 116px !important;
+    max-height: 116px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    aspect-ratio: auto !important;
+    overflow: hidden !important;
+    border-radius: 18px 0 0 18px !important;
+  }
+
+  .tc2TaxAnimal > div:first-child > img {
+    width: 104px !important;
+    min-width: 104px !important;
+    max-width: 104px !important;
+    height: 116px !important;
+    min-height: 116px !important;
+    max-height: 116px !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+  }
+
+  .tc2TaxAnimal > b,
+  .tc2TaxAnimal > strong,
+  .tc2TaxAnimal > small,
+  .tc2TaxAnimal > .tc2TaxAnimalStatus {
+    grid-column: 2 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* TC2 Futterempfehlung im Tierprofil */
+.tc2ProfileV4 .tc2ProfileIdentity {
+  padding: 8px 12px 6px !important;
+}
+
+.tc2ProfileV4 .tc2ProfilePublicId {
+  min-height: 30px !important;
+  padding: 4px 13px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h2 {
+  margin: 9px 0 4px !important;
+  font-size: 29px !important;
+  line-height: 1 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity h3 {
+  margin: 3px 0 0 !important;
+  font-size: 18px !important;
+  line-height: 1.12 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileScientific {
+  font-size: 18px !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity p {
+  margin: 7px 0 0 !important;
+}
+
+.tc2ProfileV4 .tc2ProfileIdentity small {
+  margin-top: 6px !important;
+}
+
+.tc2FeedingRecommendation {
+  display: grid !important;
+  grid-template-columns: 66px minmax(0, 1fr) !important;
+  gap: 12px 16px !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 18px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(139, 220, 63, .92) !important;
+  border-radius: 23px !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(139, 220, 63, .18),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(15, 61, 45, .98),
+      rgba(5, 35, 39, .98)
+    ) !important;
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, .26),
+    inset 0 1px 0 rgba(255, 255, 255, .05) !important;
+  color: #f4f8f5 !important;
+}
+
+.tc2FeedingRecommendation.warn,
+.tc2FeedingRecommendation.incomplete {
+  border-color: rgba(246, 198, 78, .78) !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(246, 198, 78, .16),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(66, 53, 25, .98),
+      rgba(35, 35, 28, .98)
+    ) !important;
+}
+
+.tc2FeedingRecommendation.due {
+  border-color: rgba(255, 145, 58, .88) !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(255, 145, 58, .18),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(73, 43, 24, .98),
+      rgba(42, 30, 27, .98)
+    ) !important;
+}
+
+.tc2FeedingRecommendationIcon {
+  display: grid !important;
+  place-items: center !important;
+  align-self: start !important;
+  width: 66px !important;
+  height: 66px !important;
+  border: 1px solid rgba(139, 220, 63, .28) !important;
+  border-radius: 50% !important;
+  background: rgba(139, 220, 63, .13) !important;
+  font-size: 31px !important;
+  line-height: 1 !important;
+}
+
+.tc2FeedingRecommendation.warn
+.tc2FeedingRecommendationIcon,
+.tc2FeedingRecommendation.incomplete
+.tc2FeedingRecommendationIcon {
+  border-color: rgba(246, 198, 78, .30) !important;
+  background: rgba(246, 198, 78, .13) !important;
+}
+
+.tc2FeedingRecommendationMain {
+  min-width: 0 !important;
+}
+
+.tc2FeedingRecommendationMain h3 {
+  margin: 0 0 7px !important;
+  color: #9cf05b !important;
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+  font-weight: 1000 !important;
+}
+
+.tc2FeedingRecommendation.warn
+.tc2FeedingRecommendationMain h3,
+.tc2FeedingRecommendation.incomplete
+.tc2FeedingRecommendationMain h3 {
+  color: #f6c64e !important;
+}
+
+.tc2FeedingRecommendation.due
+.tc2FeedingRecommendationMain h3 {
+  color: #ffad66 !important;
+}
+
+.tc2FeedingRecommendationWarning {
+  display: block !important;
+  margin: 0 0 10px !important;
+  padding: 7px 9px !important;
+  border: 1px solid rgba(255, 92, 101, .62) !important;
+  border-radius: 9px !important;
+  background: rgba(153, 22, 32, .28) !important;
+  color: #ff969d !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  font-weight: 850 !important;
+}
+
+.tc2FeedingRecommendationPrimary {
+  display: block !important;
+  color: #ffffff !important;
+  font-size: 21px !important;
+  line-height: 1.18 !important;
+  font-weight: 1000 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.tc2FeedingRecommendationInterval {
+  display: block !important;
+  margin-top: 5px !important;
+  color: rgba(235, 243, 239, .80) !important;
+  font-size: 14px !important;
+  line-height: 1.25 !important;
+}
+
+.tc2FeedingRecommendationDetail {
+  display: block !important;
+  margin-top: 6px !important;
+  color: rgba(235, 243, 239, .68) !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+
+.tc2FeedingRecommendationMeta {
+  grid-column: 2 !important;
+  min-width: 0 !important;
+  padding-top: 12px !important;
+  border-top: 1px solid rgba(188, 222, 207, .16) !important;
+}
+
+.tc2FeedingRecommendationNext {
+  display: flex !important;
+  gap: 7px !important;
+  align-items: baseline !important;
+  flex-wrap: wrap !important;
+  color: rgba(235, 243, 239, .76) !important;
+  font-size: 13px !important;
+}
+
+.tc2FeedingRecommendationNext b {
+  color: #9cf05b !important;
+  font-size: 15px !important;
+}
+
+.tc2FeedingRecommendation.warn
+.tc2FeedingRecommendationNext b,
+.tc2FeedingRecommendation.incomplete
+.tc2FeedingRecommendationNext b {
+  color: #f6c64e !important;
+}
+
+.tc2FeedingRecommendation.due
+.tc2FeedingRecommendationNext b {
+  color: #ffad66 !important;
+}
+
+.tc2FeedingRecommendationBasis {
+  display: block !important;
+  margin-top: 7px !important;
+  color: rgba(235, 243, 239, .62) !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+
+.tc2FeedingRecommendationNote {
+  display: block !important;
+  margin-top: 5px !important;
+  color: rgba(235, 243, 239, .48) !important;
+  font-size: 10px !important;
+  line-height: 1.3 !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendation {
+  border-color: rgba(72, 145, 52, .72) !important;
+  background:
+    radial-gradient(
+      circle at 12% 24%,
+      rgba(116, 190, 72, .20),
+      transparent 32%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(225, 244, 224, .99),
+      rgba(211, 237, 228, .99)
+    ) !important;
+  box-shadow:
+    0 14px 28px rgba(39, 81, 61, .16),
+    inset 0 1px 0 rgba(255, 255, 255, .75) !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationMain h3,
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationNext b {
+  color: #2f7d32 !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationPrimary {
+  color: #10241c !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationWarning {
+  border-color: rgba(174, 28, 40, .46) !important;
+  background: #ffe6e8 !important;
+  color: #a31521 !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationInterval,
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationNext {
+  color: #3f5f52 !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationBasis,
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationDetail {
+  color: #5b766a !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationNote {
+  color: #71877d !important;
+}
+
+html[data-tc-theme="light"]
+.tc2FeedingRecommendationMeta {
+  border-top-color: rgba(48, 96, 73, .18) !important;
+}
+
+@media (max-width: 420px) {
+  .tc2FeedingRecommendation {
+    grid-template-columns: 54px minmax(0, 1fr) !important;
+    gap: 10px 12px !important;
+    padding: 15px !important;
+    border-radius: 20px !important;
+  }
+
+  .tc2FeedingRecommendationIcon {
+    width: 54px !important;
+    height: 54px !important;
+    font-size: 26px !important;
+  }
+
+  .tc2FeedingRecommendationMain h3 {
+    font-size: 16px !important;
+  }
+
+  .tc2FeedingRecommendationPrimary {
+    font-size: 18px !important;
+  }
+
+  .tc2FeedingRecommendationMeta {
+    padding-top: 10px !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

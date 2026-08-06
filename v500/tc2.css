@@ -6523,6 +6523,59 @@ body:not(.tc2RefMode) .wrap {
  line-height:1;
 }
 
+.tc2ArchiveFolder{
+ border-color:rgba(151,172,184,.32)!important;
+ background:
+  linear-gradient(
+   145deg,
+   rgba(28,51,66,.98),
+   rgba(12,29,41,.99)
+  )!important;
+}
+
+.tc2ArchiveFolder>span{
+ display:grid;
+ place-items:center;
+ min-height:48px;
+ font-size:24px;
+ letter-spacing:0;
+}
+
+.tc2ArchiveFolder[data-status="Reserviert"],
+.tc2TaxAnimal[data-status="Reserviert"]{
+ border-color:rgba(255,176,72,.72)!important;
+ box-shadow:0 12px 28px rgba(126,72,0,.22)!important;
+}
+
+.tc2ArchiveFolder[data-status="Reserviert"]{
+ background:
+  linear-gradient(
+   145deg,
+   rgba(91,58,15,.96),
+   rgba(27,39,45,.99)
+  )!important;
+}
+
+.tc2TaxAnimalStatus[data-status="Reserviert"]{
+ color:#1f1303;
+ background:#ffb648;
+ border-color:#ffd18a;
+ box-shadow:0 5px 14px rgba(126,72,0,.26);
+ font-size:11px;
+}
+
+.tc2TaxAnimalStatus[data-status="Verkauft"]{
+ color:#082015;
+ background:#69d2a0;
+ border-color:#a6ebc9;
+}
+
+.tc2TaxAnimalStatus[data-status="Verstorben"]{
+ color:#f2f5f7;
+ background:#596772;
+ border-color:#81909b;
+}
+
 .tc2ProfileArchiveNotice{
  display:flex;
  align-items:center;
@@ -6545,6 +6598,16 @@ body:not(.tc2RefMode) .wrap {
  font-weight:900;
  text-transform:uppercase;
  letter-spacing:.35px;
+}
+
+.tc2ProfileArchiveNotice[data-status="Reserviert"]{
+ background:rgba(126,72,0,.20);
+ border-color:rgba(255,176,72,.52);
+}
+
+.tc2ProfileArchiveNotice[data-status="Reserviert"]>span{
+ color:#211403;
+ background:#ffb648;
 }
 
 .tc2ProfileArchiveNotice div{

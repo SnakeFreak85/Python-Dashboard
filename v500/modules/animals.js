@@ -142,9 +142,10 @@ function restoreById(animalId){
   return false;
  }
 
+ const targetStatus=P.activeStatusFor(animal);
  const restored=NGTStore.updateAnimalById(
   animalId,
-  {status:'Bestand'}
+  {status:targetStatus}
  );
 
  if(!restored){
@@ -153,7 +154,9 @@ function restoreById(animalId){
 
  if(NGT500.toast){
   NGT500.toast(
-   'Tier ist wieder im aktiven Bestand.',
+   targetStatus==='Nachzucht'
+    ?'Tier ist wieder im Nachzuchtenbestand.'
+    :'Tier ist wieder im aktiven Bestand.',
    'success'
   );
  }

@@ -1,12 +1,22 @@
 (function(){
 'use strict';
 
-const KEY='spd_v53';
+const TEST_MODE=
+  new URLSearchParams(window.location.search)
+    .get('tcTest')==='1';
+const KEY=TEST_MODE
+  ?'terracontrol_test_data_v1'
+  :'spd_v53';
+const LAST_SAVE_KEY=TEST_MODE
+  ?'terracontrol_test_last_local_save_v1'
+  :'terracontrol_last_local_save_v1';
 const APP_VERSION='1.0.4-rc.11';
-const LEGACY_SETTINGS_KEY=
-  'terracontrol_settings_v1';
-const LEGACY_SELLER_KEY=
-  'ngt_seller_profile_v1';
+const LEGACY_SETTINGS_KEY=TEST_MODE
+  ?'terracontrol_test_settings_v1'
+  :'terracontrol_settings_v1';
+const LEGACY_SELLER_KEY=TEST_MODE
+  ?'terracontrol_test_seller_profile_v1'
+  :'ngt_seller_profile_v1';
 
 const LEGACY_TYPES=['koenig','boas','geckos','spinnen'];
 
@@ -43,6 +53,7 @@ function base(){
     animalGroups:[],
     foodCatalog:[],
     foodInventory:[],
+    breedingPlans:[],
     clutches:[],
     sales:[],
     archive:[],
@@ -416,7 +427,8 @@ function normalize(d,options){
     'sales',
     'archive',
     'documents',
-    'foodInventory'
+    'foodInventory',
+    'breedingPlans'
   ].forEach(k=>{
     if(!Array.isArray(d[k]))d[k]=[];
   });
@@ -461,8 +473,9 @@ function load(){
     ?normalize(d,{importLegacy:true})
     :base();
 
-  const legacySeller=
-    readJson(LEGACY_SELLER_KEY);
+  const legacySeller=TEST_MODE
+    ?null
+    :readJson(LEGACY_SELLER_KEY);
 
   if(
     !loaded.settings.seller&&
@@ -489,7 +502,7 @@ function save(){
   localStorage.setItem(KEY,txt);
 
   try{
-    localStorage.setItem('terracontrol_last_local_save_v1',JSON.stringify({
+    localStorage.setItem(LAST_SAVE_KEY,JSON.stringify({
       at:new Date().toISOString(),
       animals:allAnimals().length
     }));
@@ -502,10 +515,13 @@ function clearLocal(){
   db=base();
 
   localStorage.removeItem(KEY);
-  localStorage.removeItem('ngt_v500_data');
-  localStorage.removeItem('terracontrol_data_v1');
-  localStorage.removeItem('terracontrol_data_shadow_v1');
-  localStorage.removeItem('terracontrol_last_migration_v1');
+
+  if(!TEST_MODE){
+    localStorage.removeItem('ngt_v500_data');
+    localStorage.removeItem('terracontrol_data_v1');
+    localStorage.removeItem('terracontrol_data_shadow_v1');
+    localStorage.removeItem('terracontrol_last_migration_v1');
+  }
 
   save();
 }
@@ -537,6 +553,89 @@ function documents(){
     db.documents,
     []
   );
+}
+
+function breedingPlans(){
+  return detached(
+    db.breedingPlans,
+    []
+  );
+}
+
+function breedingPlanById(id){
+  id=String(id||'').trim();
+
+  if(!id){
+    return null;
+  }
+
+  const plan=(db.breedingPlans||[]).find(function(item){
+    return String(item&&item.id||'')===id;
+  });
+
+  return plan
+    ?detached(plan,null)
+    :null;
+}
+
+function saveBreedingPlan(input){
+  input=input||{};
+
+  const id=String(
+    input.id||
+    NGT500.uid()
+  ).trim();
+  const index=(db.breedingPlans||[]).findIndex(function(item){
+    return String(item&&item.id||'')===id;
+  });
+  const current=index>=0
+    ?db.breedingPlans[index]
+    :{};
+  const now=new Date().toISOString();
+  const plan={
+    ...current,
+    ...detached(input,{}),
+    id:id,
+    events:Array.isArray(input.events)
+      ?detached(input.events,[])
+      :Array.isArray(current.events)
+       ?detached(current.events,[])
+       :[],
+    offspringIds:Array.isArray(input.offspringIds)
+      ?Array.from(new Set(input.offspringIds.map(String)))
+      :Array.isArray(current.offspringIds)
+       ?Array.from(new Set(current.offspringIds.map(String)))
+       :[],
+    createdAt:current.createdAt||input.createdAt||now,
+    updatedAt:now
+  };
+
+  if(index>=0){
+    db.breedingPlans[index]=plan;
+  }else{
+    db.breedingPlans.push(plan);
+  }
+
+  save();
+
+  return detached(plan,null);
+}
+
+function deleteBreedingPlan(id){
+  id=String(id||'').trim();
+
+  const index=(db.breedingPlans||[]).findIndex(function(item){
+    return String(item&&item.id||'')===id;
+  });
+
+  if(index<0){
+    return null;
+  }
+
+  const removed=db.breedingPlans.splice(index,1)[0];
+  save();
+
+  return detached(removed,null);
 }
 
 function settings(){
@@ -1503,8 +1602,9 @@ function importBackup(txt){
     'animals',
     'animalGroups',
     'foodCatalog',
-    'foodInventory',
-    'clutches',
+     'foodInventory',
+     'breedingPlans',
+     'clutches',
     'sales',
     'archive',
     'documents',
@@ -1556,6 +1656,10 @@ window.NGTStore={
   data,
   foodInventory,
   documents,
+  breedingPlans,
+  breedingPlanById,
+  saveBreedingPlan,
+  deleteBreedingPlan,
   settings,
   save,
   clearLocal,

@@ -26,6 +26,97 @@ requiredModules.forEach(function(name){
  }
 });
 
+function feedingRecommendationCard(
+ recommendation
+){
+ const value=
+  recommendation||{
+   available:false,
+   state:'incomplete',
+   icon:'🍽️',
+   heading:'Futterempfehlung',
+   primary:'Noch nicht sicher berechenbar',
+   intervalText:
+    'Tierart, Gewicht oder Schlupfdatum ergänzen',
+   nextLabel:'Nächste Fütterung',
+   nextText:'Noch nicht berechenbar',
+   basis:
+    'Erforderliche Tierdaten ergänzen.',
+   note:
+    'Orientierung ersetzt keine individuelle tierärztliche Beratung.'
+  };
+
+ return `
+  <section
+   class="
+    tc2FeedingRecommendation
+    ${P.esc(value.state||'incomplete')}
+   "
+  >
+   <div
+    class="tc2FeedingRecommendationIcon"
+    aria-hidden="true"
+   >
+    ${P.esc(value.icon||'🍽️')}
+   </div>
+
+   <div class="tc2FeedingRecommendationMain">
+    <h3>
+     ${P.esc(
+      value.heading||
+      'Futterempfehlung'
+     )}
+    </h3>
+
+    <div class="tc2FeedingRecommendationWarning" role="note">
+     Hinweis: Diese Empfehlung ersetzt nicht die individuellen Futtergewohnheiten deines Tieres.
+    </div>
+
+    <strong class="tc2FeedingRecommendationPrimary">
+     ${P.esc(value.primary||'-')}
+    </strong>
+
+    <span class="tc2FeedingRecommendationInterval">
+     ${P.esc(value.intervalText||'-')}
+    </span>
+
+    ${
+     value.detail
+      ?`<small class="tc2FeedingRecommendationDetail">${P.esc(value.detail)}</small>`
+      :''
+    }
+   </div>
+
+   <div class="tc2FeedingRecommendationMeta">
+    <div class="tc2FeedingRecommendationNext">
+     <span aria-hidden="true">🗓️</span>
+
+     <span>
+      ${P.esc(
+       value.nextLabel||
+       'Nächste Fütterung'
+      )}:
+     </span>
+
+     <b>
+      ${P.esc(value.nextText||'-')}
+     </b>
+    </div>
+
+    <small class="tc2FeedingRecommendationBasis">
+     ${P.esc(value.basis||'')}
+    </small>
+
+    ${
+     value.note
+      ?`<small class="tc2FeedingRecommendationNote">${P.esc(value.note)}</small>`
+      :''
+    }
+   </div>
+  </section>
+ `;
+}
+
 function render(args){
  P.photos.closePhotoViewer();
  P.setContext(args);
@@ -68,6 +159,14 @@ function render(args){
  const feedInterval=
   CareRulesEngine.feedInterval(animal);
 
+ const feedingRecommendation=
+  window.FeedingRecommendationEngine
+   ?FeedingRecommendationEngine.recommendation(
+    animal,
+    NGTStore.foodInventory()
+   )
+   :null;
+
  const id=
   animal.publicId||
   animal.displayId||
@@ -76,9 +175,8 @@ function render(args){
 
  const scientificName=
   P.scientificName(animal);
- const inactive=
-  !AnimalEngine.isActiveAnimal(animal)&&
-  !AnimalEngine.isOffspringAnimal(animal);
+ const offspring=AnimalEngine.isOffspringAnimal(animal);
+ const inactive=!AnimalEngine.isActiveAnimal(animal);
  const backRoute=inactive
   ?`
    NGT500.route(
@@ -89,7 +187,20 @@ function render(args){
     }
    )
   `
-  :`
+  :offspring
+   ?`
+   NGT500.route(
+    'offspring',
+    {
+     group:'${P.jsArg(animal.animalGroup)}',
+     genus:'${P.jsArg(
+      animal.genus||
+      'Ohne Gattung'
+     )}'
+    }
+   )
+  `
+   :`
    NGT500.route(
     'animals',
     {
@@ -115,7 +226,7 @@ function render(args){
      class="tc2ProfileTopBack"
      onclick="${backRoute}"
     >
-     ‹ ${inactive?'Archiv':'Bestand'}
+     ‹ ${inactive?'Archiv':offspring?'Nachzuchten':'Bestand'}
     </button>
 
     <div
@@ -165,7 +276,10 @@ function render(args){
    ${
     inactive
      ?`
-      <div class="tc2ProfileArchiveNotice">
+      <div
+       class="tc2ProfileArchiveNotice"
+       data-status="${P.esc(AnimalEngine.canonicalStatus(animal.status))}"
+      >
        <span>Archiviert</span>
 
        <div>
@@ -191,6 +305,14 @@ function render(args){
      image
       ?`
        <img
+        class="tc2ProfileHeroBackdrop"
+        src="${P.esc(image)}"
+        alt=""
+        aria-hidden="true"
+       >
+
+       <img
+        class="tc2ProfileHeroImage"
         src="${P.esc(image)}"
         alt="Tierfoto"
        >
@@ -202,6 +324,14 @@ function render(args){
       `
     }
    </div>
+
+   ${
+    !inactive
+     ?feedingRecommendationCard(
+      feedingRecommendation
+     )
+     :''
+   }
 
    <section class="tc2ProfileActionGrid">
     ${P.action(

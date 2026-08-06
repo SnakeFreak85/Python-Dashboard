@@ -12,6 +12,14 @@ if(!P){
 
 function backButton(args){
  if(args&&args.view==='archive'){
+  if(args.status){
+   return `
+    <button onclick="NGT500.route('animals',{view:'archive'})">
+     ‹ Archiv
+    </button>
+   `;
+  }
+
   return `
    <button onclick="NGT500.route('animals')">
     ‹ Bestand
@@ -142,13 +150,14 @@ function animalIconGrid(rows,options){
     return `
      <button
       class="tc2TaxAnimal"
+      ${status?`data-status="${P.esc(status)}"`:''}
       onclick="NGT500.route('profile',{animalId:'${P.jsArg(NGTStore.animalId(animal))}'})"
      >
       <div>${image}</div>
       <b>${P.esc(animal.publicId||animal.displayId||'')}</b>
       <strong>${P.esc(animal.name||'Unbenannt')}</strong>
       <small>${P.esc(taxonomy||animal.animalGroup||'')}</small>
-      ${status?`<span class="tc2TaxAnimalStatus">${P.esc(status)}</span>`:''}
+      ${status?`<span class="tc2TaxAnimalStatus" data-status="${P.esc(status)}">${P.esc(status)}</span>`:''}
      </button>
     `;
    }).join('')}
@@ -156,38 +165,48 @@ function animalIconGrid(rows,options){
  `;
 }
 
-function archiveFilters(rows,current){
- const statuses=[
-  'Verstorben',
-  'Verkauft',
-  'Abgegeben',
-  'Archiv'
- ];
+function archiveIcon(status){
+ const icons={
+  Reserviert:'🔒',
+  Verkauft:'✓',
+  Abgegeben:'↗',
+  Verstorben:'🕯',
+  Archiv:'▣'
+ };
+
+ return icons[status]||'▣';
+}
+
+function archiveFolderGrid(items){
+ if(!items.length){
+  return `
+   <div class="tc2EmptyState">
+    <h3>Archiv ist leer</h3>
+
+    <p class="muted">
+     Sobald ein Tier einen inaktiven Status erhält,
+     wird hier automatisch ein passender Ordner angelegt.
+    </p>
+   </div>
+  `;
+ }
 
  return `
-  <div
-   class="tc2ArchiveFilters"
-   role="group"
-   aria-label="Archiv nach Status filtern"
-  >
-   <button
-    class="${current?'':'active'}"
-    onclick="NGT500.route('animals',{view:'archive'})"
-   >
-    Alle <span>${rows.length}</span>
-   </button>
-
-   ${statuses.map(function(status){
-    const count=rows.filter(function(row){
-     return P.archiveStatus(row.a)===status;
-    }).length;
-
+  <div class="tc2TaxGrid tc2ArchiveFolderGrid">
+   ${items.map(function(item){
     return `
      <button
-      class="${current===status?'active':''}"
-      onclick="NGT500.route('animals',{view:'archive',status:'${P.jsArg(status)}'})"
+      class="tc2TaxFolder tc2ArchiveFolder"
+      data-status="${P.esc(item.label)}"
+      onclick="NGT500.route('animals',{view:'archive',status:'${P.jsArg(item.label)}'})"
      >
-      ${P.esc(status)} <span>${count}</span>
+      <span>${archiveIcon(item.label)}</span>
+      <b>${P.esc(item.label)}</b>
+
+      <small>
+       ${item.count}
+       ${item.count===1?'Tier':'Tiere'}
+      </small>
      </button>
     `;
    }).join('')}
@@ -200,12 +219,10 @@ function archiveView(args){
  const requested=AnimalEngine.canonicalStatus(
   args.status||''
  );
- const status=[
-  'Verstorben',
-  'Verkauft',
-  'Abgegeben',
-  'Archiv'
- ].includes(requested)
+ const folders=P.archiveStatuses(all);
+ const status=folders.some(function(item){
+  return item.label===requested;
+ })
   ?requested
   :'';
  const rows=status
@@ -218,35 +235,37 @@ function archiveView(args){
   <div class="tc2PageCard tc2AnimalsPage tc2AnimalsArchive">
    <div class="tc2PageHead">
     <div>
-     ${backButton({view:'archive'})}
-     <h2>Tierarchiv</h2>
+     ${backButton({view:'archive',status:status})}
+     <h2>${status?P.esc(status):'Tierarchiv'}</h2>
 
      <p class="muted">
-      Verstorbene, verkaufte und abgegebene Tiere
-      bleiben mit ihrer vollständigen Historie erhalten.
+      ${
+       status
+        ?rows.length+' '+(rows.length===1?'Tier':'Tiere')+' mit diesem Status.'
+        :'Statusordner entstehen automatisch. Alle Profile und Historien bleiben vollständig erhalten.'
+      }
      </p>
     </div>
    </div>
 
    ${viewSwitch('archive')}
-   ${archiveFilters(all,status)}
 
    ${
-    rows.length
-     ?animalIconGrid(rows,{showStatus:true})
-     :`
+    status
+     ?(
+      rows.length
+       ?animalIconGrid(rows,{showStatus:true})
+       :`
       <div class="tc2EmptyState">
-       <h3>${status?'Keine Tiere mit diesem Status':'Archiv ist leer'}</h3>
+       <h3>Keine Tiere mit diesem Status</h3>
 
        <p class="muted">
-        ${
-         status
-          ?'Für „'+P.esc(status)+'“ sind keine Tiere gespeichert.'
-          :'Sobald ein Tier als verstorben, verkauft, abgegeben oder archiviert markiert wird, erscheint es hier.'
-        }
+        Für „${P.esc(status)}“ sind keine Tiere gespeichert.
        </p>
       </div>
-     `
+       `
+     )
+     :archiveFolderGrid(folders)
    }
   </div>
  `;

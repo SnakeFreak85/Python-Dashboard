@@ -32,6 +32,7 @@ function canonicalStatus(status){
 
 function isInactiveStatus(status){
     return [
+        "reserviert",
         "archiv",
         "archiviert",
         "verkauft",
