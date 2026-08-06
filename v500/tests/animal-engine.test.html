@@ -55,6 +55,8 @@ equal('Status wird zentral normalisiert',AnimalEngine.normalizedStatus(' Verkauf
 equal('Status erhält seine kanonische Schreibweise',AnimalEngine.canonicalStatus(' archiviert '),'Archiv');
 equal('Archivierter Status wird unabhängig von Schreibweise erkannt',AnimalEngine.isInactiveStatus('archiviert'),true);
 equal('Verkauftes Tier ist nicht aktiv',AnimalEngine.isActiveAnimal({status:'verkauft'}),false);
+equal('Reservierter Status wird als inaktiv erkannt',AnimalEngine.isInactiveStatus('Reserviert'),true);
+equal('Reserviertes Tier wird aus dem aktiven Bestand entfernt',AnimalEngine.isActiveAnimal({status:'Reserviert'}),false);
 equal('Bestandstier ist aktiv',AnimalEngine.isActiveAnimal({status:'Bestand'}),true);
 equal('Nachzucht wird über Status erkannt',AnimalEngine.isOffspringAnimal({status:'Nachzucht'}),true);
 equal('Nachzucht wird über Sammlung erkannt',AnimalEngine.isOffspringAnimal({collection:'offspring'}),true);

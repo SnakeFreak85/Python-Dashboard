@@ -25,11 +25,7 @@ function backButton(args){
  </button>`;
 }
 
-function summary(all){
- const reserved=all.filter(function(row){
-  return row.a.status==='Reserviert';
- }).length;
-
+function summary(all,archived){
  const groups=new Set(
   all.map(function(row){
    return row.a.animalGroup||'Unsortiert';
@@ -51,8 +47,8 @@ function summary(all){
   </div>
 
   <div>
-   <small>Reserviert</small>
-   <b>${reserved}</b>
+   <small>Im Archiv</small>
+   <b>${archived.length}</b>
   </div>
 
   <div>
@@ -205,6 +201,7 @@ function render(args){
  }
 
  const all=P.allOffspring();
+ const archived=P.allArchivedOffspring();
 
  if(!group){
   const groups=P.countBy(
@@ -229,7 +226,7 @@ function render(args){
     </div>
    </div>
 
-   ${summary(all)}
+   ${summary(all,archived)}
 
    ${pageHeader(
     'Tiergruppen',

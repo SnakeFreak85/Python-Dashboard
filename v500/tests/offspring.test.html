@@ -240,6 +240,15 @@ async function run(){
    collection:'offspring'
   });
 
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Geckos',
+   genus:'Eublepharis',
+   species:'macularius',
+   name:'Reservierte Nachzucht',
+   status:'Reserviert',
+   collection:'offspring'
+  });
+
   const activeId=
    win.NGTStore.animalId(active);
 
@@ -258,6 +267,10 @@ async function run(){
   record(
    'Bestandstiere werden nicht als Nachzucht gezählt',
    rootText.includes('1 Nachzucht')
+  );
+  record(
+   'Nachzuchtübersicht zeigt die Anzahl archivierter Nachzuchten',
+   rootText.includes('Im Archiv')&&rootText.includes('2')
   );
 
   win.NGT500.route('offspring',{
@@ -278,6 +291,10 @@ async function run(){
   record(
    'archivierte Nachzucht wird ausgeblendet',
    !listText.includes('Archivierte Nachzucht')
+  );
+  record(
+   'reservierte Nachzucht wird aus dem aktiven Bestand ausgeblendet',
+   !listText.includes('Reservierte Nachzucht')
   );
   record(
    'Bestandstiere werden ausgeblendet',

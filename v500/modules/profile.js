@@ -175,9 +175,8 @@ function render(args){
 
  const scientificName=
   P.scientificName(animal);
- const inactive=
-  !AnimalEngine.isActiveAnimal(animal)&&
-  !AnimalEngine.isOffspringAnimal(animal);
+ const offspring=AnimalEngine.isOffspringAnimal(animal);
+ const inactive=!AnimalEngine.isActiveAnimal(animal);
  const backRoute=inactive
   ?`
    NGT500.route(
@@ -188,7 +187,20 @@ function render(args){
     }
    )
   `
-  :`
+  :offspring
+   ?`
+   NGT500.route(
+    'offspring',
+    {
+     group:'${P.jsArg(animal.animalGroup)}',
+     genus:'${P.jsArg(
+      animal.genus||
+      'Ohne Gattung'
+     )}'
+    }
+   )
+  `
+   :`
    NGT500.route(
     'animals',
     {
@@ -214,7 +226,7 @@ function render(args){
      class="tc2ProfileTopBack"
      onclick="${backRoute}"
     >
-     ‹ ${inactive?'Archiv':'Bestand'}
+     ‹ ${inactive?'Archiv':offspring?'Nachzuchten':'Bestand'}
     </button>
 
     <div
@@ -264,7 +276,10 @@ function render(args){
    ${
     inactive
      ?`
-      <div class="tc2ProfileArchiveNotice">
+      <div
+       class="tc2ProfileArchiveNotice"
+       data-status="${P.esc(AnimalEngine.canonicalStatus(animal.status))}"
+      >
        <span>Archiviert</span>
 
        <div>

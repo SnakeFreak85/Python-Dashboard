@@ -39,6 +39,7 @@ function isOffspringAnimal(animal){
 function statusOptions(current){
  return [
   'Bestand',
+  'Reserviert',
   'Verkauft',
   'Abgegeben',
   'Verstorben',
@@ -86,10 +87,7 @@ function allArchived(){
    :[];
 
  return all.filter(function(row){
-  return (
-   !AnimalEngine.isActiveAnimal(row.a)&&
-   !isOffspringAnimal(row.a)
-  );
+  return !AnimalEngine.isActiveAnimal(row.a);
  });
 }
 
@@ -98,14 +96,50 @@ function archiveStatus(animal){
   animal&&animal.status
  );
 
- return [
-  'Verstorben',
+ return status||'Archiv';
+}
+
+function archiveStatuses(rows){
+ const preferred=[
+  'Reserviert',
   'Verkauft',
   'Abgegeben',
+  'Verstorben',
   'Archiv'
- ].includes(status)
-  ?status
-  :'Archiv';
+ ];
+ const counts={};
+
+ (rows||[]).forEach(function(row){
+  const status=archiveStatus(row.a);
+  counts[status]=(counts[status]||0)+1;
+ });
+
+ return Object.keys(counts)
+  .sort(function(a,b){
+   const aIndex=preferred.indexOf(a);
+   const bIndex=preferred.indexOf(b);
+
+   if(aIndex>=0||bIndex>=0){
+    return (
+     (aIndex>=0?aIndex:preferred.length)-
+     (bIndex>=0?bIndex:preferred.length)
+    );
+   }
+
+   return a.localeCompare(b,'de');
+  })
+  .map(function(status){
+   return {
+    label:status,
+    count:counts[status]
+   };
+  });
+}
+
+function activeStatusFor(animal){
+ return isOffspringAnimal(animal)
+  ?'Nachzucht'
+  :'Bestand';
 }
 
 function countBy(rows,keyFunction){
@@ -140,6 +174,8 @@ P.coverPhoto=coverPhoto;
 P.allActive=allActive;
 P.allArchived=allArchived;
 P.archiveStatus=archiveStatus;
+P.archiveStatuses=archiveStatuses;
+P.activeStatusFor=activeStatusFor;
 P.countBy=countBy;
 
 window.NGTAnimalsInternal=P;

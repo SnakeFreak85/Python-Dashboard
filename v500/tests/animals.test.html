@@ -145,12 +145,22 @@ async function run(){
    collection:'offspring'
   });
 
+  win.NGTStore.addAnimal('',{
+   animalGroup:'Geckos',
+   genus:'Eublepharis',
+   name:'Reservierte Nachzucht',
+   status:'Reserviert',
+   collection:'offspring'
+  });
+
   const luna=win.NGTStore.findAnimal('Luna');
   const lunaId=win.NGTStore.animalId(luna.a);
   const archived=win.NGTStore.findAnimal('Archiviert');
   const archivedId=win.NGTStore.animalId(archived.a);
   const offspring=win.NGTStore.findAnimal('Nachzucht');
   const offspringId=win.NGTStore.animalId(offspring.a);
+  const reservedOffspring=win.NGTStore.findAnimal('Reservierte Nachzucht');
+  const reservedOffspringId=win.NGTStore.animalId(reservedOffspring.a);
 
   win.NGT500.route('profile',{animalId:offspringId});
 
@@ -224,14 +234,15 @@ async function run(){
   win.NGT500.route('animals',{view:'archive'});
 
   const archiveText=win.document.getElementById('app').textContent;
-  record('archiviertes Tier bleibt im Archiv sichtbar',archiveText.includes('Archiviert'));
+  record('Archiv zeigt den dynamischen Ordner Archiv',archiveText.includes('Archiv'));
+  record('Archiv zeigt den dynamischen Ordner Reserviert',archiveText.includes('Reserviert'));
   record('aktives Tier wird im Archiv ausgeblendet',!archiveText.includes('Luna'));
   record('Nachzucht wird im Tierarchiv ausgeblendet',!archiveText.includes('Nachzucht'));
   record(
-   'Archiv zeigt Statusfilter und Zählwerte',
-   archiveText.includes('Verstorben')&&
-   archiveText.includes('Verkauft')&&
-   archiveText.includes('Abgegeben')
+   'Archiv erzeugt nur Ordner für tatsächlich vorhandene Status',
+   !archiveText.includes('Verstorben')&&
+   !archiveText.includes('Verkauft')&&
+   !archiveText.includes('Abgegeben')
   );
 
   win.NGT500.route('animals',{view:'archive',status:'Archiv'});
@@ -239,6 +250,45 @@ async function run(){
   record(
    'Archivfilter zeigt den Status des Tieres',
    win.document.querySelector('.tc2TaxAnimalStatus').textContent.includes('Archiv')
+  );
+
+  win.NGT500.route('animals',{view:'archive',status:'Reserviert'});
+
+  record(
+   'Reserviert-Ordner zeigt die reservierte Nachzucht',
+   win.document.getElementById('app').textContent.includes('Reservierte Nachzucht')
+  );
+  equal(
+   'Reserviert-Status ist an der Archivkarte ausgezeichnet',
+   win.document.querySelector('.tc2TaxAnimalStatus').getAttribute('data-status'),
+   'Reserviert'
+  );
+
+  win.NGT500.route('profile',{animalId:reservedOffspringId});
+
+  record(
+   'reservierte Nachzucht zeigt den Archivhinweis',
+   !!win.document.querySelector('.tc2ProfileArchiveNotice[data-status="Reserviert"]')
+  );
+  record(
+   'reservierte Nachzucht kann zu den Nachzuchten zurückkehren',
+   win.document.querySelector('.tc2ProfileRestore').textContent.includes('Nachzuchten')
+  );
+
+  equal(
+   'Wiederaufnahme der reservierten Nachzucht ist erfolgreich',
+   win.NGTAnimals.restoreById(reservedOffspringId),
+   true
+  );
+  equal(
+   'Reservierte Nachzucht erhält wieder den Status Nachzucht',
+   win.NGTStore.getAnimalById(reservedOffspringId).status,
+   'Nachzucht'
+  );
+  equal(
+   'Nachzucht-Zuordnung bleibt bei Wiederaufnahme erhalten',
+   win.NGTStore.getAnimalById(reservedOffspringId).collection,
+   'offspring'
   );
 
   win.NGT500.route('profile',{animalId:archivedId});

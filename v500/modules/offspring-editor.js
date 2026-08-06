@@ -532,10 +532,17 @@ function save(t,index,animalId){
   }
  }
 
- NGT500.route('offspring',{
-  group:animal.animalGroup,
-  genus:animal.genus
- });
+ if(AnimalEngine.isActiveAnimal(animal)){
+  NGT500.route('offspring',{
+   group:animal.animalGroup,
+   genus:animal.genus
+  });
+ }else{
+  NGT500.route('animals',{
+   view:'archive',
+   status:AnimalEngine.canonicalStatus(animal.status)
+  });
+ }
 }
 
 P.editor={

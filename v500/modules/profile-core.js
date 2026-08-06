@@ -19,7 +19,26 @@ P.text=function(value){return String(value==null?'':value).trim();};
 P.sexCode=function(value){value=String(value||'').toLowerCase();if(value.includes('weib'))return '0.1';if(value.includes('männ')||value.includes('maenn'))return '1.0';return '0.0';};
 P.scientificName=function(animal){return AnimalEngine.getScientificName(animal)||'-';};
 P.action=function(icon,label,onclick){return '<button class="tc2ProfileAction" onclick="'+onclick+'"><div class="tc2ProfileActionIcon">'+icon+'</div><div class="tc2ProfileActionText">'+P.esc(label)+'</div><div class="tc2ProfileActionArrow">›</div></button>';};
-P.managementActions=function(animal){const context=P.state.ctx||{};const animalId=context.animalId||NGTStore.animalId(animal);const removeAction=animalId?"NGTAnimals.removeById('"+P.jsArg(animalId)+"')":"NGTAnimals.remove('"+P.jsArg(context.t)+"',"+Number(context.i||0)+")";const inactive=!AnimalEngine.isActiveAnimal(animal)&&!AnimalEngine.isOffspringAnimal(animal);const restore=inactive?'<button class="tc2ProfileAction tc2ProfileRestore" style="grid-column:1/-1" onclick="NGTAnimals.restoreById(\''+P.jsArg(animalId)+'\')"><div class="tc2ProfileActionIcon">↩</div><div class="tc2ProfileActionText">Zurück in den Bestand</div><div class="tc2ProfileActionArrow">›</div></button>':'';return restore+'<button class="tc2ProfileAction danger" style="grid-column:1/-1;width:100%;min-height:68px;background:linear-gradient(180deg,#d63a3a,#b6222b)!important;border:1px solid rgba(255,125,125,.55)!important;color:#fff!important;box-shadow:0 14px 30px rgba(125,0,12,.28)!important" onclick="'+removeAction+'"><div class="tc2ProfileActionIcon">🗑️</div><div class="tc2ProfileActionText">Tier löschen</div><div class="tc2ProfileActionArrow" style="color:#fff!important">›</div></button>';};
+P.managementActions=function(animal){
+ const context=P.state.ctx||{};
+ const animalId=
+  context.animalId||
+  NGTStore.animalId(animal);
+ const removeAction=animalId
+  ?"NGTAnimals.removeById('"+P.jsArg(animalId)+"')"
+  :"NGTAnimals.remove('"+P.jsArg(context.t)+"',"+Number(context.i||0)+")";
+ const inactive=!AnimalEngine.isActiveAnimal(animal);
+ const offspring=AnimalEngine.isOffspringAnimal(animal);
+ const restoreLabel=offspring
+  ?'Zurück zu den Nachzuchten'
+  :'Zurück in den Bestand';
+ const restore=inactive
+  ?'<button class="tc2ProfileAction tc2ProfileRestore" style="grid-column:1/-1" onclick="NGTAnimals.restoreById(\''+P.jsArg(animalId)+'\')"><div class="tc2ProfileActionIcon">↩</div><div class="tc2ProfileActionText">'+restoreLabel+'</div><div class="tc2ProfileActionArrow">›</div></button>'
+  :'';
+
+ return restore+
+  '<button class="tc2ProfileAction danger" style="grid-column:1/-1;width:100%;min-height:68px;background:linear-gradient(180deg,#d63a3a,#b6222b)!important;border:1px solid rgba(255,125,125,.55)!important;color:#fff!important;box-shadow:0 14px 30px rgba(125,0,12,.28)!important" onclick="'+removeAction+'"><div class="tc2ProfileActionIcon">🗑️</div><div class="tc2ProfileActionText">Tier löschen</div><div class="tc2ProfileActionArrow" style="color:#fff!important">›</div></button>';
+};
 P.row=function(date,label,deleteAction){return '<div class="tc2ListRowFull"><div><b>'+P.esc(date||'-')+'</b><small>'+P.esc(label||'')+'</small></div><button class="danger" onclick="'+deleteAction+'">Löschen</button></div>';};
 
 P.setContext=function(args){const next=args||P.state.ctx||{};const current=P.state.ctx||{};const row=NGTStore.resolveAnimal(next);const resolved=row?{...next,animalId:NGTStore.animalId(row.a),t:row.t,i:row.i}:next;const changed=String(resolved.animalId||'')!==String(current.animalId||'')||(!resolved.animalId&&(String(resolved.t||'')!==String(current.t||'')||Number(resolved.i||0)!==Number(current.i||0)));P.state.ctx=resolved;if(args&&args.tab)P.state.tab=args.tab;else if(changed)P.state.tab='overview';};

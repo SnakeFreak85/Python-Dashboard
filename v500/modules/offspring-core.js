@@ -23,6 +23,7 @@ P.statusOptions=function(current){
   'Nachzucht',
   'Reserviert',
   'Verkauft',
+  'Abgegeben',
   'Verstorben',
   'Archiv'
  ].map(function(status){
@@ -58,6 +59,17 @@ P.allOffspring=function(){
  return all.filter(function(row){
   return !P.isInactiveStatus(row.a.status)&&
    P.isOffspringAnimal(row.a);
+ });
+};
+
+P.allArchivedOffspring=function(){
+ const rows=NGTStore.allOffspring
+  ?NGTStore.allOffspring()
+  :(NGTStore.allAnimals?NGTStore.allAnimals():[]);
+
+ return rows.filter(function(row){
+  return P.isOffspringAnimal(row.a)&&
+   P.isInactiveStatus(row.a.status);
  });
 };
 

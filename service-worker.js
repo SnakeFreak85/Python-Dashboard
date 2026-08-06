@@ -3,10 +3,10 @@ const TC_CACHE='terracontrol-'+TC_VERSION;
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
- '&r=light-contrast-3-animal-archive-1';
+ '&r=light-contrast-3-animal-archive-2';
 const ANIMAL_ARCHIVE_QUERY=
  VERSION_QUERY+
- '&r=animal-archive-1';
+ '&r=animal-archive-2';
 const DATE_DISPLAY_QUERY=
  VERSION_QUERY+
  '&r=date-display-1';
@@ -15,7 +15,7 @@ const PROFILE_RECOMMENDATION_QUERY=
  '&r=profile-recommendation-1';
 const PROFILE_MODULE_QUERY=
  VERSION_QUERY+
- '&r=animal-archive-1-profile-recommendation-1';
+ '&r=animal-archive-2-profile-recommendation-1';
 
 const APP_SHELL=[
  './',
@@ -38,7 +38,7 @@ const APP_SHELL=[
  './v500/theme.js'+VERSION_QUERY,
  './v500/id-manager.js'+VERSION_QUERY,
  './v500/food-inventory-engine.js'+VERSION_QUERY,
- './v500/animal-engine.js'+VERSION_QUERY,
+ './v500/animal-engine.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/store.js'+VERSION_QUERY,
  './v500/ui.js'+VERSION_QUERY,
 
@@ -80,9 +80,9 @@ const APP_SHELL=[
  './v500/modules/animals-editor.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/animals.js'+ANIMAL_ARCHIVE_QUERY,
 
- './v500/modules/offspring-core.js'+VERSION_QUERY,
- './v500/modules/offspring-editor.js'+VERSION_QUERY,
- './v500/modules/offspring.js'+VERSION_QUERY,
+ './v500/modules/offspring-core.js'+ANIMAL_ARCHIVE_QUERY,
+ './v500/modules/offspring-editor.js'+ANIMAL_ARCHIVE_QUERY,
+ './v500/modules/offspring.js'+ANIMAL_ARCHIVE_QUERY,
 
  './v500/modules/profile-core.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/profile-history.js'+VERSION_QUERY,
@@ -169,10 +169,7 @@ async function cacheSuccessfulResponse(
  request,
  response
 ){
- if(
-  !response||
-  !response.ok
- ){
+ if(!response||!response.ok){
   return response;
  }
 
