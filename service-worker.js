@@ -16,6 +16,9 @@ const PROFILE_RECOMMENDATION_QUERY=
 const PROFILE_MODULE_QUERY=
  VERSION_QUERY+
  '&r=animal-archive-2-profile-recommendation-1';
+const TC2_POLISH_QUERY=
+ VERSION_QUERY+
+ '&r=tc2-polish-1';
 
 const APP_SHELL=[
  './',
@@ -30,6 +33,7 @@ const APP_SHELL=[
  './v500/tc2.css'+LIGHT_THEME_QUERY,
  './v500/taxonomy-ui-color.css'+PROFILE_RECOMMENDATION_QUERY,
  './v500/theme.css'+LIGHT_THEME_QUERY,
+ './v500/tc2-polish.css'+TC2_POLISH_QUERY,
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
 
