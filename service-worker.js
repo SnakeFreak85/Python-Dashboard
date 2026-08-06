@@ -1,5 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
-const TC_CACHE='terracontrol-'+TC_VERSION;
+const TC_CACHE=
+ 'terracontrol-'+TC_VERSION+'-tc2-polish-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
