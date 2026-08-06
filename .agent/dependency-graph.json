@@ -1,0 +1,572 @@
+{
+    "codegraph.json": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\.agent\\codegraph.json",
+        "imports": [],
+        "importedBy": []
+    },
+    "dependency-graph.json": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\.agent\\dependency-graph.json",
+        "imports": [],
+        "importedBy": []
+    },
+    "history.json": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\.agent\\history.json",
+        "imports": [],
+        "importedBy": []
+    },
+    "knowledge.json": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\.agent\\knowledge.json",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile.json": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\.agent\\profile.json",
+        "imports": [],
+        "importedBy": []
+    },
+    "repository.json": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\.agent\\repository.json",
+        "imports": [],
+        "importedBy": []
+    },
+    "abgabe.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\abgabe.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "AGENTS.md": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\AGENTS.md",
+        "imports": [],
+        "importedBy": []
+    },
+    "CHANGELOG.md": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\CHANGELOG.md",
+        "imports": [],
+        "importedBy": []
+    },
+    "delete-account.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\delete-account.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "DEVELOPER_HANDBOOK.md": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\DEVELOPER_HANDBOOK.md",
+        "imports": [],
+        "importedBy": []
+    },
+    "index.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\index.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "install.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\install.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "ki-assistent.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\ki-assistent.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "manifest.json": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\manifest.json",
+        "imports": [],
+        "importedBy": []
+    },
+    "PROJECT_HANDOFF.md": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\PROJECT_HANDOFF.md",
+        "imports": [],
+        "importedBy": []
+    },
+    "README.md": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\README.md",
+        "imports": [],
+        "importedBy": []
+    },
+    "RELEASE_NOTES_1.0.md": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\RELEASE_NOTES_1.0.md",
+        "imports": [],
+        "importedBy": []
+    },
+    "service-worker.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\service-worker.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "timeline2.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\timeline2.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-ai-assistant.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-ai-assistant.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-ai-input-fix.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-ai-input-fix.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-ai-stable-page.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-ai-stable-page.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-animal-actions.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-animal-actions.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-clean-home.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-clean-home.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-data-manager.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-data-manager.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-default-feeder-ui.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-default-feeder-ui.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-drive-guard.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-drive-guard.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-fixes.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-fixes.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-food.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-food.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-legacy-stabilizer.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-legacy-stabilizer.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-persistence.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-persistence.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-photo.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-photo.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-qr.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-qr.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-runtime-guard.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-runtime-guard.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-stats-engine.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-stats-engine.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v1-store-bridge.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v1-store-bridge.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v2-activity-a.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v2-activity-a.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v2-activity-b.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v2-activity-b.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v2-core.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v2-core.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v2-health-a.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v2-health-a.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v2-loader.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v2-loader.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v400-app.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v400-app.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v400-phase1.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v400-phase1.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v400.css": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v400.css",
+        "imports": [],
+        "importedBy": []
+    },
+    "ai-context.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\ai-context.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "ai-engine.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\ai-engine.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "ai-manager.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\ai-manager.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "ai-query.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\ai-query.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "ai-recommendations.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\ai-recommendations.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "animal-engine.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\animal-engine.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "app.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\app.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "cloud-backup.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\cloud-backup.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "cloud-sync-rc2.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\cloud-sync-rc2.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "cloud-sync.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\cloud-sync.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "core.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\core.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "fb.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\fb.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "firebase-sync.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\firebase-sync.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "hkn-import.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\hkn-import.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "id-manager.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\id-manager.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "account.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\account.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "analytics.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\analytics.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "animals-core.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\animals-core.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "animals-editor.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\animals-editor.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "animals-food.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\animals-food.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "animals-stock.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\animals-stock.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "animals.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\animals.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "assistant-v2.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\assistant-v2.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "assistant.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\assistant.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "backup.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\backup.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "chat.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\chat.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "dashboard.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\dashboard.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "food.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\food.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "offspring.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\offspring.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile-core.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\profile-core.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile-food.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\profile-food.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile-health.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\profile-health.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile-history.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\profile-history.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile-passport.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\profile-passport.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile-photos.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\profile-photos.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "profile.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\profile.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "qr.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\qr.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "release-test.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\release-test.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "settings.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\settings.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "timeline2.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\modules\\timeline2.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "pdf-contact-fix.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\pdf-contact-fix.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "pdf-v2.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\pdf-v2.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "photo-storage.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\photo-storage.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "smart-dashboard.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\smart-dashboard.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "store.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\store.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "styles.css": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\styles.css",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-cloud.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-cloud.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-core.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-core.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-store.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-store.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-animal-icons.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-animal-icons.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-color.css": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-color.css",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-decoration.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-decoration.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-icon-policy.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-icon-policy.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-illustrations.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-illustrations.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-spider-final.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-spider-final.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-spider-icon.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-spider-icon.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui-tortoise-final.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui-tortoise-final.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy-ui.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy-ui.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\taxonomy.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "tc2.css": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\tc2.css",
+        "imports": [],
+        "importedBy": []
+    },
+    "animal-engine.test.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\tests\\animal-engine.test.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "animals.test.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\tests\\animals.test.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "app-smoke.test.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\tests\\app-smoke.test.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "store.test.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\tests\\store.test.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "taxonomy.test.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\tests\\taxonomy.test.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "tc2-ui.test.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\tests\\tc2-ui.test.html",
+        "imports": [],
+        "importedBy": []
+    },
+    "timeline.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\timeline.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "ui.js": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500\\ui.js",
+        "imports": [],
+        "importedBy": []
+    },
+    "v500.html": {
+        "path": "C:\\Users\\sasch\\Desktop\\TerraControl\\Python-Dashboard\\v500.html",
+        "imports": [],
+        "importedBy": []
+    }
+}
