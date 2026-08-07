@@ -401,6 +401,9 @@ function geneticsPrediction(plan){
 
 function renderGenetics(plan){
  const prediction=geneticsPrediction(plan);
+ function outcomeRow(outcome){
+  return `<div><b>${esc(outcome.label)}</b><strong>${esc(String(outcome.probability).replace('.',','))} %</strong></div>`;
+ }
  const warnings=(prediction.warnings||[]).map(function(warning){
   return `<li>${esc(warning)}</li>`;
  }).join('');
@@ -409,9 +412,7 @@ function renderGenetics(plan){
   <div class="tc2BreedingSectionHead"><h3>Mögliche Morphen</h3><small>Katalog ${esc(prediction.catalogVersion||'Vorschau')}</small></div>
   ${prediction.provisional?'<p class="tc2BreedingGeneticWarnings">Automatische Vorschau aus den Morphangaben der Elterntiere.</p>':''}
   ${prediction.available
-   ?`<div class="tc2BreedingGeneticRows">${prediction.outcomes.slice(0,8).map(function(outcome){
-     return `<div><b>${esc(outcome.label)}</b><strong>${esc(String(outcome.probability).replace('.',','))} %</strong></div>`;
-    }).join('')}</div>${prediction.outcomes.length>8?`<p class="muted">${prediction.outcomes.length-8} weitere rechnerische Kombinationen.</p>`:''}`
+   ?`<div class="tc2BreedingGeneticRows">${prediction.outcomes.slice(0,8).map(outcomeRow).join('')}</div>${prediction.outcomes.length>8?`<details class="tc2BreedingGeneticMore"><summary>${prediction.outcomes.length-8} weitere Morphe anzeigen <span>›</span></summary><div class="tc2BreedingGeneticRows">${prediction.outcomes.slice(8).map(outcomeRow).join('')}</div></details>`:''}`
    :`<p class="muted">${esc(prediction.message||'Keine sichere Berechnung möglich.')}</p>`}
   ${warnings?`<ul class="tc2BreedingGeneticWarnings">${warnings}</ul>`:''}
   <p class="tc2BreedingGeneticNotice">Rechnerische Wahrscheinlichkeiten sind keine Bestimmung. Die tatsächliche Genetik jeder Nachzucht muss geprüft und bestätigt werden.</p>

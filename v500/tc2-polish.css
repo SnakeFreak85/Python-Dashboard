@@ -1286,6 +1286,44 @@ html[data-tc-theme="light"] .tc2Screen textarea{
  color:var(--tc-polish-accent);
 }
 
+.tc2BreedingGeneticMore{
+ display:grid;
+ gap:8px;
+}
+
+.tc2BreedingGeneticMore summary{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ min-height:46px;
+ padding:10px 12px;
+ color:var(--tc-polish-accent);
+ background:rgba(111,215,83,.08);
+ border:1px solid rgba(145,233,87,.34);
+ border-radius:13px;
+ cursor:pointer;
+ font-weight:900;
+ list-style:none;
+}
+
+.tc2BreedingGeneticMore summary::-webkit-details-marker{
+ display:none;
+}
+
+.tc2BreedingGeneticMore summary span{
+ font-size:22px;
+ transition:transform .2s ease;
+}
+
+.tc2BreedingGeneticMore[open] summary span{
+ transform:rotate(90deg);
+}
+
+.tc2BreedingGeneticMore[open] .tc2BreedingGeneticRows{
+ margin-top:8px;
+}
+
 .tc2BreedingGeneticWarnings,
 .tc2BreedingGeneticNotice{
  margin:0;
@@ -1483,6 +1521,12 @@ html[data-tc-theme="light"] .tc2GeneticsSuggestion{
 html[data-tc-theme="light"] .tc2GeneticsConfirmed{
  color:#173421;
  background:#edf8e9;
+}
+
+html[data-tc-theme="light"] .tc2BreedingGeneticMore summary{
+ color:#315d17;
+ background:#f1faed;
+ border-color:#8bc66e;
 }
 
 @media(max-width:430px){
