@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-2-genetics-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-3-genetics-2';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -19,13 +19,13 @@ const PROFILE_MODULE_QUERY=
  '&r=animal-archive-2-profile-recommendation-1';
 const TC2_POLISH_QUERY=
  VERSION_QUERY+
- '&r=tc2-polish-2-breeding-2-genetics-1';
+ '&r=tc2-polish-2-breeding-3-genetics-2';
 const BREEDING_QUERY=
  VERSION_QUERY+
- '&r=breeding-2-genetics-1';
+ '&r=breeding-3-genetics-2';
 const OFFSPRING_BREEDING_QUERY=
  VERSION_QUERY+
- '&r=animal-archive-2-breeding-1';
+ '&r=animal-archive-2-breeding-3-genetics-2';
 
 const APP_SHELL=[
  './',
@@ -64,6 +64,7 @@ const APP_SHELL=[
 
  './v500/care-rules-engine.js'+VERSION_QUERY,
  './v500/feeding-recommendation-engine.js'+PROFILE_RECOMMENDATION_QUERY,
+ './v500/genetics-catalog.js'+BREEDING_QUERY,
  './v500/genetics-engine.js'+BREEDING_QUERY,
  './v500/sync-policy-engine.js'+BREEDING_QUERY,
 
@@ -89,7 +90,7 @@ const APP_SHELL=[
  './v500/modules/animals-core.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/animals-food.js'+VERSION_QUERY,
  './v500/modules/animals-stock.js'+ANIMAL_ARCHIVE_QUERY,
- './v500/modules/animals-editor.js'+ANIMAL_ARCHIVE_QUERY,
+ './v500/modules/animals-editor.js'+BREEDING_QUERY,
  './v500/modules/animals.js'+ANIMAL_ARCHIVE_QUERY,
 
  './v500/modules/offspring-core.js'+ANIMAL_ARCHIVE_QUERY,

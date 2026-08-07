@@ -177,6 +177,7 @@ function testRuntime(){
     record('Lokale QRCode-Bibliothek verfügbar',typeof win.QRCode==='function');
 
     record('GeneticsEngine loaded',!!win.GeneticsEngine);
+    record('GeneticsCatalog loaded',!!win.GeneticsCatalog);
 
     const qrProbe=
      win.document.createElement('div');

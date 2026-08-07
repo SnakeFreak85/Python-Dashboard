@@ -252,11 +252,16 @@ function editor(t,i,fromHkn){
       </select>
      </label>
      <label><span>Status</span><select id="edStatus">${statusOptions(animal.status||'Bestand')}</select></label>
-    </div>
    </div>
+  </div>
 
-   <div class="tc2AnimalEditorBlock">
-    <h4>Herkunft</h4>
+  <div class="tc2AnimalEditorBlock">
+   <h4>Genetik</h4>
+   ${window.GeneticsEngine?GeneticsEngine.renderEditor(animal,{prefix:'edGenetics'}):'<p class="muted">Genetik-Modul ist nicht geladen.</p>'}
+  </div>
+
+  <div class="tc2AnimalEditorBlock">
+   <h4>Herkunft</h4>
 
     <div class="tc2AnimalFields">
      <label><span>Herkunft / ENZ / FNZ</span><input id="edOrigin" value="${esc(animal.origin||animal.originType||'')}"></label>
@@ -474,6 +479,7 @@ function save(t,i,animalId){
   species:document.getElementById('edSpecies').value.trim(),
   name:document.getElementById('edName').value.trim(),
   morph:document.getElementById('edMorph').value.trim(),
+  genetics:window.GeneticsEngine?GeneticsEngine.readEditor('edGenetics'):(old.genetics||[]),
   weight:document.getElementById('edWeight').value,
   origin:document.getElementById('edOrigin').value.trim(),
   originType:document.getElementById('edOrigin').value.trim(),

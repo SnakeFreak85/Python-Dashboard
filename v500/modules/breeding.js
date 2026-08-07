@@ -406,14 +406,15 @@ function renderGenetics(plan){
  }).join('');
 
  return `<section class="tc2BreedingSection tc2BreedingGenetics">
-  <div class="tc2BreedingSectionHead"><h3>Mögliche Morphen</h3><small>aus den Elterntieren</small></div>
+  <div class="tc2BreedingSectionHead"><h3>Mögliche Morphen</h3><small>Katalog ${esc(prediction.catalogVersion||'Vorschau')}</small></div>
+  ${prediction.provisional?'<p class="tc2BreedingGeneticWarnings">Vorschau aus dem freien Morphtext. Bestätige die Gene zuerst in den Tierprofilen der Elterntiere.</p>':''}
   ${prediction.available
    ?`<div class="tc2BreedingGeneticRows">${prediction.outcomes.slice(0,8).map(function(outcome){
      return `<div><b>${esc(outcome.label)}</b><strong>${esc(String(outcome.probability).replace('.',','))} %</strong></div>`;
     }).join('')}</div>${prediction.outcomes.length>8?`<p class="muted">${prediction.outcomes.length-8} weitere rechnerische Kombinationen.</p>`:''}`
    :`<p class="muted">${esc(prediction.message||'Keine sichere Berechnung möglich.')}</p>`}
   ${warnings?`<ul class="tc2BreedingGeneticWarnings">${warnings}</ul>`:''}
-  <p class="tc2BreedingGeneticNotice">Nur rechnerische Möglichkeiten aus den gespeicherten Morph-Angaben. Die tatsächliche Genetik jeder Nachzucht muss geprüft und bestätigt werden.</p>
+  <p class="tc2BreedingGeneticNotice">Rechnerische Wahrscheinlichkeiten sind keine Bestimmung. Die tatsächliche Genetik jeder Nachzucht muss geprüft und bestätigt werden.</p>
  </section>`;
 }
 

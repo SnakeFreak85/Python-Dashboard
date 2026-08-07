@@ -1138,6 +1138,136 @@ html[data-tc-theme="light"] .tc2Screen textarea{
  gap:8px;
 }
 
+.tc2GeneticsEditor{
+ display:grid;
+ gap:12px;
+}
+
+.tc2GeneticsSuggestion{
+ margin:0;
+ padding:11px 12px;
+ color:#ffe0a8;
+ background:rgba(181,105,20,.18);
+ border:1px solid rgba(255,177,74,.42);
+ border-radius:12px;
+ font-size:12px;
+ font-weight:800;
+ line-height:1.45;
+}
+
+.tc2GeneticsRows{
+ display:grid;
+ gap:10px;
+}
+
+.tc2GeneticsRow{
+ position:relative;
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ padding:14px 48px 14px 14px;
+ background:rgba(3,15,24,.54);
+ border:1px solid var(--tc-polish-line);
+ border-radius:15px;
+}
+
+.tc2GeneticsRow label{
+ display:grid;
+ gap:6px;
+ min-width:0;
+}
+
+.tc2GeneticsRow label>span{
+ color:var(--tc-polish-muted);
+ font-size:11px;
+ font-weight:800;
+}
+
+.tc2GeneticsTrait,
+.tc2GeneticsConfirmed,
+.tc2GeneticsRowNote,
+.tc2GeneticsRowIssue{
+ grid-column:1/-1;
+}
+
+.tc2GeneticsProbability{
+ display:none!important;
+}
+
+.tc2GeneticsRow.is-possible .tc2GeneticsProbability{
+ display:grid!important;
+}
+
+.tc2GeneticsConfirmed{
+ grid-template-columns:auto 1fr!important;
+ align-items:center;
+ padding:9px 10px;
+ background:rgba(111,215,83,.08);
+ border:1px solid rgba(145,233,87,.22);
+ border-radius:11px;
+}
+
+.tc2GeneticsConfirmed input{
+ width:20px;
+ height:20px;
+ margin:0;
+ accent-color:var(--tc-polish-accent);
+}
+
+.tc2GeneticsRemove{
+ position:absolute;
+ top:12px;
+ right:12px;
+ display:grid!important;
+ place-items:center;
+ width:30px!important;
+ min-width:30px!important;
+ height:30px!important;
+ min-height:30px!important;
+ padding:0!important;
+ color:#fff!important;
+ background:#a92330!important;
+ border:1px solid #e25360!important;
+ border-radius:10px!important;
+ font-size:20px;
+ line-height:1;
+}
+
+.tc2GeneticsRowNote,
+.tc2GeneticsRowIssue{
+ margin:0;
+ padding:8px 10px;
+ border-radius:10px;
+ font-size:11px;
+ line-height:1.4;
+}
+
+.tc2GeneticsRowNote{
+ color:#c7d7df;
+ background:rgba(80,116,135,.14);
+}
+
+.tc2GeneticsRowIssue{
+ color:#ffc1c5;
+ background:rgba(188,35,48,.17);
+ border:1px solid rgba(239,79,91,.34);
+}
+
+.tc2GeneticsEditorActions{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:9px;
+}
+
+.tc2GeneticsEditorActions button{
+ min-height:46px;
+ color:var(--tc-polish-text)!important;
+ font-weight:900;
+ background:linear-gradient(145deg,#0b2536,#061824)!important;
+ border:1px solid var(--tc-polish-line)!important;
+ border-radius:13px!important;
+}
+
 .tc2BreedingGeneticRows>div{
  display:flex;
  align-items:center;
@@ -1336,10 +1466,34 @@ html[data-tc-theme="light"] .tc2BreedingTabs{
 }
 
 html[data-tc-theme="light"] .tc2BreedingGeneticRows>div,
-html[data-tc-theme="light"] .tc2SDbreedingRows>button{
+html[data-tc-theme="light"] .tc2SDbreedingRows>button,
+html[data-tc-theme="light"] .tc2GeneticsRow,
+html[data-tc-theme="light"] .tc2GeneticsEditorActions button{
  color:#12232d!important;
  background:linear-gradient(145deg,#fff,#f7fafb)!important;
  border-color:rgba(65,99,117,.24)!important;
+}
+
+html[data-tc-theme="light"] .tc2GeneticsSuggestion{
+ color:#754108;
+ background:#fff7e7;
+ border-color:#d8a34e;
+}
+
+html[data-tc-theme="light"] .tc2GeneticsConfirmed{
+ color:#173421;
+ background:#edf8e9;
+}
+
+@media(max-width:430px){
+ .tc2GeneticsRow,
+ .tc2GeneticsEditorActions{
+  grid-template-columns:1fr;
+ }
+
+ .tc2GeneticsRow>*{
+  grid-column:1!important;
+ }
 }
 
 @media(max-width:390px){
