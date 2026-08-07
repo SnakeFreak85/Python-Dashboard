@@ -116,6 +116,30 @@ const unknownAlongsideKnown=GeneticsEngine.predict(
 assert.strictEqual(unknownAlongsideKnown.available,true);
 assert.ok(unknownAlongsideKnown.warnings.some(function(warning){return warning.toLowerCase().includes('nicht automatisch erkannt');}));
 
+const possibleDoubleHet=GeneticsEngine.detect({
+ animalGroup:'Königspythons',
+ morph:'Leopard Clown pdh DG Pied'
+});
+assert.deepStrictEqual(
+ possibleDoubleHet.entries.map(function(entry){return [entry.name,entry.state,entry.probability];}),
+ [
+  ['Leopard','visual',100],
+  ['Clown','visual',100],
+  ['Desert Ghost','possible_het',66],
+  ['Pied','possible_het',66]
+ ]
+);
+assert.ok(possibleDoubleHet.warnings.some(function(warning){return warning.includes('66 % je Gen');}));
+
+const explicitPossibleDoubleHet=GeneticsEngine.detect({
+ animalGroup:'Königspythons',
+ morph:'Leopard Clown 50% possible double het Desert Ghost Pied'
+});
+assert.deepStrictEqual(
+ explicitPossibleDoubleHet.entries.slice(-2).map(function(entry){return [entry.name,entry.state,entry.probability];}),
+ [['Desert Ghost','possible_het',50],['Pied','possible_het',50]]
+);
+
 const polygenicOnly=GeneticsEngine.predict(
  {animalGroup:'Leopardgeckos',genetics:[{traitId:'lg-tangerine',state:'visual',confirmed:true}]},
  {animalGroup:'Leopardgeckos',genetics:[]}

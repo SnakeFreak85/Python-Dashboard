@@ -48,19 +48,49 @@ function suggestedState(source,index){
  return {state:'visual',probability:100};
 }
 
+function groupedHetDirectives(source){
+ const directives=[];
+ const pattern=/\b(?:(50|66|100)\s*%?\s+)?(?:(pdh|pth|pqh)|(?:poss|possible|moglich|moeglich)\s+(double|triple|quad(?:ruple)?)\s+het|(?:double|triple|quad(?:ruple)?)\s+het|dhet|thet|qhet)\b/g;
+ let match;
+ while((match=pattern.exec(source))){
+  const phrase=match[0];
+  const possible=/\b(?:pdh|pth|pqh|poss|possible|moglich|moeglich)\b/.test(phrase);
+  const count=/\b(?:pth|thet|triple)\b/.test(phrase)
+   ?3
+   :/\b(?:pqh|qhet|quad)\b/.test(phrase)
+    ?4
+    :2;
+  directives.push({
+   start:match.index,
+   end:match.index+phrase.length,
+   count:count,
+   state:possible?'possible_het':'het',
+   probability:possible?Number(match[1]||66):100,
+   assumed:possible&&!match[1],
+   phrase:phrase
+  });
+ }
+ return directives;
+}
+
 function detect(animal){
  const source=normalized(animal&&animal.morph);
  const scope=animalScope(animal||{});
  const entries=[];
  const warnings=[];
  const occupied=[];
+ const directives=groupedHetDirectives(source);
 
  if(!source)return {scope:scope,entries:entries,warnings:warnings,source:'morph'};
 
  const candidates=catalog().forScope(scope).slice().sort(function(a,b){
-  const longestA=Math.max.apply(null,a.aliases.map(function(alias){return normalized(alias).length;}));
-  const longestB=Math.max.apply(null,b.aliases.map(function(alias){return normalized(alias).length;}));
-  return longestB-longestA;
+  function matchedLength(trait){
+   return Math.max.apply(null,trait.aliases.map(function(alias){
+    const needle=normalized(alias);
+    return (' '+source+' ').indexOf(' '+needle+' ')>=0?needle.length:0;
+   }));
+  }
+  return matchedLength(b)-matchedLength(a);
  });
 
  candidates.forEach(function(trait){
@@ -91,7 +121,29 @@ function detect(animal){
    line:'',
    confirmed:true,
    suggested:false
+   ,_index:match.index
   });
+ });
+
+ entries.sort(function(a,b){return a._index-b._index;});
+ directives.forEach(function(directive){
+  const targets=entries.filter(function(entry){return entry._index>=directive.end;}).slice(0,directive.count);
+  targets.forEach(function(entry){
+   entry.state=directive.state;
+   entry.probability=directive.probability;
+  });
+  occupied.push({start:directive.start,end:directive.end});
+  if(targets.length<directive.count){
+   warnings.push('Die Angabe „'+directive.phrase+'“ nennt '+directive.count+' het-Gene, danach wurden aber nur '+targets.length+' Gene erkannt.');
+  }else if(directive.assumed){
+   warnings.push('Für „'+directive.phrase+'“ fehlt die genaue Wahrscheinlichkeit; vorläufig werden 66 % je Gen verwendet.');
+  }
+ });
+ entries.forEach(function(entry){
+  delete entry._index;
+  if(entry.state==='possible_het'&&!warnings.some(function(warning){return warning.indexOf(entry.name+' ist nur')===0;})){
+   warnings.push(entry.name+' ist nur als mögliches het angegeben; die Quote wird entsprechend gewichtet.');
+  }
  });
 
  if(!entries.length){
@@ -102,8 +154,9 @@ function detect(animal){
    for(let i=range.start;i<range.end;i+=1)chars[i]=' ';
   });
   const unknown=chars.join('')
-   .replace(/\b(?:het|possible|poss|moglich|moeglich|mgl|super)\b/g,' ')
+   .replace(/\b(?:het|possible|poss|moglich|moeglich|mgl|super|double|triple|quad|quadruple|pdh|pth|pqh|dhet|thet|qhet)\b/g,' ')
    .replace(/\b(?:50|66|100)\b/g,' ')
+   .replace(/%/g,' ')
    .replace(/\s+/g,' ')
    .trim();
   if(unknown)warnings.push('Nicht automatisch erkannt: '+unknown+'. Diese Angabe wird nicht in die Quote einbezogen.');
