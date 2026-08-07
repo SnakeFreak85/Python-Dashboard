@@ -11,6 +11,10 @@ function jsArg(value){
   .replace(/'/g,"\\'");
 }
 
+function dateLabel(value){
+ return window.NGTDateDisplay?NGTDateDisplay.format(value||''):String(value||'');
+}
+
 function profileRouteArgs(row){
  if(row&&row.animalId){
   return `{animalId:'${jsArg(row.animalId)}'}`;
@@ -273,6 +277,8 @@ function render(){
   NGTDashboardData.lowFood();
  const activities=
   NGTDashboardData.recentActivities();
+ const breeding=
+  NGTDashboardData.breedingProjects?NGTDashboardData.breedingProjects():[];
 
  const total=all.length;
 
@@ -375,6 +381,26 @@ function render(){
       `
     }
    </section>
+
+   ${breeding.length?`
+   <section class="tc2SDcard tc2SDbreedingCard">
+    <div class="tc2SDcardHead">
+     <h3>Zuchtprojekte</h3>
+     <button onclick="NGT500.route('breeding')">Alle anzeigen ›</button>
+    </div>
+    <div class="tc2SDbreedingRows">
+     ${breeding.slice(0,3).map(function(plan){
+      const detail=plan.offspringRemaining
+       ?plan.offspringRemaining+' Nachzuchten noch anzulegen'
+       :(plan.expectedDate?'Erwartet: '+dateLabel(plan.expectedDate):plan.statusLabel);
+      return `<button onclick="NGT500.route('breeding',{id:'${jsArg(plan.id)}'})">
+       <span>⚭</span>
+       <div><b>${esc(plan.title)}</b><small>${esc(detail)}</small></div>
+       <em>${esc(plan.statusLabel)}</em><i>›</i>
+      </button>`;
+     }).join('')}
+    </div>
+   </section>`:''}
 
    <section class="tc2SDcard tc2SDactionCard tc2SDfoodCard">
     <div class="tc2SDcardHead">

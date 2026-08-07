@@ -176,6 +176,8 @@ function testRuntime(){
     record('NGTSyncPolicyEngine verfügbar',!!win.NGTSyncPolicyEngine);
     record('Lokale QRCode-Bibliothek verfügbar',typeof win.QRCode==='function');
 
+    record('GeneticsEngine loaded',!!win.GeneticsEngine);
+
     const qrProbe=
      win.document.createElement('div');
 

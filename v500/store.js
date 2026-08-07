@@ -849,6 +849,31 @@ function addAnimal(t,a){
   return n;
 }
 
+function addAnimalsBulk(items){
+  const created=[];
+
+  (Array.isArray(items)?items:[]).forEach(function(item){
+    item=item||{};
+    const type=item.t||item.legacyType||item.type||inferLegacyTypeFromGroup(item.animalGroup)||'';
+    const animal={...(item.a||item)};
+
+    delete animal.t;
+    animal.legacyType=type||animal.legacyType||animal.type||inferLegacyTypeFromGroup(animal.animalGroup)||'';
+    animal.animalGroup=animal.animalGroup||legacyGroupLabel(animal.legacyType)||'Unsortiert';
+
+    const normalized=normalizeAnimal(animal,animal.legacyType,(db.animals||[]).length);
+    ensureAnimalPublicId(db,normalized);
+    db.animals.push(normalized);
+    created.push(normalized);
+  });
+
+  if(created.length){
+    save();
+  }
+
+  return created;
+}
+
 function updateAnimal(t,i,a){
   const old=(db.animals||[])[Number(i)]||{};
   a={...old,...(a||{})};
@@ -1676,6 +1701,7 @@ window.NGTStore={
   getAnimalById,
   animal,
   addAnimal,
+  addAnimalsBulk,
   updateAnimal,
   updateAnimalById,
   deleteAnimal,

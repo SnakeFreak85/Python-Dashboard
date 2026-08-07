@@ -149,6 +149,7 @@ function animalSnapshot(id,externalLabel){
   genus:text(animal.genus),
   species:text(animal.species),
   morph:text(animal.morph),
+  genetics:Array.isArray(animal.genetics)?animal.genetics:[],
   sex:text(animal.sex),
   label:animalLabel(animal)
  };
@@ -357,10 +358,24 @@ function renderForm(plan){
  </section>`;
 }
 
+function offspringRows(plan){
+ const ids=new Set(Array.isArray(plan.offspringIds)?plan.offspringIds:[]);
+ const rows=[];
+
+ (NGTStore.allAnimals?NGTStore.allAnimals():[]).forEach(function(row){
+  const animal=row.a||{};
+  const animalId=NGTStore.animalId(animal);
+  if(animal.breedingPlanId===plan.id||ids.has(animalId)){
+   ids.add(animalId);
+   rows.push(row);
+  }
+ });
+
+ return rows;
+}
+
 function linkedOffspring(plan){
- const rows=(plan.offspringIds||[]).map(function(id){
-  return NGTStore.findAnimalById?NGTStore.findAnimalById(id):null;
- }).filter(Boolean);
+ const rows=offspringRows(plan);
 
  if(!rows.length){
   return '<p class="muted">Noch keine Nachzuchten aus diesem Projekt angelegt.</p>';
@@ -369,6 +384,68 @@ function linkedOffspring(plan){
  return `<div class="tc2BreedingOffspring">${rows.map(function(row){
   return `<button onclick="NGT500.route('profile',{animalId:'${jsArg(NGTStore.animalId(row.a))}'})"><b>${esc(row.a.publicId||row.a.displayId||'Nachzucht')}</b><span>${esc(AnimalEngine.getDisplayName(row.a))}</span><em>›</em></button>`;
  }).join('')}</div>`;
+}
+
+function parentAnimal(plan,role){
+ const id=text(plan&&plan[role+'Id']);
+ const row=id&&NGTStore.findAnimalById?NGTStore.findAnimalById(id):null;
+ return row?row.a:(plan&&plan[role+'Snapshot']||{});
+}
+
+function geneticsPrediction(plan){
+ if(!window.GeneticsEngine){
+  return {available:false,outcomes:[],warnings:[],message:'Genetik-Modul ist nicht geladen.'};
+ }
+ return GeneticsEngine.predict(parentAnimal(plan,'father'),parentAnimal(plan,'mother'));
+}
+
+function renderGenetics(plan){
+ const prediction=geneticsPrediction(plan);
+ const warnings=(prediction.warnings||[]).map(function(warning){
+  return `<li>${esc(warning)}</li>`;
+ }).join('');
+
+ return `<section class="tc2BreedingSection tc2BreedingGenetics">
+  <div class="tc2BreedingSectionHead"><h3>Mögliche Morphen</h3><small>aus den Elterntieren</small></div>
+  ${prediction.available
+   ?`<div class="tc2BreedingGeneticRows">${prediction.outcomes.slice(0,8).map(function(outcome){
+     return `<div><b>${esc(outcome.label)}</b><strong>${esc(String(outcome.probability).replace('.',','))} %</strong></div>`;
+    }).join('')}</div>${prediction.outcomes.length>8?`<p class="muted">${prediction.outcomes.length-8} weitere rechnerische Kombinationen.</p>`:''}`
+   :`<p class="muted">${esc(prediction.message||'Keine sichere Berechnung möglich.')}</p>`}
+  ${warnings?`<ul class="tc2BreedingGeneticWarnings">${warnings}</ul>`:''}
+  <p class="tc2BreedingGeneticNotice">Nur rechnerische Möglichkeiten aus den gespeicherten Morph-Angaben. Die tatsächliche Genetik jeder Nachzucht muss geprüft und bestätigt werden.</p>
+ </section>`;
+}
+
+function expectedOffspringCount(plan){
+ const event=(plan.events||[]).filter(function(row){
+  return (row.type==='hatch'||row.type==='birth')&&Number(row.count)>0;
+ }).sort(function(a,b){
+  return text(b.date).localeCompare(text(a.date));
+ })[0];
+ return Math.max(0,Number(
+  event&&event.count||
+  (plan.status==='hatched'?plan.offspringExpected:0)||
+  0
+ ));
+}
+
+function renderBulkOffspring(plan){
+ const expected=expectedOffspringCount(plan);
+ const linked=offspringRows(plan).length;
+ const remaining=Math.max(0,expected-linked);
+
+ if(!expected){
+  return '<div class="tc2BreedingBulkInfo">Trage zuerst einen Schlupf oder eine Geburt mit Anzahl ein. Danach können alle Nachzuchten gesammelt angelegt werden.</div>';
+ }
+ if(!remaining){
+  return `<div class="tc2BreedingBulkDone">✓ Alle ${expected} Nachzuchten dieses Projekts sind angelegt.</div>`;
+ }
+ return `<div class="tc2BreedingBulk">
+  <div><b>${remaining} fehlende Nachzucht${remaining===1?'':'en'}</b><small>${linked} von ${expected} bereits angelegt</small></div>
+  <label><span>Anzahl</span><input id="breedingBulkCount" type="number" min="1" max="${remaining}" value="${remaining}"></label>
+  <button onclick="NGTBreeding.createBulkOffspring('${jsArg(plan.id)}')">Alle automatisch anlegen</button>
+ </div>`;
 }
 
 function renderDetail(plan){
@@ -388,6 +465,8 @@ function renderDetail(plan){
    <span>×</span>
    <div><small>Muttertier</small><b>${esc(parentName(plan,'mother'))}</b></div>
   </div>
+
+  ${renderGenetics(plan)}
 
   <div class="tc2BreedingStatusEditor">
    <label><span>Projektstatus</span><select id="breedingDetailStatus">${statusOptions(plan.status||'planned')}</select></label>
@@ -416,6 +495,7 @@ function renderDetail(plan){
 
   <section class="tc2BreedingSection">
    <div class="tc2BreedingSectionHead"><h3>Nachzuchten</h3><button onclick="NGTBreeding.createOffspring('${jsArg(plan.id)}')">＋ Nachzucht anlegen</button></div>
+   ${renderBulkOffspring(plan)}
    ${linkedOffspring(plan)}
   </section>
 
@@ -537,8 +617,9 @@ function addEvent(id){
  plan.events=Array.isArray(plan.events)?plan.events:[];
  plan.events.push(event);
  plan.status=statusForEvent(type,plan.status);
- if((type==='clutch'||type==='birth')&&count){
+ if((type==='clutch'||type==='hatch'||type==='birth')&&count){
   plan.offspringExpected=count;
+  plan.offspringExpectedSource=type;
  }
  NGTStore.saveBreedingPlan(plan);
  NGT500.toast('Etappe gespeichert.');
@@ -607,6 +688,88 @@ function createOffspring(id){
  NGT500.route('offspring',{create:true,breedingPlanId:id});
 }
 
+async function createBulkOffspring(id){
+ const plan=planById(id);
+ if(!plan)return;
+
+ const expected=expectedOffspringCount(plan);
+ const existing=offspringRows(plan);
+ const remaining=Math.max(0,expected-existing.length);
+ const requested=Math.max(0,Math.floor(Number(value('breedingBulkCount')||remaining)));
+ const count=Math.min(requested,remaining);
+
+ if(!remaining){
+  NGT500.toast('Alle Nachzuchten dieses Projekts sind bereits angelegt.');
+  return;
+ }
+ if(!count){
+  NGT500.toast('Bitte eine gültige Anzahl eingeben.','danger');
+  return;
+ }
+
+ const confirmed=await NGT500.confirmAction(
+  count+' Nachzucht'+(count===1?'':'en')+' automatisch im Nachzuchtenbestand anlegen?',
+  {
+   title:'Nachzuchten anlegen',
+   confirmText:count+' anlegen',
+   cancelText:'Abbrechen'
+  }
+ );
+ if(!confirmed)return;
+
+ const activePlan=planById(id);
+ const currentRows=offspringRows(activePlan);
+ const currentRemaining=Math.max(0,expectedOffspringCount(activePlan)-currentRows.length);
+ const finalCount=Math.min(count,currentRemaining);
+ if(!finalCount){
+  NGT500.toast('Die Nachzuchten wurden bereits angelegt.');
+  NGT500.route('breeding',{id:id},{replace:true});
+  return;
+ }
+
+ const preset=offspringPreset(id);
+ const items=[];
+ for(let index=0;index<finalCount;index+=1){
+  items.push({
+   animalGroup:preset.animalGroup||'Nachzuchten',
+   genus:preset.genus||'',
+   species:preset.species||'',
+   name:'',
+   morph:'',
+   sex:'Unbestimmt',
+   status:'Nachzucht',
+   collection:'offspring',
+   origin:'Eigene Nachzucht',
+   birth:preset.birth||'',
+   birthDate:preset.birthDate||preset.birth||'',
+   clutchId:preset.clutchId||'',
+   clutch:preset.clutch||'',
+   fatherId:preset.fatherId||'',
+   father:preset.father||'',
+   motherId:preset.motherId||'',
+   mother:preset.mother||'',
+   breedingPlanId:activePlan.id,
+   note:preset.note||'',
+   feeds:[],
+   sheds:[],
+   weights:[],
+   photos:[],
+   health:[]
+  });
+ }
+
+ const created=NGTStore.addAnimalsBulk?NGTStore.addAnimalsBulk(items):items.map(function(item){
+  return NGTStore.addAnimal('',item);
+ });
+ activePlan.offspringIds=Array.from(new Set(
+  currentRows.map(function(row){return NGTStore.animalId(row.a);})
+   .concat(created.map(function(animal){return NGTStore.animalId(animal);}))
+ ));
+ NGTStore.saveBreedingPlan(activePlan);
+ NGT500.toast(created.length+' Nachzucht'+(created.length===1?'':'en')+' angelegt.');
+ NGT500.route('breeding',{id:id},{replace:true});
+}
+
 function linkOffspring(planId,animalId){
  const plan=planById(planId);
  if(!plan||!animalId)return;
@@ -625,6 +788,7 @@ window.NGTBreeding={
  archive:archive,
  remove:remove,
  createOffspring:createOffspring,
+ createBulkOffspring:createBulkOffspring,
  offspringPreset:offspringPreset,
  linkOffspring:linkOffspring
 };

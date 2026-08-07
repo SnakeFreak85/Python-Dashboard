@@ -278,12 +278,69 @@ function recentActivities(){
    });
  });
 
+ (NGTStore.breedingPlans?NGTStore.breedingPlans():[]).forEach(function(plan){
+  (Array.isArray(plan.events)?plan.events:[]).forEach(function(event){
+   rows.push({
+    date:event.date,
+    icon:'⚭',
+    title:plan.title||plan.projectCode||'Zuchtprojekt',
+    sub:(event.label||({
+     pairing:'Verpaarung',
+     ovulation:'Ovulation',
+     prelay_shed:'Legehäutung',
+     clutch:'Gelege / Wurf',
+     incubation:'Inkubationsbeginn',
+     hatch:'Schlupf',
+     birth:'Geburt',
+     note:'Notiz'
+    }[event.type]||'Zuchtereignis'))+' · '+(event.date||'-')
+   });
+  });
+ });
+
  return AnimalEngine
   .sortHistory(
    rows,
    'desc'
   )
   .slice(0,4);
+}
+
+function breedingProjects(){
+ const hidden=new Set(['completed','cancelled','archived']);
+ const labels={
+  planned:'Geplant',
+  paired:'Verpaarung läuft',
+  expecting:'Gelege / Wurf erwartet',
+  clutch:'Gelege / Wurf erfasst',
+  incubation:'Inkubation',
+  hatched:'Schlupf / Geburt'
+ };
+
+ return (NGTStore.breedingPlans?NGTStore.breedingPlans():[])
+  .filter(function(plan){return !hidden.has(plan.status);})
+  .map(function(plan){
+   const linked=(NGTStore.allAnimals?NGTStore.allAnimals():[]).filter(function(row){
+    return row.a&&row.a.breedingPlanId===plan.id;
+   }).length;
+   const expected=plan.status==='hatched'
+    ?Math.max(0,Number(plan.offspringExpected||0))
+    :0;
+   return {
+    id:plan.id,
+    title:plan.title||plan.projectCode||'Zuchtprojekt',
+    code:plan.projectCode||'',
+    status:plan.status||'planned',
+    statusLabel:labels[plan.status]||'Aktiv',
+    expectedDate:plan.expectedDate||'',
+    offspringExpected:expected,
+    offspringLinked:linked,
+    offspringRemaining:Math.max(0,expected-linked)
+   };
+  })
+  .sort(function(a,b){
+   return String(a.expectedDate||'9999-12-31').localeCompare(String(b.expectedDate||'9999-12-31'));
+  });
 }
 
 window.NGTDashboardData={
@@ -300,7 +357,8 @@ window.NGTDashboardData={
  plannedWeights:plannedWeights,
  dueTaskCount:dueTaskCount,
  groupRows:groupRows,
- recentActivities:recentActivities
+ recentActivities:recentActivities,
+ breedingProjects:breedingProjects
 };
 
 })();

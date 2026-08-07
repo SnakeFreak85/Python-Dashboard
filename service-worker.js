@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-2-genetics-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -19,10 +19,10 @@ const PROFILE_MODULE_QUERY=
  '&r=animal-archive-2-profile-recommendation-1';
 const TC2_POLISH_QUERY=
  VERSION_QUERY+
- '&r=tc2-polish-2-breeding-1';
+ '&r=tc2-polish-2-breeding-2-genetics-1';
 const BREEDING_QUERY=
  VERSION_QUERY+
- '&r=breeding-1';
+ '&r=breeding-2-genetics-1';
 const OFFSPRING_BREEDING_QUERY=
  VERSION_QUERY+
  '&r=animal-archive-2-breeding-1';
@@ -64,6 +64,7 @@ const APP_SHELL=[
 
  './v500/care-rules-engine.js'+VERSION_QUERY,
  './v500/feeding-recommendation-engine.js'+PROFILE_RECOMMENDATION_QUERY,
+ './v500/genetics-engine.js'+BREEDING_QUERY,
  './v500/sync-policy-engine.js'+BREEDING_QUERY,
 
  './v500/assets/taxonomy/chameleon.png',
@@ -78,8 +79,8 @@ const APP_SHELL=[
  './v500/ai-manager.js'+VERSION_QUERY,
  './v500/ai-actions.js'+VERSION_QUERY,
 
- './v500/dashboard-data.js'+VERSION_QUERY,
- './v500/smart-dashboard.js'+VERSION_QUERY,
+ './v500/dashboard-data.js'+BREEDING_QUERY,
+ './v500/smart-dashboard.js'+BREEDING_QUERY,
  './v500/photo-storage.js'+VERSION_QUERY,
 
  './v500/modules/dashboard.js'+BREEDING_QUERY,

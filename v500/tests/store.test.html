@@ -210,6 +210,30 @@ try{
   0
  );
 
+ const bulkOffspring=NGTStore.addAnimalsBulk([
+  {animalGroup:'Königspythons',status:'Nachzucht',collection:'offspring',breedingPlanId:'plan-1'},
+  {animalGroup:'Königspythons',status:'Nachzucht',collection:'offspring',breedingPlanId:'plan-1'},
+  {animalGroup:'Königspythons',status:'Nachzucht',collection:'offspring',breedingPlanId:'plan-1'}
+ ]);
+
+ equal(
+  'Sammelanlage erzeugt alle Nachzuchten',
+  bulkOffspring.length,
+  3
+ );
+
+ equal(
+  'Sammelanlage vergibt eindeutige Tier-IDs',
+  new Set(bulkOffspring.map(function(animal){return animal.publicId;})).size,
+  3
+ );
+
+ equal(
+  'Sammelanlage verknüpft alle Tiere mit dem Zuchtprojekt',
+  bulkOffspring.every(function(animal){return animal.breedingPlanId==='plan-1';}),
+  true
+ );
+
  NGTStore.importJson(JSON.stringify({
   schemaVersion:2,
   animals:[{
