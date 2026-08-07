@@ -925,6 +925,35 @@ function deleteAnimalById(id){
   return deleteAnimal(row.t,row.i);
 }
 
+function deleteAnimalsByIds(ids){
+  const requested=new Set(
+    (Array.isArray(ids)?ids:[])
+      .map(function(id){return String(id||'').trim();})
+      .filter(Boolean)
+  );
+
+  if(!requested.size){
+    return [];
+  }
+
+  const removed=[];
+
+  db.animals=(db.animals||[]).filter(function(animal){
+    if(!requested.has(animalId(animal))){
+      return true;
+    }
+
+    removed.push(animal);
+    return false;
+  });
+
+  if(removed.length){
+    save();
+  }
+
+  return removed;
+}
+
 function storedPhotoSource(photo){
   return AnimalEngine.photoSource(
     photo,
@@ -1212,7 +1241,6 @@ function recordFeed(ref,input){
   row.a.feeds.push(event);
 
   if(
-    event.accepted&&
     input.deductStock===true&&
     inventoryItem
   ){
@@ -1229,6 +1257,76 @@ function recordFeed(ref,input){
     animal:row.a,
     event:event,
     inventoryItem:inventoryItem
+  };
+}
+
+function recordFeedsBulk(requests){
+  if(!Array.isArray(requests)||!requests.length){
+    return {ok:false,error:'Keine Tiere ausgewählt.'};
+  }
+
+  const prepared=[];
+  const totals={};
+
+  for(const request of requests){
+    const row=resolveAnimal({animalId:request&&request.animalId});
+
+    if(!row){
+      return {ok:false,error:'Mindestens ein ausgewähltes Tier wurde nicht gefunden.'};
+    }
+
+    const event=AnimalEngine.createFeedEvent({
+      ...(request||{}),
+      id:request.id||NGT500.uid()
+    });
+    const inventoryItem=feedInventoryItem(request,event);
+
+    if(!inventoryItem){
+      return {ok:false,error:'Bei mindestens einem Tier fehlt das hinterlegte Standardfutter.'};
+    }
+
+    const quantity=Number(event&&event.quantity||0);
+    if(!Number.isSafeInteger(quantity)||quantity<1){
+      return {ok:false,error:'Die Anzahl der Futtertiere muss je Tier mindestens 1 betragen.'};
+    }
+
+    event.foodInventoryId=inventoryItem.id||'';
+    prepared.push({row:row,event:event,inventoryItem:inventoryItem});
+
+    const key=String(inventoryItem.id||'');
+    totals[key]=totals[key]||{item:inventoryItem,quantity:0};
+    totals[key].quantity+=quantity;
+  }
+
+  for(const key of Object.keys(totals)){
+    const total=totals[key];
+    const stock=Number(total.item.qty||0);
+
+    if(total.quantity>stock){
+      return {
+        ok:false,
+        error:(total.item.label||total.item.name||'Futterbestand')+': benötigt '+total.quantity+', vorhanden '+stock+'.'
+      };
+    }
+  }
+
+  prepared.forEach(function(entry){
+    if(!Array.isArray(entry.row.a.feeds))entry.row.a.feeds=[];
+    entry.row.a.feeds.push(entry.event);
+  });
+
+  Object.keys(totals).forEach(function(key){
+    const total=totals[key];
+    total.item.qty=Math.max(0,Number(total.item.qty||0)-total.quantity);
+  });
+
+  save();
+
+  return {
+    ok:true,
+    count:prepared.length,
+    events:prepared.map(function(entry){return entry.event;}),
+    inventory:Object.keys(totals).map(function(key){return totals[key];})
   };
 }
 
@@ -1706,12 +1804,14 @@ window.NGTStore={
   updateAnimalById,
   deleteAnimal,
   deleteAnimalById,
+  deleteAnimalsByIds,
   addAnimalPhoto,
   setAnimalCoverPhoto,
   deleteAnimalPhoto,
   replaceAnimalPhotos,
   setAnimalDefaultFeeder,
   recordFeed,
+  recordFeedsBulk,
   recordWeight,
   recordShed,
   recordHealth,

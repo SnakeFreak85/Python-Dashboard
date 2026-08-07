@@ -236,6 +236,214 @@ html[data-tc-theme="light"] .tc2Menu{
  border-radius:16px!important;
 }
 
+.tc21StartQuickGrid{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+
+/* Nachzuchten auswählen und gesammelt verwalten */
+
+.tc2OffspringSelectionStart{
+ display:flex;
+ justify-content:flex-end;
+ margin:0 0 12px;
+}
+
+.tc2OffspringSelectionStart button,
+.tc2OffspringSelectionBar button{
+ min-height:44px;
+ font-weight:900;
+}
+
+.tc2OffspringSelectionBar{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto auto;
+ align-items:center;
+ gap:8px;
+ margin:0 0 12px;
+ padding:10px;
+ background:rgba(3,15,24,.72);
+ border:1px solid var(--tc-polish-line);
+ border-radius:14px;
+}
+
+.tc2OffspringSelectable{
+ position:relative;
+ cursor:pointer;
+}
+
+.tc2OffspringSelectable>.tc2OffspringBulkCheck{
+ position:absolute;
+ z-index:2;
+ top:10px;
+ right:10px;
+ width:24px;
+ height:24px;
+ margin:0;
+ accent-color:var(--tc-polish-accent);
+}
+
+.tc2OffspringSelectable:has(.tc2OffspringBulkCheck:checked){
+ border-color:var(--tc-polish-accent)!important;
+ box-shadow:0 0 0 2px rgba(145,232,74,.2)!important;
+}
+
+/* Sammelfütterung */
+
+.tc2BulkFeedPage{
+ display:grid;
+ gap:14px;
+}
+
+.tc2BulkFeedHero{
+ display:flex;
+ align-items:center;
+ gap:14px;
+ padding:16px;
+ background:linear-gradient(145deg,rgba(17,51,67,.96),rgba(6,25,37,.98));
+ border:1px solid var(--tc-polish-line);
+ border-radius:17px;
+}
+
+.tc2BulkFeedHero>span{
+ display:grid;
+ place-items:center;
+ width:52px;
+ height:52px;
+ background:var(--tc-polish-accent-soft);
+ border:1px solid rgba(145,232,74,.3);
+ border-radius:50%;
+ font-size:25px;
+}
+
+.tc2BulkFeedHero h2,
+.tc2BulkFeedHero p{
+ margin:0;
+}
+
+.tc2BulkFeedHero p{
+ margin-top:4px;
+ color:var(--tc-polish-muted);
+}
+
+.tc2BulkFeedNotice{
+ padding:11px 12px;
+ color:#ffd2d5;
+ background:rgba(188,35,48,.18);
+ border:1px solid rgba(239,79,91,.42);
+ border-radius:12px;
+ font-size:12px;
+ font-weight:850;
+ line-height:1.45;
+}
+
+.tc2BulkFeedDate{
+ display:grid;
+ gap:6px;
+}
+
+.tc2BulkFeedDate>span,
+.tc2BulkFeedAnimal label>span:first-child{
+ color:var(--tc-polish-muted);
+ font-size:11px;
+ font-weight:850;
+}
+
+.tc2BulkFeedToolbar{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto auto;
+ align-items:center;
+ gap:8px;
+}
+
+.tc2BulkFeedToolbar button{
+ min-height:40px;
+ padding:8px 10px!important;
+ font-size:11px;
+}
+
+.tc2BulkFeedRows{
+ display:grid;
+ gap:10px;
+}
+
+.tc2BulkFeedAnimal{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(90px,120px);
+ gap:10px;
+ padding:13px;
+ background:rgba(3,15,24,.72);
+ border:1px solid var(--tc-polish-line);
+ border-radius:15px;
+}
+
+.tc2BulkFeedAnimal.is-missing{
+ opacity:.72;
+ border-color:rgba(255,165,64,.38);
+}
+
+.tc2BulkFeedPick,
+.tc2BulkFeedFood{
+ grid-column:1/-1;
+}
+
+.tc2BulkFeedPick{
+ display:grid!important;
+ grid-template-columns:auto minmax(0,1fr);
+ align-items:center;
+ gap:10px;
+}
+
+.tc2BulkFeedPick input{
+ width:24px;
+ height:24px;
+ margin:0;
+ accent-color:var(--tc-polish-accent);
+}
+
+.tc2BulkFeedPick span,
+.tc2BulkFeedFood,
+.tc2BulkFeedAnimal>label:not(.tc2BulkFeedPick){
+ display:grid;
+ gap:4px;
+}
+
+.tc2BulkFeedPick small,
+.tc2BulkFeedFood small{
+ color:var(--tc-polish-muted);
+}
+
+.tc2BulkFeedFood{
+ padding:9px 10px;
+ background:rgba(111,215,83,.08);
+ border:1px solid rgba(145,232,74,.2);
+ border-radius:11px;
+}
+
+.tc2BulkFeedActions{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:10px;
+ position:sticky;
+ bottom:84px;
+ z-index:4;
+ padding:10px;
+ background:rgba(5,20,30,.94);
+ border:1px solid var(--tc-polish-line);
+ border-radius:15px;
+ backdrop-filter:blur(12px);
+}
+
+.tc2BulkFeedActions button{
+ min-height:48px;
+ font-weight:900;
+}
+
+.tc2BulkFeedActions button:disabled,
+.tc2OffspringSelectionBar button:disabled{
+ opacity:.45!important;
+ cursor:not-allowed;
+}
+
 .tc21StartQuick>b{
  color:var(--tc-polish-text)!important;
  font-size:10px!important;
@@ -1527,6 +1735,44 @@ html[data-tc-theme="light"] .tc2BreedingGeneticMore summary{
  color:#315d17;
  background:#f1faed;
  border-color:#8bc66e;
+}
+
+html[data-tc-theme="light"] .tc2OffspringSelectionBar,
+html[data-tc-theme="light"] .tc2BulkFeedAnimal,
+html[data-tc-theme="light"] .tc2BulkFeedActions{
+ color:#12232d;
+ background:rgba(255,255,255,.96);
+ border-color:rgba(65,99,117,.24);
+}
+
+html[data-tc-theme="light"] .tc2BulkFeedHero{
+ color:#12232d;
+ background:linear-gradient(145deg,#fff,#eef6f8);
+ border-color:rgba(65,99,117,.24);
+}
+
+html[data-tc-theme="light"] .tc2BulkFeedNotice{
+ color:#891b25;
+ background:#fff0f1;
+ border-color:#d96670;
+}
+
+html[data-tc-theme="light"] .tc2BulkFeedFood{
+ color:#173421;
+ background:#edf8e9;
+ border-color:#9bc88a;
+}
+
+@media(max-width:520px){
+ .tc2OffspringSelectionBar,
+ .tc2BulkFeedToolbar{
+  grid-template-columns:1fr 1fr;
+ }
+
+ .tc2OffspringSelectionBar>b,
+ .tc2BulkFeedToolbar>b{
+  grid-column:1/-1;
+ }
 }
 
 @media(max-width:430px){

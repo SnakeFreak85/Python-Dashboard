@@ -81,6 +81,7 @@ async function removeResolved(row){
 
  const group=animal.animalGroup||'Unsortiert';
  const genus=animal.genus||'Ohne Gattung';
+ const offspring=AnimalEngine.isOffspringAnimal(animal);
  const archived=!AnimalEngine.isActiveAnimal(animal);
  const status=P.archiveStatus(animal);
 
@@ -99,16 +100,16 @@ async function removeResolved(row){
  }
 
  NGT500.route(
-  'animals',
-  archived
-   ?{
-    view:'archive',
-    status:status
-   }
-   :{
-    group:group,
-    genus:genus
-   }
+  offspring&&!archived?'offspring':'animals',
+  offspring&&!archived
+   ?{group:group,genus:genus}
+   :archived
+    ?{view:'archive',status:status}
+    :{group:group,genus:genus},
+  {
+   replace:true,
+   noHistory:true
+  }
  );
 }
 

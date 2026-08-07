@@ -267,11 +267,6 @@ function updateFeedStockStatus(){
    'feedInventoryId'
   );
 
- const statusField=
-  document.getElementById(
-   'feedStatus'
-  );
-
  const box=
   document.getElementById(
    'feedStockStatus'
@@ -310,10 +305,6 @@ function updateFeedStockStatus(){
   return;
  }
 
- const accepted=
-  !statusField||
-  statusField.value!=='no';
-
  const stock=
   FoodInventoryEngine.quantity(
    item
@@ -327,31 +318,6 @@ function updateFeedStockStatus(){
  const unit=
   item.unit||
   'Stück';
-
- if(!accepted){
-  const currentStatus=
-   FoodInventoryEngine.status(
-    item
-   );
-
-  box.className=
-   'tc2SubCard '+
-   currentStatus.cls;
-
-  box.innerHTML=`
-   <b>Bestand bleibt unverändert</b>
-   <br>
-   ${P.esc(foodLabel(item))}
-   ·
-   ${stock}
-   ${P.esc(unit)}
-   vorhanden
-   <br>
-   Bei „Verweigert“ wird kein Bestand abgezogen.
-  `;
-
-  return;
- }
 
  if(quantity>stock){
   box.className=
@@ -472,11 +438,10 @@ async function addFeed(){
   );
 
  if(
-  accepted&&
   stock<=0
  ){
   NGT500.toast(
-   'Dieser Futterbestand ist leer. Die Fütterung kann nicht als gefressen gespeichert werden.',
+   'Dieser Futterbestand ist leer. Die Fütterung kann nicht gespeichert werden.',
    'danger'
   );
 
@@ -484,7 +449,6 @@ async function addFeed(){
  }
 
  if(
-  accepted&&
   quantity>stock
  ){
   NGT500.toast(
@@ -500,7 +464,6 @@ async function addFeed(){
  }
 
  if(
-  accepted&&
   quantity===stock&&
   !await NGT500.confirmAction(
    'Mit dieser Fütterung wird der vollständige Bestand dieser Position verbraucht. Trotzdem speichern?',
@@ -557,8 +520,7 @@ async function addFeed(){
    source:
     'profile',
 
-   deductStock:
-    accepted
+   deductStock:true
   }
  );
 

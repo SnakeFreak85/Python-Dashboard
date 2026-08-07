@@ -542,6 +542,151 @@ function quickAction(
  `;
 }
 
+function bulkFoodInventory(){
+ return FoodInventoryEngine.sortInventory(NGTStore.foodInventory());
+}
+
+function bulkFoodById(id){
+ return FoodInventoryEngine.findById(NGTStore.foodInventory(),id);
+}
+
+function bulkDefaultFood(animal){
+ const stored=String(animal.defaultFeederId||animal.foodInventoryId||'').trim();
+ if(stored&&bulkFoodById(stored))return bulkFoodById(stored);
+
+ const legacy=String(animal.defaultFeeder||animal.futterStandard||animal.standardFeed||'').trim();
+ if(!legacy)return null;
+
+ return bulkFoodInventory().find(function(item){
+  return FoodInventoryEngine.itemLabel(item)===legacy||
+   String(item.label||item.name||'').trim()===legacy;
+ })||null;
+}
+
+function bulkAnimalLabel(animal){
+ const publicId=String(animal.publicId||animal.displayId||'').trim();
+ const name=String(AnimalEngine.getDisplayName(animal)||'Unbenannt').trim();
+ return publicId&&publicId!==name?publicId+' · '+name:name;
+}
+
+function bulkFeedAnimals(){
+ return NGTStore.allAnimals().filter(function(row){
+  return AnimalEngine.isActiveAnimal(row.a);
+ }).sort(function(a,b){
+  return bulkAnimalLabel(a.a).localeCompare(bulkAnimalLabel(b.a),'de');
+ });
+}
+
+function bulkFeedRow(row){
+ const animal=row.a;
+ const animalId=NGTStore.animalId(animal);
+ const food=bulkDefaultFood(animal);
+ const foodId=food&&food.id||'';
+ const foodLabel=food?FoodInventoryEngine.itemLabel(food):'Kein Standardfutter hinterlegt';
+ const stock=food?FoodInventoryEngine.quantity(food):0;
+
+ return `<div class="tc2BulkFeedAnimal ${food?'':'is-missing'}" data-animal-id="${esc(animalId)}" data-food-id="${esc(foodId)}">
+  <label class="tc2BulkFeedPick">
+   <input type="checkbox" class="tc2BulkFeedCheck" value="${esc(animalId)}" ${food?'':'disabled'} onchange="NGTDashboard.updateBulkFeedSelection()">
+   <span><b>${esc(bulkAnimalLabel(animal))}</b><small>${esc(animal.animalGroup||'Unsortiert')}</small></span>
+  </label>
+  <div class="tc2BulkFeedFood"><b>${esc(foodLabel)}</b>${food?`<small>${stock} ${esc(food.unit||'Stück')} vorhanden</small>`:'<small>Im Tierprofil zuerst ein Standardfutter auswählen.</small>'}</div>
+  ${food?`<label><span>Anzahl</span><input class="tc2BulkFeedQuantity" type="number" inputmode="numeric" min="1" step="1" value="1"></label><label><span>Ergebnis</span><select class="tc2BulkFeedStatus"><option value="ok">Gefressen</option><option value="no">Verweigert</option></select></label>`:''}
+ </div>`;
+}
+
+function renderBulkFeed(){
+ const rows=bulkFeedAnimals();
+
+ return `<section class="tc2PageCard tc2BulkFeedPage">
+  <div class="tc2BulkFeedHero"><span>🍽️</span><div><h2>Sammelfütterung</h2><p>Mehrere Tiere mit ihrem hinterlegten Standardfutter erfassen.</p></div></div>
+  <div class="tc2BulkFeedNotice">Auch bei „Verweigert“ wird die bereitgestellte Menge vom Futterbestand abgezogen.</div>
+  <label class="tc2BulkFeedDate"><span>Datum</span><input id="bulkFeedDate" type="date" value="${NGT500.today()}"></label>
+  <div class="tc2BulkFeedToolbar"><b id="bulkFeedSelectionCount">0 Tiere ausgewählt</b><button type="button" onclick="NGTDashboard.toggleAllBulkFeed(true)">Alle mit Standardfutter</button><button type="button" onclick="NGTDashboard.toggleAllBulkFeed(false)">Auswahl aufheben</button></div>
+  <div class="tc2BulkFeedRows">${rows.map(bulkFeedRow).join('')||'<p class="muted">Keine aktiven Tiere vorhanden.</p>'}</div>
+  <div class="tc2BulkFeedActions"><button type="button" onclick="NGT500.back()">Abbrechen</button><button type="button" id="bulkFeedSave" disabled onclick="NGTDashboard.saveBulkFeed()">Fütterungen speichern</button></div>
+ </section>`;
+}
+
+function selectedBulkFeedRequests(){
+ const dateField=document.getElementById('bulkFeedDate');
+ const date=dateField&&dateField.value||NGT500.today();
+ const requests=[];
+
+ document.querySelectorAll('.tc2BulkFeedCheck:checked').forEach(function(check){
+  const row=check.closest('.tc2BulkFeedAnimal');
+  const quantityField=row&&row.querySelector('.tc2BulkFeedQuantity');
+  const statusField=row&&row.querySelector('.tc2BulkFeedStatus');
+  const quantity=Number(quantityField&&quantityField.value);
+  const food=bulkFoodById(row&&row.dataset.foodId);
+
+  requests.push({
+   animalId:check.value,
+   date:date,
+   foodInventoryId:food&&food.id||'',
+   category:food&&food.category||'',
+   condition:food&&food.condition||'',
+   prey:food&&food.itemName||'',
+   variantLabel:food&&food.variant||'',
+   unit:food&&food.unit||'Stück',
+   quantity:quantity,
+   displayLabel:food?FoodInventoryEngine.itemLabel(food):'',
+   accepted:!statusField||statusField.value!=='no',
+   source:'bulk'
+  });
+ });
+
+ return requests;
+}
+
+function updateBulkFeedSelection(){
+ const count=document.querySelectorAll('.tc2BulkFeedCheck:checked').length;
+ const label=document.getElementById('bulkFeedSelectionCount');
+ const save=document.getElementById('bulkFeedSave');
+ if(label)label.textContent=count+' Tier'+(count===1?'':'e')+' ausgewählt';
+ if(save)save.disabled=count===0;
+}
+
+function toggleAllBulkFeed(checked){
+ document.querySelectorAll('.tc2BulkFeedCheck:not(:disabled)').forEach(function(input){input.checked=checked;});
+ updateBulkFeedSelection();
+}
+
+async function saveBulkFeed(){
+ const requests=selectedBulkFeedRequests();
+ if(!requests.length)return;
+
+ if(requests.some(function(row){return !Number.isSafeInteger(row.quantity)||row.quantity<1;})){
+  NGT500.toast('Bitte für jedes ausgewählte Tier eine ganze Anzahl ab 1 eintragen.','warn');
+  return;
+ }
+
+ const totals={};
+ requests.forEach(function(row){totals[row.foodInventoryId]=(totals[row.foodInventoryId]||0)+row.quantity;});
+ for(const foodId of Object.keys(totals)){
+  const food=bulkFoodById(foodId);
+  const stock=food?FoodInventoryEngine.quantity(food):0;
+  if(!food||totals[foodId]>stock){
+   NGT500.toast((food?FoodInventoryEngine.itemLabel(food):'Futterbestand')+': benötigt '+totals[foodId]+', vorhanden '+stock+'.','danger');
+   return;
+  }
+ }
+
+ if(!await NGT500.confirmAction(
+  requests.length+' Fütterung'+(requests.length===1?'':'en')+' speichern und alle bereitgestellten Futtertiere vom Bestand abziehen?',
+  {title:'Sammelfütterung speichern',confirmText:'Fütterungen speichern'}
+ ))return;
+
+ const result=NGTStore.recordFeedsBulk(requests);
+ if(!result||!result.ok){
+  NGT500.toast(result&&result.error||'Die Sammelfütterung konnte nicht gespeichert werden.','danger');
+  return;
+ }
+
+ NGT500.toast(result.count+' Fütterung'+(result.count===1?' wurde':'en wurden')+' gespeichert.','success');
+ NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+}
+
 function renderPhotoMigrationCard(){
  const count=legacyPhotoCount();
 
@@ -710,6 +855,12 @@ function render(){
       "NGT500.route('assistant')"
      )}
 
+     ${quickAction(
+      '🍽️',
+      'Sammelfütterung',
+      "NGT500.route('bulkFeed')"
+     )}
+
     </div>
    </section>
 
@@ -812,7 +963,10 @@ window.NGTDashboard={
  openSmartDashboard:openSmartDashboard,
  migrateAllPhotos:migrateAllPhotos,
  acknowledgeAnnouncement:
-  acknowledgeAnnouncement
+  acknowledgeAnnouncement,
+ updateBulkFeedSelection:updateBulkFeedSelection,
+ toggleAllBulkFeed:toggleAllBulkFeed,
+ saveBulkFeed:saveBulkFeed
 };
 
 NGT500.register(
@@ -828,6 +982,11 @@ NGT500.register(
  {
   render:smartDashboardProxy
  }
+);
+
+NGT500.register(
+ 'bulkFeed',
+ {render:renderBulkFeed}
 );
 
 if(NGT500.on){

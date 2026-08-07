@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -19,13 +19,19 @@ const PROFILE_MODULE_QUERY=
  '&r=animal-archive-2-profile-recommendation-1';
 const TC2_POLISH_QUERY=
  VERSION_QUERY+
- '&r=tc2-polish-2-breeding-4-genetics-5';
+ '&r=tc2-polish-2-breeding-4-genetics-5-bulk-actions-1';
 const BREEDING_QUERY=
  VERSION_QUERY+
  '&r=breeding-4-genetics-5';
+const BULK_ACTIONS_QUERY=
+ VERSION_QUERY+
+ '&r=bulk-actions-1';
+const ANIMAL_BULK_ACTIONS_QUERY=
+ VERSION_QUERY+
+ '&r=animal-archive-2-bulk-actions-1';
 const OFFSPRING_BREEDING_QUERY=
  VERSION_QUERY+
- '&r=animal-archive-2-breeding-4-genetics-5';
+ '&r=animal-archive-2-breeding-4-genetics-5-bulk-actions-1';
 
 const APP_SHELL=[
  './',
@@ -44,13 +50,13 @@ const APP_SHELL=[
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
 
- './v500/core.js'+BREEDING_QUERY,
+ './v500/core.js'+BULK_ACTIONS_QUERY,
  './v500/date-display.js'+DATE_DISPLAY_QUERY,
  './v500/theme.js'+VERSION_QUERY,
  './v500/id-manager.js'+VERSION_QUERY,
  './v500/food-inventory-engine.js'+VERSION_QUERY,
  './v500/animal-engine.js'+ANIMAL_ARCHIVE_QUERY,
- './v500/store.js'+BREEDING_QUERY,
+ './v500/store.js'+BULK_ACTIONS_QUERY,
  './v500/ui.js'+VERSION_QUERY,
 
  './v500/taxonomy-core.js'+VERSION_QUERY,
@@ -84,14 +90,14 @@ const APP_SHELL=[
  './v500/smart-dashboard.js'+BREEDING_QUERY,
  './v500/photo-storage.js'+VERSION_QUERY,
 
- './v500/modules/dashboard.js'+BREEDING_QUERY,
+ './v500/modules/dashboard.js'+BULK_ACTIONS_QUERY,
  './v500/hkn-import.js'+VERSION_QUERY,
 
  './v500/modules/animals-core.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/animals-food.js'+VERSION_QUERY,
  './v500/modules/animals-stock.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/animals-editor.js'+BREEDING_QUERY,
- './v500/modules/animals.js'+ANIMAL_ARCHIVE_QUERY,
+ './v500/modules/animals.js'+ANIMAL_BULK_ACTIONS_QUERY,
 
  './v500/modules/offspring-core.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/offspring-editor.js'+OFFSPRING_BREEDING_QUERY,
@@ -100,7 +106,7 @@ const APP_SHELL=[
 
  './v500/modules/profile-core.js'+ANIMAL_ARCHIVE_QUERY,
  './v500/modules/profile-history.js'+VERSION_QUERY,
- './v500/modules/profile-food.js'+VERSION_QUERY,
+ './v500/modules/profile-food.js'+BULK_ACTIONS_QUERY,
  './v500/modules/profile-health.js'+VERSION_QUERY,
  './v500/modules/profile-passport.js'+VERSION_QUERY,
  './v500/modules/profile-photos.js'+VERSION_QUERY,

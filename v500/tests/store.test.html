@@ -469,10 +469,33 @@ try{
  );
 
  equal(
-  'Verweigertes Futter reduziert den Bestand nicht',
+  'Verweigertes bereitgestelltes Futter reduziert den Bestand ebenfalls',
   NGTStore.data().foodInventory[0].qty,
-  1
+  0
  );
+
+ NGTStore.adjustFoodInventoryItem('food-150',3);
+ NGTStore.addAnimal('',{
+  uuid:'bulk-feed-2',
+  uid:'bulk-feed-2',
+  name:'Sammelfütterung Tier 2',
+  animalGroup:'Königspythons',
+  status:'Bestand'
+ });
+
+ const bulkFeed=NGTStore.recordFeedsBulk([
+  {animalId:'mixed-2',foodInventoryId:'food-150',quantity:1,accepted:true,date:'2026-07-28'},
+  {animalId:'bulk-feed-2',foodInventoryId:'food-150',quantity:1,accepted:false,date:'2026-07-28'}
+ ]);
+
+ equal('Sammelfütterung speichert beide Einträge atomar',bulkFeed.ok,true);
+ equal('Sammelfütterung zieht auch verweigertes Futter gesammelt ab',NGTStore.data().foodInventory[0].qty,1);
+
+ NGTStore.addAnimal('',{uuid:'bulk-delete-1',uid:'bulk-delete-1',name:'Löschen 1',animalGroup:'Test',status:'Nachzucht',origin:'Nachzucht'});
+ NGTStore.addAnimal('',{uuid:'bulk-delete-2',uid:'bulk-delete-2',name:'Löschen 2',animalGroup:'Test',status:'Nachzucht',origin:'Nachzucht'});
+ const bulkDeleted=NGTStore.deleteAnimalsByIds(['bulk-delete-1','bulk-delete-2']);
+ equal('Mehrfachlöschung entfernt beide ausgewählten Tiere',bulkDeleted.length,2);
+ equal('Mehrfach gelöschte Tiere sind nicht mehr vorhanden',NGTStore.getAnimalById('bulk-delete-1'),null);
 
  equal(
   'Verpaarungsdaten werden additiv initialisiert',
@@ -527,6 +550,9 @@ try{
   'breeding-test-1'
  );
 
+ const animalCountBeforeInvalidDelete=
+  NGTStore.allAnimals().length;
+
  equal(
   'Ungültiger Index löst keine Löschung aus',
   NGTStore.deleteAnimal('',-1),
@@ -536,7 +562,7 @@ try{
  equal(
   'Ungültiger Index verändert den Bestand nicht',
   NGTStore.allAnimals().length,
-  1
+  animalCountBeforeInvalidDelete
  );
 
 }catch(error){

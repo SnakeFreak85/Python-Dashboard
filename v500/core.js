@@ -347,6 +347,7 @@ function routeLabel(name){
   support:'Support',
   announcements:'Mitteilungen',
   assistant:'Schnelleingabe',
+  bulkFeed:'Sammelfütterung',
   chat:'TerraControl KI',
   settings:'Einstellungen',
   account:'Konto',

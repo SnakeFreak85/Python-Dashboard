@@ -98,7 +98,7 @@ function folderGrid(items,onclick){
  </div>`;
 }
 
-function animalIconGrid(rows){
+function animalIconGrid(rows,selecting){
  if(!rows.length){
   return emptyState(
    'Noch keine Nachzuchten',
@@ -127,10 +127,8 @@ function animalIconGrid(rows){
 
    const status=animal.status||'Nachzucht';
 
-   return `<button
-    class="tc2TaxAnimal tc2OffspringAnimal"
-    onclick="NGT500.route('profile',{animalId:'${P.jsArg(NGTStore.animalId(animal))}'})"
-   >
+   const animalId=NGTStore.animalId(animal);
+   const body=`
     <div>${image}</div>
 
     <b>
@@ -148,9 +146,58 @@ function animalIconGrid(rows){
     <em class="tc2OffspringStatus">
      ${P.esc(status)}
     </em>
-   </button>`;
+   `;
+
+   return selecting
+    ?`<label class="tc2TaxAnimal tc2OffspringAnimal tc2OffspringSelectable">
+      <input type="checkbox" class="tc2OffspringBulkCheck" value="${P.esc(animalId)}" onchange="NGTOffspring.updateSelection()">
+      ${body}
+     </label>`
+    :`<button class="tc2TaxAnimal tc2OffspringAnimal" onclick="NGT500.route('profile',{animalId:'${P.jsArg(animalId)}'})">${body}</button>`;
   }).join('')}
  </div>`;
+}
+
+function selectionToolbar(group,genus,selecting){
+ if(!selecting){
+  return `<div class="tc2OffspringSelectionStart"><button type="button" onclick="NGT500.route('offspring',{group:'${P.jsArg(group)}',genus:'${P.jsArg(genus)}',select:1})">Auswählen</button></div>`;
+ }
+
+ return `<div class="tc2OffspringSelectionBar">
+  <b id="offspringSelectionCount">0 ausgewählt</b>
+  <button type="button" onclick="NGT500.route('offspring',{group:'${P.jsArg(group)}',genus:'${P.jsArg(genus)}'},{replace:true,noHistory:true})">Abbrechen</button>
+  <button type="button" id="offspringBulkDelete" class="danger" disabled onclick="NGTOffspring.deleteSelected('${P.jsArg(group)}','${P.jsArg(genus)}')">Auswahl löschen</button>
+ </div>`;
+}
+
+function selectedIds(){
+ return Array.from(document.querySelectorAll('.tc2OffspringBulkCheck:checked')).map(function(input){return input.value;});
+}
+
+function updateSelection(){
+ const count=selectedIds().length;
+ const label=document.getElementById('offspringSelectionCount');
+ const remove=document.getElementById('offspringBulkDelete');
+
+ if(label)label.textContent=count+' ausgewählt';
+ if(remove)remove.disabled=count===0;
+}
+
+async function deleteSelected(group,genus){
+ const ids=selectedIds();
+ if(!ids.length)return;
+
+ if(!await NGT500.confirmAction(
+  ids.length+' Nachzucht'+(ids.length===1?'':'en')+' wirklich endgültig löschen?',
+  {title:'Nachzuchten löschen',confirmText:ids.length+' löschen',danger:true}
+ ))return;
+
+ const removed=NGTStore.deleteAnimalsByIds(ids);
+ if(NGT500.toast){
+  NGT500.toast(removed.length+' Nachzucht'+(removed.length===1?' wurde':'en wurden')+' gelöscht.','success');
+ }
+
+ NGT500.route('offspring',{group:group,genus:genus},{replace:true,noHistory:true});
 }
 
 function pageHeader(title,subtitle,back){
@@ -176,6 +223,7 @@ function render(args){
  const edit=args.edit;
  const editId=args.editId;
  const create=!!args.create;
+ const selecting=String(args.select||'')==='1';
 
  if(create){
   const preset=
@@ -308,12 +356,15 @@ function render(args){
    })
   )}
 
-  ${animalIconGrid(animalRows)}
+  ${selectionToolbar(group,genus,selecting)}
+  ${animalIconGrid(animalRows,selecting)}
  </section>`;
 }
 
 window.NGTOffspring={
- save:P.editor.save
+ save:P.editor.save,
+ updateSelection:updateSelection,
+ deleteSelected:deleteSelected
 };
 
 NGT500.register('offspring',{
