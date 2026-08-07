@@ -2,12 +2,16 @@
 'use strict';
 
 const TRAITS=[
- {id:'bp-albino',name:'Albino',scope:'ball-python',inheritance:'recessive',aliases:['albino']},
+ {id:'bp-albino',name:'Albino',scope:'ball-python',inheritance:'recessive',aliases:['albino','t- albino','amelanistic'],complex:'albino',issue:'Albino kann mit erhöhter Lichtempfindlichkeit verbunden sein.'},
  {id:'bp-pied',name:'Pied',scope:'ball-python',inheritance:'recessive',aliases:['pied','piebald']},
- {id:'bp-clown',name:'Clown',scope:'ball-python',inheritance:'recessive',aliases:['clown']},
+ {id:'bp-clown',name:'Clown',scope:'ball-python',inheritance:'recessive',aliases:['clown'],complex:'clown'},
+ {id:'bp-cryptic',name:'Cryptic',scope:'ball-python',inheritance:'recessive',aliases:['cryptic','amur','gizmo'],complex:'clown'},
  {id:'bp-axanthic',name:'Axanthic',scope:'ball-python',inheritance:'recessive',aliases:['axanthic'],requiresLine:true},
  {id:'bp-genetic-stripe',name:'Genetic Stripe',scope:'ball-python',inheritance:'recessive',aliases:['genetic stripe']},
  {id:'bp-ultramel',name:'Ultramel',scope:'ball-python',inheritance:'recessive',aliases:['ultramel']},
+ {id:'bp-caramel-albino',name:'Caramel Albino',scope:'ball-python',inheritance:'recessive',aliases:['caramel albino','caramel','t+ albino','tyrosinase positive albino'],issue:'Caramel Albino kann mit Knicken und eingeschränkter Fruchtbarkeit bei Weibchen verbunden sein.'},
+ {id:'bp-candy',name:'Candy / Toffee',scope:'ball-python',inheritance:'recessive',aliases:['candy','toffee'],complex:'albino'},
+ {id:'bp-lavender-albino',name:'Lavender Albino',scope:'ball-python',inheritance:'recessive',aliases:['lavender albino','lavender']},
  {id:'bp-hypo',name:'Hypo / Ghost',scope:'ball-python',inheritance:'recessive',aliases:['orange ghost','hypo','ghost']},
  {id:'bp-desert-ghost',name:'Desert Ghost',scope:'ball-python',inheritance:'recessive',aliases:['desert ghost','dg']},
  {id:'bp-monsoon',name:'Monsoon',scope:'ball-python',inheritance:'recessive',aliases:['monsoon']},
@@ -38,6 +42,13 @@ const TRAITS=[
  {id:'bp-champagne',name:'Champagne',scope:'ball-python',inheritance:'incomplete',aliases:['champagne'],complex:'spider',issue:'Super Champagne gilt als letal; weitere Kombinationen können problematisch sein.'},
  {id:'bp-woma',name:'Woma',scope:'ball-python',inheritance:'incomplete',aliases:['woma'],complex:'spider',issue:'Woma kann einen genetischen Wobble zeigen.'},
  {id:'bp-pinstripe',name:'Pinstripe',scope:'ball-python',inheritance:'dominant',aliases:['pinstripe']},
+ {id:'bp-leopard',name:'Leopard',scope:'ball-python',inheritance:'dominant',aliases:['leopard']},
+ {id:'bp-ghi',name:'GHI',scope:'ball-python',inheritance:'incomplete',aliases:['ghi']},
+ {id:'bp-calico',name:'Calico / Sugar',scope:'ball-python',inheritance:'incomplete',aliases:['calico','sugar']},
+ {id:'bp-cypress',name:'Cypress',scope:'ball-python',inheritance:'incomplete',aliases:['cypress']},
+ {id:'bp-hurricane',name:'Hurricane',scope:'ball-python',inheritance:'incomplete',aliases:['hurricane']},
+ {id:'bp-confusion',name:'Confusion',scope:'ball-python',inheritance:'incomplete',aliases:['confusion']},
+ {id:'bp-red-stripe',name:'Red Stripe',scope:'ball-python',inheritance:'incomplete',aliases:['red stripe']},
 
  {id:'lg-tremper-albino',name:'Tremper Albino',scope:'leopard-gecko',inheritance:'recessive',aliases:['tremper albino','tremper']},
  {id:'lg-bell-albino',name:'Bell Albino',scope:'leopard-gecko',inheritance:'recessive',aliases:['bell albino']},
@@ -56,6 +67,13 @@ const COMPLEX_LABELS={
  'yellow-belly':'Yellow-Belly-Komplex',
  'eight-ball':'8-Ball-Komplex',
  spider:'Spider-Komplex'
+ ,clown:'Clown-Komplex'
+ ,albino:'Albino-Komplex'
+};
+
+const COMPOUND_NAMES={
+ 'bp-clown|bp-cryptic':'Crypton',
+ 'bp-albino|bp-candy':'Candino / Toffino'
 };
 
 function byId(id){
@@ -67,12 +85,15 @@ function forScope(scope){
 }
 
 window.GeneticsCatalog={
- version:'2026.08.1',
+ version:'2026.08.2',
  reviewedAt:'2026-08-07',
  traits:TRAITS,
  byId:byId,
  forScope:forScope,
  complexLabel:function(id){return COMPLEX_LABELS[id]||id||'';},
+ compoundName:function(firstId,secondId){
+  return COMPOUND_NAMES[[firstId,secondId].sort().join('|')]||'';
+ },
  sources:[
   'https://www.morphmarket.com/morphpedia/ball-pythons/',
   'https://www.morphmarket.com/morphpedia/leopard-geckos/'

@@ -68,7 +68,7 @@ function detect(animal){
   let match=null;
   aliases.some(function(alias){
    const needle=normalized(alias);
-   const index=source.indexOf(needle);
+   const index=(' '+source+' ').indexOf(' '+needle+' ');
    if(index<0)return false;
    const end=index+needle.length;
    if(occupied.some(function(range){return index<range.end&&end>range.start;}))return false;
@@ -89,13 +89,24 @@ function detect(animal){
    state:state.state,
    probability:state.probability,
    line:'',
-   confirmed:false,
-   suggested:true
+   confirmed:true,
+   suggested:false
   });
  });
 
  if(!entries.length){
   warnings.push('Der Morphtext enthält keine Gene aus dem geprüften Katalog.');
+ }else{
+  const chars=source.split('');
+  occupied.forEach(function(range){
+   for(let i=range.start;i<range.end;i+=1)chars[i]=' ';
+  });
+  const unknown=chars.join('')
+   .replace(/\b(?:het|possible|poss|moglich|moeglich|mgl|super)\b/g,' ')
+   .replace(/\b(?:50|66|100)\b/g,' ')
+   .replace(/\s+/g,' ')
+   .trim();
+  if(unknown)warnings.push('Nicht automatisch erkannt: '+unknown+'. Diese Angabe wird nicht in die Quote einbezogen.');
  }
  return {scope:scope,entries:entries,warnings:warnings,source:'morph'};
 }
@@ -117,6 +128,18 @@ function normalizeEntry(entry){
 }
 
 function geneticsForAnimal(animal){
+ const morph=text(animal&&animal.morph);
+ if(morph){
+  const detected=detect(animal||{});
+  return {
+   scope:detected.scope,
+   entries:detected.entries,
+   editorEntries:detected.entries,
+   provisional:false,
+   warnings:detected.warnings
+  };
+ }
+
  const stored=Array.isArray(animal&&animal.genetics)
   ?animal.genetics.map(normalizeEntry).filter(Boolean)
   :[];
@@ -305,33 +328,46 @@ function locusOutcomes(trait,fatherEntry,motherEntry,warnings){
 
 function complexGenotype(entries,traits,warnings,role){
  const alleles=[];
- let uncertain=false;
+ const possible=[];
  traits.forEach(function(trait){
   const entry=entries.find(function(candidate){return candidate.traitId===trait.id;});
   if(!entry)return;
   if(entry.state==='possible_het'){
-   warnings.push(role+': '+trait.name+' ist im Allelkomplex nur als möglich angegeben und kann dort nicht sicher berechnet werden.');
-   uncertain=true;
+   possible.push({traitId:trait.id,probability:Math.max(0,Math.min(1,Number(entry.probability||66)/100))});
    return;
   }
-  if(entry.state==='super'){
+  if(trait.inheritance==='recessive'&&(entry.state==='visual'||entry.state==='super')){
+   alleles.push(trait.id,trait.id);
+  }else if(entry.state==='super'){
    alleles.push(trait.id,trait.id);
   }else{
    alleles.push(trait.id);
   }
  });
- if(uncertain)return null;
- if(alleles.length>2){
+ if(alleles.length>2||possible.length>1||alleles.length===2&&possible.length){
   warnings.push(role+': Im '+catalog().complexLabel(traits[0]&&traits[0].complex)+' sind mehr als zwei Allele eingetragen.');
   return null;
  }
- while(alleles.length<2)alleles.push('wild');
- return alleles;
+ return {alleles:alleles,possible:possible[0]||null};
 }
 
 function complexGametes(genotype){
  const map={};
- genotype.forEach(function(allele){map[allele]=(map[allele]||0)+.5;});
+ const alleles=genotype.alleles.slice();
+ const possible=genotype.possible;
+ if(possible){
+  if(alleles.length===0){
+   map[possible.traitId]=possible.probability*.5;
+   map.wild=1-map[possible.traitId];
+  }else{
+   map[alleles[0]]=.5;
+   map[possible.traitId]=possible.probability*.5;
+   map.wild=(1-possible.probability)*.5;
+  }
+ }else{
+  while(alleles.length<2)alleles.push('wild');
+  alleles.forEach(function(allele){map[allele]=(map[allele]||0)+.5;});
+ }
  return Object.keys(map).map(function(allele){return {allele:allele,p:map[allele]};});
 }
 
@@ -353,16 +389,26 @@ function complexOutcomes(complexId,traits,fatherEntries,motherEntries,warnings){
   const pair=key.split('|');
   const active=pair.filter(function(id){return id!=='wild';});
   let visual='';
+  let carrier='';
   if(active.length===1){
-   visual=(catalog().byId(active[0])||{}).name||active[0];
+   const trait=catalog().byId(active[0])||{};
+   if(trait.inheritance==='recessive')carrier='het '+(trait.name||active[0]);
+   else visual=trait.name||active[0];
   }else if(active.length===2&&active[0]===active[1]){
-   visual='Super '+((catalog().byId(active[0])||{}).name||active[0]);
+   const trait=catalog().byId(active[0])||{};
+   visual=trait.inheritance==='recessive'
+    ?(trait.name||active[0])
+    :'Super '+(trait.name||active[0]);
   }else if(active.length===2){
-   visual=active.map(function(id){return (catalog().byId(id)||{}).name||id;})
+   const compound=catalog().compoundName&&catalog().compoundName(active[0],active[1]);
+   const combined=active.map(function(id){return (catalog().byId(id)||{}).name||id;})
     .sort(function(a,b){return a.localeCompare(b,'de');})
-    .join(' + ')+' ('+catalog().complexLabel(complexId)+')';
+    .join(' + ');
+   visual=compound
+    ?compound+' ('+combined+')'
+    :combined+' ('+catalog().complexLabel(complexId)+')';
   }
-  return {p:map[key],visual:visual,carrier:''};
+  return {p:map[key],visual:visual,carrier:carrier};
  });
 }
 

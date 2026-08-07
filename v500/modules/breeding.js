@@ -407,7 +407,7 @@ function renderGenetics(plan){
 
  return `<section class="tc2BreedingSection tc2BreedingGenetics">
   <div class="tc2BreedingSectionHead"><h3>Mögliche Morphen</h3><small>Katalog ${esc(prediction.catalogVersion||'Vorschau')}</small></div>
-  ${prediction.provisional?'<p class="tc2BreedingGeneticWarnings">Vorschau aus dem freien Morphtext. Bestätige die Gene zuerst in den Tierprofilen der Elterntiere.</p>':''}
+  ${prediction.provisional?'<p class="tc2BreedingGeneticWarnings">Automatische Vorschau aus den Morphangaben der Elterntiere.</p>':''}
   ${prediction.available
    ?`<div class="tc2BreedingGeneticRows">${prediction.outcomes.slice(0,8).map(function(outcome){
      return `<div><b>${esc(outcome.label)}</b><strong>${esc(String(outcome.probability).replace('.',','))} %</strong></div>`;

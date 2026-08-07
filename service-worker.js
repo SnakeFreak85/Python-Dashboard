@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-3-genetics-2';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-3';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -19,13 +19,13 @@ const PROFILE_MODULE_QUERY=
  '&r=animal-archive-2-profile-recommendation-1';
 const TC2_POLISH_QUERY=
  VERSION_QUERY+
- '&r=tc2-polish-2-breeding-3-genetics-2';
+ '&r=tc2-polish-2-breeding-4-genetics-3';
 const BREEDING_QUERY=
  VERSION_QUERY+
- '&r=breeding-3-genetics-2';
+ '&r=breeding-4-genetics-3';
 const OFFSPRING_BREEDING_QUERY=
  VERSION_QUERY+
- '&r=animal-archive-2-breeding-3-genetics-2';
+ '&r=animal-archive-2-breeding-4-genetics-3';
 
 const APP_SHELL=[
  './',

@@ -151,11 +151,6 @@ function editor(t,index,preset){
   </div>
 
   <div class="tc2AnimalEditorBlock">
-   <h4>Genetik</h4>
-   ${window.GeneticsEngine?GeneticsEngine.renderEditor(animal,{prefix:'edGenetics'}):'<p class="muted">Genetik-Modul ist nicht geladen.</p>'}
-  </div>
-
-  <div class="tc2AnimalEditorBlock">
    <h4>Zucht und Herkunft</h4>
 
    <div class="tc2AnimalFields">
@@ -445,9 +440,7 @@ function save(t,index,animalId){
   morph:
    inputValue('edMorph'),
 
-  genetics:window.GeneticsEngine
-   ?GeneticsEngine.readEditor('edGenetics')
-   :(old.genetics||[]),
+  genetics:old.genetics||[],
 
   weight:
    inputValue('edWeight'),

@@ -79,13 +79,42 @@ assert.strictEqual(probability(complexResult,'Lesser + Mojave (Blue-Eyed-Leucist
 assert.strictEqual(probability(complexResult,'Mojave'),25);
 assert.strictEqual(probability(complexResult,'Lesser'),25);
 
-const inferredEditor=GeneticsEngine.renderEditor(
- {animalGroup:'Königspythons',morph:'Pastel het Clown'},
- {prefix:'testGenetics'}
+const automaticallyDetected=GeneticsEngine.geneticsForAnimal(
+ {animalGroup:'Königspythons',morph:'Pastel het Clown'}
 );
-assert.ok(inferredEditor.includes('bisherigen Morphtext'));
-assert.ok(inferredEditor.includes('bp-pastel'));
-assert.ok(inferredEditor.includes('bp-clown'));
+assert.strictEqual(automaticallyDetected.provisional,false);
+assert.deepStrictEqual(
+ automaticallyDetected.entries.map(function(entry){return [entry.name,entry.state];}).sort(),
+ [['Clown','het'],['Pastel','visual']]
+);
+
+const automaticCryptic=GeneticsEngine.detect({
+ animalGroup:'Königspythons',
+ morph:'Pastel Ultramel het Cryptic'
+});
+assert.deepStrictEqual(
+ automaticCryptic.entries.map(function(entry){return [entry.name,entry.state,entry.confirmed];}).sort(),
+ [
+  ['Cryptic','het',true],
+  ['Pastel','visual',true],
+  ['Ultramel','visual',true]
+ ]
+);
+
+const crypton=GeneticsEngine.predict(
+ {animalGroup:'Königspythons',morph:'Clown'},
+ {animalGroup:'Königspythons',morph:'het Cryptic'}
+);
+assert.strictEqual(crypton.available,true);
+assert.strictEqual(probability(crypton,'Crypton (Clown + Cryptic)'),50);
+assert.strictEqual(probability(crypton,'het Clown'),50);
+
+const unknownAlongsideKnown=GeneticsEngine.predict(
+ {animalGroup:'Königspythons',morph:'Pastel NeuesGen'},
+ {animalGroup:'Königspythons',morph:'Pastel'}
+);
+assert.strictEqual(unknownAlongsideKnown.available,true);
+assert.ok(unknownAlongsideKnown.warnings.some(function(warning){return warning.toLowerCase().includes('nicht automatisch erkannt');}));
 
 const polygenicOnly=GeneticsEngine.predict(
  {animalGroup:'Leopardgeckos',genetics:[{traitId:'lg-tangerine',state:'visual',confirmed:true}]},
