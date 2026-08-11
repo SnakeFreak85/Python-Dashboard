@@ -444,6 +444,90 @@ html[data-tc-theme="light"] .tc2Menu{
  cursor:not-allowed;
 }
 
+/* Gemeinsamer Bestand */
+
+#accountHouseholdPanel,
+.tc2HouseholdInvites,
+.tc2HouseholdMembers,
+.tc2HouseholdCreate,
+.tc2HouseholdInviteForm{
+ display:grid;
+ gap:10px;
+}
+
+.tc2HouseholdCurrent,
+.tc2HouseholdInvite,
+.tc2HouseholdMember{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ padding:12px;
+ background:rgba(3,15,24,.68);
+ border:1px solid var(--tc-polish-line);
+ border-radius:13px;
+}
+
+.tc2HouseholdCurrent{
+ display:grid;
+}
+
+.tc2HouseholdCurrent.is-shared{
+ background:rgba(111,215,83,.09);
+ border-color:rgba(145,232,74,.34);
+}
+
+.tc2HouseholdCurrent span,
+.tc2HouseholdInvite span,
+.tc2HouseholdMember span{
+ display:block;
+ margin-top:3px;
+ color:var(--tc-polish-muted);
+ font-size:11px;
+ line-height:1.4;
+}
+
+.tc2HouseholdInvites h4,
+.tc2HouseholdMembers h4{
+ margin:5px 0 0;
+ color:var(--tc-polish-text);
+}
+
+.tc2HouseholdInvite button,
+.tc2HouseholdMember button{
+ flex:0 0 auto;
+ min-height:40px;
+ padding:8px 11px!important;
+}
+
+.tc2HouseholdCreate,
+.tc2HouseholdInviteForm{
+ padding:12px;
+ background:rgba(20,50,67,.46);
+ border:1px solid var(--tc-polish-line);
+ border-radius:13px;
+}
+
+.tc2HouseholdCreate label,
+.tc2HouseholdInviteForm label{
+ display:grid;
+ gap:6px;
+}
+
+.tc2HouseholdCreate label>span,
+.tc2HouseholdInviteForm label>span{
+ color:var(--tc-polish-muted);
+ font-size:11px;
+ font-weight:850;
+}
+
+.tc2HouseholdCreate p{
+ margin:0;
+ color:var(--tc-polish-muted);
+ font-size:11px;
+ line-height:1.45;
+}
+
 .tc21StartQuick>b{
  color:var(--tc-polish-text)!important;
  font-size:10px!important;
@@ -1761,6 +1845,21 @@ html[data-tc-theme="light"] .tc2BulkFeedFood{
  color:#173421;
  background:#edf8e9;
  border-color:#9bc88a;
+}
+
+html[data-tc-theme="light"] .tc2HouseholdCurrent,
+html[data-tc-theme="light"] .tc2HouseholdInvite,
+html[data-tc-theme="light"] .tc2HouseholdMember,
+html[data-tc-theme="light"] .tc2HouseholdCreate,
+html[data-tc-theme="light"] .tc2HouseholdInviteForm{
+ color:#12232d;
+ background:rgba(255,255,255,.88);
+ border-color:rgba(65,99,117,.24);
+}
+
+html[data-tc-theme="light"] .tc2HouseholdCurrent.is-shared{
+ background:rgba(120,205,72,.12);
+ border-color:rgba(69,145,33,.32);
 }
 
 @media(max-width:520px){

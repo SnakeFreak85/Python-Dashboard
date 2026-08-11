@@ -17,10 +17,128 @@ service cloud.firestore {
         && request.auth.uid == userId;
     }
 
+    function householdMember(householdId) {
+      return signedIn()
+        && exists(
+          /databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)
+        );
+    }
+
+    function householdOwner(householdId) {
+      return signedIn()
+        && get(
+          /databases/$(database)/documents/households/$(householdId)
+        ).data.ownerUid == request.auth.uid;
+    }
+
+    function householdOwnerAfter(householdId) {
+      return signedIn()
+        && getAfter(
+          /databases/$(database)/documents/households/$(householdId)
+        ).data.ownerUid == request.auth.uid;
+    }
+
+    function validInvitedMember(householdId, userId) {
+      let invitation = get(
+        /databases/$(database)/documents/householdInvites/$(request.resource.data.inviteId)
+      );
+
+      return signedIn()
+        && userId == request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role == 'member'
+        && invitation.data.status == 'pending'
+        && invitation.data.householdId == householdId
+        && invitation.data.email == request.auth.token.email;
+    }
+
     match /users/{userId}/{document=**} {
       allow read, write:
         if signedIn()
         && request.auth.uid == userId;
+    }
+
+    match /households/{householdId} {
+      allow read:
+        if householdMember(householdId);
+
+      allow create:
+        if signedIn()
+        && request.resource.data.id == householdId
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerEmail == request.auth.token.email;
+
+      allow update, delete:
+        if householdOwner(householdId);
+
+      match /members/{userId} {
+        allow read:
+          if householdMember(householdId);
+
+        allow create:
+          if (
+            householdOwnerAfter(householdId)
+            && userId == request.auth.uid
+            && request.resource.data.uid == request.auth.uid
+            && request.resource.data.role == 'owner'
+          )
+          || validInvitedMember(householdId, userId);
+
+        allow update:
+          if householdOwner(householdId);
+
+        allow delete:
+          if householdOwner(householdId)
+          || (
+            signedIn()
+            && userId == request.auth.uid
+            && resource.data.role == 'member'
+          );
+      }
+
+      match /terraControl/{documentId} {
+        allow read:
+          if householdMember(householdId);
+
+        allow create, update:
+          if householdMember(householdId)
+          || householdOwnerAfter(householdId);
+
+        allow delete:
+          if householdOwner(householdId);
+      }
+    }
+
+    match /householdInvites/{inviteId} {
+      allow get, list:
+        if signedIn()
+        && (
+          resource.data.email == request.auth.token.email
+          || householdOwner(resource.data.householdId)
+        );
+
+      allow create:
+        if signedIn()
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.status == 'pending'
+        && request.resource.data.invitedByUid == request.auth.uid
+        && request.resource.data.invitedByEmail == request.auth.token.email
+        && householdOwner(request.resource.data.householdId);
+
+      allow update:
+        if signedIn()
+        && resource.data.status == 'pending'
+        && resource.data.email == request.auth.token.email
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.householdId == resource.data.householdId
+        && request.resource.data.invitedByUid == resource.data.invitedByUid
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.acceptedUid == request.auth.uid;
+
+      allow delete:
+        if householdOwner(resource.data.householdId);
     }
 
     match /taxonomy/{taxonId} {

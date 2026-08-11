@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function householdMember(householdId) {
+      return signedIn()
+        && firestore.exists(
+          /databases/(default)/documents/households/$(householdId)/members/$(request.auth.uid)
+        );
+    }
+
+    function sharesPersonalOwner(userId) {
+      let profile = firestore.get(
+        /databases/(default)/documents/users/$(userId)/household/profile
+      );
+
+      return signedIn()
+        && profile.data.activeHouseholdId is string
+        && householdMember(profile.data.activeHouseholdId);
+    }
+
+    match /users/{userId}/{allPaths=**} {
+      allow read, write:
+        if signedIn()
+        && (
+          request.auth.uid == userId
+          || sharesPersonalOwner(userId)
+        );
+    }
+
+    match /households/{householdId}/{allPaths=**} {
+      allow read, write:
+        if householdMember(householdId);
+    }
+  }
+}

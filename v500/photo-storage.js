@@ -370,6 +370,23 @@ function basePath(animal,id,user){
     )||'animal'
   );
 
+  const scope=
+    window.NGTFirebaseSync&&
+    NGTFirebaseSync.householdState
+      ?NGTFirebaseSync.householdState()
+      :null;
+
+  if(scope&&scope.type==='household'&&scope.id){
+    return [
+      'households',
+      safe(scope.id),
+      'animals',
+      animalKey,
+      'photos',
+      safe(id)
+    ].join('/');
+  }
+
   return [
     'users',
     safe(user.uid),

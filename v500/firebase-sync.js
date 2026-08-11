@@ -22,6 +22,10 @@ const PROFILE_KEY=TEST_MODE
  ?"terracontrol_test_user_profile"
  :"tc_user_profile";
 
+const SCOPE_KEY=TEST_MODE
+ ?"terracontrol_test_cloud_scope_v1"
+ :"terracontrol_cloud_scope_v1";
+
 let app=null;
 let auth=null;
 let db=null;
@@ -36,6 +40,11 @@ let timer=null;
 let autoSaveReady=false;
 let changeRevision=0;
 let saveRequested=false;
+let cloudRevision=0;
+let activeScope=null;
+let remoteUnsubscribe=null;
+let activationPromise=null;
+let activatedUid='';
 
 function read(key){
  try{
@@ -201,6 +210,16 @@ function currentUser(){
  return user;
 }
 
+function householdState(){
+ return activeScope
+  ?Object.assign({},activeScope)
+  :NGTHouseholdEngine.personalScope(user);
+}
+
+function householdOwner(){
+ return NGTHouseholdEngine.isOwner(activeScope,user);
+}
+
 function isSignedIn(){
  return !!user;
 }
@@ -245,14 +264,79 @@ function saveProfile(firebaseUser){
  );
 }
 
-function docRef(){
- return mods.fsMod.doc(
-  db,
-  "users",
-  user.uid,
-  "terraControl",
-  "main"
- );
+function docRef(scope){
+ const target=scope||activeScope||NGTHouseholdEngine.personalScope(user);
+
+ if(target.type==='household'){
+  return mods.fsMod.doc(
+   db,
+   'households',
+   target.id,
+   'terraControl',
+   'main'
+  );
+ }
+
+ return mods.fsMod.doc(db,'users',user.uid,'terraControl','main');
+}
+
+function householdRef(id){
+ return mods.fsMod.doc(db,'households',id);
+}
+
+function memberRef(householdId,userId){
+ return mods.fsMod.doc(db,'households',householdId,'members',userId);
+}
+
+function userHouseholdRef(userId){
+ return mods.fsMod.doc(db,'users',userId,'household','profile');
+}
+
+function inviteRef(id){
+ return mods.fsMod.doc(db,'householdInvites',id);
+}
+
+function emitHousehold(){
+ emit('firebase:household',{
+  scope:householdState(),
+  owner:householdOwner()
+ });
+}
+
+async function resolveActiveScope(){
+ const personal=NGTHouseholdEngine.personalScope(user);
+ const previousKey=NGTHouseholdEngine.scopeKey(activeScope||personal);
+ let next=personal;
+
+ try{
+  const profileSnapshot=await mods.fsMod.getDoc(userHouseholdRef(user.uid));
+  const profile=profileSnapshot.exists()?profileSnapshot.data()||{}:{};
+  const householdId=String(profile.activeHouseholdId||'').trim();
+
+  if(householdId){
+   const snapshots=await Promise.all([
+    mods.fsMod.getDoc(householdRef(householdId)),
+    mods.fsMod.getDoc(memberRef(householdId,user.uid))
+   ]);
+
+   if(snapshots[0].exists()&&snapshots[1].exists()){
+    next=NGTHouseholdEngine.householdScope(
+     Object.assign({id:householdId},snapshots[0].data()||{}),
+     snapshots[1].data()||{}
+    );
+   }
+  }
+ }catch(error){
+  console.warn('Gemeinsamer Bestand konnte nicht aufgelöst werden.',error);
+ }
+
+ activeScope=next;
+ const nextKey=NGTHouseholdEngine.scopeKey(next);
+ const storedKey=localStorage.getItem(SCOPE_KEY)||'';
+ localStorage.setItem(SCOPE_KEY,nextKey);
+ emitHousehold();
+
+ return previousKey!==nextKey||storedKey!==nextKey;
 }
 
 function localUpdatedAt(){
@@ -325,10 +409,19 @@ async function loadCloud(options){
    exists
     ?snapshot.data()||{}
     :{};
+  cloudRevision=Number(cloud.revision||0);
   const decision=syncDecision(
    cloud,
    exists,
-   options
+   Object.assign(
+    {},
+    options,
+    {
+     force:
+      options.force===true||
+      options.forceScope===true
+    }
+   )
   );
 
   if(decision.loadCloud){
@@ -451,25 +544,41 @@ async function saveCloud(){
    return false;
   }
 
-  await mods.fsMod.setDoc(
-   docRef(),
-   {
-    data:
-     storeSnapshot,
+  const expectedRevision=cloudRevision;
+  let savedRevision=expectedRevision+1;
 
-    updatedAt:
-     mods.fsMod.serverTimestamp(),
+  await mods.fsMod.runTransaction(
+   db,
+   async function(transaction){
+    const reference=docRef();
+    const currentSnapshot=await transaction.get(reference);
+    const current=currentSnapshot.exists()?currentSnapshot.data()||{}:{};
+    const currentRevision=Number(current.revision||0);
 
-    updatedAtMs:
-     updatedAtMs,
+    if(currentRevision!==expectedRevision){
+     const conflict=new Error('Der gemeinsame Bestand wurde zwischenzeitlich auf einem anderen Gerät geändert.');
+     conflict.code='terracontrol/cloud-conflict';
+     throw conflict;
+    }
 
-    version:
-     NGTStore.APP_VERSION
-   },
-   {
-    merge:true
+    savedRevision=currentRevision+1;
+    transaction.set(
+     reference,
+     {
+      data:storeSnapshot,
+      updatedAt:mods.fsMod.serverTimestamp(),
+      updatedAtMs:updatedAtMs,
+      version:NGTStore.APP_VERSION,
+      revision:savedRevision,
+      updatedByUid:user.uid,
+      updatedByEmail:user.email||''
+     },
+     {merge:true}
+    );
    }
   );
+
+  cloudRevision=savedRevision;
 
   setStatus(
    budget.warning
@@ -483,9 +592,13 @@ async function saveCloud(){
   return true;
 
  }catch(error){
+  const conflict=String(error&&error.code||'')==='terracontrol/cloud-conflict';
+
   setStatus(
-   "error",
-   "Firestore Speichern fehlgeschlagen"
+   conflict?'conflict':'error',
+   conflict
+    ?'Der gemeinsame Bestand wurde auf einem anderen Gerät geändert. Bitte zuerst Cloud laden.'
+    :'Firestore Speichern fehlgeschlagen'
   );
 
   console.error(error);
@@ -567,6 +680,334 @@ async function syncTaxonomy(){
  return null;
 }
 
+function stopRemoteListener(){
+ if(typeof remoteUnsubscribe==='function'){
+  remoteUnsubscribe();
+ }
+
+ remoteUnsubscribe=null;
+}
+
+function startRemoteListener(){
+ stopRemoteListener();
+
+ if(!user||!activeScope||TEST_MODE)return;
+
+ remoteUnsubscribe=mods.fsMod.onSnapshot(
+  docRef(),
+  function(snapshot){
+   if(!snapshot.exists()||snapshot.metadata.hasPendingWrites)return;
+
+   const cloud=snapshot.data()||{};
+   const incomingRevision=Number(cloud.revision||0);
+
+   if(incomingRevision<=cloudRevision)return;
+
+   const currentStatus=state().status;
+   if(
+    saving||
+    currentStatus==='pending'||
+    currentStatus==='conflict'
+   ){
+    setStatus(
+     'conflict',
+     'Der gemeinsame Bestand wurde auf einem anderen Gerät geändert. Bitte Cloud laden.'
+    );
+    return;
+   }
+
+   if(!cloud.data)return;
+
+   loading=true;
+   autoSaveReady=false;
+
+   try{
+    NGTStore.importJson(JSON.stringify(cloud.data));
+    cloudRevision=incomingRevision;
+    setStatus('ok','Gemeinsamer Bestand aktualisiert');
+   }catch(error){
+    console.error('Echtzeit-Aktualisierung fehlgeschlagen.',error);
+    setStatus('error','Gemeinsamer Bestand konnte nicht aktualisiert werden');
+   }finally{
+    loading=false;
+    autoSaveReady=true;
+   }
+  },
+  async function(error){
+   console.error('Echtzeit-Synchronisierung fehlgeschlagen.',error);
+
+   if(
+    String(error&&error.code||'').includes('permission-denied')&&
+    activeScope&&
+    activeScope.type==='household'
+   ){
+    const changed=await resolveActiveScope();
+    if(changed){
+     cloudRevision=0;
+     await loadCloud({force:true,forceScope:true});
+     startRemoteListener();
+     if(window.NGT500){
+      NGT500.toast('Dein Zugriff auf den gemeinsamen Bestand wurde beendet.','warn');
+      NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+     }
+     return;
+    }
+   }
+
+   setStatus('error','Echtzeit-Synchronisierung unterbrochen');
+  }
+ );
+}
+
+async function activateUser(firebaseUser){
+ if(
+  activatedUid===firebaseUser.uid&&
+  user&&
+  activeScope&&
+  autoSaveReady
+ )return;
+
+ if(activationPromise)return activationPromise;
+
+ activationPromise=(async function(){
+  user=firebaseUser;
+  saveProfile(user);
+
+  emit('firebase:auth',{
+   signedIn:true,
+   user:{
+    uid:user.uid||'',
+    email:user.email||'',
+    displayName:user.displayName||''
+   }
+  });
+
+  const scopeChanged=await resolveActiveScope();
+  await loadCloud({automatic:true,forceScope:scopeChanged});
+  startRemoteListener();
+  await syncTaxonomy();
+  activatedUid=user.uid;
+ })();
+
+ try{
+  await activationPromise;
+ }finally{
+  activationPromise=null;
+ }
+}
+
+async function createHousehold(name){
+ await init();
+ if(!user)throw new Error('Bitte zuerst mit Google anmelden.');
+ if(activeScope&&activeScope.type==='household'){
+  throw new Error('Du verwendest bereits einen gemeinsamen Bestand.');
+ }
+ if(saving||loading){
+  throw new Error('Die Cloud-Synchronisierung läuft noch. Bitte in einem Moment erneut versuchen.');
+ }
+
+ const personalBackupSaved=await saveCloud();
+ if(!personalBackupSaved){
+  throw new Error('Der persönliche Bestand konnte vor dem Erstellen nicht gesichert werden.');
+ }
+
+ clearTimeout(timer);
+ timer=null;
+ saveRequested=false;
+
+ const householdDocument=mods.fsMod.doc(mods.fsMod.collection(db,'households'));
+ const householdId=householdDocument.id;
+ const householdName=NGTHouseholdEngine.normalizeName(name,'Gemeinsamer Bestand');
+ const now=Date.now();
+ const member=NGTHouseholdEngine.memberRecord(user,'owner','');
+ const batch=mods.fsMod.writeBatch(db);
+
+ batch.set(householdDocument,{
+  id:householdId,
+  name:householdName,
+  ownerUid:user.uid,
+  ownerEmail:NGTHouseholdEngine.normalizeEmail(user.email),
+  createdAt:mods.fsMod.serverTimestamp(),
+  createdAtMs:now
+ });
+ batch.set(memberRef(householdId,user.uid),member);
+ batch.set(userHouseholdRef(user.uid),{
+  activeHouseholdId:householdId,
+  updatedAt:mods.fsMod.serverTimestamp(),
+  updatedAtMs:now
+ });
+ batch.set(docRef({type:'household',id:householdId}),{
+  data:NGTStore.snapshot(),
+  updatedAt:mods.fsMod.serverTimestamp(),
+  updatedAtMs:now,
+  version:NGTStore.APP_VERSION,
+  revision:1,
+  updatedByUid:user.uid,
+  updatedByEmail:user.email||''
+ });
+
+ await batch.commit();
+
+ activeScope=NGTHouseholdEngine.householdScope(
+  {id:householdId,name:householdName,ownerUid:user.uid},
+  member
+ );
+ cloudRevision=1;
+ localStorage.setItem(SCOPE_KEY,NGTHouseholdEngine.scopeKey(activeScope));
+ emitHousehold();
+ startRemoteListener();
+ setStatus('ok','Gemeinsamer Bestand erstellt');
+
+ return householdState();
+}
+
+async function inviteMember(email){
+ await init();
+ if(!user||!householdOwner()){
+  throw new Error('Nur der Eigentümer kann Mitglieder einladen.');
+ }
+
+ const normalized=NGTHouseholdEngine.normalizeEmail(email);
+ if(!normalized||!normalized.includes('@')){
+  throw new Error('Bitte eine gültige E-Mail-Adresse eingeben.');
+ }
+ if(normalized===NGTHouseholdEngine.normalizeEmail(user.email)){
+  throw new Error('Du bist bereits Eigentümer dieses Bestands.');
+ }
+
+ const reference=mods.fsMod.doc(mods.fsMod.collection(db,'householdInvites'));
+ const invitation=NGTHouseholdEngine.invitationRecord(
+  {email:normalized},
+  user,
+  activeScope
+ );
+
+ await mods.fsMod.setDoc(reference,Object.assign({},invitation,{
+  createdAt:mods.fsMod.serverTimestamp()
+ }));
+
+ return Object.assign({id:reference.id},invitation);
+}
+
+async function pendingInvitations(){
+ await init();
+ if(!user||!user.email)return [];
+
+ const query=mods.fsMod.query(
+  mods.fsMod.collection(db,'householdInvites'),
+  mods.fsMod.where('email','==',NGTHouseholdEngine.normalizeEmail(user.email))
+ );
+ const snapshot=await mods.fsMod.getDocs(query);
+
+ return snapshot.docs.map(function(row){
+  return Object.assign({id:row.id},row.data()||{});
+ }).filter(function(row){
+  return row.status==='pending';
+ });
+}
+
+async function acceptInvitation(id){
+ await init();
+ if(!user)throw new Error('Bitte zuerst mit Google anmelden.');
+
+ const reference=inviteRef(id);
+ const snapshot=await mods.fsMod.getDoc(reference);
+ if(!snapshot.exists())throw new Error('Diese Einladung ist nicht mehr verfügbar.');
+
+ const invitation=snapshot.data()||{};
+ const email=NGTHouseholdEngine.normalizeEmail(user.email);
+ if(invitation.status!=='pending'||invitation.email!==email){
+  throw new Error('Diese Einladung gehört nicht zum angemeldeten Konto.');
+ }
+ if(
+  activeScope&&
+  activeScope.type==='household'&&
+  activeScope.id!==invitation.householdId
+ ){
+  throw new Error('Bitte den aktuellen gemeinsamen Bestand zuerst verlassen.');
+ }
+
+ if(!activeScope||activeScope.type==='personal'){
+  const personalBackupSaved=await saveCloud();
+  if(!personalBackupSaved){
+   throw new Error('Der persönliche Bestand konnte vor dem Wechsel nicht gesichert werden.');
+  }
+ }
+
+ const member=NGTHouseholdEngine.memberRecord(user,'member',id);
+ const batch=mods.fsMod.writeBatch(db);
+
+ batch.set(memberRef(invitation.householdId,user.uid),member);
+ batch.set(userHouseholdRef(user.uid),{
+  activeHouseholdId:invitation.householdId,
+  updatedAt:mods.fsMod.serverTimestamp(),
+  updatedAtMs:Date.now()
+ });
+ batch.update(reference,{
+  status:'accepted',
+  acceptedUid:user.uid,
+  acceptedAt:mods.fsMod.serverTimestamp(),
+  acceptedAtMs:Date.now()
+ });
+
+ await batch.commit();
+ stopRemoteListener();
+ await resolveActiveScope();
+ await loadCloud({force:true,forceScope:true});
+ startRemoteListener();
+
+ return householdState();
+}
+
+async function householdMembers(){
+ await init();
+ if(!user||!activeScope||activeScope.type!=='household')return [];
+
+ const snapshot=await mods.fsMod.getDocs(
+  mods.fsMod.collection(db,'households',activeScope.id,'members')
+ );
+
+ return snapshot.docs.map(function(row){
+  return Object.assign({id:row.id},row.data()||{});
+ }).sort(function(a,b){
+  if(a.role==='owner')return -1;
+  if(b.role==='owner')return 1;
+  return String(a.displayName||a.email||'').localeCompare(String(b.displayName||b.email||''),'de');
+ });
+}
+
+async function removeHouseholdMember(userId){
+ await init();
+ if(!householdOwner())throw new Error('Nur der Eigentümer kann Mitglieder entfernen.');
+ if(userId===user.uid)throw new Error('Der Eigentümer kann sich nicht selbst entfernen.');
+
+ await mods.fsMod.deleteDoc(memberRef(activeScope.id,userId));
+ return true;
+}
+
+async function leaveHousehold(){
+ await init();
+ if(!user||!activeScope||activeScope.type!=='household')return false;
+ if(householdOwner()){
+  throw new Error('Der Eigentümer kann den gemeinsamen Bestand nicht verlassen.');
+ }
+
+ const batch=mods.fsMod.writeBatch(db);
+ batch.delete(memberRef(activeScope.id,user.uid));
+ batch.delete(userHouseholdRef(user.uid));
+ await batch.commit();
+
+ stopRemoteListener();
+ activeScope=NGTHouseholdEngine.personalScope(user);
+ cloudRevision=0;
+ localStorage.setItem(SCOPE_KEY,NGTHouseholdEngine.scopeKey(activeScope));
+ emitHousehold();
+ await loadCloud({force:true,forceScope:true});
+ startRemoteListener();
+
+ return true;
+}
+
 async function signIn(){
  await init();
 
@@ -587,28 +1028,7 @@ async function signIn(){
     provider
    );
 
- user=result.user;
-
- saveProfile(user);
-
- emit(
-  'firebase:auth',
-  {
-   signedIn:true,
-
-   user:{
-    uid:user.uid||'',
-    email:user.email||'',
-    displayName:
-     user.displayName||''
-   }
-  }
- );
-
- await loadCloud({
-  automatic:true
- });
- await syncTaxonomy();
+ await activateUser(result.user);
 
  if(window.NGT500){
   NGT500.route(
@@ -621,12 +1041,16 @@ async function signOut(){
  await init();
 
  autoSaveReady=false;
+ stopRemoteListener();
 
  await mods.authMod.signOut(
   auth
  );
 
  user=null;
+ activeScope=null;
+ cloudRevision=0;
+ activatedUid='';
 
  emit(
   'firebase:auth',
@@ -668,38 +1092,19 @@ async function start(){
  mods.authMod.onAuthStateChanged(
   auth,
   async function(firebaseUser){
-   user=
-    firebaseUser||
-    null;
-
-   if(user){
-    saveProfile(user);
-
+   if(firebaseUser){
     setStatus(
      "signed-in",
      "Firebase verbunden"
     );
-
-    emit(
-     'firebase:auth',
-     {
-      signedIn:true,
-
-      user:{
-       uid:user.uid||'',
-       email:user.email||'',
-       displayName:
-        user.displayName||''
-      }
-     }
-    );
-
-    await loadCloud({
-     automatic:true
-    });
-    await syncTaxonomy();
+    await activateUser(firebaseUser);
 
    }else{
+    stopRemoteListener();
+    user=null;
+    activeScope=null;
+    cloudRevision=0;
+    activatedUid='';
     autoSaveReady=false;
 
     emit(
@@ -797,6 +1202,16 @@ window.NGTFirebaseSync={
  getContext:getContext,
  currentUser:currentUser,
  isSignedIn:isSignedIn,
+
+ householdState:householdState,
+ householdOwner:householdOwner,
+ createHousehold:createHousehold,
+ inviteMember:inviteMember,
+ pendingInvitations:pendingInvitations,
+ acceptInvitation:acceptInvitation,
+ householdMembers:householdMembers,
+ removeHouseholdMember:removeHouseholdMember,
+ leaveHousehold:leaveHousehold,
 
  syncTaxonomy:syncTaxonomy,
 

@@ -9,6 +9,15 @@ function profile(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}ca
 function first(v){return String(v||'').split(' ')[0]||''}
 function animalCount(){try{return NGTStore.allAnimals?NGTStore.allAnimals().length:0}catch(e){return 0}}
 function syncText(){try{return window.NGTFirebaseSync?NGTFirebaseSync.label():'Firestore lädt...'}catch(e){return 'Nicht geprüft'}}
+function household(){
+ try{
+  return window.NGTFirebaseSync&&NGTFirebaseSync.householdState
+   ?NGTFirebaseSync.householdState()
+   :{type:'personal',name:'Persönlicher Bestand',role:'owner'};
+ }catch(e){
+  return {type:'personal',name:'Persönlicher Bestand',role:'owner'};
+ }
+}
 
 function initials(p){
   const n=p.name||p.displayName||p.email||'TC';
@@ -53,6 +62,15 @@ function render(){
             </div>
           `
         }
+      </section>
+
+      <section class="tc2AccountCard tc2HouseholdCard">
+        <div class="tc2AccountHead">
+          <h3>👥 Gemeinsamer Bestand</h3>
+        </div>
+        <div id="accountHouseholdPanel">
+          <p>Haushalt und Einladungen werden geladen …</p>
+        </div>
       </section>
 
       <section class="tc2AccountCard">
@@ -103,6 +121,150 @@ function render(){
 function updateCloudStatus(){
  const element=document.getElementById('accountCloudStatus');
  if(element)element.textContent=syncText();
+}
+
+function invitationMarkup(rows){
+ if(!rows.length)return '';
+
+ return `<div class="tc2HouseholdInvites">
+  <h4>Offene Einladungen</h4>
+  ${rows.map(function(row){
+   return `<div class="tc2HouseholdInvite">
+    <div><b>${esc(row.householdName||'Gemeinsamer Bestand')}</b><span>Einladung von ${esc(row.invitedByName||row.invitedByEmail||'einem Mitglied')}</span></div>
+    <button type="button" onclick="NGTAccount.acceptHouseholdInvite('${esc(row.id)}')">Annehmen</button>
+   </div>`;
+  }).join('')}
+ </div>`;
+}
+
+function memberMarkup(rows,scope,owner){
+ return `<div class="tc2HouseholdMembers">
+  <h4>Mitglieder</h4>
+  ${rows.map(function(row){
+   const removable=owner&&row.uid!==scope.ownerUid;
+   return `<div class="tc2HouseholdMember">
+    <div><b>${esc(row.displayName||row.email||'Mitglied')}</b><span>${esc(row.email||'')}${row.role==='owner'?' · Eigentümer':' · Mitglied'}</span></div>
+    ${removable?`<button type="button" class="danger" onclick="NGTAccount.removeHouseholdMember('${esc(row.uid)}')">Entfernen</button>`:''}
+   </div>`;
+  }).join('')}
+ </div>`;
+}
+
+async function renderHouseholdPanel(){
+ const panel=document.getElementById('accountHouseholdPanel');
+ if(!panel)return;
+
+ if(!window.NGTFirebaseSync||!NGTFirebaseSync.currentUser()){
+  panel.innerHTML='<p>Melde dich zuerst mit deinem Google-Konto an, um einen gemeinsamen Bestand zu erstellen oder eine Einladung anzunehmen.</p>';
+  return;
+ }
+
+ panel.innerHTML='<p>Haushalt und Einladungen werden geladen …</p>';
+
+ try{
+  const scope=household();
+  const invitations=await NGTFirebaseSync.pendingInvitations();
+
+  if(scope.type!=='household'){
+   panel.innerHTML=`
+    <div class="tc2HouseholdCurrent"><b>Persönlicher Bestand</b><span>Deine Cloud-Daten gehören derzeit nur zu deinem Konto.</span></div>
+    ${invitationMarkup(invitations)}
+    <div class="tc2HouseholdCreate">
+     <label><span>Name des gemeinsamen Bestands</span><input id="householdName" maxlength="80" placeholder="z. B. Familie Döring"></label>
+     <p>Beim Erstellen wird dein aktueller Bestand sicher in den neuen Haushalt kopiert. Dein bisheriger persönlicher Cloud-Stand wird nicht gelöscht.</p>
+     <button type="button" onclick="NGTAccount.createHousehold()">Gemeinsamen Bestand erstellen</button>
+    </div>`;
+   return;
+  }
+
+  const owner=NGTFirebaseSync.householdOwner();
+  const members=await NGTFirebaseSync.householdMembers();
+
+  panel.innerHTML=`
+   <div class="tc2HouseholdCurrent is-shared"><b>${esc(scope.name)}</b><span>${owner?'Du bist Eigentümer.':'Du bist Mitglied.'} Änderungen werden mit allen Mitgliedern synchronisiert.</span></div>
+   ${invitationMarkup(invitations)}
+   ${memberMarkup(members,scope,owner)}
+   ${owner?`<div class="tc2HouseholdInviteForm"><label><span>Mitglied per Google-E-Mail einladen</span><input id="householdInviteEmail" type="email" autocomplete="email" placeholder="name@gmail.com"></label><button type="button" onclick="NGTAccount.inviteHouseholdMember()">Einladung senden</button></div>`:`<button type="button" class="tc2AccountDanger" onclick="NGTAccount.leaveHousehold()">Gemeinsamen Bestand verlassen</button>`}`;
+ }catch(error){
+  panel.innerHTML='<p class="danger">Gemeinsamer Bestand konnte nicht geladen werden: '+esc(error.message||error)+'</p>';
+ }
+}
+
+async function createHousehold(){
+ const field=document.getElementById('householdName');
+ const name=String(field&&field.value||'').trim();
+ if(!name){NGT500.toast('Bitte einen Namen für den gemeinsamen Bestand eingeben.','warn');return;}
+
+ if(!await NGT500.confirmAction(
+  'Deinen aktuellen Bestand in „'+name+'“ kopieren und ab jetzt gemeinsam synchronisieren?',
+  {title:'Gemeinsamen Bestand erstellen',confirmText:'Erstellen'}
+ ))return;
+
+ try{
+  await NGTFirebaseSync.createHousehold(name);
+  NGT500.toast('Gemeinsamer Bestand wurde erstellt.','success');
+  await renderHouseholdPanel();
+ }catch(error){
+  NGT500.toast(error.message||String(error),'danger');
+ }
+}
+
+async function inviteHouseholdMember(){
+ const field=document.getElementById('householdInviteEmail');
+ const email=String(field&&field.value||'').trim();
+
+ try{
+  await NGTFirebaseSync.inviteMember(email);
+  if(field)field.value='';
+  NGT500.toast('Einladung wurde für '+email+' hinterlegt.','success');
+ }catch(error){
+  NGT500.toast(error.message||String(error),'danger');
+ }
+}
+
+async function acceptHouseholdInvite(id){
+ if(!await NGT500.confirmAction(
+  'Einladung annehmen? Die App wechselt anschließend zum gemeinsamen Bestand. Dein persönlicher Cloud-Stand bleibt als Sicherung erhalten.',
+  {title:'Gemeinsamen Bestand öffnen',confirmText:'Einladung annehmen'}
+ ))return;
+
+ try{
+  await NGTFirebaseSync.acceptInvitation(id);
+  NGT500.toast('Gemeinsamer Bestand wurde geöffnet.','success');
+  NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+ }catch(error){
+  NGT500.toast(error.message||String(error),'danger');
+ }
+}
+
+async function removeHouseholdMember(userId){
+ if(!await NGT500.confirmAction(
+  'Dieses Mitglied aus dem gemeinsamen Bestand entfernen?',
+  {title:'Mitglied entfernen',confirmText:'Entfernen',danger:true}
+ ))return;
+
+ try{
+  await NGTFirebaseSync.removeHouseholdMember(userId);
+  NGT500.toast('Mitglied wurde entfernt.','success');
+  await renderHouseholdPanel();
+ }catch(error){
+  NGT500.toast(error.message||String(error),'danger');
+ }
+}
+
+async function leaveHousehold(){
+ if(!await NGT500.confirmAction(
+  'Gemeinsamen Bestand verlassen? Danach wird wieder dein persönlicher Cloud-Bestand geladen.',
+  {title:'Gemeinsamen Bestand verlassen',confirmText:'Verlassen',danger:true}
+ ))return;
+
+ try{
+  await NGTFirebaseSync.leaveHousehold();
+  NGT500.toast('Du hast den gemeinsamen Bestand verlassen.','success');
+  NGT500.route('dashboard',{}, {replace:true,noHistory:true});
+ }catch(error){
+  NGT500.toast(error.message||String(error),'danger');
+ }
 }
 
 async function googleSignIn(){
@@ -203,9 +365,29 @@ async function clear(){
 
 function afterRender(){
  updateCloudStatus();
+ renderHouseholdPanel();
 }
 
-window.NGTAccount={googleSignIn,firestoreSave,firestoreLoad,localBackup,localRestorePick,localRestore,clear};
+window.NGTAccount={
+ googleSignIn,
+ firestoreSave,
+ firestoreLoad,
+ localBackup,
+ localRestorePick,
+ localRestore,
+ clear,
+ createHousehold,
+ inviteHouseholdMember,
+ acceptHouseholdInvite,
+ removeHouseholdMember,
+ leaveHousehold
+};
 NGT500.register('account',{render,afterRender});
+
+if(NGT500.on){
+ NGT500.on('firebase:household',function(){
+  renderHouseholdPanel();
+ });
+}
 
 })();

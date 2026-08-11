@@ -38,7 +38,7 @@
 <link rel="stylesheet" href="./v500/tc2.css?v=1.0.4-rc.11&r=light-contrast-3-animal-archive-2">
 <link rel="stylesheet" href="./v500/taxonomy-ui-color.css?v=1.0.4-rc.11&r=profile-recommendation-1">
 <link rel="stylesheet" href="./v500/theme.css?v=1.0.4-rc.11&r=light-contrast-3-animal-archive-2">
-<link rel="stylesheet" href="./v500/tc2-polish.css?v=1.0.4-rc.11&r=tc2-polish-2-breeding-4-genetics-5-bulk-actions-1">
+<link rel="stylesheet" href="./v500/tc2-polish.css?v=1.0.4-rc.11&r=tc2-polish-2-breeding-4-genetics-5-bulk-actions-1-household-1">
 
 <script src="./v500/vendor/qrcode.min.js?v=1.0.4-rc.11"></script>
 </head>
@@ -72,7 +72,7 @@ if('serviceWorker' in navigator){
   function(){
    navigator.serviceWorker
     .register(
-     './service-worker.js?v=1.0.4-rc.11&r=breeding-4-genetics-5-bulk-actions-1'
+     './service-worker.js?v=1.0.4-rc.11&r=breeding-4-genetics-5-bulk-actions-1-household-1'
     )
     .catch(
      function(error){
@@ -120,7 +120,7 @@ if('serviceWorker' in navigator){
 
 <script src="./v500/dashboard-data.js?v=1.0.4-rc.11&r=breeding-4-genetics-5"></script>
 <script src="./v500/smart-dashboard.js?v=1.0.4-rc.11&r=breeding-4-genetics-5"></script>
-<script src="./v500/photo-storage.js?v=1.0.4-rc.11"></script>
+<script src="./v500/photo-storage.js?v=1.0.4-rc.11&r=household-1"></script>
 
 <script src="./v500/modules/dashboard.js?v=1.0.4-rc.11&r=bulk-actions-1"></script>
 <script src="./v500/hkn-import.js?v=1.0.4-rc.11"></script>
@@ -150,13 +150,14 @@ if('serviceWorker' in navigator){
 <script src="./v500/modules/assistant-v2.js?v=1.0.4-rc.11"></script>
 <script src="./v500/modules/chat.js?v=1.0.4-rc.11"></script>
 
-<script src="./v500/firebase-sync.js?v=1.0.4-rc.11"></script>
+<script src="./v500/household-engine.js?v=1.0.4-rc.11&r=household-1"></script>
+<script src="./v500/firebase-sync.js?v=1.0.4-rc.11&r=household-1"></script>
 <script src="./v500/support-service.js?v=1.0.4-rc.11"></script>
 <script src="./v500/announcement-service.js?v=1.0.4-rc.11"></script>
 <script src="./v500/modules/support.js?v=1.0.4-rc.11"></script>
 <script src="./v500/modules/announcements.js?v=1.0.4-rc.11"></script>
 
-<script src="./v500/app.js?v=1.0.4-rc.11"></script>
+<script src="./v500/app.js?v=1.0.4-rc.11&r=household-1"></script>
 
 </body>
 </html>

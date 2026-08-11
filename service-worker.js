@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -32,6 +32,9 @@ const ANIMAL_BULK_ACTIONS_QUERY=
 const OFFSPRING_BREEDING_QUERY=
  VERSION_QUERY+
  '&r=animal-archive-2-breeding-4-genetics-5-bulk-actions-1';
+const HOUSEHOLD_QUERY=
+ VERSION_QUERY+
+ '&r=household-1';
 
 const APP_SHELL=[
  './',
@@ -46,7 +49,7 @@ const APP_SHELL=[
  './v500/tc2.css'+LIGHT_THEME_QUERY,
  './v500/taxonomy-ui-color.css'+PROFILE_RECOMMENDATION_QUERY,
  './v500/theme.css'+LIGHT_THEME_QUERY,
- './v500/tc2-polish.css'+TC2_POLISH_QUERY,
+ './v500/tc2-polish.css'+TC2_POLISH_QUERY+'-household-1',
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
 
@@ -88,7 +91,7 @@ const APP_SHELL=[
 
  './v500/dashboard-data.js'+BREEDING_QUERY,
  './v500/smart-dashboard.js'+BREEDING_QUERY,
- './v500/photo-storage.js'+VERSION_QUERY,
+ './v500/photo-storage.js'+HOUSEHOLD_QUERY,
 
  './v500/modules/dashboard.js'+BULK_ACTIONS_QUERY,
  './v500/hkn-import.js'+VERSION_QUERY,
@@ -118,12 +121,14 @@ const APP_SHELL=[
  './v500/modules/assistant-v2.js'+VERSION_QUERY,
  './v500/modules/chat.js'+VERSION_QUERY,
 
- './v500/firebase-sync.js'+VERSION_QUERY,
+ './v500/household-engine.js'+HOUSEHOLD_QUERY,
+ './v500/firebase-sync.js'+HOUSEHOLD_QUERY,
+ './v500/modules/account.js'+HOUSEHOLD_QUERY,
  './v500/support-service.js'+VERSION_QUERY,
  './v500/announcement-service.js'+VERSION_QUERY,
  './v500/modules/support.js'+VERSION_QUERY,
  './v500/modules/announcements.js'+VERSION_QUERY,
- './v500/app.js'+VERSION_QUERY
+ './v500/app.js'+HOUSEHOLD_QUERY
 ];
 
 self.addEventListener(

@@ -2,6 +2,7 @@
 'use strict';
 
 const V='1.0.4-rc.11';
+const MODULE_REVISION='household-1';
 
 function loadScriptOnce(moduleName,path,routeName,args,options){
  if(NGT500.modules[moduleName]){
@@ -14,7 +15,7 @@ function loadScriptOnce(moduleName,path,routeName,args,options){
   return;
  }
  const s=document.createElement('script');
- s.src=path+'?v='+V;
+ s.src=path+'?v='+V+'&r='+MODULE_REVISION;
  s.dataset.tcModule=moduleName;
  s.onload=function(){NGT500.route(routeName,args||{},options||{});};
  s.onerror=function(){
