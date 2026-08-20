@@ -264,6 +264,21 @@ Die QR-Erzeugung verwendet die lokal versionierte Bibliothek
 CDN-Abhängigkeit einführen. Lizenz und Herkunft der Bibliothek liegen im
 gleichen Vendor-Verzeichnis.
 
+### 5.6 Internationalisierung
+
+`v500/i18n.js` verwaltet die benutzerbezogene Oberflächensprache. Die Auswahl
+wird ausschließlich lokal unter `terracontrol_language_v1` gespeichert und
+gehört nicht zum Tierbestand oder zu einem gemeinsamen Haushalt. Sprachpakete
+liegen unter `v500/locales/`; Deutsch ist die Ausgangssprache, Englisch der
+verbindliche Rückfall für nicht unterstützte Gerätesprachen.
+
+Beim ersten Start wird die Gerätesprache vorausgewählt und über einen einmaligen
+TC2-Dialog bestätigt. Danach kann die Sprache jederzeit im Systembereich
+geändert werden. Benutzereingaben und fachliche Tierdaten werden nicht
+automatisch übersetzt. Neue feste UI-Texte müssen in den Locale-Katalog
+aufgenommen werden; weitere Sprachen dürfen ohne parallele UI-Implementierung
+als zusätzliche Locale-Dateien ergänzt werden.
+
 ---
 
 ## 6. Start- und Lade-Reihenfolge

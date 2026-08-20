@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -35,6 +35,9 @@ const OFFSPRING_BREEDING_QUERY=
 const HOUSEHOLD_QUERY=
  VERSION_QUERY+
  '&r=household-1';
+const I18N_QUERY=
+ VERSION_QUERY+
+ '&r=i18n-1';
 
 const APP_SHELL=[
  './',
@@ -50,8 +53,12 @@ const APP_SHELL=[
  './v500/taxonomy-ui-color.css'+PROFILE_RECOMMENDATION_QUERY,
  './v500/theme.css'+LIGHT_THEME_QUERY,
  './v500/tc2-polish.css'+TC2_POLISH_QUERY+'-household-1',
+ './v500/i18n.css'+I18N_QUERY,
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
+ './v500/locales/de.js'+I18N_QUERY,
+ './v500/locales/en.js'+I18N_QUERY,
+ './v500/i18n.js'+I18N_QUERY,
 
  './v500/core.js'+BULK_ACTIONS_QUERY,
  './v500/date-display.js'+DATE_DISPLAY_QUERY,

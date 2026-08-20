@@ -154,6 +154,9 @@ Die aktive Anwendung enthält unter anderem:
 - Fotoablage,
 - Taxonomie,
 - Firebase-Synchronisation.
+- eine benutzerbezogene Sprachauswahl mit zentralen deutschen und englischen
+  Oberflächentexten; weitere Sprachen können als zusätzliche Locale-Dateien
+  ergänzt werden.
 
 Die genaue Lade-Reihenfolge steht in `v500.html`. Da die Anwendung globale Browser-Namespaces verwendet, darf diese Reihenfolge nicht beiläufig verändert werden.
 

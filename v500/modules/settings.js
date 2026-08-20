@@ -33,6 +33,16 @@ function selectedTheme(){
  }
 }
 
+function selectedLanguage(){
+ try{
+  return window.TCI18n
+   ?TCI18n.current()
+   :'de';
+ }catch(error){
+  return 'de';
+ }
+}
+
 function saveSettingsToStore(
  sellerData
 ){
@@ -203,12 +213,17 @@ function render(){
  const profile=seller();
  const cloudMeta=cloud();
  const theme=selectedTheme();
+ const language=selectedLanguage();
 
  const lastBackup=
   cloudMeta.lastBackupAt
    ?new Date(
      cloudMeta.lastBackupAt
-    ).toLocaleString('de-DE')
+    ).toLocaleString(
+     window.TCI18n
+      ?TCI18n.locale()
+      :'de-DE'
+    )
    :'Noch keine Sicherung';
 
  return `
@@ -220,7 +235,41 @@ function render(){
      <p>
       Profil, Cloud und App-Informationen.
      </p>
+   </div>
+  </div>
+
+   <div class="tc2SettingsSection">
+    <h3>🌐 Sprache</h3>
+
+    <div class="tc2ThemeChoices" data-tc-i18n-skip>
+     <button
+      type="button"
+      class="tc2ThemeChoice ${language==='de'?'on':''}"
+      onclick="NGTSettings.setLanguage('de')"
+      aria-pressed="${language==='de'?'true':'false'}"
+     >
+      <span>🇩🇪</span>
+      <span><b>Deutsch</b><small>German</small></span>
+     </button>
+
+     <button
+      type="button"
+      class="tc2ThemeChoice ${language==='en'?'on':''}"
+      onclick="NGTSettings.setLanguage('en')"
+      aria-pressed="${language==='en'?'true':'false'}"
+     >
+      <span>🇬🇧</span>
+      <span><b>English</b><small>Englisch</small></span>
+     </button>
     </div>
+
+    <button
+     type="button"
+     class="tc2LanguageOpen"
+     onclick="NGTSettings.openLanguagePicker()"
+    >
+     Sprachauswahl öffnen
+    </button>
    </div>
 
    <div class="tc2SettingsSection">
@@ -462,6 +511,24 @@ function setTheme(theme){
  rerender();
 }
 
+function setLanguage(language){
+ if(!window.TCI18n){
+  message(
+   'Sprachauswahl konnte nicht geladen werden.',
+   'danger'
+  );
+  return;
+ }
+
+ TCI18n.set(language);
+}
+
+function openLanguagePicker(){
+ if(window.TCI18n){
+  TCI18n.open();
+ }
+}
+
 function about(){
  info(
   '<h4>Über TerraControl</h4>'+
@@ -477,6 +544,8 @@ window.NGTSettings={
  imprint:imprint,
  feedback:feedback,
  setTheme:setTheme,
+ setLanguage:setLanguage,
+ openLanguagePicker:openLanguagePicker,
  about:about
 };
 
