@@ -38,7 +38,7 @@ function formatDate(value){
 
  try{
   return new Date(value).toLocaleString(
-   'de-DE',
+   window.TCI18n?TCI18n.locale():'de-DE',
    {
     dateStyle:'medium',
     timeStyle:'short'

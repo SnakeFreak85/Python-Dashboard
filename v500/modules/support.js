@@ -51,7 +51,7 @@ function formatTime(value){
  try{
   return new Date(timestamp)
    .toLocaleString(
-    'de-DE',
+    window.TCI18n?TCI18n.locale():'de-DE',
     {
      day:'2-digit',
      month:'2-digit',

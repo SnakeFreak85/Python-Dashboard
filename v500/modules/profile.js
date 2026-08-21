@@ -416,7 +416,7 @@ function render(args){
      <small>Status</small>
 
      <b>
-      ${P.esc(animal.status||'-')}
+      ${P.esc(animal.status==='Bestand'?'Im Bestand':(animal.status||'-'))}
      </b>
     </div>
 

@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-2';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -37,7 +37,7 @@ const HOUSEHOLD_QUERY=
  '&r=household-1';
 const I18N_QUERY=
  VERSION_QUERY+
- '&r=i18n-1';
+ '&r=i18n-2';
 
 const APP_SHELL=[
  './',

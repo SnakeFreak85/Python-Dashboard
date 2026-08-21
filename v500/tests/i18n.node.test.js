@@ -41,6 +41,17 @@ assert.equal(TCI18n.hasSelection(),false,'Suggested language is not persisted be
 assert.equal(TCI18n.t('Bestand'),'Animals');
 assert.equal(TCI18n.t('Fütterung speichern'),'Save feeding');
 assert.equal(TCI18n.t('35 Tiere'),'35 animals');
+assert.equal(TCI18n.t('⚙️ Einstellungen'),'⚙️ Settings');
+assert.equal(TCI18n.t('Hallo Sascha 👋'),'Hello Sascha 👋');
+assert.equal(TCI18n.t('Hallo 👋'),'Hello 👋');
+assert.equal(TCI18n.t('32 Tiere · 0 Aufgaben fällig'),'32 animals · 0 tasks due');
+assert.equal(TCI18n.t('3 fällige Aufgaben'),'3 tasks due');
+assert.equal(TCI18n.t('Bestand: 2 Stück'),'Stock: 2 items');
+assert.equal(TCI18n.t('3 Jahre'),'3 years');
+assert.equal(TCI18n.t('alle 14–21 Tage'),'every 14–21 days');
+assert.equal(TCI18n.t('1 Futtertier mit etwa 90 g'),'1 feeder weighing about 90 g');
+assert.equal(TCI18n.t('7 Tage'),'7 days');
+assert.equal(TCI18n.t('Pythons · 1 Tier'),'Pythons · 1 animal');
 assert.equal(TCI18n.t('Luna'),'Luna','User content without a catalogue entry remains unchanged.');
 assert.equal(TCI18n.locale(),'en-GB');
 
