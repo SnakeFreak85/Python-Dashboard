@@ -2,7 +2,7 @@
 'use strict';
 
 const STORAGE_KEY='terracontrol_language_v1';
-const SUPPORTED=['de','en'];
+const SUPPORTED=['de','en','it','hu'];
 const TEXT_ORIGINAL=new WeakMap();
 const ATTRIBUTE_ORIGINAL=new WeakMap();
 const ATTRIBUTES=['aria-label','placeholder','title'];
@@ -58,8 +58,9 @@ function translateText(value,language){
  if(!trimmed)return source;
 
  let translated=translateExact(trimmed,language);
+ const currentLanguage=validLanguage(language)||activeLanguage;
 
- if(translated===trimmed&&(validLanguage(language)||activeLanguage)==='en'){
+ if(translated===trimmed&&currentLanguage!=='de'){
   const decorated=trimmed.match(/^([^A-Za-zÀ-ÖØ-öø-ÿ0-9]*)(.*?)(\s*[›»]+)?$/);
   if(decorated){
    const translatedCore=translateExact(decorated[2],language);
@@ -67,7 +68,9 @@ function translateText(value,language){
     translated=decorated[1]+translatedCore+(decorated[3]||'');
    }
   }
+ }
 
+ if(translated===trimmed&&currentLanguage==='en'){
   translated=translated
    .replace(/^Hallo(?:\s+(.+?))?\s*👋$/,function(_,name){return 'Hello'+(name?' '+name:'')+' 👋';})
    .replace(/^(\d+)\s+Tiere\s*[·•]\s*(\d+)\s+Aufgaben\s+fällig$/,function(_,animals,tasks){return animals+' animals · '+tasks+' tasks due';})
@@ -112,6 +115,100 @@ function translateText(value,language){
    .replace(/^seit (\d+) Tagen fällig$/,function(_,count){return count+' days overdue';})
    .replace(/^in (\d+) Tagen$/,function(_,count){return 'in '+count+' days';})
    .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' days ago';});
+ }
+
+ if(translated===trimmed&&currentLanguage==='it'){
+  translated=translated
+   .replace(/^Hallo(?:\s+(.+?))?\s*👋$/,function(_,name){return 'Ciao'+(name?' '+name:'')+' 👋';})
+   .replace(/^(\d+)\s+Tiere\s*[·•]\s*(\d+)\s+Aufgaben\s+fällig$/,function(_,animals,tasks){return animals+' animali · '+tasks+' attività in scadenza';})
+   .replace(/^(\d+)\s+Tiere\s+ausgewählt$/,function(_,count){return count+' animali selezionati';})
+   .replace(/^(\d+)\s+Tier\s+ausgewählt$/,function(_,count){return count+' animale selezionato';})
+   .replace(/^(\d+)\s+Tiere$/,function(_,count){return count+' animali';})
+   .replace(/^(\d+)\s+Tier$/,function(_,count){return count+' animale';})
+   .replace(/^(\d+)\s+Aufgaben$/,function(_,count){return count+' attività';})
+   .replace(/^(\d+)\s+Aufgabe$/,function(_,count){return count+' attività';})
+   .replace(/^(\d+) fällige Aufgaben$/,function(_,count){return count+' attività in scadenza';})
+   .replace(/^1 fällige Aufgabe$/,function(){return '1 attività in scadenza';})
+   .replace(/^(\d+)\s+Bestände$/,function(_,count){return count+' scorte';})
+   .replace(/^(\d+)\s+Positionen$/,function(_,count){return count+' articoli';})
+   .replace(/^1 Position$/,function(){return '1 articolo';})
+   .replace(/^(\d+)\s+Einträge$/,function(_,count){return count+' voci';})
+   .replace(/^(\d+)\s+Stück$/,function(_,count){return count+' pezzi';})
+   .replace(/^Ausreichend · Mindestbestand (\d+) Stück$/,function(_,count){return 'Sufficiente · Scorta minima '+count+' pezzi';})
+   .replace(/^Nachbestellen · Mindestbestand (\d+) Stück$/,function(_,count){return 'Da riordinare · Scorta minima '+count+' pezzi';})
+   .replace(/^Bestand:\s*(\d+)\s*(.*)$/,function(_,count,unit){return 'Scorta: '+count+(unit?' '+translateExact(unit,language):'');})
+   .replace(/^(.+?) · Eigentümer$/,function(_,value){return value+' · Proprietario';})
+   .replace(/^(.+?) · Mitglied$/,function(_,value){return value+' · Membro';})
+   .replace(/^Einladung von (.+)$/,function(_,value){return 'Invito da '+value;})
+   .replace(/^(\d+) Jahre$/,function(_,count){return count+' anni';})
+   .replace(/^1 Jahr$/,function(){return '1 anno';})
+   .replace(/^(\d+) Tage$/,function(_,count){return count+' giorni';})
+   .replace(/^1 Tag$/,function(){return '1 giorno';})
+   .replace(/^1 Futtertier mit etwa ([\d,.]+) g$/,function(_,weight){return '1 animale da pasto di circa '+weight+' g';})
+   .replace(/^(\d+) Futtertiere mit etwa ([\d,.]+) g$/,function(_,count,weight){return count+' animali da pasto di circa '+weight+' g';})
+   .replace(/^(.+?) · 1 Tier$/,function(_,label){return label+' · 1 animale';})
+   .replace(/^(.+?) · (\d+) Tiere$/,function(_,label,count){return label+' · '+count+' animali';})
+   .replace(/^alle (\d+)[–-](\d+) Tage$/,function(_,from,to){return 'ogni '+from+'–'+to+' giorni';})
+   .replace(/^alle (\d+) Tage$/,function(_,count){return 'ogni '+count+' giorni';})
+   .replace(/^Orientierungswert: etwa ([\d,.]+) % des Körpergewichts$/,function(_,amount){return 'Valore indicativo: circa il '+amount+'% del peso corporeo';})
+   .replace(/^Nächste Fütterung:\s*(.+)$/,function(_,date){return 'Prossima alimentazione: '+date;})
+   .replace(/^(.+?) · aktuelles Gewicht ([\d,.]+) g$/,function(_,species,weight){return species+' · peso attuale '+weight+' g';})
+   .replace(/^(.+?) · (.+)$/,function(match,label,value){const translatedLabel=translateExact(label,language);return translatedLabel===label?match:translatedLabel+' · '+value;})
+   .replace(/^(.+?) (gefressen|verweigert)$/i,function(_,value,status){return value+' '+(status.toLowerCase()==='gefressen'?'mangiato':'rifiutato');})
+   .replace(/^([\d,.]+ g) am (.+)$/,function(_,weight,date){return weight+' il '+date;})
+   .replace(/^(\d{2}\/\d{2}\/\d{4}) (Gewicht|Gefressen|Verweigert|Häutung)(.*)$/,function(_,date,label,rest){return date+' '+translateExact(label,language)+rest;})
+   .replace(/^(Gewicht|Gefressen|Verweigert|Häutung)\s+(.+)$/,function(_,label,value){return translateExact(label,language)+' '+value;})
+   .replace(/^(\d+) von (\d+) bereits angelegt$/,function(_,done,total){return done+' di '+total+' già creati';})
+   .replace(/^seit (\d+) Tagen fällig$/,function(_,count){return 'in ritardo di '+count+' giorni';})
+   .replace(/^in (\d+) Tagen$/,function(_,count){return 'tra '+count+' giorni';})
+   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' giorni fa';});
+ }
+
+ if(translated===trimmed&&currentLanguage==='hu'){
+  translated=translated
+   .replace(/^Hallo(?:\s+(.+?))?\s*👋$/,function(_,name){return 'Szia'+(name?' '+name:'')+' 👋';})
+   .replace(/^(\d+)\s+Tiere\s*[·•]\s*(\d+)\s+Aufgaben\s+fällig$/,function(_,animals,tasks){return animals+' állat · '+tasks+' esedékes feladat';})
+   .replace(/^(\d+)\s+Tiere\s+ausgewählt$/,function(_,count){return count+' állat kiválasztva';})
+   .replace(/^(\d+)\s+Tier\s+ausgewählt$/,function(_,count){return count+' állat kiválasztva';})
+   .replace(/^(\d+)\s+Tiere$/,function(_,count){return count+' állat';})
+   .replace(/^(\d+)\s+Tier$/,function(_,count){return count+' állat';})
+   .replace(/^(\d+)\s+Aufgaben$/,function(_,count){return count+' feladat';})
+   .replace(/^(\d+)\s+Aufgabe$/,function(_,count){return count+' feladat';})
+   .replace(/^(\d+) fällige Aufgaben$/,function(_,count){return count+' esedékes feladat';})
+   .replace(/^1 fällige Aufgabe$/,function(){return '1 esedékes feladat';})
+   .replace(/^(\d+)\s+Bestände$/,function(_,count){return count+' készletelem';})
+   .replace(/^(\d+)\s+Positionen$/,function(_,count){return count+' tétel';})
+   .replace(/^1 Position$/,function(){return '1 tétel';})
+   .replace(/^(\d+)\s+Einträge$/,function(_,count){return count+' bejegyzés';})
+   .replace(/^(\d+)\s+Stück$/,function(_,count){return count+' darab';})
+   .replace(/^Ausreichend · Mindestbestand (\d+) Stück$/,function(_,count){return 'Elegendő · Minimális készlet '+count+' darab';})
+   .replace(/^Nachbestellen · Mindestbestand (\d+) Stück$/,function(_,count){return 'Utánrendelés · Minimális készlet '+count+' darab';})
+   .replace(/^Bestand:\s*(\d+)\s*(.*)$/,function(_,count,unit){return 'Készlet: '+count+(unit?' '+translateExact(unit,language):'');})
+   .replace(/^(.+?) · Eigentümer$/,function(_,value){return value+' · Tulajdonos';})
+   .replace(/^(.+?) · Mitglied$/,function(_,value){return value+' · Tag';})
+   .replace(/^Einladung von (.+)$/,function(_,value){return 'Meghívás tőle: '+value;})
+   .replace(/^(\d+) Jahre$/,function(_,count){return count+' év';})
+   .replace(/^1 Jahr$/,function(){return '1 év';})
+   .replace(/^(\d+) Tage$/,function(_,count){return count+' nap';})
+   .replace(/^1 Tag$/,function(){return '1 nap';})
+   .replace(/^1 Futtertier mit etwa ([\d,.]+) g$/,function(_,weight){return '1 etetőállat, körülbelül '+weight+' g';})
+   .replace(/^(\d+) Futtertiere mit etwa ([\d,.]+) g$/,function(_,count,weight){return count+' etetőállat, egyenként körülbelül '+weight+' g';})
+   .replace(/^(.+?) · 1 Tier$/,function(_,label){return label+' · 1 állat';})
+   .replace(/^(.+?) · (\d+) Tiere$/,function(_,label,count){return label+' · '+count+' állat';})
+   .replace(/^alle (\d+)[–-](\d+) Tage$/,function(_,from,to){return from+'–'+to+' naponta';})
+   .replace(/^alle (\d+) Tage$/,function(_,count){return count+' naponta';})
+   .replace(/^Orientierungswert: etwa ([\d,.]+) % des Körpergewichts$/,function(_,amount){return 'Irányérték: a testsúly körülbelül '+amount+'%-a';})
+   .replace(/^Nächste Fütterung:\s*(.+)$/,function(_,date){return 'Következő etetés: '+date;})
+   .replace(/^(.+?) · aktuelles Gewicht ([\d,.]+) g$/,function(_,species,weight){return species+' · jelenlegi súly '+weight+' g';})
+   .replace(/^(.+?) · (.+)$/,function(match,label,value){const translatedLabel=translateExact(label,language);return translatedLabel===label?match:translatedLabel+' · '+value;})
+   .replace(/^(.+?) (gefressen|verweigert)$/i,function(_,value,status){return value+' '+(status.toLowerCase()==='gefressen'?'elfogyasztva':'visszautasítva');})
+   .replace(/^([\d,.]+ g) am (.+)$/,function(_,weight,date){return weight+' · '+date;})
+   .replace(/^(\d{2}\/\d{2}\/\d{4}) (Gewicht|Gefressen|Verweigert|Häutung)(.*)$/,function(_,date,label,rest){return date+' '+translateExact(label,language)+rest;})
+   .replace(/^(Gewicht|Gefressen|Verweigert|Häutung)\s+(.+)$/,function(_,label,value){return translateExact(label,language)+' '+value;})
+   .replace(/^(\d+) von (\d+) bereits angelegt$/,function(_,done,total){return done+'/'+total+' már létrehozva';})
+   .replace(/^seit (\d+) Tagen fällig$/,function(_,count){return count+' napja esedékes';})
+   .replace(/^in (\d+) Tagen$/,function(_,count){return count+' nap múlva';})
+   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' napja';});
  }
 
  if(translated===trimmed)return source;
@@ -288,6 +385,8 @@ function showPicker(options){
    <div class="tcLanguageOptions">
     <button type="button" class="${suggested==='de'?'suggested':''}" data-language="de"><span>🇩🇪</span><b>Deutsch</b><small>German</small></button>
     <button type="button" class="${suggested==='en'?'suggested':''}" data-language="en"><span>🇬🇧</span><b>English</b><small>Englisch</small></button>
+    <button type="button" class="${suggested==='it'?'suggested':''}" data-language="it"><span>🇮🇹</span><b>Italiano</b><small>Italienisch</small></button>
+    <button type="button" class="${suggested==='hu'?'suggested':''}" data-language="hu"><span>🇭🇺</span><b>Magyar</b><small>Ungarisch</small></button>
    </div>
    <small class="tcLanguageHint">Die Sprache kann später unter System geändert werden.<br>The language can be changed later under System.</small>
    ${dismissible?'<button type="button" class="tcLanguageCancel">Abbrechen / Cancel</button>':''}
@@ -302,7 +401,8 @@ function showPicker(options){
  }
 
 function locale(){
- return dictionary(activeLanguage).locale||(activeLanguage==='de'?'de-DE':'en-GB');
+ const fallback={de:'de-DE',en:'en-GB',it:'it-IT',hu:'hu-HU'};
+ return dictionary(activeLanguage).locale||fallback[activeLanguage]||'en-GB';
 }
 
 function initialize(){

@@ -40,6 +40,8 @@ window.NGTLocales.en={
   'Hell':'Light',
   'Deutsch':'German',
   'Englisch':'English',
+  'Italienisch':'Italian',
+  'Ungarisch':'Hungarian',
   'Zurück':'Back',
   'Abbrechen':'Cancel',
   'Schließen':'Close',

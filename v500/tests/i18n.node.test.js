@@ -34,6 +34,8 @@ function load(relative){
 
 load('locales/de.js');
 load('locales/en.js');
+load('locales/it.js');
+load('locales/hu.js');
 load('i18n.js');
 
 assert.equal(TCI18n.current(),'en','Unsupported device languages fall back to English.');
@@ -54,6 +56,23 @@ assert.equal(TCI18n.t('7 Tage'),'7 days');
 assert.equal(TCI18n.t('Pythons · 1 Tier'),'Pythons · 1 animal');
 assert.equal(TCI18n.t('Luna'),'Luna','User content without a catalogue entry remains unchanged.');
 assert.equal(TCI18n.locale(),'en-GB');
+assert.deepEqual(TCI18n.supported,['de','en','it','hu']);
+
+TCI18n.set('it',{reload:false});
+
+assert.equal(TCI18n.current(),'it');
+assert.equal(TCI18n.t('Einstellungen'),'Impostazioni');
+assert.equal(TCI18n.t('35 Tiere'),'35 animali');
+assert.equal(TCI18n.t('Hallo Sascha 👋'),'Ciao Sascha 👋');
+assert.equal(TCI18n.locale(),'it-IT');
+
+TCI18n.set('hu',{reload:false});
+
+assert.equal(TCI18n.current(),'hu');
+assert.equal(TCI18n.t('Einstellungen'),'Beállítások');
+assert.equal(TCI18n.t('35 Tiere'),'35 állat');
+assert.equal(TCI18n.t('Hallo Sascha 👋'),'Szia Sascha 👋');
+assert.equal(TCI18n.locale(),'hu-HU');
 
 TCI18n.set('de',{reload:false});
 

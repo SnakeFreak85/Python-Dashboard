@@ -261,6 +261,26 @@ function render(){
       <span>🇬🇧</span>
       <span><b>English</b><small>Englisch</small></span>
      </button>
+
+     <button
+      type="button"
+      class="tc2ThemeChoice ${language==='it'?'on':''}"
+      onclick="NGTSettings.setLanguage('it')"
+      aria-pressed="${language==='it'?'true':'false'}"
+     >
+      <span>🇮🇹</span>
+      <span><b>Italiano</b><small>Italienisch</small></span>
+     </button>
+
+     <button
+      type="button"
+      class="tc2ThemeChoice ${language==='hu'?'on':''}"
+      onclick="NGTSettings.setLanguage('hu')"
+      aria-pressed="${language==='hu'?'true':'false'}"
+     >
+      <span>🇭🇺</span>
+      <span><b>Magyar</b><small>Ungarisch</small></span>
+     </button>
     </div>
 
     <button
