@@ -112,9 +112,35 @@ function translateText(value,language){
    .replace(/^(\d{2}\/\d{2}\/\d{4}) (Gewicht|Gefressen|Verweigert|Häutung)(.*)$/,function(_,date,label,rest){return date+' '+translateExact(label,language)+rest;})
    .replace(/^(Gewicht|Gefressen|Verweigert|Häutung)\s+(.+)$/,function(_,label,value){return translateExact(label,language)+' '+value;})
    .replace(/^(\d+) von (\d+) bereits angelegt$/,function(_,done,total){return done+' of '+total+' already created';})
+   .replace(/^seit 1 Tag fällig$/,function(){return '1 day overdue';})
    .replace(/^seit (\d+) Tagen fällig$/,function(_,count){return count+' days overdue';})
    .replace(/^in (\d+) Tagen$/,function(_,count){return 'in '+count+' days';})
-   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' days ago';});
+   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' days ago';})
+   .replace(/^Alter (\d+) Monate$/,function(_,count){return 'Age '+count+' months';})
+   .replace(/^Boa · ([\d,.]+ g) · Alter (\d+) Monate$/,function(_,weight,months){return 'Boa · '+weight+' · age '+months+' months';})
+   .replace(/^(Leopardgecko|Jemenchamäleon|Chamäleon) · (Jungtier|Adult) · Alter (\d+) Monate$/,function(_,species,stage,months){return translateExact(species,language)+' · '+(stage==='Jungtier'?'juvenile':'adult')+' · age '+months+' months';})
+   .replace(/^Chamäleon · genaue Art und Lebensphase beachten$/,function(){return 'Chameleon · consider the exact species and life stage';})
+   .replace(/^Allgemeine Schlangenorientierung · Alter (\d+) Monate$/,function(_,months){return 'General snake guidance · age '+months+' months';})
+   .replace(/^1 Futtertier bis etwa ([\d,.]+) g$/,function(_,weight){return '1 feeder up to about '+weight+' g';})
+   .replace(/^Einladung wurde für (.+) hinterlegt\.$/,function(_,email){return 'Invitation created for '+email+'.';})
+   .replace(/^(\d+) Nachzucht(?:en)? (?:wurde|wurden) gelöscht\.$/,function(_,count){return count+' offspring deleted.';})
+   .replace(/^(\d+) Nachzucht(?:en)? angelegt\.$/,function(_,count){return count+' offspring created.';})
+   .replace(/^(\d+) Fütterung(?:en)? (?:wurde|wurden) gespeichert\.$/,function(_,count){return count+' feeding'+(count==='1'?'':'s')+' saved.';})
+   .replace(/^(.+): benötigt (\d+), vorhanden (\d+)\.$/,function(_,item,needed,stock){return item+': '+needed+' needed, '+stock+' available.';})
+   .replace(/^(\d+) nicht bestätigte Gen-Angabe\(n\) werden nicht berechnet\.$/,function(_,count){return count+' unconfirmed genetic entries are not calculated.';})
+   .replace(/^Nicht automatisch erkannt: (.+)\. Diese Angabe wird nicht in die Quote einbezogen\.$/,function(_,value){return 'Not recognised automatically: '+value+'. This entry is not included in the probability.';})
+   .replace(/^(.+) ist nur als mögliches het angegeben; die Quote wird entsprechend gewichtet\.$/,function(_,trait){return trait+' is listed only as possible het; the probability is weighted accordingly.';})
+   .replace(/^Fütterung prüfen: letzte Fütterung vor (\d+) Tagen\.$/,function(_,days){return 'Check feeding: last feeding '+days+' days ago.';})
+   .replace(/^Gewicht seit (\d+) Tagen nicht aktualisiert\.$/,function(_,days){return 'Weight not updated for '+days+' days.';})
+   .replace(/^Gewichtsverlust: ([\d,.-]+)g seit letzter Messung\.$/,function(_,weight){return 'Weight loss: '+weight+' g since the last measurement.';})
+   .replace(/^Offene Gesundheits-\/Kontroll-Einträge: (\d+)\.$/,function(_,count){return 'Open health/check-up records: '+count+'.';})
+   .replace(/^Letzte Kontrolle vor (\d+) Tagen\.$/,function(_,days){return 'Last check-up '+days+' days ago.';})
+   .replace(/^(.+) ist leer\.$/,function(_,item){return item+' is empty.';})
+   .replace(/^(.+) ist niedrig \((\d+)\)\.$/,function(_,item,count){return item+' is low ('+count+').';})
+   .replace(/^steigend \(\+([\d,.]+)g\)$/,function(_,weight){return 'rising (+'+weight+' g)';})
+   .replace(/^fallend \(([\d,.-]+)g\)$/,function(_,weight){return 'falling ('+weight+' g)';})
+   .replace(/^letzte Häutung vor (\d+) Tagen$/,function(_,days){return 'last shed '+days+' days ago';})
+   .replace(/^(.+?):\s*(.+)$/,function(match,label,value){const translatedLabel=translateExact(label,language);const translatedValue=translateText(value,language);return translatedLabel===label&&translatedValue===value?match:translatedLabel+': '+translatedValue;});
  }
 
  if(translated===trimmed&&currentLanguage==='it'){
@@ -159,9 +185,35 @@ function translateText(value,language){
    .replace(/^(\d{2}\/\d{2}\/\d{4}) (Gewicht|Gefressen|Verweigert|Häutung)(.*)$/,function(_,date,label,rest){return date+' '+translateExact(label,language)+rest;})
    .replace(/^(Gewicht|Gefressen|Verweigert|Häutung)\s+(.+)$/,function(_,label,value){return translateExact(label,language)+' '+value;})
    .replace(/^(\d+) von (\d+) bereits angelegt$/,function(_,done,total){return done+' di '+total+' già creati';})
+   .replace(/^seit 1 Tag fällig$/,function(){return 'in ritardo di 1 giorno';})
    .replace(/^seit (\d+) Tagen fällig$/,function(_,count){return 'in ritardo di '+count+' giorni';})
    .replace(/^in (\d+) Tagen$/,function(_,count){return 'tra '+count+' giorni';})
-   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' giorni fa';});
+   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' giorni fa';})
+   .replace(/^Alter (\d+) Monate$/,function(_,count){return 'Età '+count+' mesi';})
+   .replace(/^Boa · ([\d,.]+ g) · Alter (\d+) Monate$/,function(_,weight,months){return 'Boa · '+weight+' · età '+months+' mesi';})
+   .replace(/^(Leopardgecko|Jemenchamäleon|Chamäleon) · (Jungtier|Adult) · Alter (\d+) Monate$/,function(_,species,stage,months){return translateExact(species,language)+' · '+(stage==='Jungtier'?'giovane':'adulto')+' · età '+months+' mesi';})
+   .replace(/^Chamäleon · genaue Art und Lebensphase beachten$/,function(){return 'Camaleonte · considerare la specie esatta e la fase di vita';})
+   .replace(/^Allgemeine Schlangenorientierung · Alter (\d+) Monate$/,function(_,months){return 'Indicazioni generali per serpenti · età '+months+' mesi';})
+   .replace(/^1 Futtertier bis etwa ([\d,.]+) g$/,function(_,weight){return '1 preda fino a circa '+weight+' g';})
+   .replace(/^Einladung wurde für (.+) hinterlegt\.$/,function(_,email){return 'Invito creato per '+email+'.';})
+   .replace(/^(\d+) Nachzucht(?:en)? (?:wurde|wurden) gelöscht\.$/,function(_,count){return count+' esemplari di prole eliminati.';})
+   .replace(/^(\d+) Nachzucht(?:en)? angelegt\.$/,function(_,count){return count+' esemplari di prole creati.';})
+   .replace(/^(\d+) Fütterung(?:en)? (?:wurde|wurden) gespeichert\.$/,function(_,count){return count+' alimentazioni salvate.';})
+   .replace(/^(.+): benötigt (\d+), vorhanden (\d+)\.$/,function(_,item,needed,stock){return item+': necessari '+needed+', disponibili '+stock+'.';})
+   .replace(/^(\d+) nicht bestätigte Gen-Angabe\(n\) werden nicht berechnet\.$/,function(_,count){return count+' voci genetiche non confermate non vengono calcolate.';})
+   .replace(/^Nicht automatisch erkannt: (.+)\. Diese Angabe wird nicht in die Quote einbezogen\.$/,function(_,value){return 'Non riconosciuto automaticamente: '+value+'. Questa voce non è inclusa nella probabilità.';})
+   .replace(/^(.+) ist nur als mögliches het angegeben; die Quote wird entsprechend gewichtet\.$/,function(_,trait){return trait+' è indicato solo come possibile het; la probabilità viene ponderata di conseguenza.';})
+   .replace(/^Fütterung prüfen: letzte Fütterung vor (\d+) Tagen\.$/,function(_,days){return 'Controlla alimentazione: ultima alimentazione '+days+' giorni fa.';})
+   .replace(/^Gewicht seit (\d+) Tagen nicht aktualisiert\.$/,function(_,days){return 'Peso non aggiornato da '+days+' giorni.';})
+   .replace(/^Gewichtsverlust: ([\d,.-]+)g seit letzter Messung\.$/,function(_,weight){return 'Perdita di peso: '+weight+' g dall’ultima misurazione.';})
+   .replace(/^Offene Gesundheits-\/Kontroll-Einträge: (\d+)\.$/,function(_,count){return 'Registrazioni sanitarie/di controllo aperte: '+count+'.';})
+   .replace(/^Letzte Kontrolle vor (\d+) Tagen\.$/,function(_,days){return 'Ultimo controllo '+days+' giorni fa.';})
+   .replace(/^(.+) ist leer\.$/,function(_,item){return item+' è esaurito.';})
+   .replace(/^(.+) ist niedrig \((\d+)\)\.$/,function(_,item,count){return item+' è in esaurimento ('+count+').';})
+   .replace(/^steigend \(\+([\d,.]+)g\)$/,function(_,weight){return 'in aumento (+'+weight+' g)';})
+   .replace(/^fallend \(([\d,.-]+)g\)$/,function(_,weight){return 'in calo ('+weight+' g)';})
+   .replace(/^letzte Häutung vor (\d+) Tagen$/,function(_,days){return 'ultima muta '+days+' giorni fa';})
+   .replace(/^(.+?):\s*(.+)$/,function(match,label,value){const translatedLabel=translateExact(label,language);const translatedValue=translateText(value,language);return translatedLabel===label&&translatedValue===value?match:translatedLabel+': '+translatedValue;});
  }
 
  if(translated===trimmed&&currentLanguage==='hu'){
@@ -206,9 +258,35 @@ function translateText(value,language){
    .replace(/^(\d{2}\/\d{2}\/\d{4}) (Gewicht|Gefressen|Verweigert|Häutung)(.*)$/,function(_,date,label,rest){return date+' '+translateExact(label,language)+rest;})
    .replace(/^(Gewicht|Gefressen|Verweigert|Häutung)\s+(.+)$/,function(_,label,value){return translateExact(label,language)+' '+value;})
    .replace(/^(\d+) von (\d+) bereits angelegt$/,function(_,done,total){return done+'/'+total+' már létrehozva';})
+   .replace(/^seit 1 Tag fällig$/,function(){return '1 napja esedékes';})
    .replace(/^seit (\d+) Tagen fällig$/,function(_,count){return count+' napja esedékes';})
    .replace(/^in (\d+) Tagen$/,function(_,count){return count+' nap múlva';})
-   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' napja';});
+   .replace(/^vor (\d+) Tagen$/,function(_,count){return count+' napja';})
+   .replace(/^Alter (\d+) Monate$/,function(_,count){return 'Kor: '+count+' hónap';})
+   .replace(/^Boa · ([\d,.]+ g) · Alter (\d+) Monate$/,function(_,weight,months){return 'Boa · '+weight+' · kor: '+months+' hónap';})
+   .replace(/^(Leopardgecko|Jemenchamäleon|Chamäleon) · (Jungtier|Adult) · Alter (\d+) Monate$/,function(_,species,stage,months){return translateExact(species,language)+' · '+(stage==='Jungtier'?'fiatal':'felnőtt')+' · kor: '+months+' hónap';})
+   .replace(/^Chamäleon · genaue Art und Lebensphase beachten$/,function(){return 'Kaméleon · vedd figyelembe a pontos fajt és életszakaszt';})
+   .replace(/^Allgemeine Schlangenorientierung · Alter (\d+) Monate$/,function(_,months){return 'Általános kígyóetetési útmutató · kor: '+months+' hónap';})
+   .replace(/^1 Futtertier bis etwa ([\d,.]+) g$/,function(_,weight){return '1 táplálékállat legfeljebb körülbelül '+weight+' g';})
+   .replace(/^Einladung wurde für (.+) hinterlegt\.$/,function(_,email){return 'Meghívó létrehozva számára: '+email+'.';})
+   .replace(/^(\d+) Nachzucht(?:en)? (?:wurde|wurden) gelöscht\.$/,function(_,count){return count+' utód törölve.';})
+   .replace(/^(\d+) Nachzucht(?:en)? angelegt\.$/,function(_,count){return count+' utód létrehozva.';})
+   .replace(/^(\d+) Fütterung(?:en)? (?:wurde|wurden) gespeichert\.$/,function(_,count){return count+' etetés mentve.';})
+   .replace(/^(.+): benötigt (\d+), vorhanden (\d+)\.$/,function(_,item,needed,stock){return item+': szükséges '+needed+', elérhető '+stock+'.';})
+   .replace(/^(\d+) nicht bestätigte Gen-Angabe\(n\) werden nicht berechnet\.$/,function(_,count){return count+' meg nem erősített genetikai bejegyzés nem kerül kiszámításra.';})
+   .replace(/^Nicht automatisch erkannt: (.+)\. Diese Angabe wird nicht in die Quote einbezogen\.$/,function(_,value){return 'Nem automatikusan felismert: '+value+'. Ez a bejegyzés nem szerepel a valószínűségben.';})
+   .replace(/^(.+) ist nur als mögliches het angegeben; die Quote wird entsprechend gewichtet\.$/,function(_,trait){return trait+' csak lehetséges het-ként van megadva; a valószínűség ennek megfelelően súlyozott.';})
+   .replace(/^Fütterung prüfen: letzte Fütterung vor (\d+) Tagen\.$/,function(_,days){return 'Etetés ellenőrzése: az utolsó etetés '+days+' napja volt.';})
+   .replace(/^Gewicht seit (\d+) Tagen nicht aktualisiert\.$/,function(_,days){return 'A súly '+days+' napja nem lett frissítve.';})
+   .replace(/^Gewichtsverlust: ([\d,.-]+)g seit letzter Messung\.$/,function(_,weight){return 'Súlycsökkenés: '+weight+' g az utolsó mérés óta.';})
+   .replace(/^Offene Gesundheits-\/Kontroll-Einträge: (\d+)\.$/,function(_,count){return 'Nyitott egészségügyi/ellenőrzési bejegyzések: '+count+'.';})
+   .replace(/^Letzte Kontrolle vor (\d+) Tagen\.$/,function(_,days){return 'Az utolsó ellenőrzés '+days+' napja volt.';})
+   .replace(/^(.+) ist leer\.$/,function(_,item){return item+' elfogyott.';})
+   .replace(/^(.+) ist niedrig \((\d+)\)\.$/,function(_,item,count){return item+' készlete alacsony ('+count+').';})
+   .replace(/^steigend \(\+([\d,.]+)g\)$/,function(_,weight){return 'növekvő (+'+weight+' g)';})
+   .replace(/^fallend \(([\d,.-]+)g\)$/,function(_,weight){return 'csökkenő ('+weight+' g)';})
+   .replace(/^letzte Häutung vor (\d+) Tagen$/,function(_,days){return 'utolsó vedlés '+days+' napja';})
+   .replace(/^(.+?):\s*(.+)$/,function(match,label,value){const translatedLabel=translateExact(label,language);const translatedValue=translateText(value,language);return translatedLabel===label&&translatedValue===value?match:translatedLabel+': '+translatedValue;});
  }
 
  if(translated===trimmed)return source;
@@ -246,12 +324,12 @@ function translateTextNode(node){
 
  let translated=translateText(record.source,activeLanguage);
  if(
-  activeLanguage==='en'&&
+  activeLanguage!=='de'&&
   record.source.trim()==='Bestand'&&
   node.parentElement&&
   node.parentElement.closest('.tc2Food')
  ){
-  translated=record.source.replace('Bestand','Stock');
+  translated={en:'Stock',it:'Scorta',hu:'Készlet'}[activeLanguage]||translated;
  }
  record.last=translated;
  if(current!==translated)node.nodeValue=translated;

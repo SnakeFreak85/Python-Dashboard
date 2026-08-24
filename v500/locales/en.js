@@ -471,7 +471,334 @@ window.NGTLocales.en={
   'Fehler':'Error',
   'Warnung':'Warning',
   'Bitte warten …':'Please wait …',
-  'Lädt …':'Loading …'
+  'Lädt …':'Loading …',
+  'Ansicht konnte nicht geladen werden.':'The page could not be loaded.',
+  'Bitte bestätigen':'Please confirm',
+  'Datei:':'File:',
+  'Herkunftsnachweis übernommen':'Proof of origin imported',
+  'z. B. Pythons':'e.g. pythons',
+  'z. B. Python':'e.g. Python',
+  'z. B. regius':'e.g. regius',
+  'Kein Standardfutter':'No default food',
+  'Noch keine Einträge':'No entries yet',
+  'Archiv ist leer':'The archive is empty',
+  'Keine Tiere mit diesem Status':'No animals with this status',
+  'Tier nicht gefunden.':'Animal not found.',
+  'Aktive Nachzuchten':'Active offspring',
+  'Im Archiv':'In the archive',
+  'Tiergruppen':'Animal groups',
+  '0 ausgewählt':'0 selected',
+  'Auswahl löschen':'Delete selection',
+  'Nachzuchten löschen':'Delete offspring',
+  'Anzahl':'Quantity',
+  'Ergebnis':'Result',
+  'Im Tierprofil zuerst ein Standardfutter auswählen.':'First select a default food in the animal profile.',
+  'Mehrere Tiere mit ihrem hinterlegten Standardfutter erfassen.':'Record several animals using their saved default food.',
+  'Auch bei „Verweigert“ wird die bereitgestellte Menge vom Futterbestand abgezogen.':'The offered quantity is deducted from the food inventory even when “Refused” is selected.',
+  '0 Tiere ausgewählt':'0 animals selected',
+  'Keine aktiven Tiere vorhanden.':'No active animals available.',
+  'Mitteilung als gelesen markieren':'Mark announcement as read',
+  'Bestand danach ausreichend':'Stock will remain sufficient',
+  'Bestand danach leer':'Stock will be empty',
+  'Mindestbestand wird erreicht':'Minimum stock will be reached',
+  'Futterbestand wird leer':'Food stock will be empty',
+  'Bitte für jedes ausgewählte Tier eine ganze Anzahl ab 1 eintragen.':'Enter a whole quantity of at least 1 for every selected animal.',
+  'Die Sammelfütterung konnte nicht gespeichert werden.':'The batch feeding could not be saved.',
+  'Sammelfütterung speichern':'Save batch feeding',
+  'Futterposition zusammenführen':'Merge food items',
+  'Bestand addieren':'Add to stock',
+  'Tier wurde gelöscht.':'Animal deleted.',
+  'Tier übernommen':'Animal imported',
+  'TerraControl-ID':'TerraControl ID',
+  'optional':'optional',
+  'Notiz (optional)':'Note (optional)',
+  'Morph, Linie oder Ziel':'Morph, line or goal',
+  'z. B. Luna × Jack':'e.g. Luna × Jack',
+  'Trage zuerst einen Schlupf oder eine Geburt mit Anzahl ein. Danach können alle Nachzuchten gesammelt angelegt werden.':'First record a hatch or birth with a quantity. You can then create all offspring together.',
+  'Verpaarung läuft':'Pairing in progress',
+  'Gelege / Wurf erwartet':'Clutch / litter expected',
+  'Gelege / Wurf erfasst':'Clutch / litter recorded',
+  'Genetik-Modul ist nicht geladen.':'The genetics module is not loaded.',
+  'Bitte Vater- und Muttertier auswählen oder extern eintragen.':'Select the sire and dam or enter them as external animals.',
+  'Vater- und Muttertier müssen unterschiedlich sein.':'Sire and dam must be different animals.',
+  'Verpaarung gespeichert.':'Pairing saved.',
+  'Status aktualisiert.':'Status updated.',
+  'Etappe gespeichert.':'Stage saved.',
+  'Projekt archiviert.':'Project archived.',
+  'Zuchtprojekt löschen?':'Delete breeding project?',
+  'Zuchtprojekt gelöscht.':'Breeding project deleted.',
+  'Alle Nachzuchten dieses Projekts sind bereits angelegt.':'All offspring for this project have already been created.',
+  'Bitte eine gültige Anzahl eingeben.':'Enter a valid quantity.',
+  'Nachzuchten anlegen':'Create offspring',
+  'Die Nachzuchten wurden bereits angelegt.':'The offspring have already been created.',
+  'Gen auswählen':'Select gene',
+  'Gen':'Gene',
+  'Genotyp':'Genotype',
+  'Wahrscheinlichkeit %':'Probability %',
+  'Linie (falls relevant)':'Line (if relevant)',
+  'z. B. VPI':'e.g. VPI',
+  'Genetik geprüft und bestätigt':'Genetics reviewed and confirmed',
+  'Gen entfernen':'Remove gene',
+  'Aus dem bisherigen Morphtext erkannt. Bitte jede Angabe prüfen und ausdrücklich bestätigen.':'Detected from the existing morph text. Review and explicitly confirm every entry.',
+  'Die Tierart ist noch nicht eindeutig erkannt. Wähle Gene deshalb besonders sorgfältig aus.':'The species has not yet been identified clearly. Select genes with particular care.',
+  '＋ Gen hinzufügen':'＋ Add gene',
+  'Alle Angaben bestätigen':'Confirm all entries',
+  'Nur bestätigte Gene fließen verbindlich in den Morphrechner ein. Linien- und polygenetische Merkmale werden nicht mit erfundenen Prozentwerten berechnet.':'Only confirmed genes are included in the binding morph calculation. Line-bred and polygenic traits are not calculated using invented percentages.',
+  'Keine bestätigten oder sicher berechenbaren Gene vorhanden.':'No confirmed or reliably calculable genes available.',
+  'Keine sicher berechenbaren Genorte vorhanden.':'No reliably calculable loci available.',
+  'Der Morphtext enthält keine Gene aus dem geprüften Katalog.':'The morph text contains no genes from the verified catalogue.',
+  'Die Angaben wurden nur aus dem Morphtext erkannt und sind noch nicht bestätigt.':'The entries were detected only from the morph text and have not yet been confirmed.',
+  'Bitte erkannten Text einfügen.':'Paste the recognised text.',
+  'Aus Herkunftsnachweis erkannt. Bitte prüfen.':'Detected from the proof of origin. Please review.',
+  'Die Bildverarbeitung ist noch nicht verfügbar.':'Image processing is not available yet.',
+  'Bitte zuerst mit Google anmelden.':'Sign in with Google first.',
+  'Du verwendest bereits einen gemeinsamen Bestand.':'You are already using a shared collection.',
+  'Die Cloud-Synchronisierung läuft noch. Bitte in einem Moment erneut versuchen.':'Cloud synchronisation is still running. Try again in a moment.',
+  'Der persönliche Bestand konnte vor dem Erstellen nicht gesichert werden.':'The personal collection could not be backed up before creation.',
+  'Nur der Eigentümer kann Mitglieder einladen.':'Only the owner can invite members.',
+  'Bitte eine gültige E-Mail-Adresse eingeben.':'Enter a valid email address.',
+  'Du bist bereits Eigentümer dieses Bestands.':'You already own this collection.',
+  'Diese Einladung ist nicht mehr verfügbar.':'This invitation is no longer available.',
+  'Diese Einladung gehört nicht zum angemeldeten Konto.':'This invitation does not belong to the signed-in account.',
+  'Bitte den aktuellen gemeinsamen Bestand zuerst verlassen.':'Leave the current shared collection first.',
+  'Der persönliche Bestand konnte vor dem Wechsel nicht gesichert werden.':'The personal collection could not be backed up before switching.',
+  'Nur der Eigentümer kann Mitglieder entfernen.':'Only the owner can remove members.',
+  'Der Eigentümer kann sich nicht selbst entfernen.':'The owner cannot remove themselves.',
+  'Der Eigentümer kann den gemeinsamen Bestand nicht verlassen.':'The owner cannot leave the shared collection.',
+  'Der gemeinsame Bestand wurde zwischenzeitlich auf einem anderen Gerät geändert.':'The shared collection was changed on another device in the meantime.',
+  'Dein Zugriff auf den gemeinsamen Bestand wurde beendet.':'Your access to the shared collection has ended.',
+  'Bitte einen Namen für den gemeinsamen Bestand eingeben.':'Enter a name for the shared collection.',
+  'Gemeinsamer Bestand wurde erstellt.':'Shared collection created.',
+  'Gemeinsamer Bestand wurde geöffnet.':'Shared collection opened.',
+  'Mitglied wurde entfernt.':'Member removed.',
+  'Du hast den gemeinsamen Bestand verlassen.':'You have left the shared collection.',
+  'Cloud-Daten laden':'Load cloud data',
+  'Daten laden':'Load data',
+  'Lokales Backup laden':'Load local backup',
+  'Backup wiederhergestellt':'Backup restored',
+  'Datei konnte nicht gelesen werden.':'The file could not be read.',
+  'Lokales Konto entfernen':'Remove local account',
+  'Konto entfernen':'Remove account',
+  'Backup exportieren':'Export backup',
+  'Backup importieren':'Import backup',
+  'Cloud-Sicherung':'Cloud backup',
+  'Backup wiederherstellen':'Restore backup',
+  'Zeitüberschreitung.':'Timed out.',
+  'Das Foto konnte nicht in JPEG umgewandelt werden.':'The photo could not be converted to JPEG.',
+  'Das ausgewählte Foto konnte nicht gelesen werden.':'The selected photo could not be read.',
+  'Die Fotodatei konnte nicht gelesen werden.':'The photo file could not be read.',
+  'Das Einlesen der Fotodatei wurde abgebrochen.':'Reading the photo file was cancelled.',
+  'Keine Fotodatei ausgewählt.':'No photo file selected.',
+  'Die ausgewählte Datei ist kein unterstütztes Bild.':'The selected file is not a supported image.',
+  'Ungültiges eingebettetes Foto.':'Invalid embedded photo.',
+  'Das Foto besitzt keine gültigen Bildabmessungen.':'The photo has no valid image dimensions.',
+  'Die Bildverarbeitung wird von diesem Browser nicht unterstützt.':'Image processing is not supported by this browser.',
+  'Keine Bilddatei ausgewählt.':'No image file selected.',
+  'Eine Foto-Migration läuft bereits. Bitte warten, bis sie beendet ist.':'A photo migration is already running. Wait until it has finished.',
+  'Tierbestand konnte für die Foto-Migration nicht geladen werden.':'The animal collection could not be loaded for photo migration.',
+  'Foto löschen':'Delete photo',
+  'Fütterung prüfen':'Check feeding',
+  'Gewichte aktualisieren':'Update weights',
+  'Frage nicht erkannt':'Question not recognised',
+  'TerraControl KI · Mögliche Befehle':'TerraControl AI · Available commands',
+  'Schnelle Einträge':'Quick records',
+  'Fragen':'Questions',
+  'Analysieren':'Analyse',
+  'Ausführen':'Run',
+  'Eingabe':'Input',
+  'Empfehlungen':'Recommendations',
+  'Kontext löschen':'Clear context',
+  'Kontext gelöscht.':'Context cleared.',
+  'Tier-Zusammenfassung':'Animal summary',
+  'KI-Manager nicht geladen.':'AI manager not loaded.',
+  'Frag TerraControl':'Ask TerraControl',
+  'Senden':'Send',
+  'Gespeichert':'Saved',
+  'Nicht erkannt':'Not recognised',
+  'Nachricht oder Befehl eingeben...':'Enter a message or command…',
+  'Fütterungen, Gewichte, Häutungen, Futterbestand und Tierfragen per Text erfassen.':'Record feedings, weights, sheds, food inventory and animal questions using text.',
+  'Schreibe natürlich, was passiert ist. TerraControl erkennt Tier, Datum, Futter, Gewicht oder Bestand.':'Describe naturally what happened. TerraControl recognises the animal, date, food, weight or stock.',
+  'Dein intelligenter Terraristik-Assistent für Fragen, Auswertungen und schnelle Einträge.':'Your intelligent terrarium assistant for questions, analysis and quick records.',
+  'Analysiere Bestand, Fütterungen, Gewicht, Häutungen, Futterbestand und offene Aufgaben.':'Analyse the collection, feedings, weight, sheds, food inventory and open tasks.',
+  'Auswertung aller gespeicherten Fütterungen.':'Analysis of all saved feedings.',
+  'Verweigerungsquote':'Refusal rate',
+  'Pflegeaktivitäten':'Care activities',
+  'Gespeicherte Einträge nach Bereich.':'Saved records by area.',
+  'Wertanalyse':'Value analysis',
+  'Kaufwert':'Purchase value',
+  'Schätzwert':'Estimated value',
+  'Differenz':'Difference',
+  'Gewichtsentwicklung':'Weight development',
+  'Letzte Fütterungen':'Latest feedings',
+  'Noch nicht berechenbar':'Not yet calculable',
+  'Noch nicht sicher berechenbar':'Not yet reliably calculable',
+  'Für die Berechnung fehlt ein aktuelles Gewicht.':'A current weight is required for the calculation.',
+  'Für die Berechnung fehlen aktuelles Gewicht oder Schlupfdatum.':'A current weight or hatch date is required for the calculation.',
+  'Für die Berechnung fehlt das Schlupfdatum.':'The hatch date is required for the calculation.',
+  'Für diese Tierart ist noch keine geprüfte Regel hinterlegt.':'No verified rule is available for this species yet.',
+  'Erforderliche Tierdaten ergänzen.':'Add the required animal data.',
+  'Erste Fütterung eintragen':'Record the first feeding',
+  'Futtertier höchstens etwa 10 % des Körpergewichts':'Feeder no more than about 10% of body weight',
+  'Schaben, Grillen, Heuschrecken und andere geeignete Futterinsekten':'Cockroaches, crickets, locusts and other suitable feeder insects',
+  'Schaben, Grillen, Heuschrecken und weitere geeignete Futterinsekten':'Cockroaches, crickets, locusts and other suitable feeder insects',
+  'Abwechslungsreich und gut ernährt anbieten; nicht breiter als der Kopf':'Offer a varied, well-fed diet; no wider than the head',
+  'Jungtier: täglich eine passende Menge kleiner Futterinsekten; abwechslungsreich und gut ernährt':'Juvenile: offer an appropriate quantity of small, varied and well-fed feeder insects daily',
+  'Adult: etwa jeden zweiten Tag; abwechslungsreich und nicht breiter als der Kopf':'Adult: about every other day; varied and no wider than the head',
+  'Artgerecht abwechslungsreich und gut ernährt anbieten; Futtergröße an Kopfbreite anpassen':'Offer an appropriate, varied and well-fed diet; match feeder size to head width',
+  '1 passend großes Futterinsekt, zum Beispiel Schabe, Grille oder Heuschrecke':'1 suitably sized feeder insect, such as a cockroach, cricket or locust',
+  'Hinterleib und Häutungszustand prüfen':'Check abdomen and moulting status',
+  'Futterinsekt höchstens etwa in Hinterleibsgröße; bei Vorhäutung und nach frischer Häutung nicht füttern':'Feeder insect no larger than about the abdomen; do not feed during premoult or immediately after moulting',
+  'Vogelspinne · Größe, Art und Häutungszustand beachten':'Tarantula · consider size, species and moulting status',
+  '1 Futtertier passend zur Körperbreite':'1 feeder suited to body width',
+  'Futtertier nicht deutlich breiter als Kopf beziehungsweise Körpermitte':'Feeder should not be noticeably wider than the head or mid-body',
+  'Allgemeine Schlangenorientierung':'General snake guidance',
+  'genaue Art und Lebensphase beachten':'consider the exact species and life stage',
+  'Jungtier':'Juvenile',
+  'Alter':'Age',
+  'Monate':'months',
+  'Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.':'The legal notice will be completed with the final operator details before publication.',
+  'TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account. Nachrichten im Supportchat werden zur Bearbeitung der Anfrage in Firebase gespeichert und sind nur für den jeweiligen Nutzer und den TerraControl-Support bestimmt.':'TerraControl stores animal and user data locally in browser/app storage. Cloud features use the signed-in user account. Support-chat messages are stored in Firebase to process the request and can only be accessed by the respective user and TerraControl support.',
+  'Keine Daten vorhanden.':'No data available.',
+  'Kein Tier ausgewählt':'No animal selected',
+  'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Select an animal from the list or open the PDF function using the PDF button on an animal card.',
+  'Tier-Abgabenachweis':'Animal transfer certificate',
+  'Tierakte':'Animal record',
+  'Tierdaten':'Animal details',
+  'Käufer':'Buyer',
+  'Erklärung':'Declaration',
+  'Der Verkäufer bestätigt die ordnungsgemäße Übergabe des beschriebenen Tieres einschließlich der dokumentierten Stammdaten und Pflegehistorie.':'The seller confirms the proper transfer of the described animal, including the documented master data and care history.',
+  'Ort, Datum / Verkäufer':'Place, date / seller',
+  'Ort, Datum / Käufer':'Place, date / buyer',
+  'Stammdaten':'Master data',
+  'Bemerkungen':'Notes',
+  'Gewichtshistorie':'Weight history',
+  'Fütterungshistorie':'Feeding history',
+  'Häutungshistorie':'Shed history',
+  'Erstellt mit TerraControl – Terraristik Dashboard':'Created with TerraControl – terrarium dashboard',
+  'Fehler beim Erstellen':'Creation error',
+  'Stammdaten zur späteren Übernahme in TerraControl.':'Master data for later import into TerraControl.',
+  'z. B. Familie Döring':'e.g. the Döring family',
+  'optional, z. B. KP-001':'optional, e.g. KP-001',
+  'optional, z. B. KP-002':'optional, e.g. KP-002',
+  'Text':'Text',
+  'Medusa hat heute eine 200g Ratte gefressen':'Medusa ate a 200 g rat today',
+  'Apollo hat gestern verweigert':'Apollo refused food yesterday',
+  'Medusa wiegt jetzt 2536 Gramm':'Medusa now weighs 2536 grams',
+  'Medusa hat sich gehäutet':'Medusa has shed',
+  'Ich habe 25 Ratten 120g gekauft':'I bought 25 rats weighing 120 g',
+  'Bestand Ratte 70g auf 10 setzen':'Set the stock of 70 g rats to 10',
+  'Wie geht es Medusa?':'How is Medusa?',
+  'Welche Tiere müssen gefüttert werden?':'Which animals need feeding?',
+  'Welche Tiere müssen gewogen werden?':'Which animals need weighing?',
+  'Welche Empfehlungen gibt es?':'What recommendations are available?',
+  'Beispiel: Medusa hat heute Frost Ratte 200 g gefressen...':'Example: Medusa ate a 200 g frozen rat today…',
+  'Medusa hat heute gefressen':'Medusa ate today',
+  'Medusa hat sich heute gehäutet':'Medusa shed today',
+  'Medusa wiegt 2536 Gramm':'Medusa weighs 2536 grams',
+  'Welche Tiere müssen morgen gefüttert werden?':'Which animals need feeding tomorrow?',
+  'Welche Tiere haben abgenommen?':'Which animals have lost weight?',
+  'Welche Tiere haben sich zuletzt gehäutet?':'Which animals shed most recently?',
+  'Welche Tiere sind weiblich?':'Which animals are female?',
+  'Zeige Status von Luna':'Show Luna’s status',
+  'Was muss ich einkaufen?':'What do I need to buy?',
+  'Erledigt':'Completed',
+  'Fortschritt':'Progress',
+  'Offen':'Open',
+  'Bereiche fertig':'Areas completed',
+  'Gesamtfortschritt':'Overall progress',
+  'Hinweis':'Note',
+  'Release-Test':'Release test'
+  ,'Leopardgecko':'Leopard gecko'
+  ,'Jemenchamäleon':'Veiled chameleon'
+  ,'Chamäleon':'Chameleon'
+  ,'Boa':'Boa'
+  ,'Mitteilung beenden':'End announcement'
+  ,'Mögliche Befehle der Schnelleingabe':'Available quick-entry commands'
+  ,'Mögliche Befehle der TerraControl KI':'Available TerraControl AI commands'
+  ,'Migration starten':'Start migration'
+  ,'Heute fällige Aufgaben':'Tasks due today'
+  ,'Tiere und Profile':'Animals and profiles'
+  ,'Pflege und Historie':'Care and history'
+  ,'System und Synchronisation':'System and synchronisation'
+  ,'Release-Test bestanden':'Release test passed'
+  ,'Noch nicht begonnen':'Not started yet'
+  ,'Test läuft':'Test in progress'
+  ,'Release-Test zurücksetzen':'Reset release test'
+  ,'Test zurücksetzen':'Reset test'
+  ,'Alle Prüfpunkte abschließen':'Complete all checkpoints'
+  ,'Alle markieren':'Mark all'
+  ,'Tierstatus':'Animal status'
+  ,'Verweigerungen':'Refusals'
+  ,'Gewichtsverlust':'Weight loss'
+  ,'Gewicht aktualisieren':'Update weight'
+  ,'3 Verweigerungen in Folge':'3 refusals in a row'
+  ,'Keine Treffer.':'No results.'
+  ,'Ich kann aktuell Fragen zu Fütterung, Gewicht, Verweigerungen, Gewichtsverlust, Futterbestand und Tierstatus beantworten.':'I can currently answer questions about feeding, weight, refusals, weight loss, food inventory and animal status.'
+  ,'Noch keine Fütterung dokumentiert.':'No feeding recorded yet.'
+  ,'Drei Verweigerungen in Folge.':'Three refusals in a row.'
+  ,'Zwei Verweigerungen in Folge.':'Two refusals in a row.'
+  ,'Noch kein Gewicht dokumentiert.':'No weight recorded yet.'
+  ,'Keine Empfehlungen.':'No recommendations.'
+  ,'Keine aktuellen Empfehlungen.':'No current recommendations.'
+  ,'Heute füttern/prüfen':'Feed/check today'
+  ,'Häutung beobachten':'Monitor shed'
+  ,'Kritisch':'Critical'
+  ,'Futter niedrig':'Low food stock'
+  ,'Gewichtstrend':'Weight trend'
+  ,'Ø Futterintervall':'Average feeding interval'
+  ,'Ø Häutungsintervall':'Average shed interval'
+  ,'keine Fütterung':'no feeding'
+  ,'kein Gewicht':'no weight'
+  ,'wiederholte Verweigerung':'repeated refusal'
+  ,'unbekannt':'unknown'
+  ,'stabil':'stable'
+  ,'unauffällig':'unremarkable'
+  ,'Gewicht unverändert.':'Weight unchanged.'
+  ,'Erste Gewichtsmessung gespeichert.':'First weight measurement saved.'
+  ,'Ansicht konnte nicht geladen werden':'Page could not be loaded'
+  ,'Gen hinzufügen':'Add gene'
+  ,'Abgabenachweis · Version 1.0.4 RC11':'Transfer certificate · Version 1.0.4 RC11'
+  ,'Abgabe & PDF':'Transfer & PDF'
+  ,'Verkäufer- und Käuferdaten erfassen, Tier auswählen, Vorschau prüfen und den fertigen Abgabenachweis drucken.':'Enter seller and buyer details, select an animal, check the preview and print the completed transfer certificate.'
+  ,'Verkäuferdaten':'Seller details'
+  ,'Käuferdaten':'Buyer details'
+  ,'Name Verkäufer':'Seller name'
+  ,'Name Käufer':'Buyer name'
+  ,'Telefon Verkäufer':'Seller phone'
+  ,'Telefon Käufer':'Buyer phone'
+  ,'E-Mail Verkäufer':'Seller email'
+  ,'E-Mail Käufer':'Buyer email'
+  ,'Straße / Hausnummer Käufer':'Buyer street / house number'
+  ,'PLZ / Ort Käufer':'Buyer postcode / city'
+  ,'Verkäufer speichern':'Save seller'
+  ,'Tier und Dokument':'Animal and document'
+  ,'Sonstige Bemerkungen':'Other notes'
+  ,'Vorschau erstellen':'Create preview'
+  ,'PDF / Drucken':'PDF / Print'
+  ,'Zurück zur App':'Back to app'
+  ,'Verkäufer gespeichert.':'Seller saved.'
+  ,'Vorschau erstellt.':'Preview created.'
+  ,'Tier-Abgabenachweis':'Animal transfer certificate'
+  ,'Dokument':'Document'
+  ,'Schlupf':'Hatch date'
+  ,'Stammdaten zur späteren Übernahme in TerraControl.':'Core data for later import into TerraControl.'
+  ,'Tierdaten':'Animal details'
+  ,'Erklärung':'Declaration'
+  ,'Der Verkäufer bestätigt die ordnungsgemäße Übergabe des beschriebenen Tieres einschließlich der dokumentierten Stammdaten und Pflegehistorie.':'The seller confirms the proper transfer of the described animal, including its documented core data and care history.'
+  ,'Ort, Datum / Verkäufer':'Place, date / seller'
+  ,'Ort, Datum / Käufer':'Place, date / buyer'
+  ,'Tierakte':'Animal record'
+  ,'Stammdaten':'Core data'
+  ,'Bemerkungen':'Notes'
+  ,'Gewichtshistorie':'Weight history'
+  ,'Fütterungshistorie':'Feeding history'
+  ,'Häutungshistorie':'Shed history'
+  ,'vollständig':'complete'
+  ,'unvollständig':'incomplete'
+  ,'Erstellt mit TerraControl – Terraristik Dashboard':'Created with TerraControl – terrarium management dashboard'
+  ,'Kein Tier ausgewählt':'No animal selected'
+  ,'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Please select an animal from the list or open the PDF function using the PDF button on an animal card.'
+  ,'Fehler beim Erstellen':'Creation failed'
  }
 };
 

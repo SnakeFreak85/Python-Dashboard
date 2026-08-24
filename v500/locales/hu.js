@@ -438,7 +438,7 @@ window.NGTLocales.hu={
   'NACHBESTELLEN':'ÚJRARENDELÉS',
   'Tierprofil':'Állatprofil',
   'Orientierung ersetzt keine individuelle tierärztliche Beratung.':'Az iránymutatás nem helyettesíti az egyéni állatorvosi tanácsot.',
-  'Im Bestand':'Készleten',
+  'Im Bestand':'Az állományban',
   'Dokumentencenter':'Dokumentumközpont',
   'Abgabenachweis / PDF':'Leadási igazolás / PDF',
   'Digitaler Tierpass QR':'Digitális állatútlevél QR',
@@ -471,7 +471,334 @@ window.NGTLocales.hu={
   'Fehler':'Hiba',
   'Warnung':'Figyelmeztetés',
   'Bitte warten …':'Kérlek várj …',
-  'Lädt …':'Betöltés …'
+  'Lädt …':'Betöltés …',
+  'Ansicht konnte nicht geladen werden.':'Az oldal nem tölthető be.',
+  'Bitte bestätigen':'Kérjük, erősítsd meg',
+  'Datei:':'Fájl:',
+  'Herkunftsnachweis übernommen':'Származási igazolás importálva',
+  'z. B. Pythons':'pl. pitonok',
+  'z. B. Python':'pl. Python',
+  'z. B. regius':'pl. regius',
+  'Kein Standardfutter':'Nincs alapértelmezett eleség',
+  'Noch keine Einträge':'Még nincsenek bejegyzések',
+  'Archiv ist leer':'Az archívum üres',
+  'Keine Tiere mit diesem Status':'Nincs ilyen állapotú állat',
+  'Tier nicht gefunden.':'Az állat nem található.',
+  'Aktive Nachzuchten':'Aktív utódok',
+  'Im Archiv':'Az archívumban',
+  'Tiergruppen':'Állatcsoportok',
+  '0 ausgewählt':'0 kiválasztva',
+  'Auswahl löschen':'Kijelöltek törlése',
+  'Nachzuchten löschen':'Utódok törlése',
+  'Anzahl':'Mennyiség',
+  'Ergebnis':'Eredmény',
+  'Im Tierprofil zuerst ein Standardfutter auswählen.':'Először válassz alapértelmezett eleséget az állat profiljában.',
+  'Mehrere Tiere mit ihrem hinterlegten Standardfutter erfassen.':'Több állat etetésének rögzítése a mentett alapértelmezett eleséggel.',
+  'Auch bei „Verweigert“ wird die bereitgestellte Menge vom Futterbestand abgezogen.':'A felkínált mennyiség „Visszautasítva” esetén is levonódik az eleségkészletből.',
+  '0 Tiere ausgewählt':'0 állat kiválasztva',
+  'Keine aktiven Tiere vorhanden.':'Nincs aktív állat.',
+  'Mitteilung als gelesen markieren':'Értesítés megjelölése olvasottként',
+  'Bestand danach ausreichend':'A készlet továbbra is elegendő lesz',
+  'Bestand danach leer':'A készlet kiürül',
+  'Mindestbestand wird erreicht':'Eléri a minimális készletszintet',
+  'Futterbestand wird leer':'Az eleségkészlet kiürül',
+  'Bitte für jedes ausgewählte Tier eine ganze Anzahl ab 1 eintragen.':'Minden kiválasztott állathoz adj meg legalább 1 egész mennyiséget.',
+  'Die Sammelfütterung konnte nicht gespeichert werden.':'A csoportos etetés nem menthető.',
+  'Sammelfütterung speichern':'Csoportos etetés mentése',
+  'Futterposition zusammenführen':'Eleségtételek egyesítése',
+  'Bestand addieren':'Hozzáadás a készlethez',
+  'Tier wurde gelöscht.':'Állat törölve.',
+  'Tier übernommen':'Állat importálva',
+  'TerraControl-ID':'TerraControl-azonosító',
+  'optional':'opcionális',
+  'Notiz (optional)':'Megjegyzés (opcionális)',
+  'Morph, Linie oder Ziel':'Morf, vonal vagy cél',
+  'z. B. Luna × Jack':'pl. Luna × Jack',
+  'Trage zuerst einen Schlupf oder eine Geburt mit Anzahl ein. Danach können alle Nachzuchten gesammelt angelegt werden.':'Először rögzíts egy kelést vagy születést a mennyiséggel. Ezután az összes utód együtt létrehozható.',
+  'Verpaarung läuft':'Pároztatás folyamatban',
+  'Gelege / Wurf erwartet':'Várható tojásrakás / alom',
+  'Gelege / Wurf erfasst':'Tojásrakás / alom rögzítve',
+  'Genetik-Modul ist nicht geladen.':'A genetikai modul nincs betöltve.',
+  'Bitte Vater- und Muttertier auswählen oder extern eintragen.':'Válaszd ki az apa- és anyaállatot, vagy add meg őket külső állatként.',
+  'Vater- und Muttertier müssen unterschiedlich sein.':'Az apa- és anyaállatnak különbözőnek kell lennie.',
+  'Verpaarung gespeichert.':'Pároztatás mentve.',
+  'Status aktualisiert.':'Állapot frissítve.',
+  'Etappe gespeichert.':'Szakasz mentve.',
+  'Projekt archiviert.':'Projekt archiválva.',
+  'Zuchtprojekt löschen?':'Törlöd a tenyésztési projektet?',
+  'Zuchtprojekt gelöscht.':'Tenyésztési projekt törölve.',
+  'Alle Nachzuchten dieses Projekts sind bereits angelegt.':'A projekt összes utódja már létre lett hozva.',
+  'Bitte eine gültige Anzahl eingeben.':'Adj meg érvényes mennyiséget.',
+  'Nachzuchten anlegen':'Utódok létrehozása',
+  'Die Nachzuchten wurden bereits angelegt.':'Az utódok már létre lettek hozva.',
+  'Gen auswählen':'Gén kiválasztása',
+  'Gen':'Gén',
+  'Genotyp':'Genotípus',
+  'Wahrscheinlichkeit %':'Valószínűség %',
+  'Linie (falls relevant)':'Vonal (ha releváns)',
+  'z. B. VPI':'pl. VPI',
+  'Genetik geprüft und bestätigt':'Genetika ellenőrizve és megerősítve',
+  'Gen entfernen':'Gén eltávolítása',
+  'Aus dem bisherigen Morphtext erkannt. Bitte jede Angabe prüfen und ausdrücklich bestätigen.':'A meglévő morfszöveg alapján felismerve. Ellenőrizz és erősíts meg minden bejegyzést.',
+  'Die Tierart ist noch nicht eindeutig erkannt. Wähle Gene deshalb besonders sorgfältig aus.':'A faj még nincs egyértelműen azonosítva. Különös gondossággal válaszd ki a géneket.',
+  '＋ Gen hinzufügen':'＋ Gén hozzáadása',
+  'Alle Angaben bestätigen':'Minden bejegyzés megerősítése',
+  'Nur bestätigte Gene fließen verbindlich in den Morphrechner ein. Linien- und polygenetische Merkmale werden nicht mit erfundenen Prozentwerten berechnet.':'Csak a megerősített gének kerülnek be a morfkalkulációba. A vonaltenyésztett és poligénes tulajdonságokat nem számítjuk ki kitalált százalékokkal.',
+  'Keine bestätigten oder sicher berechenbaren Gene vorhanden.':'Nincs megerősített vagy megbízhatóan számítható gén.',
+  'Keine sicher berechenbaren Genorte vorhanden.':'Nincs megbízhatóan számítható lókusz.',
+  'Der Morphtext enthält keine Gene aus dem geprüften Katalog.':'A morfszöveg nem tartalmaz gént az ellenőrzött katalógusból.',
+  'Die Angaben wurden nur aus dem Morphtext erkannt und sind noch nicht bestätigt.':'A bejegyzéseket csak a morfszövegből ismertük fel, és még nincsenek megerősítve.',
+  'Bitte erkannten Text einfügen.':'Illeszd be a felismert szöveget.',
+  'Aus Herkunftsnachweis erkannt. Bitte prüfen.':'A származási igazolás alapján felismerve. Ellenőrizd az adatokat.',
+  'Die Bildverarbeitung ist noch nicht verfügbar.':'A képfeldolgozás még nem érhető el.',
+  'Bitte zuerst mit Google anmelden.':'Először jelentkezz be Google-fiókkal.',
+  'Du verwendest bereits einen gemeinsamen Bestand.':'Már közös állományt használsz.',
+  'Die Cloud-Synchronisierung läuft noch. Bitte in einem Moment erneut versuchen.':'A felhőszinkronizálás még folyamatban van. Próbáld újra egy pillanat múlva.',
+  'Der persönliche Bestand konnte vor dem Erstellen nicht gesichert werden.':'A személyes állomány nem menthető a létrehozás előtt.',
+  'Nur der Eigentümer kann Mitglieder einladen.':'Csak a tulajdonos hívhat meg tagokat.',
+  'Bitte eine gültige E-Mail-Adresse eingeben.':'Adj meg érvényes e-mail-címet.',
+  'Du bist bereits Eigentümer dieses Bestands.':'Már te vagy ennek az állománynak a tulajdonosa.',
+  'Diese Einladung ist nicht mehr verfügbar.':'Ez a meghívó már nem érhető el.',
+  'Diese Einladung gehört nicht zum angemeldeten Konto.':'Ez a meghívó nem a bejelentkezett fiókhoz tartozik.',
+  'Bitte den aktuellen gemeinsamen Bestand zuerst verlassen.':'Először hagyd el a jelenlegi közös állományt.',
+  'Der persönliche Bestand konnte vor dem Wechsel nicht gesichert werden.':'A személyes állomány nem menthető a váltás előtt.',
+  'Nur der Eigentümer kann Mitglieder entfernen.':'Csak a tulajdonos távolíthat el tagokat.',
+  'Der Eigentümer kann sich nicht selbst entfernen.':'A tulajdonos nem távolíthatja el saját magát.',
+  'Der Eigentümer kann den gemeinsamen Bestand nicht verlassen.':'A tulajdonos nem hagyhatja el a közös állományt.',
+  'Der gemeinsame Bestand wurde zwischenzeitlich auf einem anderen Gerät geändert.':'A közös állományt időközben egy másik eszközön módosították.',
+  'Dein Zugriff auf den gemeinsamen Bestand wurde beendet.':'A közös állományhoz való hozzáférésed megszűnt.',
+  'Bitte einen Namen für den gemeinsamen Bestand eingeben.':'Adj nevet a közös állománynak.',
+  'Gemeinsamer Bestand wurde erstellt.':'Közös állomány létrehozva.',
+  'Gemeinsamer Bestand wurde geöffnet.':'Közös állomány megnyitva.',
+  'Mitglied wurde entfernt.':'Tag eltávolítva.',
+  'Du hast den gemeinsamen Bestand verlassen.':'Elhagytad a közös állományt.',
+  'Cloud-Daten laden':'Felhőadatok betöltése',
+  'Daten laden':'Adatok betöltése',
+  'Lokales Backup laden':'Helyi biztonsági mentés betöltése',
+  'Backup wiederhergestellt':'Biztonsági mentés visszaállítva',
+  'Datei konnte nicht gelesen werden.':'A fájl nem olvasható.',
+  'Lokales Konto entfernen':'Helyi fiók eltávolítása',
+  'Konto entfernen':'Fiók eltávolítása',
+  'Backup exportieren':'Biztonsági mentés exportálása',
+  'Backup importieren':'Biztonsági mentés importálása',
+  'Cloud-Sicherung':'Felhőalapú biztonsági mentés',
+  'Backup wiederherstellen':'Biztonsági mentés visszaállítása',
+  'Zeitüberschreitung.':'Időtúllépés.',
+  'Das Foto konnte nicht in JPEG umgewandelt werden.':'A fotó nem alakítható JPEG-formátumba.',
+  'Das ausgewählte Foto konnte nicht gelesen werden.':'A kiválasztott fotó nem olvasható.',
+  'Die Fotodatei konnte nicht gelesen werden.':'A fotófájl nem olvasható.',
+  'Das Einlesen der Fotodatei wurde abgebrochen.':'A fotófájl beolvasása megszakadt.',
+  'Keine Fotodatei ausgewählt.':'Nincs kiválasztva fotófájl.',
+  'Die ausgewählte Datei ist kein unterstütztes Bild.':'A kiválasztott fájl nem támogatott kép.',
+  'Ungültiges eingebettetes Foto.':'Érvénytelen beágyazott fotó.',
+  'Das Foto besitzt keine gültigen Bildabmessungen.':'A fotó képméretei érvénytelenek.',
+  'Die Bildverarbeitung wird von diesem Browser nicht unterstützt.':'Ez a böngésző nem támogatja a képfeldolgozást.',
+  'Keine Bilddatei ausgewählt.':'Nincs kiválasztva képfájl.',
+  'Eine Foto-Migration läuft bereits. Bitte warten, bis sie beendet ist.':'Már folyamatban van egy fotómigráció. Várd meg, amíg befejeződik.',
+  'Tierbestand konnte für die Foto-Migration nicht geladen werden.':'Az állomány nem tölthető be a fotómigrációhoz.',
+  'Foto löschen':'Fotó törlése',
+  'Fütterung prüfen':'Etetés ellenőrzése',
+  'Gewichte aktualisieren':'Súlyok frissítése',
+  'Frage nicht erkannt':'A kérdés nem felismerhető',
+  'TerraControl KI · Mögliche Befehle':'TerraControl MI · Elérhető parancsok',
+  'Schnelle Einträge':'Gyors bejegyzések',
+  'Fragen':'Kérdések',
+  'Analysieren':'Elemzés',
+  'Ausführen':'Futtatás',
+  'Eingabe':'Bevitel',
+  'Empfehlungen':'Ajánlások',
+  'Kontext löschen':'Kontextus törlése',
+  'Kontext gelöscht.':'Kontextus törölve.',
+  'Tier-Zusammenfassung':'Állat összefoglalója',
+  'KI-Manager nicht geladen.':'Az MI-kezelő nincs betöltve.',
+  'Frag TerraControl':'Kérdezd a TerraControlt',
+  'Senden':'Küldés',
+  'Gespeichert':'Mentve',
+  'Nicht erkannt':'Nem felismerhető',
+  'Nachricht oder Befehl eingeben...':'Írj be üzenetet vagy parancsot…',
+  'Fütterungen, Gewichte, Häutungen, Futterbestand und Tierfragen per Text erfassen.':'Etetések, súlyok, vedlések, eleségkészlet és állatokkal kapcsolatos kérdések rögzítése szöveggel.',
+  'Schreibe natürlich, was passiert ist. TerraControl erkennt Tier, Datum, Futter, Gewicht oder Bestand.':'Írd le természetesen, mi történt. A TerraControl felismeri az állatot, dátumot, eleséget, súlyt vagy készletet.',
+  'Dein intelligenter Terraristik-Assistent für Fragen, Auswertungen und schnelle Einträge.':'Intelligens terrarisztikai asszisztensed kérdésekhez, elemzésekhez és gyors bejegyzésekhez.',
+  'Analysiere Bestand, Fütterungen, Gewicht, Häutungen, Futterbestand und offene Aufgaben.':'Elemezd az állományt, etetéseket, súlyt, vedléseket, eleségkészletet és nyitott feladatokat.',
+  'Auswertung aller gespeicherten Fütterungen.':'Az összes mentett etetés elemzése.',
+  'Verweigerungsquote':'Visszautasítási arány',
+  'Pflegeaktivitäten':'Gondozási tevékenységek',
+  'Gespeicherte Einträge nach Bereich.':'Mentett bejegyzések területenként.',
+  'Wertanalyse':'Értékelemzés',
+  'Kaufwert':'Vételár',
+  'Schätzwert':'Becsült érték',
+  'Differenz':'Különbség',
+  'Gewichtsentwicklung':'Súlyváltozás',
+  'Letzte Fütterungen':'Legutóbbi etetések',
+  'Noch nicht berechenbar':'Még nem számítható',
+  'Noch nicht sicher berechenbar':'Még nem számítható megbízhatóan',
+  'Für die Berechnung fehlt ein aktuelles Gewicht.':'A számításhoz aktuális súly szükséges.',
+  'Für die Berechnung fehlen aktuelles Gewicht oder Schlupfdatum.':'A számításhoz aktuális súly vagy kelési dátum szükséges.',
+  'Für die Berechnung fehlt das Schlupfdatum.':'A számításhoz kelési dátum szükséges.',
+  'Für diese Tierart ist noch keine geprüfte Regel hinterlegt.':'Ehhez a fajhoz még nincs ellenőrzött szabály.',
+  'Erforderliche Tierdaten ergänzen.':'Add meg a szükséges állatadatokat.',
+  'Erste Fütterung eintragen':'Első etetés rögzítése',
+  'Futtertier höchstens etwa 10 % des Körpergewichts':'A táplálékállat legfeljebb a testsúly körülbelül 10%-a legyen',
+  'Schaben, Grillen, Heuschrecken und andere geeignete Futterinsekten':'Csótányok, tücskök, sáskák és más megfelelő eleségrovarok',
+  'Schaben, Grillen, Heuschrecken und weitere geeignete Futterinsekten':'Csótányok, tücskök, sáskák és további megfelelő eleségrovarok',
+  'Abwechslungsreich und gut ernährt anbieten; nicht breiter als der Kopf':'Változatosan és jól tápláltan kínáld; ne legyen szélesebb a fejnél',
+  'Jungtier: täglich eine passende Menge kleiner Futterinsekten; abwechslungsreich und gut ernährt':'Fiatal állat: naponta megfelelő mennyiségű, változatos és jól táplált kis eleségrovar',
+  'Adult: etwa jeden zweiten Tag; abwechslungsreich und nicht breiter als der Kopf':'Felnőtt: körülbelül kétnaponta; változatosan, a fejnél nem szélesebb eleséggel',
+  'Artgerecht abwechslungsreich und gut ernährt anbieten; Futtergröße an Kopfbreite anpassen':'Fajnak megfelelő, változatos és jól táplált eleséget kínálj; a méretet igazítsd a fej szélességéhez',
+  '1 passend großes Futterinsekt, zum Beispiel Schabe, Grille oder Heuschrecke':'1 megfelelő méretű eleségrovar, például csótány, tücsök vagy sáska',
+  'Hinterleib und Häutungszustand prüfen':'Ellenőrizd a potrohot és a vedlési állapotot',
+  'Futterinsekt höchstens etwa in Hinterleibsgröße; bei Vorhäutung und nach frischer Häutung nicht füttern':'Az eleségrovar legfeljebb körülbelül potrohméretű legyen; vedlés előtt és közvetlenül utána ne etess',
+  'Vogelspinne · Größe, Art und Häutungszustand beachten':'Madárpók · vedd figyelembe a méretet, fajt és vedlési állapotot',
+  '1 Futtertier passend zur Körperbreite':'1, a test szélességéhez illő táplálékállat',
+  'Futtertier nicht deutlich breiter als Kopf beziehungsweise Körpermitte':'A táplálékállat ne legyen észrevehetően szélesebb a fejnél vagy a test közepénél',
+  'Allgemeine Schlangenorientierung':'Általános kígyóetetési útmutató',
+  'genaue Art und Lebensphase beachten':'vedd figyelembe a pontos fajt és életszakaszt',
+  'Jungtier':'Fiatal állat',
+  'Alter':'Kor',
+  'Monate':'hónap',
+  'Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.':'A jogi nyilatkozat a közzététel előtt kiegészül a végleges üzemeltetői adatokkal.',
+  'TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account. Nachrichten im Supportchat werden zur Bearbeitung der Anfrage in Firebase gespeichert und sind nur für den jeweiligen Nutzer und den TerraControl-Support bestimmt.':'A TerraControl helyben, a böngésző vagy az alkalmazás tárhelyén tárolja az állat- és felhasználói adatokat. A felhőfunkciók a bejelentkezett fiókot használják. A támogatási csevegés üzenetei a kérés feldolgozásához a Firebase-ben tárolódnak, és csak az érintett felhasználó és a TerraControl támogatása férhet hozzájuk.',
+  'Keine Daten vorhanden.':'Nincs elérhető adat.',
+  'Kein Tier ausgewählt':'Nincs kiválasztva állat',
+  'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Válassz egy állatot a listából, vagy nyisd meg a PDF-funkciót az állatkártya PDF-gombjával.',
+  'Tier-Abgabenachweis':'Állatátadási igazolás',
+  'Tierakte':'Állat adatlapja',
+  'Tierdaten':'Állat adatai',
+  'Käufer':'Vevő',
+  'Erklärung':'Nyilatkozat',
+  'Der Verkäufer bestätigt die ordnungsgemäße Übergabe des beschriebenen Tieres einschließlich der dokumentierten Stammdaten und Pflegehistorie.':'Az eladó igazolja a leírt állat szabályos átadását, beleértve a dokumentált alapadatokat és gondozási előzményeket.',
+  'Ort, Datum / Verkäufer':'Hely, dátum / eladó',
+  'Ort, Datum / Käufer':'Hely, dátum / vevő',
+  'Stammdaten':'Alapadatok',
+  'Bemerkungen':'Megjegyzések',
+  'Gewichtshistorie':'Súlyelőzmények',
+  'Fütterungshistorie':'Etetési előzmények',
+  'Häutungshistorie':'Vedlési előzmények',
+  'Erstellt mit TerraControl – Terraristik Dashboard':'Készült a TerraControl terrarisztikai kezelőfelületével',
+  'Fehler beim Erstellen':'Hiba a létrehozás során',
+  'Stammdaten zur späteren Übernahme in TerraControl.':'Alapadatok a későbbi TerraControl-importhoz.',
+  'z. B. Familie Döring':'pl. Döring család',
+  'optional, z. B. KP-001':'opcionális, pl. KP-001',
+  'optional, z. B. KP-002':'opcionális, pl. KP-002',
+  'Text':'Szöveg',
+  'Medusa hat heute eine 200g Ratte gefressen':'Medusa ma megevett egy 200 g-os patkányt',
+  'Apollo hat gestern verweigert':'Apollo tegnap visszautasította az eleséget',
+  'Medusa wiegt jetzt 2536 Gramm':'Medusa súlya most 2536 gramm',
+  'Medusa hat sich gehäutet':'Medusa levedlett',
+  'Ich habe 25 Ratten 120g gekauft':'Vettem 25 darab 120 g-os patkányt',
+  'Bestand Ratte 70g auf 10 setzen':'A 70 g-os patkányok készletének beállítása 10-re',
+  'Wie geht es Medusa?':'Hogy van Medusa?',
+  'Welche Tiere müssen gefüttert werden?':'Mely állatokat kell megetetni?',
+  'Welche Tiere müssen gewogen werden?':'Mely állatokat kell megmérni?',
+  'Welche Empfehlungen gibt es?':'Milyen ajánlások érhetők el?',
+  'Beispiel: Medusa hat heute Frost Ratte 200 g gefressen...':'Példa: Medusa ma megevett egy 200 g-os fagyasztott patkányt…',
+  'Medusa hat heute gefressen':'Medusa ma evett',
+  'Medusa hat sich heute gehäutet':'Medusa ma levedlett',
+  'Medusa wiegt 2536 Gramm':'Medusa súlya 2536 gramm',
+  'Welche Tiere müssen morgen gefüttert werden?':'Mely állatokat kell holnap megetetni?',
+  'Welche Tiere haben abgenommen?':'Mely állatok fogytak?',
+  'Welche Tiere haben sich zuletzt gehäutet?':'Mely állatok vedlettek legutóbb?',
+  'Welche Tiere sind weiblich?':'Mely állatok nőstények?',
+  'Zeige Status von Luna':'Luna állapotának megjelenítése',
+  'Was muss ich einkaufen?':'Mit kell vásárolnom?',
+  'Erledigt':'Kész',
+  'Fortschritt':'Előrehaladás',
+  'Offen':'Nyitott',
+  'Bereiche fertig':'Befejezett területek',
+  'Gesamtfortschritt':'Teljes előrehaladás',
+  'Hinweis':'Megjegyzés',
+  'Release-Test':'Kiadási teszt'
+  ,'Leopardgecko':'Leopárdgekkó'
+  ,'Jemenchamäleon':'Sisakos kaméleon'
+  ,'Chamäleon':'Kaméleon'
+  ,'Boa':'Boa'
+  ,'Mitteilung beenden':'Értesítés befejezése'
+  ,'Mögliche Befehle der Schnelleingabe':'Elérhető gyorsbeviteli parancsok'
+  ,'Mögliche Befehle der TerraControl KI':'A TerraControl MI elérhető parancsai'
+  ,'Migration starten':'Migráció indítása'
+  ,'Heute fällige Aufgaben':'Ma esedékes feladatok'
+  ,'Tiere und Profile':'Állatok és profilok'
+  ,'Pflege und Historie':'Gondozás és előzmények'
+  ,'System und Synchronisation':'Rendszer és szinkronizálás'
+  ,'Release-Test bestanden':'Kiadási teszt sikeres'
+  ,'Noch nicht begonnen':'Még nem kezdődött el'
+  ,'Test läuft':'Teszt folyamatban'
+  ,'Release-Test zurücksetzen':'Kiadási teszt visszaállítása'
+  ,'Test zurücksetzen':'Teszt visszaállítása'
+  ,'Alle Prüfpunkte abschließen':'Minden ellenőrzési pont befejezése'
+  ,'Alle markieren':'Összes megjelölése'
+  ,'Tierstatus':'Állat állapota'
+  ,'Verweigerungen':'Visszautasítások'
+  ,'Gewichtsverlust':'Súlycsökkenés'
+  ,'Gewicht aktualisieren':'Súly frissítése'
+  ,'3 Verweigerungen in Folge':'3 egymást követő visszautasítás'
+  ,'Keine Treffer.':'Nincs találat.'
+  ,'Ich kann aktuell Fragen zu Fütterung, Gewicht, Verweigerungen, Gewichtsverlust, Futterbestand und Tierstatus beantworten.':'Jelenleg az etetéssel, súllyal, visszautasításokkal, súlycsökkenéssel, eleségkészlettel és az állatok állapotával kapcsolatos kérdésekre tudok válaszolni.'
+  ,'Noch keine Fütterung dokumentiert.':'Még nincs rögzített etetés.'
+  ,'Drei Verweigerungen in Folge.':'Három egymást követő visszautasítás.'
+  ,'Zwei Verweigerungen in Folge.':'Két egymást követő visszautasítás.'
+  ,'Noch kein Gewicht dokumentiert.':'Még nincs rögzített súly.'
+  ,'Keine Empfehlungen.':'Nincsenek ajánlások.'
+  ,'Keine aktuellen Empfehlungen.':'Nincsenek aktuális ajánlások.'
+  ,'Heute füttern/prüfen':'Ma etetendő/ellenőrizendő'
+  ,'Häutung beobachten':'Vedlés megfigyelése'
+  ,'Kritisch':'Kritikus'
+  ,'Futter niedrig':'Alacsony eleségkészlet'
+  ,'Gewichtstrend':'Súlytrend'
+  ,'Ø Futterintervall':'Átlagos etetési időköz'
+  ,'Ø Häutungsintervall':'Átlagos vedlési időköz'
+  ,'keine Fütterung':'nincs etetés'
+  ,'kein Gewicht':'nincs súly'
+  ,'wiederholte Verweigerung':'ismételt visszautasítás'
+  ,'unbekannt':'ismeretlen'
+  ,'stabil':'stabil'
+  ,'unauffällig':'rendben'
+  ,'Gewicht unverändert.':'A súly változatlan.'
+  ,'Erste Gewichtsmessung gespeichert.':'Első súlymérés mentve.'
+  ,'Ansicht konnte nicht geladen werden':'Az oldal nem tölthető be'
+  ,'Gen hinzufügen':'Gén hozzáadása'
+  ,'Abgabenachweis · Version 1.0.4 RC11':'Átadási igazolás · 1.0.4 RC11 verzió'
+  ,'Abgabe & PDF':'Átadás és PDF'
+  ,'Verkäufer- und Käuferdaten erfassen, Tier auswählen, Vorschau prüfen und den fertigen Abgabenachweis drucken.':'Add meg az eladó és a vevő adatait, válassz állatot, ellenőrizd az előnézetet, majd nyomtasd ki a kész átadási igazolást.'
+  ,'Verkäuferdaten':'Eladó adatai'
+  ,'Käuferdaten':'Vevő adatai'
+  ,'Name Verkäufer':'Eladó neve'
+  ,'Name Käufer':'Vevő neve'
+  ,'Telefon Verkäufer':'Eladó telefonszáma'
+  ,'Telefon Käufer':'Vevő telefonszáma'
+  ,'E-Mail Verkäufer':'Eladó e-mail-címe'
+  ,'E-Mail Käufer':'Vevő e-mail-címe'
+  ,'Straße / Hausnummer Käufer':'Vevő utcája / házszáma'
+  ,'PLZ / Ort Käufer':'Vevő irányítószáma / települése'
+  ,'Verkäufer speichern':'Eladó mentése'
+  ,'Tier und Dokument':'Állat és dokumentum'
+  ,'Sonstige Bemerkungen':'Egyéb megjegyzések'
+  ,'Vorschau erstellen':'Előnézet létrehozása'
+  ,'PDF / Drucken':'PDF / Nyomtatás'
+  ,'Zurück zur App':'Vissza az alkalmazásba'
+  ,'Verkäufer gespeichert.':'Eladó mentve.'
+  ,'Vorschau erstellt.':'Előnézet elkészült.'
+  ,'Tier-Abgabenachweis':'Állat átadási igazolása'
+  ,'Dokument':'Dokumentum'
+  ,'Schlupf':'Kelés / születés'
+  ,'Stammdaten zur späteren Übernahme in TerraControl.':'Alapadatok a későbbi TerraControl-importhoz.'
+  ,'Tierdaten':'Állat adatai'
+  ,'Erklärung':'Nyilatkozat'
+  ,'Der Verkäufer bestätigt die ordnungsgemäße Übergabe des beschriebenen Tieres einschließlich der dokumentierten Stammdaten und Pflegehistorie.':'Az eladó igazolja a leírt állat szabályos átadását, beleértve a dokumentált alapadatokat és gondozási előzményeket.'
+  ,'Ort, Datum / Verkäufer':'Hely, dátum / eladó'
+  ,'Ort, Datum / Käufer':'Hely, dátum / vevő'
+  ,'Tierakte':'Állat adatlapja'
+  ,'Stammdaten':'Alapadatok'
+  ,'Bemerkungen':'Megjegyzések'
+  ,'Gewichtshistorie':'Súlyelőzmények'
+  ,'Fütterungshistorie':'Etetési előzmények'
+  ,'Häutungshistorie':'Vedlési előzmények'
+  ,'vollständig':'teljes'
+  ,'unvollständig':'hiányos'
+  ,'Erstellt mit TerraControl – Terraristik Dashboard':'Készült a TerraControl terrarisztikai kezelőfelülettel'
+  ,'Kein Tier ausgewählt':'Nincs kiválasztott állat'
+  ,'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Válassz egy állatot a listából, vagy nyisd meg a PDF-funkciót egy állatkártya PDF-gombjával.'
+  ,'Fehler beim Erstellen':'Hiba a létrehozáskor'
  }
 };
 

@@ -19,7 +19,7 @@ window.NGTLocales.it={
   'Verwaltung':'Gestione',
   'KI':'IA',
   'Hauptnavigation':'Navigazione principale',
-  'Bestand':'Inventario',
+  'Bestand':'Animali',
   'Nachzuchten':'Riproduzioni',
   'Smart Dashboard':'Cruscotto intelligente',
   'Verpaarungsplanung':'Pianificazione accoppiamenti',
@@ -438,7 +438,7 @@ window.NGTLocales.it={
   'NACHBESTELLEN':'ORDINARE DI NUOVO',
   'Tierprofil':'Profilo animale',
   'Orientierung ersetzt keine individuelle tierärztliche Beratung.':'L\'orientamento non sostituisce la consulenza veterinaria individuale.',
-  'Im Bestand':'In stock',
+  'Im Bestand':'Nella collezione',
   'Dokumentencenter':'Centro documenti',
   'Abgabenachweis / PDF':'Certificato di consegna / PDF',
   'Digitaler Tierpass QR':'Passaporto digitale per animali QR',
@@ -471,7 +471,334 @@ window.NGTLocales.it={
   'Fehler':'Errore',
   'Warnung':'Avvertimento',
   'Bitte warten …':'Attendere prego …',
-  'Lädt …':'Caricamento …'
+  'Lädt …':'Caricamento …',
+  'Ansicht konnte nicht geladen werden.':'Impossibile caricare la pagina.',
+  'Bitte bestätigen':'Conferma',
+  'Datei:':'File:',
+  'Herkunftsnachweis übernommen':'Certificato di origine importato',
+  'z. B. Pythons':'ad es. pitoni',
+  'z. B. Python':'ad es. Python',
+  'z. B. regius':'ad es. regius',
+  'Kein Standardfutter':'Nessun alimento predefinito',
+  'Noch keine Einträge':'Nessuna voce',
+  'Archiv ist leer':'L’archivio è vuoto',
+  'Keine Tiere mit diesem Status':'Nessun animale con questo stato',
+  'Tier nicht gefunden.':'Animale non trovato.',
+  'Aktive Nachzuchten':'Prole attiva',
+  'Im Archiv':'Nell’archivio',
+  'Tiergruppen':'Gruppi di animali',
+  '0 ausgewählt':'0 selezionati',
+  'Auswahl löschen':'Elimina selezione',
+  'Nachzuchten löschen':'Elimina prole',
+  'Anzahl':'Quantità',
+  'Ergebnis':'Risultato',
+  'Im Tierprofil zuerst ein Standardfutter auswählen.':'Seleziona prima un alimento predefinito nel profilo dell’animale.',
+  'Mehrere Tiere mit ihrem hinterlegten Standardfutter erfassen.':'Registra più animali usando il loro alimento predefinito.',
+  'Auch bei „Verweigert“ wird die bereitgestellte Menge vom Futterbestand abgezogen.':'La quantità offerta viene sottratta dalle scorte anche se si seleziona “Rifiutato”.',
+  '0 Tiere ausgewählt':'0 animali selezionati',
+  'Keine aktiven Tiere vorhanden.':'Nessun animale attivo disponibile.',
+  'Mitteilung als gelesen markieren':'Segna l’avviso come letto',
+  'Bestand danach ausreichend':'Le scorte resteranno sufficienti',
+  'Bestand danach leer':'Le scorte saranno esaurite',
+  'Mindestbestand wird erreicht':'Verrà raggiunta la scorta minima',
+  'Futterbestand wird leer':'Le scorte alimentari saranno esaurite',
+  'Bitte für jedes ausgewählte Tier eine ganze Anzahl ab 1 eintragen.':'Inserisci una quantità intera di almeno 1 per ogni animale selezionato.',
+  'Die Sammelfütterung konnte nicht gespeichert werden.':'Impossibile salvare l’alimentazione multipla.',
+  'Sammelfütterung speichern':'Salva alimentazione multipla',
+  'Futterposition zusammenführen':'Unisci articoli alimentari',
+  'Bestand addieren':'Aggiungi alle scorte',
+  'Tier wurde gelöscht.':'Animale eliminato.',
+  'Tier übernommen':'Animale importato',
+  'TerraControl-ID':'ID TerraControl',
+  'optional':'facoltativo',
+  'Notiz (optional)':'Nota (facoltativa)',
+  'Morph, Linie oder Ziel':'Morph, linea o obiettivo',
+  'z. B. Luna × Jack':'ad es. Luna × Jack',
+  'Trage zuerst einen Schlupf oder eine Geburt mit Anzahl ein. Danach können alle Nachzuchten gesammelt angelegt werden.':'Registra prima una schiusa o nascita con la quantità. Poi potrai creare tutta la prole insieme.',
+  'Verpaarung läuft':'Accoppiamento in corso',
+  'Gelege / Wurf erwartet':'Covata / cucciolata prevista',
+  'Gelege / Wurf erfasst':'Covata / cucciolata registrata',
+  'Genetik-Modul ist nicht geladen.':'Il modulo genetico non è caricato.',
+  'Bitte Vater- und Muttertier auswählen oder extern eintragen.':'Seleziona il padre e la madre oppure inseriscili come animali esterni.',
+  'Vater- und Muttertier müssen unterschiedlich sein.':'Il padre e la madre devono essere animali diversi.',
+  'Verpaarung gespeichert.':'Accoppiamento salvato.',
+  'Status aktualisiert.':'Stato aggiornato.',
+  'Etappe gespeichert.':'Fase salvata.',
+  'Projekt archiviert.':'Progetto archiviato.',
+  'Zuchtprojekt löschen?':'Eliminare il progetto di riproduzione?',
+  'Zuchtprojekt gelöscht.':'Progetto di riproduzione eliminato.',
+  'Alle Nachzuchten dieses Projekts sind bereits angelegt.':'Tutta la prole di questo progetto è già stata creata.',
+  'Bitte eine gültige Anzahl eingeben.':'Inserisci una quantità valida.',
+  'Nachzuchten anlegen':'Crea prole',
+  'Die Nachzuchten wurden bereits angelegt.':'La prole è già stata creata.',
+  'Gen auswählen':'Seleziona gene',
+  'Gen':'Gene',
+  'Genotyp':'Genotipo',
+  'Wahrscheinlichkeit %':'Probabilità %',
+  'Linie (falls relevant)':'Linea (se pertinente)',
+  'z. B. VPI':'ad es. VPI',
+  'Genetik geprüft und bestätigt':'Genetica verificata e confermata',
+  'Gen entfernen':'Rimuovi gene',
+  'Aus dem bisherigen Morphtext erkannt. Bitte jede Angabe prüfen und ausdrücklich bestätigen.':'Rilevato dal testo morph esistente. Verifica e conferma esplicitamente ogni voce.',
+  'Die Tierart ist noch nicht eindeutig erkannt. Wähle Gene deshalb besonders sorgfältig aus.':'La specie non è stata ancora identificata chiaramente. Seleziona i geni con particolare attenzione.',
+  '＋ Gen hinzufügen':'＋ Aggiungi gene',
+  'Alle Angaben bestätigen':'Conferma tutte le voci',
+  'Nur bestätigte Gene fließen verbindlich in den Morphrechner ein. Linien- und polygenetische Merkmale werden nicht mit erfundenen Prozentwerten berechnet.':'Solo i geni confermati vengono inclusi nel calcolo vincolante dei morph. I caratteri di linea e poligenici non vengono calcolati con percentuali inventate.',
+  'Keine bestätigten oder sicher berechenbaren Gene vorhanden.':'Nessun gene confermato o calcolabile in modo affidabile.',
+  'Keine sicher berechenbaren Genorte vorhanden.':'Nessun locus calcolabile in modo affidabile.',
+  'Der Morphtext enthält keine Gene aus dem geprüften Katalog.':'Il testo morph non contiene geni del catalogo verificato.',
+  'Die Angaben wurden nur aus dem Morphtext erkannt und sind noch nicht bestätigt.':'Le voci sono state rilevate solo dal testo morph e non sono ancora confermate.',
+  'Bitte erkannten Text einfügen.':'Incolla il testo riconosciuto.',
+  'Aus Herkunftsnachweis erkannt. Bitte prüfen.':'Rilevato dal certificato di origine. Verifica i dati.',
+  'Die Bildverarbeitung ist noch nicht verfügbar.':'L’elaborazione delle immagini non è ancora disponibile.',
+  'Bitte zuerst mit Google anmelden.':'Accedi prima con Google.',
+  'Du verwendest bereits einen gemeinsamen Bestand.':'Stai già utilizzando una collezione condivisa.',
+  'Die Cloud-Synchronisierung läuft noch. Bitte in einem Moment erneut versuchen.':'La sincronizzazione cloud è ancora in corso. Riprova tra poco.',
+  'Der persönliche Bestand konnte vor dem Erstellen nicht gesichert werden.':'Impossibile eseguire il backup della collezione personale prima della creazione.',
+  'Nur der Eigentümer kann Mitglieder einladen.':'Solo il proprietario può invitare membri.',
+  'Bitte eine gültige E-Mail-Adresse eingeben.':'Inserisci un indirizzo email valido.',
+  'Du bist bereits Eigentümer dieses Bestands.':'Sei già proprietario di questa collezione.',
+  'Diese Einladung ist nicht mehr verfügbar.':'Questo invito non è più disponibile.',
+  'Diese Einladung gehört nicht zum angemeldeten Konto.':'Questo invito non appartiene all’account connesso.',
+  'Bitte den aktuellen gemeinsamen Bestand zuerst verlassen.':'Abbandona prima la collezione condivisa attuale.',
+  'Der persönliche Bestand konnte vor dem Wechsel nicht gesichert werden.':'Impossibile eseguire il backup della collezione personale prima del cambio.',
+  'Nur der Eigentümer kann Mitglieder entfernen.':'Solo il proprietario può rimuovere membri.',
+  'Der Eigentümer kann sich nicht selbst entfernen.':'Il proprietario non può rimuovere se stesso.',
+  'Der Eigentümer kann den gemeinsamen Bestand nicht verlassen.':'Il proprietario non può abbandonare la collezione condivisa.',
+  'Der gemeinsame Bestand wurde zwischenzeitlich auf einem anderen Gerät geändert.':'La collezione condivisa è stata modificata su un altro dispositivo.',
+  'Dein Zugriff auf den gemeinsamen Bestand wurde beendet.':'Il tuo accesso alla collezione condivisa è terminato.',
+  'Bitte einen Namen für den gemeinsamen Bestand eingeben.':'Inserisci un nome per la collezione condivisa.',
+  'Gemeinsamer Bestand wurde erstellt.':'Collezione condivisa creata.',
+  'Gemeinsamer Bestand wurde geöffnet.':'Collezione condivisa aperta.',
+  'Mitglied wurde entfernt.':'Membro rimosso.',
+  'Du hast den gemeinsamen Bestand verlassen.':'Hai abbandonato la collezione condivisa.',
+  'Cloud-Daten laden':'Carica dati cloud',
+  'Daten laden':'Carica dati',
+  'Lokales Backup laden':'Carica backup locale',
+  'Backup wiederhergestellt':'Backup ripristinato',
+  'Datei konnte nicht gelesen werden.':'Impossibile leggere il file.',
+  'Lokales Konto entfernen':'Rimuovi account locale',
+  'Konto entfernen':'Rimuovi account',
+  'Backup exportieren':'Esporta backup',
+  'Backup importieren':'Importa backup',
+  'Cloud-Sicherung':'Backup cloud',
+  'Backup wiederherstellen':'Ripristina backup',
+  'Zeitüberschreitung.':'Tempo scaduto.',
+  'Das Foto konnte nicht in JPEG umgewandelt werden.':'Impossibile convertire la foto in JPEG.',
+  'Das ausgewählte Foto konnte nicht gelesen werden.':'Impossibile leggere la foto selezionata.',
+  'Die Fotodatei konnte nicht gelesen werden.':'Impossibile leggere il file della foto.',
+  'Das Einlesen der Fotodatei wurde abgebrochen.':'La lettura del file della foto è stata annullata.',
+  'Keine Fotodatei ausgewählt.':'Nessun file foto selezionato.',
+  'Die ausgewählte Datei ist kein unterstütztes Bild.':'Il file selezionato non è un’immagine supportata.',
+  'Ungültiges eingebettetes Foto.':'Foto incorporata non valida.',
+  'Das Foto besitzt keine gültigen Bildabmessungen.':'La foto non ha dimensioni valide.',
+  'Die Bildverarbeitung wird von diesem Browser nicht unterstützt.':'L’elaborazione delle immagini non è supportata da questo browser.',
+  'Keine Bilddatei ausgewählt.':'Nessun file immagine selezionato.',
+  'Eine Foto-Migration läuft bereits. Bitte warten, bis sie beendet ist.':'È già in corso una migrazione delle foto. Attendi che sia terminata.',
+  'Tierbestand konnte für die Foto-Migration nicht geladen werden.':'Impossibile caricare la collezione per la migrazione delle foto.',
+  'Foto löschen':'Elimina foto',
+  'Fütterung prüfen':'Controlla alimentazione',
+  'Gewichte aktualisieren':'Aggiorna pesi',
+  'Frage nicht erkannt':'Domanda non riconosciuta',
+  'TerraControl KI · Mögliche Befehle':'IA TerraControl · Comandi disponibili',
+  'Schnelle Einträge':'Registrazioni rapide',
+  'Fragen':'Domande',
+  'Analysieren':'Analizza',
+  'Ausführen':'Esegui',
+  'Eingabe':'Input',
+  'Empfehlungen':'Raccomandazioni',
+  'Kontext löschen':'Cancella contesto',
+  'Kontext gelöscht.':'Contesto cancellato.',
+  'Tier-Zusammenfassung':'Riepilogo animale',
+  'KI-Manager nicht geladen.':'Gestore IA non caricato.',
+  'Frag TerraControl':'Chiedi a TerraControl',
+  'Senden':'Invia',
+  'Gespeichert':'Salvato',
+  'Nicht erkannt':'Non riconosciuto',
+  'Nachricht oder Befehl eingeben...':'Inserisci un messaggio o comando…',
+  'Fütterungen, Gewichte, Häutungen, Futterbestand und Tierfragen per Text erfassen.':'Registra alimentazioni, pesi, mute, scorte alimentari e domande sugli animali tramite testo.',
+  'Schreibe natürlich, was passiert ist. TerraControl erkennt Tier, Datum, Futter, Gewicht oder Bestand.':'Descrivi naturalmente ciò che è successo. TerraControl riconosce animale, data, alimento, peso o scorta.',
+  'Dein intelligenter Terraristik-Assistent für Fragen, Auswertungen und schnelle Einträge.':'Il tuo assistente intelligente per domande, analisi e registrazioni rapide.',
+  'Analysiere Bestand, Fütterungen, Gewicht, Häutungen, Futterbestand und offene Aufgaben.':'Analizza collezione, alimentazioni, peso, mute, scorte alimentari e attività aperte.',
+  'Auswertung aller gespeicherten Fütterungen.':'Analisi di tutte le alimentazioni salvate.',
+  'Verweigerungsquote':'Tasso di rifiuto',
+  'Pflegeaktivitäten':'Attività di cura',
+  'Gespeicherte Einträge nach Bereich.':'Registrazioni salvate per area.',
+  'Wertanalyse':'Analisi del valore',
+  'Kaufwert':'Valore di acquisto',
+  'Schätzwert':'Valore stimato',
+  'Differenz':'Differenza',
+  'Gewichtsentwicklung':'Andamento del peso',
+  'Letzte Fütterungen':'Ultime alimentazioni',
+  'Noch nicht berechenbar':'Non ancora calcolabile',
+  'Noch nicht sicher berechenbar':'Non ancora calcolabile in modo affidabile',
+  'Für die Berechnung fehlt ein aktuelles Gewicht.':'Per il calcolo è necessario un peso attuale.',
+  'Für die Berechnung fehlen aktuelles Gewicht oder Schlupfdatum.':'Per il calcolo sono necessari il peso attuale o la data di schiusa.',
+  'Für die Berechnung fehlt das Schlupfdatum.':'Per il calcolo è necessaria la data di schiusa.',
+  'Für diese Tierart ist noch keine geprüfte Regel hinterlegt.':'Non è ancora disponibile una regola verificata per questa specie.',
+  'Erforderliche Tierdaten ergänzen.':'Aggiungi i dati necessari dell’animale.',
+  'Erste Fütterung eintragen':'Registra la prima alimentazione',
+  'Futtertier höchstens etwa 10 % des Körpergewichts':'Preda non superiore a circa il 10% del peso corporeo',
+  'Schaben, Grillen, Heuschrecken und andere geeignete Futterinsekten':'Blatte, grilli, locuste e altri insetti da pasto adatti',
+  'Schaben, Grillen, Heuschrecken und weitere geeignete Futterinsekten':'Blatte, grilli, locuste e altri insetti da pasto adatti',
+  'Abwechslungsreich und gut ernährt anbieten; nicht breiter als der Kopf':'Offrire una dieta varia e ben alimentata; non più larga della testa',
+  'Jungtier: täglich eine passende Menge kleiner Futterinsekten; abwechslungsreich und gut ernährt':'Giovane: offrire ogni giorno una quantità adeguata di piccoli insetti da pasto vari e ben alimentati',
+  'Adult: etwa jeden zweiten Tag; abwechslungsreich und nicht breiter als der Kopf':'Adulto: circa a giorni alterni; vario e non più largo della testa',
+  'Artgerecht abwechslungsreich und gut ernährt anbieten; Futtergröße an Kopfbreite anpassen':'Offrire una dieta adeguata, varia e ben alimentata; adattare la dimensione alla larghezza della testa',
+  '1 passend großes Futterinsekt, zum Beispiel Schabe, Grille oder Heuschrecke':'1 insetto da pasto di dimensioni adatte, ad esempio blatta, grillo o locusta',
+  'Hinterleib und Häutungszustand prüfen':'Controllare addome e stato della muta',
+  'Futterinsekt höchstens etwa in Hinterleibsgröße; bei Vorhäutung und nach frischer Häutung nicht füttern':'Insetto da pasto non più grande dell’addome; non alimentare in premuta o subito dopo la muta',
+  'Vogelspinne · Größe, Art und Häutungszustand beachten':'Tarantola · considerare dimensioni, specie e stato della muta',
+  '1 Futtertier passend zur Körperbreite':'1 preda adatta alla larghezza del corpo',
+  'Futtertier nicht deutlich breiter als Kopf beziehungsweise Körpermitte':'La preda non deve essere sensibilmente più larga della testa o della parte centrale del corpo',
+  'Allgemeine Schlangenorientierung':'Indicazioni generali per serpenti',
+  'genaue Art und Lebensphase beachten':'considerare la specie esatta e la fase di vita',
+  'Jungtier':'Giovane',
+  'Alter':'Età',
+  'Monate':'mesi',
+  'Impressum wird vor Veröffentlichung mit den finalen Betreiberangaben ergänzt.':'Le note legali saranno completate con i dati finali del gestore prima della pubblicazione.',
+  'TerraControl speichert Tier- und Nutzerdaten lokal im Browser/App-Speicher. Cloud-Funktionen nutzen den angemeldeten Nutzer-Account. Nachrichten im Supportchat werden zur Bearbeitung der Anfrage in Firebase gespeichert und sind nur für den jeweiligen Nutzer und den TerraControl-Support bestimmt.':'TerraControl memorizza localmente i dati degli animali e degli utenti nel browser o nell’app. Le funzioni cloud utilizzano l’account connesso. I messaggi della chat di supporto vengono salvati in Firebase per gestire la richiesta e sono accessibili solo all’utente interessato e al supporto TerraControl.',
+  'Keine Daten vorhanden.':'Nessun dato disponibile.',
+  'Kein Tier ausgewählt':'Nessun animale selezionato',
+  'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Seleziona un animale dall’elenco oppure apri la funzione PDF tramite il pulsante PDF della scheda animale.',
+  'Tier-Abgabenachweis':'Certificato di cessione dell’animale',
+  'Tierakte':'Cartella dell’animale',
+  'Tierdaten':'Dati dell’animale',
+  'Käufer':'Acquirente',
+  'Erklärung':'Dichiarazione',
+  'Der Verkäufer bestätigt die ordnungsgemäße Übergabe des beschriebenen Tieres einschließlich der dokumentierten Stammdaten und Pflegehistorie.':'Il venditore conferma la corretta cessione dell’animale descritto, compresi i dati di base e lo storico delle cure documentati.',
+  'Ort, Datum / Verkäufer':'Luogo, data / venditore',
+  'Ort, Datum / Käufer':'Luogo, data / acquirente',
+  'Stammdaten':'Dati di base',
+  'Bemerkungen':'Note',
+  'Gewichtshistorie':'Storico del peso',
+  'Fütterungshistorie':'Storico delle alimentazioni',
+  'Häutungshistorie':'Storico delle mute',
+  'Erstellt mit TerraControl – Terraristik Dashboard':'Creato con TerraControl – dashboard terraristica',
+  'Fehler beim Erstellen':'Errore durante la creazione',
+  'Stammdaten zur späteren Übernahme in TerraControl.':'Dati di base per la successiva importazione in TerraControl.',
+  'z. B. Familie Döring':'ad es. famiglia Döring',
+  'optional, z. B. KP-001':'facoltativo, ad es. KP-001',
+  'optional, z. B. KP-002':'facoltativo, ad es. KP-002',
+  'Text':'Testo',
+  'Medusa hat heute eine 200g Ratte gefressen':'Medusa ha mangiato oggi un ratto da 200 g',
+  'Apollo hat gestern verweigert':'Apollo ha rifiutato il cibo ieri',
+  'Medusa wiegt jetzt 2536 Gramm':'Medusa ora pesa 2536 grammi',
+  'Medusa hat sich gehäutet':'Medusa ha fatto la muta',
+  'Ich habe 25 Ratten 120g gekauft':'Ho acquistato 25 ratti da 120 g',
+  'Bestand Ratte 70g auf 10 setzen':'Imposta a 10 la scorta di ratti da 70 g',
+  'Wie geht es Medusa?':'Come sta Medusa?',
+  'Welche Tiere müssen gefüttert werden?':'Quali animali devono essere alimentati?',
+  'Welche Tiere müssen gewogen werden?':'Quali animali devono essere pesati?',
+  'Welche Empfehlungen gibt es?':'Quali raccomandazioni sono disponibili?',
+  'Beispiel: Medusa hat heute Frost Ratte 200 g gefressen...':'Esempio: Medusa ha mangiato oggi un ratto congelato da 200 g…',
+  'Medusa hat heute gefressen':'Medusa ha mangiato oggi',
+  'Medusa hat sich heute gehäutet':'Medusa ha fatto la muta oggi',
+  'Medusa wiegt 2536 Gramm':'Medusa pesa 2536 grammi',
+  'Welche Tiere müssen morgen gefüttert werden?':'Quali animali devono essere alimentati domani?',
+  'Welche Tiere haben abgenommen?':'Quali animali hanno perso peso?',
+  'Welche Tiere haben sich zuletzt gehäutet?':'Quali animali hanno fatto la muta più di recente?',
+  'Welche Tiere sind weiblich?':'Quali animali sono femmine?',
+  'Zeige Status von Luna':'Mostra lo stato di Luna',
+  'Was muss ich einkaufen?':'Che cosa devo acquistare?',
+  'Erledigt':'Completato',
+  'Fortschritt':'Avanzamento',
+  'Offen':'Aperto',
+  'Bereiche fertig':'Aree completate',
+  'Gesamtfortschritt':'Avanzamento complessivo',
+  'Hinweis':'Nota',
+  'Release-Test':'Test di rilascio'
+  ,'Leopardgecko':'Geco leopardino'
+  ,'Jemenchamäleon':'Camaleonte velato'
+  ,'Chamäleon':'Camaleonte'
+  ,'Boa':'Boa'
+  ,'Mitteilung beenden':'Termina avviso'
+  ,'Mögliche Befehle der Schnelleingabe':'Comandi disponibili per la registrazione rapida'
+  ,'Mögliche Befehle der TerraControl KI':'Comandi disponibili dell’IA TerraControl'
+  ,'Migration starten':'Avvia migrazione'
+  ,'Heute fällige Aufgaben':'Attività in scadenza oggi'
+  ,'Tiere und Profile':'Animali e profili'
+  ,'Pflege und Historie':'Cura e cronologia'
+  ,'System und Synchronisation':'Sistema e sincronizzazione'
+  ,'Release-Test bestanden':'Test di rilascio superato'
+  ,'Noch nicht begonnen':'Non ancora iniziato'
+  ,'Test läuft':'Test in corso'
+  ,'Release-Test zurücksetzen':'Reimposta test di rilascio'
+  ,'Test zurücksetzen':'Reimposta test'
+  ,'Alle Prüfpunkte abschließen':'Completa tutti i punti di controllo'
+  ,'Alle markieren':'Contrassegna tutti'
+  ,'Tierstatus':'Stato dell’animale'
+  ,'Verweigerungen':'Rifiuti'
+  ,'Gewichtsverlust':'Perdita di peso'
+  ,'Gewicht aktualisieren':'Aggiorna peso'
+  ,'3 Verweigerungen in Folge':'3 rifiuti consecutivi'
+  ,'Keine Treffer.':'Nessun risultato.'
+  ,'Ich kann aktuell Fragen zu Fütterung, Gewicht, Verweigerungen, Gewichtsverlust, Futterbestand und Tierstatus beantworten.':'Attualmente posso rispondere a domande su alimentazione, peso, rifiuti, perdita di peso, scorte alimentari e stato degli animali.'
+  ,'Noch keine Fütterung dokumentiert.':'Nessuna alimentazione ancora registrata.'
+  ,'Drei Verweigerungen in Folge.':'Tre rifiuti consecutivi.'
+  ,'Zwei Verweigerungen in Folge.':'Due rifiuti consecutivi.'
+  ,'Noch kein Gewicht dokumentiert.':'Nessun peso ancora registrato.'
+  ,'Keine Empfehlungen.':'Nessuna raccomandazione.'
+  ,'Keine aktuellen Empfehlungen.':'Nessuna raccomandazione attuale.'
+  ,'Heute füttern/prüfen':'Alimentare/controllare oggi'
+  ,'Häutung beobachten':'Controlla la muta'
+  ,'Kritisch':'Critico'
+  ,'Futter niedrig':'Scorte alimentari basse'
+  ,'Gewichtstrend':'Andamento del peso'
+  ,'Ø Futterintervall':'Intervallo medio di alimentazione'
+  ,'Ø Häutungsintervall':'Intervallo medio tra le mute'
+  ,'keine Fütterung':'nessuna alimentazione'
+  ,'kein Gewicht':'nessun peso'
+  ,'wiederholte Verweigerung':'rifiuto ripetuto'
+  ,'unbekannt':'sconosciuto'
+  ,'stabil':'stabile'
+  ,'unauffällig':'nella norma'
+  ,'Gewicht unverändert.':'Peso invariato.'
+  ,'Erste Gewichtsmessung gespeichert.':'Prima misurazione del peso salvata.'
+  ,'Ansicht konnte nicht geladen werden':'Impossibile caricare la pagina'
+  ,'Gen hinzufügen':'Aggiungi gene'
+  ,'Abgabenachweis · Version 1.0.4 RC11':'Certificato di cessione · Versione 1.0.4 RC11'
+  ,'Abgabe & PDF':'Cessione e PDF'
+  ,'Verkäufer- und Käuferdaten erfassen, Tier auswählen, Vorschau prüfen und den fertigen Abgabenachweis drucken.':'Inserisci i dati di venditore e acquirente, seleziona un animale, controlla l’anteprima e stampa il certificato di cessione.'
+  ,'Verkäuferdaten':'Dati del venditore'
+  ,'Käuferdaten':'Dati dell’acquirente'
+  ,'Name Verkäufer':'Nome del venditore'
+  ,'Name Käufer':'Nome dell’acquirente'
+  ,'Telefon Verkäufer':'Telefono del venditore'
+  ,'Telefon Käufer':'Telefono dell’acquirente'
+  ,'E-Mail Verkäufer':'E-mail del venditore'
+  ,'E-Mail Käufer':'E-mail dell’acquirente'
+  ,'Straße / Hausnummer Käufer':'Via / numero civico dell’acquirente'
+  ,'PLZ / Ort Käufer':'CAP / città dell’acquirente'
+  ,'Verkäufer speichern':'Salva venditore'
+  ,'Tier und Dokument':'Animale e documento'
+  ,'Sonstige Bemerkungen':'Altre note'
+  ,'Vorschau erstellen':'Crea anteprima'
+  ,'PDF / Drucken':'PDF / Stampa'
+  ,'Zurück zur App':'Torna all’app'
+  ,'Verkäufer gespeichert.':'Venditore salvato.'
+  ,'Vorschau erstellt.':'Anteprima creata.'
+  ,'Tier-Abgabenachweis':'Certificato di cessione dell’animale'
+  ,'Dokument':'Documento'
+  ,'Schlupf':'Nascita'
+  ,'Stammdaten zur späteren Übernahme in TerraControl.':'Dati di base per la successiva importazione in TerraControl.'
+  ,'Tierdaten':'Dati dell’animale'
+  ,'Erklärung':'Dichiarazione'
+  ,'Der Verkäufer bestätigt die ordnungsgemäße Übergabe des beschriebenen Tieres einschließlich der dokumentierten Stammdaten und Pflegehistorie.':'Il venditore conferma la corretta cessione dell’animale descritto, inclusi i dati di base e la cronologia delle cure documentati.'
+  ,'Ort, Datum / Verkäufer':'Luogo, data / venditore'
+  ,'Ort, Datum / Käufer':'Luogo, data / acquirente'
+  ,'Tierakte':'Cartella dell’animale'
+  ,'Stammdaten':'Dati di base'
+  ,'Bemerkungen':'Note'
+  ,'Gewichtshistorie':'Cronologia del peso'
+  ,'Fütterungshistorie':'Cronologia alimentare'
+  ,'Häutungshistorie':'Cronologia delle mute'
+  ,'vollständig':'completa'
+  ,'unvollständig':'incompleta'
+  ,'Erstellt mit TerraControl – Terraristik Dashboard':'Creato con TerraControl – gestione terraristica'
+  ,'Kein Tier ausgewählt':'Nessun animale selezionato'
+  ,'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Seleziona un animale dall’elenco oppure apri la funzione PDF tramite il pulsante PDF della scheda dell’animale.'
+  ,'Fehler beim Erstellen':'Errore durante la creazione'
  }
 };
 

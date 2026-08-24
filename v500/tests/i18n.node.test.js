@@ -54,6 +54,11 @@ assert.equal(TCI18n.t('alle 14–21 Tage'),'every 14–21 days');
 assert.equal(TCI18n.t('1 Futtertier mit etwa 90 g'),'1 feeder weighing about 90 g');
 assert.equal(TCI18n.t('7 Tage'),'7 days');
 assert.equal(TCI18n.t('Pythons · 1 Tier'),'Pythons · 1 animal');
+assert.equal(TCI18n.t('Archiv ist leer'),'The archive is empty');
+assert.equal(TCI18n.t('Fütterung prüfen: letzte Fütterung vor 8 Tagen.'),'Check feeding: last feeding 8 days ago.');
+assert.equal(TCI18n.t('Luna: Gewicht aktualisieren'),'Luna: Update weight');
+assert.equal(TCI18n.t('seit 1 Tag fällig'),'1 day overdue');
+assert.equal(TCI18n.t('Boa · 650 g · Alter 24 Monate'),'Boa · 650 g · age 24 months');
 assert.equal(TCI18n.t('Luna'),'Luna','User content without a catalogue entry remains unchanged.');
 assert.equal(TCI18n.locale(),'en-GB');
 assert.deepEqual(TCI18n.supported,['de','en','it','hu']);
@@ -64,6 +69,9 @@ assert.equal(TCI18n.current(),'it');
 assert.equal(TCI18n.t('Einstellungen'),'Impostazioni');
 assert.equal(TCI18n.t('35 Tiere'),'35 animali');
 assert.equal(TCI18n.t('Hallo Sascha 👋'),'Ciao Sascha 👋');
+assert.equal(TCI18n.t('Archiv ist leer'),'L’archivio è vuoto');
+assert.equal(TCI18n.t('Luna: Gewicht aktualisieren'),'Luna: Aggiorna peso');
+assert.equal(TCI18n.t('seit 1 Tag fällig'),'in ritardo di 1 giorno');
 assert.equal(TCI18n.locale(),'it-IT');
 
 TCI18n.set('hu',{reload:false});
@@ -72,7 +80,26 @@ assert.equal(TCI18n.current(),'hu');
 assert.equal(TCI18n.t('Einstellungen'),'Beállítások');
 assert.equal(TCI18n.t('35 Tiere'),'35 állat');
 assert.equal(TCI18n.t('Hallo Sascha 👋'),'Szia Sascha 👋');
+assert.equal(TCI18n.t('Archiv ist leer'),'Az archívum üres');
+assert.equal(TCI18n.t('Luna: Gewicht aktualisieren'),'Luna: Súly frissítése');
+assert.equal(TCI18n.t('seit 1 Tag fällig'),'1 napja esedékes');
 assert.equal(TCI18n.locale(),'hu-HU');
+
+const englishKeys=Object.keys(NGTLocales.en.phrases).sort();
+['it','hu'].forEach(function(language){
+ assert.deepEqual(
+  Object.keys(NGTLocales[language].phrases).sort(),
+  englishKeys,
+  language+' catalogue must cover every English source phrase.'
+ );
+});
+['en','it','hu'].forEach(function(language){
+ assert.equal(
+  Object.values(NGTLocales[language].phrases).some(function(value){return !String(value).trim();}),
+  false,
+  language+' catalogue must not contain empty translations.'
+ );
+});
 
 TCI18n.set('de',{reload:false});
 
