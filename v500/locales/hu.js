@@ -799,6 +799,13 @@ window.NGTLocales.hu={
   ,'Kein Tier ausgewählt':'Nincs kiválasztott állat'
   ,'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Válassz egy állatot a listából, vagy nyisd meg a PDF-funkciót egy állatkártya PDF-gombjával.'
   ,'Fehler beim Erstellen':'Hiba a létrehozáskor'
+  ,'Du schreibst auf Deutsch. Beim Veröffentlichen erstellt TerraControl automatisch Englisch, Italienisch und Ungarisch.':'Írj németül. Közzétételkor a TerraControl automatikusan elkészíti az angol, olasz és magyar változatot.'
+  ,'Übersetzen und veröffentlichen':'Fordítás és közzététel'
+  ,'Wird übersetzt und veröffentlicht …':'Fordítás és közzététel folyamatban …'
+  ,'Die automatische Übersetzungsfunktion ist noch nicht in Firebase bereitgestellt.':'Az automatikus fordítási funkció még nincs telepítve a Firebase rendszerben.'
+  ,'Die automatische Übersetzung ist noch nicht vollständig eingerichtet.':'Az automatikus fordítás még nincs teljesen beállítva.'
+  ,'Die automatische Übersetzung ist momentan nicht verfügbar. Bitte versuche es gleich noch einmal.':'Az automatikus fordítás jelenleg nem érhető el. Próbáld újra rövidesen.'
+  ,'Die Übersetzung dauert momentan zu lange. Bitte versuche es gleich noch einmal.':'A fordítás jelenleg túl sokáig tart. Próbáld újra rövidesen.'
  }
 };
 

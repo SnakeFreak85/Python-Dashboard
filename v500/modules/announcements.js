@@ -108,8 +108,12 @@ function preview(){
 
 function adminView(){
  const values=draft||current||{};
- const title=values.title||'';
- const message=values.message||'';
+ const title=
+  values.sourceTitle||
+  values.title||'';
+ const message=
+  values.sourceMessage||
+  values.message||'';
 
  return `
   <section class="tc2AnnouncementsAdmin">
@@ -125,6 +129,10 @@ function adminView(){
    ${preview()}
 
    <div class="tc2AnnouncementEditor">
+    <div class="tc2AnnouncementNotice">
+     Du schreibst auf Deutsch. Beim Veröffentlichen erstellt TerraControl automatisch Englisch, Italienisch und Ungarisch.
+    </div>
+
     <label>
      <span>Überschrift</span>
      <input
@@ -165,7 +173,7 @@ function adminView(){
       onclick="NGTAnnouncements.publish()"
       ${saving?'disabled':''}
      >
-      ${saving?'Wird veröffentlicht …':'Veröffentlichen'}
+      ${saving?'Wird übersetzt und veröffentlicht …':'Übersetzen und veröffentlichen'}
      </button>
 
      <button

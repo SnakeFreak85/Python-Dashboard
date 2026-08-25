@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-4';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-5-announcements-i18n-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -37,7 +37,10 @@ const HOUSEHOLD_QUERY=
  '&r=household-1';
 const I18N_QUERY=
  VERSION_QUERY+
- '&r=i18n-4';
+ '&r=i18n-5';
+const ANNOUNCEMENTS_I18N_QUERY=
+ VERSION_QUERY+
+ '&r=announcements-i18n-1';
 
 const APP_SHELL=[
  './',
@@ -134,9 +137,9 @@ const APP_SHELL=[
  './v500/firebase-sync.js'+HOUSEHOLD_QUERY,
  './v500/modules/account.js'+HOUSEHOLD_QUERY,
  './v500/support-service.js'+VERSION_QUERY,
- './v500/announcement-service.js'+VERSION_QUERY,
+ './v500/announcement-service.js'+ANNOUNCEMENTS_I18N_QUERY,
  './v500/modules/support.js'+VERSION_QUERY,
- './v500/modules/announcements.js'+VERSION_QUERY,
+ './v500/modules/announcements.js'+ANNOUNCEMENTS_I18N_QUERY,
  './v500/app.js'+HOUSEHOLD_QUERY
 ];
 

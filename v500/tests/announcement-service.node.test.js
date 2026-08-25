@@ -10,6 +10,7 @@ let user={
  email:'saschad1711@gmail.com'
 };
 let writes=[];
+let currentSnapshot=null;
 
 const fsMod={
  doc:function(db,collection,documentId){
@@ -31,9 +32,36 @@ const fsMod={
    data:data
   });
  },
+ onSnapshot:function(reference,onValue){
+  if(currentSnapshot){
+   onValue(currentSnapshot);
+  }
+  return function(){};
+ },
  serverTimestamp:function(){
   return {
    serverTimestamp:true
+  };
+ }
+};
+
+const functionsMod={
+ getFunctions:function(){
+  return {};
+ },
+ httpsCallable:function(instance,name){
+  return async function(data){
+   writes.push({
+    type:'call',
+    name:name,
+    data:data
+   });
+   return {
+    data:{
+     publishedAtMs:123,
+     languages:['de','en','it','hu']
+    }
+   };
   };
  }
 };
@@ -42,8 +70,11 @@ global.NGTFirebaseSync={
  getContext:async function(){
   return {
    db:{},
+   app:{},
    user:user,
-   fsMod:fsMod
+   fsMod:fsMod,
+   functions:{},
+   functionsMod:functionsMod
   };
  },
  currentUser:function(){
@@ -75,17 +106,53 @@ async function run(){
 
  assert.equal(writes.length,1);
  assert.equal(
-  writes[0].reference.path,
-  'appAnnouncements/current'
+  writes[0].data.title,
+  'Neue Testversion'
  );
  assert.equal(
-  writes[0].data.active,
-  true
+  writes[0].type,
+  'call'
  );
  assert.equal(
   writes[0].data.important,
   true
  );
+ assert.equal(
+  writes[0].name,
+  'translateAndPublishAnnouncement'
+ );
+
+ global.TCI18n={
+  current:function(){
+   return 'hu';
+  }
+ };
+ currentSnapshot={
+  id:'current',
+  exists:function(){return true;},
+  data:function(){
+   return {
+    title:'Deutscher Titel',
+    message:'Deutsche Nachricht',
+    active:true,
+    important:false,
+    publishedAtMs:100,
+    translations:{
+     hu:{
+      title:'Magyar cím',
+      message:'Magyar üzenet'
+     }
+    }
+   };
+  }
+ };
+ let localized=null;
+ await NGTAnnouncementService.listenCurrent(function(value){
+  localized=value;
+ });
+ assert.equal(localized.title,'Magyar cím');
+ assert.equal(localized.message,'Magyar üzenet');
+ assert.equal(localized.sourceTitle,'Deutscher Titel');
 
  await NGTAnnouncementService.close();
 
@@ -119,7 +186,7 @@ async function run(){
  );
 
  console.log(
-  'announcement-service: 12 assertions passed'
+  'announcement-service: 17 assertions passed'
  );
 }
 

@@ -6,6 +6,10 @@ const COLLECTION='appAnnouncements';
 const DOCUMENT='current';
 const MAX_TITLE_LENGTH=80;
 const MAX_MESSAGE_LENGTH=1000;
+const FUNCTIONS_REGION='europe-west3';
+const PUBLISH_FUNCTION='translateAndPublishAnnouncement';
+
+let functionsPromise=null;
 
 function clean(value){
  return String(value||'').trim();
@@ -37,6 +41,25 @@ function errorMessage(error){
 
  if(code.includes('unauthenticated')){
   return 'Bitte melde dich zuerst mit deinem Google-Konto an.';
+ }
+
+ if(code.includes('not-found')){
+  return 'Die automatische Übersetzungsfunktion ist noch nicht in Firebase bereitgestellt.';
+ }
+
+ if(code.includes('failed-precondition')){
+  return 'Die automatische Übersetzung ist noch nicht vollständig eingerichtet.';
+ }
+
+ if(code.includes('unavailable')){
+  return 'Die automatische Übersetzung ist momentan nicht verfügbar. Bitte versuche es gleich noch einmal.';
+ }
+
+ if(
+  code.includes('deadline-exceeded')||
+  code.includes('resource-exhausted')
+ ){
+  return 'Die Übersetzung dauert momentan zu lange. Bitte versuche es gleich noch einmal.';
  }
 
  return clean(
@@ -106,6 +129,8 @@ function normalize(snapshot){
  }
 
  const data=snapshot.data()||{};
+ const sourceTitle=clean(data.title);
+ const sourceMessage=clean(data.message);
  const active=!!data.active;
  const publishedAtMs=timestampMs(
   data.publishedAt,
@@ -114,11 +139,23 @@ function normalize(snapshot){
 
  if(
   !active||
-  !clean(data.title)||
-  !clean(data.message)
+  !sourceTitle||
+  !sourceMessage
  ){
   return null;
  }
+
+ const language=
+  window.TCI18n&&TCI18n.current
+   ?TCI18n.current()
+   :'de';
+ const translated=
+  data.translations&&
+  data.translations[language]||{};
+ const localizedTitle=
+  clean(translated.title)||sourceTitle;
+ const localizedMessage=
+  clean(translated.message)||sourceMessage;
 
  return Object.assign(
   {},
@@ -126,12 +163,57 @@ function normalize(snapshot){
   {
    id:snapshot.id,
    active:true,
-   title:clean(data.title),
-   message:clean(data.message),
+   title:localizedTitle,
+   message:localizedMessage,
+   sourceTitle:sourceTitle,
+   sourceMessage:sourceMessage,
+   language:language,
    important:!!data.important,
    publishedAtMs:publishedAtMs
   }
  );
+}
+
+async function functionsApi(firebase){
+ if(functionsPromise){
+  return functionsPromise;
+ }
+
+ functionsPromise=(async function(){
+  const mod=
+   firebase.functionsMod||
+   await import(
+    'https://www.gstatic.com/firebasejs/12.15.0/firebase-functions.js'
+   );
+  const instance=
+   firebase.functions||
+   mod.getFunctions(
+    firebase.app,
+    FUNCTIONS_REGION
+   );
+
+  return {
+   mod:mod,
+   instance:instance
+  };
+ })();
+
+ return functionsPromise;
+}
+
+async function publishTranslated(firebase,values){
+ const api=await functionsApi(firebase);
+ const callable=api.mod.httpsCallable(
+  api.instance,
+  PUBLISH_FUNCTION
+ );
+ const response=await callable({
+  title:values.title,
+  message:values.message,
+  important:values.important
+ });
+
+ return response&&response.data||{};
 }
 
 async function listenCurrent(onValue,onError){
@@ -201,26 +283,25 @@ async function publish(values){
   throw error;
  }
 
- const now=Date.now();
-
- await firebase.fsMod.setDoc(
-  reference(firebase),
+ const result=await publishTranslated(
+  firebase,
   {
    title:title,
    message:message,
    important:!!(
     values&&values.important
-   ),
-   active:true,
-   publishedAt:
-    firebase.fsMod.serverTimestamp(),
-   publishedAtMs:now
+   )
   }
  );
 
  return {
   id:DOCUMENT,
-  publishedAtMs:now
+  publishedAtMs:Number(
+   result.publishedAtMs
+  )||Date.now(),
+  languages:Array.isArray(
+   result.languages
+  )?result.languages.slice():[]
  };
 }
 

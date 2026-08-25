@@ -799,6 +799,13 @@ window.NGTLocales.en={
   ,'Kein Tier ausgewählt':'No animal selected'
   ,'Bitte wähle ein Tier aus der Liste oder öffne die PDF-Funktion über den PDF-Button einer Tierkarte.':'Please select an animal from the list or open the PDF function using the PDF button on an animal card.'
   ,'Fehler beim Erstellen':'Creation failed'
+  ,'Du schreibst auf Deutsch. Beim Veröffentlichen erstellt TerraControl automatisch Englisch, Italienisch und Ungarisch.':'Write in German. When you publish, TerraControl automatically creates English, Italian and Hungarian versions.'
+  ,'Übersetzen und veröffentlichen':'Translate and publish'
+  ,'Wird übersetzt und veröffentlicht …':'Translating and publishing …'
+  ,'Die automatische Übersetzungsfunktion ist noch nicht in Firebase bereitgestellt.':'The automatic translation function has not yet been deployed to Firebase.'
+  ,'Die automatische Übersetzung ist noch nicht vollständig eingerichtet.':'Automatic translation has not yet been fully configured.'
+  ,'Die automatische Übersetzung ist momentan nicht verfügbar. Bitte versuche es gleich noch einmal.':'Automatic translation is currently unavailable. Please try again shortly.'
+  ,'Die Übersetzung dauert momentan zu lange. Bitte versuche es gleich noch einmal.':'Translation is currently taking too long. Please try again shortly.'
  }
 };
 

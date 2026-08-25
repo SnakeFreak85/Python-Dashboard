@@ -17,6 +17,31 @@ service cloud.firestore {
         && request.auth.uid == userId;
     }
 
+    function validAnnouncementTranslation(value) {
+      return value is map
+        && value.keys().hasAll(['title', 'message'])
+        && value.keys().hasOnly(['title', 'message'])
+        && value.title is string
+        && value.title.size() > 0
+        && value.title.size() <= 120
+        && value.message is string
+        && value.message.size() > 0
+        && value.message.size() <= 1600;
+    }
+
+    function validAnnouncementTranslations(data) {
+      return !data.keys().hasAny(['translations'])
+        || (
+          data.translations is map
+          && data.translations.keys().hasAll(['de', 'en', 'it', 'hu'])
+          && data.translations.keys().hasOnly(['de', 'en', 'it', 'hu'])
+          && validAnnouncementTranslation(data.translations.de)
+          && validAnnouncementTranslation(data.translations.en)
+          && validAnnouncementTranslation(data.translations.it)
+          && validAnnouncementTranslation(data.translations.hu)
+        );
+    }
+
     function householdMember(householdId) {
       return signedIn()
         && exists(
@@ -165,7 +190,8 @@ service cloud.firestore {
           'important',
           'active',
           'publishedAt',
-          'publishedAtMs'
+          'publishedAtMs',
+          'translations'
         ])
         && request.resource.data.title is string
         && request.resource.data.title.size() > 0
@@ -175,7 +201,8 @@ service cloud.firestore {
         && request.resource.data.message.size() <= 1000
         && request.resource.data.important is bool
         && request.resource.data.active is bool
-        && request.resource.data.publishedAtMs is int;
+        && request.resource.data.publishedAtMs is int
+        && validAnnouncementTranslations(request.resource.data);
 
       allow delete:
         if false;
