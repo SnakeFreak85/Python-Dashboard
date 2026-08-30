@@ -55,6 +55,9 @@ assert.equal(TCI18n.t('1 Futtertier mit etwa 90 g'),'1 feeder weighing about 90 
 assert.equal(TCI18n.t('7 Tage'),'7 days');
 assert.equal(TCI18n.t('Pythons · 1 Tier'),'Pythons · 1 animal');
 assert.equal(TCI18n.t('Archiv ist leer'),'The archive is empty');
+assert.equal(TCI18n.t('In Bestand'),'To collection');
+assert.equal(TCI18n.t('3 Nachzuchten in den normalen Bestand übernehmen? Alle Daten und Historien bleiben erhalten.'),'Move 3 offspring animals to the regular collection? All data and history will be retained.');
+assert.equal(TCI18n.t('3 Nachzuchten wurden in den Bestand übernommen.'),'3 offspring animals were moved to the collection.');
 assert.equal(TCI18n.t('Fütterung prüfen: letzte Fütterung vor 8 Tagen.'),'Check feeding: last feeding 8 days ago.');
 assert.equal(TCI18n.t('Luna: Gewicht aktualisieren'),'Luna: Update weight');
 assert.equal(TCI18n.t('seit 1 Tag fällig'),'1 day overdue');

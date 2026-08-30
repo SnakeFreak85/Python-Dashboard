@@ -1,13 +1,13 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-5-announcements-i18n-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-6-announcements-i18n-1-offspring-stock-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
  '&r=light-contrast-3-animal-archive-2';
 const ANIMAL_ARCHIVE_QUERY=
  VERSION_QUERY+
- '&r=animal-archive-2';
+ '&r=animal-archive-2-offspring-stock-1';
 const DATE_DISPLAY_QUERY=
  VERSION_QUERY+
  '&r=date-display-1';
@@ -19,25 +19,25 @@ const PROFILE_MODULE_QUERY=
  '&r=animal-archive-2-profile-recommendation-1';
 const TC2_POLISH_QUERY=
  VERSION_QUERY+
- '&r=tc2-polish-2-breeding-4-genetics-5-bulk-actions-1';
+ '&r=tc2-polish-2-breeding-4-genetics-5-bulk-actions-1-offspring-stock-1';
 const BREEDING_QUERY=
  VERSION_QUERY+
  '&r=breeding-4-genetics-5';
 const BULK_ACTIONS_QUERY=
  VERSION_QUERY+
- '&r=bulk-actions-1';
+ '&r=bulk-actions-1-offspring-stock-1';
 const ANIMAL_BULK_ACTIONS_QUERY=
  VERSION_QUERY+
  '&r=animal-archive-2-bulk-actions-1';
 const OFFSPRING_BREEDING_QUERY=
  VERSION_QUERY+
- '&r=animal-archive-2-breeding-4-genetics-5-bulk-actions-1';
+ '&r=animal-archive-2-breeding-4-genetics-5-bulk-actions-1-offspring-stock-1';
 const HOUSEHOLD_QUERY=
  VERSION_QUERY+
  '&r=household-1';
 const I18N_QUERY=
  VERSION_QUERY+
- '&r=i18n-5';
+ '&r=i18n-6';
 const ANNOUNCEMENTS_I18N_QUERY=
  VERSION_QUERY+
  '&r=announcements-i18n-1';

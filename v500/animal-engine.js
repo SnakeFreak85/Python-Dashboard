@@ -63,11 +63,29 @@ function isOffspringAnimal(animal){
         animal.displayId
     ).toUpperCase();
 
-    return (
-        status==="nachzucht"||
+    /*
+     * Eine ausdrückliche Zuordnung hat Vorrang vor dem historischen
+     * NZ-Nummernkreis. So behält eine in den Bestand übernommene
+     * Nachzucht ihre nachvollziehbare Nummer, ohne weiter im
+     * Nachzuchtenbereich zu erscheinen.
+     */
+    if(collection==="stock"){
+        return false;
+    }
+
+    if(
         collection==="offspring"||
         collection==="nachzucht"||
-        collection==="nachzuchten"||
+        collection==="nachzuchten"
+    ){
+        return true;
+    }
+
+    if(status){
+        return status==="nachzucht";
+    }
+
+    return (
         publicId.includes("-NZ")
     );
 }

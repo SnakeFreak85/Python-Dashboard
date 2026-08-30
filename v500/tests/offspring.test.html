@@ -251,6 +251,7 @@ async function run(){
 
   const activeId=
    win.NGTStore.animalId(active);
+  const activePublicId=active.publicId;
 
   win.NGT500.route('offspring',{});
 
@@ -505,6 +506,110 @@ async function run(){
   record(
    'Nachzucht erhält eigenen Nummernkreis',
    String(created.publicId||'').includes('-NZ')
+  );
+
+  win.NGT500.route('offspring',{
+   group:'Pythons',
+   genus:'Python',
+   select:1
+  });
+
+  const activeCheckbox=Array.from(
+   win.document.querySelectorAll(
+    '.tc2OffspringBulkCheck'
+   )
+  ).find(function(input){
+   return input.value===activeId;
+  });
+
+  record(
+   'aktive Nachzucht kann für die Bestandsübernahme ausgewählt werden',
+   !!activeCheckbox
+  );
+
+  activeCheckbox.checked=true;
+  win.NGTOffspring.updateSelection();
+
+  const moveButton=win.document.getElementById(
+   'offspringBulkMoveStock'
+  );
+
+  record(
+   'Button In Bestand wird nach Auswahl aktiviert',
+   !!moveButton&&!moveButton.disabled&&
+    moveButton.textContent.includes('In Bestand')
+  );
+
+  const confirmBackup=win.NGT500.confirmAction;
+  win.NGT500.confirmAction=async function(){return true;};
+
+  await win.NGTOffspring.moveSelectedToStock(
+   'Pythons',
+   'Python'
+  );
+
+  win.NGT500.confirmAction=confirmBackup;
+
+  const promoted=win.NGTStore.getAnimalById(
+   activeId
+  );
+
+  equal(
+   'übernommene Nachzucht erhält Bestandsstatus',
+   promoted.status,
+   'Bestand'
+  );
+  equal(
+   'übernommene Nachzucht erhält Bestandszuordnung',
+   promoted.collection,
+   'stock'
+  );
+  equal(
+   'stabile Tier-ID bleibt bei der Übernahme erhalten',
+   win.NGTStore.animalId(promoted),
+   activeId
+  );
+  equal(
+   'Nachzuchtnummer bleibt nachvollziehbar erhalten',
+   promoted.publicId,
+   activePublicId
+  );
+  equal(
+   'Fütterungshistorie bleibt bei der Übernahme erhalten',
+   promoted.feeds.length,
+   1
+  );
+  equal(
+   'Gewichtshistorie bleibt bei der Übernahme erhalten',
+   promoted.weights.length,
+   1
+  );
+  equal(
+   'Fotos bleiben bei der Übernahme erhalten',
+   promoted.photos.length,
+   1
+  );
+  equal(
+   'unbekannte Zusatzdaten bleiben bei der Übernahme erhalten',
+   promoted.customField,
+   'bleibt'
+  );
+  equal(
+   'übernommenes Tier wird nicht mehr als Nachzucht eingeordnet',
+   win.AnimalEngine.isOffspringAnimal(promoted),
+   false
+  );
+  record(
+   'übernommenes Tier erscheint im aktiven Bestand',
+   win.NGTAnimalsInternal.allActive().some(function(row){
+    return win.NGTStore.animalId(row.a)===activeId;
+   })
+  );
+  record(
+   'übernommenes Tier ist aus der Nachzuchtliste entfernt',
+   !win.NGTStore.allOffspring().some(function(row){
+    return win.NGTStore.animalId(row.a)===activeId;
+   })
   );
 
  }catch(error){

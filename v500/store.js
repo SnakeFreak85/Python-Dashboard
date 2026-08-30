@@ -954,6 +954,44 @@ function deleteAnimalsByIds(ids){
   return removed;
 }
 
+function moveOffspringToStock(ids){
+  const requested=new Set(
+    (Array.isArray(ids)?ids:[])
+      .map(function(id){return String(id||'').trim();})
+      .filter(Boolean)
+  );
+
+  if(!requested.size){
+    return [];
+  }
+
+  const moved=[];
+
+  (db.animals||[]).forEach(function(animal,index){
+    if(
+      !requested.has(animalId(animal))||
+      !AnimalEngine.isOffspringAnimal(animal)
+    ){
+      return;
+    }
+
+    const promoted=normalizeAnimal({
+      ...animal,
+      status:'Bestand',
+      collection:'stock'
+    },animal.legacyType||animal.type,index);
+
+    db.animals[index]=promoted;
+    moved.push(promoted);
+  });
+
+  if(moved.length){
+    save();
+  }
+
+  return moved;
+}
+
 function storedPhotoSource(photo){
   return AnimalEngine.photoSource(
     photo,
@@ -1805,6 +1843,7 @@ window.NGTStore={
   deleteAnimal,
   deleteAnimalById,
   deleteAnimalsByIds,
+  moveOffspringToStock,
   addAnimalPhoto,
   setAnimalCoverPhoto,
   deleteAnimalPhoto,

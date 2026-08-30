@@ -166,6 +166,7 @@ function selectionToolbar(group,genus,selecting){
  return `<div class="tc2OffspringSelectionBar">
   <b id="offspringSelectionCount">0 ausgewählt</b>
   <button type="button" onclick="NGT500.route('offspring',{group:'${P.jsArg(group)}',genus:'${P.jsArg(genus)}'},{replace:true,noHistory:true})">Abbrechen</button>
+  <button type="button" id="offspringBulkMoveStock" class="tc2OffspringMoveStock" disabled onclick="NGTOffspring.moveSelectedToStock('${P.jsArg(group)}','${P.jsArg(genus)}')">In Bestand</button>
   <button type="button" id="offspringBulkDelete" class="danger" disabled onclick="NGTOffspring.deleteSelected('${P.jsArg(group)}','${P.jsArg(genus)}')">Auswahl löschen</button>
  </div>`;
 }
@@ -177,10 +178,33 @@ function selectedIds(){
 function updateSelection(){
  const count=selectedIds().length;
  const label=document.getElementById('offspringSelectionCount');
+ const move=document.getElementById('offspringBulkMoveStock');
  const remove=document.getElementById('offspringBulkDelete');
 
  if(label)label.textContent=count+' ausgewählt';
+ if(move)move.disabled=count===0;
  if(remove)remove.disabled=count===0;
+}
+
+async function moveSelectedToStock(group,genus){
+ const ids=selectedIds();
+ if(!ids.length)return;
+
+ const message=ids.length===1
+  ?'Diese Nachzucht in den normalen Bestand übernehmen? Alle Daten und Historien bleiben erhalten.'
+  :ids.length+' Nachzuchten in den normalen Bestand übernehmen? Alle Daten und Historien bleiben erhalten.';
+
+ if(!await NGT500.confirmAction(
+  message,
+  {title:'Nachzuchten in Bestand',confirmText:'In Bestand'}
+ ))return;
+
+ const moved=NGTStore.moveOffspringToStock(ids);
+ if(NGT500.toast){
+  NGT500.toast(moved.length+' Nachzucht'+(moved.length===1?' wurde':'en wurden')+' in den Bestand übernommen.','success');
+ }
+
+ NGT500.route('offspring',{group:group,genus:genus},{replace:true,noHistory:true});
 }
 
 async function deleteSelected(group,genus){
@@ -364,6 +388,7 @@ function render(args){
 window.NGTOffspring={
  save:P.editor.save,
  updateSelection:updateSelection,
+ moveSelectedToStock:moveSelectedToStock,
  deleteSelected:deleteSelected
 };
 

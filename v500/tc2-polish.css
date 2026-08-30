@@ -256,7 +256,7 @@ html[data-tc-theme="light"] .tc2Menu{
 
 .tc2OffspringSelectionBar{
  display:grid;
- grid-template-columns:minmax(0,1fr) auto auto;
+ grid-template-columns:minmax(0,1fr) auto auto auto;
  align-items:center;
  gap:8px;
  margin:0 0 12px;
@@ -264,6 +264,16 @@ html[data-tc-theme="light"] .tc2Menu{
  background:rgba(3,15,24,.72);
  border:1px solid var(--tc-polish-line);
  border-radius:14px;
+}
+
+.tc2OffspringMoveStock:not(:disabled){
+ color:#08120b!important;
+ border-color:var(--tc-polish-accent)!important;
+ background:linear-gradient(
+  135deg,
+  var(--tc-polish-cyan),
+  var(--tc-polish-accent)
+ )!important;
 }
 
 .tc2OffspringSelectable{
