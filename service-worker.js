@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-7-announcements-i18n-1-offspring-stock-1-food-planning-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-7-announcements-i18n-1-offspring-stock-1-food-planning-2';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -49,7 +49,10 @@ const CORE_FOOD_PLANNING_QUERY=
  '&r=bulk-actions-1-food-planning-1';
 const DASHBOARD_FOOD_PLANNING_QUERY=
  VERSION_QUERY+
- '&r=breeding-4-genetics-5-food-planning-1';
+ '&r=breeding-4-genetics-5-food-planning-2';
+const START_FOOD_PLANNING_QUERY=
+ VERSION_QUERY+
+ '&r=bulk-actions-1-food-planning-2';
 
 const APP_SHELL=[
  './',
@@ -114,7 +117,7 @@ const APP_SHELL=[
  './v500/smart-dashboard.js'+DASHBOARD_FOOD_PLANNING_QUERY,
  './v500/photo-storage.js'+HOUSEHOLD_QUERY,
 
- './v500/modules/dashboard.js'+BULK_ACTIONS_QUERY,
+ './v500/modules/dashboard.js'+START_FOOD_PLANNING_QUERY,
  './v500/hkn-import.js'+VERSION_QUERY,
 
  './v500/modules/animals-core.js'+ANIMAL_ARCHIVE_QUERY,

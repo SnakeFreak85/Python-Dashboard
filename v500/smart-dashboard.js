@@ -425,21 +425,6 @@ function render(){
    }
    </section>
 
-   <section class="tc2SDcard tc2SDFoodDemandCard">
-    <div class="tc2SDcardHead">
-     <h3>Futterbedarf</h3>
-     <button onclick="NGT500.route('foodDemand')">Öffnen ›</button>
-    </div>
-    <button class="tc2SDFoodDemandOpen" onclick="NGT500.route('foodDemand')">
-     <span>🥩</span>
-     <div>
-      <b>Bedarf pro Fütterung</b>
-      <small>Nach Tiergruppen und Standardfutter aufgeschlüsselt</small>
-     </div>
-     <i>›</i>
-    </button>
-   </section>
-
    <section class="tc2SDcard tc2SDactivityCard">
     <div class="tc2SDcardHead">
      <h3>Aktivitäten</h3>

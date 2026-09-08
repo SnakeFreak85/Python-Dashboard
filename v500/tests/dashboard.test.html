@@ -365,10 +365,11 @@ async function run(){
    4
   );
   record(
-   'Startseite priorisiert Bestand, Nachzuchten und Smart Dashboard',
+   'Startseite ersetzt den doppelten Smart-Dashboard-Einstieg durch Futterbedarf',
    navigationText.includes('Bestand')&&
    navigationText.includes('Nachzuchten')&&
-   navigationText.includes('Smart Dashboard')&&
+   navigationText.includes('Futterbedarf')&&
+   !navigationText.includes('Smart Dashboard')&&
    !navigationText.includes('Futterbestand')&&
    !navigationText.includes('TerraControl KI')
   );
@@ -461,9 +462,9 @@ async function run(){
    });
 
   equal(
-   'Smart Dashboard zeigt Handlungsbedarf und Futterplanung vor Bestandsverteilung',
+   'Smart Dashboard zeigt Handlungsbedarf vor Bestandsverteilung',
    dashboardSectionOrder.join('|'),
-   'Heute fällig|Futter nachkaufen|Futterbedarf|Aktivitäten|Bestand nach Tierart'
+   'Heute fällig|Futter nachkaufen|Aktivitäten|Bestand nach Tierart'
   );
 
   const legendText=
@@ -631,9 +632,9 @@ async function run(){
   equal('Futterbedarf gruppiert Geckos',geckoDemand.totalQuantity,1);
   equal('Pythons verwenden die hinterlegte Ratte',pythonDemand.items[0].label,'Frost Ratte 150 g');
 
-  const demandCard=smartRoot.querySelector('.tc2SDFoodDemandOpen');
+  const demandCard=dashboardRoot.querySelector('.tc21StartNavCard.foodDemand');
   record(
-   'Smart Dashboard enthält den Button Futterbedarf',
+   'Startseite enthält den Button Futterbedarf',
    !!demandCard&&demandCard.getAttribute('onclick').includes('foodDemand')
   );
 

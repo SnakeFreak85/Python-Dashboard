@@ -889,18 +889,12 @@ function render(){
      )}
 
      ${navigationCard(
-      '▥',
-      'Smart Dashboard',
-      tasks+
-       ' fällige '+
-       (
-        tasks===1
-         ?'Aufgabe'
-         :'Aufgaben'
-       ),
+      '🥩',
+      'Futterbedarf',
+      'Nach Tiergruppen und Standardfutter aufgeschlüsselt',
       null,
-      'NGTDashboard.openSmartDashboard()',
-      'dashboard'
+      "NGT500.route('foodDemand')",
+      'foodDemand'
      )}
 
      ${navigationCard(
