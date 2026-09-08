@@ -235,7 +235,7 @@ function foodRow(item){
  return `
   <button
    class="tc2SDfood"
-   onclick="NGT500.route('food')"
+   onclick="NGT500.route('food',{view:'restock'})"
   >
    <div class="tc2SDfoodImg">
     🥩
@@ -406,7 +406,7 @@ function render(){
     <div class="tc2SDcardHead">
      <h3>Futter nachkaufen</h3>
 
-     <button onclick="NGT500.route('food')">
+     <button onclick="NGT500.route('food',{view:'restock'})">
       Alle anzeigen ›
      </button>
     </div>
@@ -422,7 +422,22 @@ function render(){
         Alle Futterbestände sind ausreichend.
        </div>
       `
-    }
+   }
+   </section>
+
+   <section class="tc2SDcard tc2SDFoodDemandCard">
+    <div class="tc2SDcardHead">
+     <h3>Futterbedarf</h3>
+     <button onclick="NGT500.route('foodDemand')">Öffnen ›</button>
+    </div>
+    <button class="tc2SDFoodDemandOpen" onclick="NGT500.route('foodDemand')">
+     <span>🥩</span>
+     <div>
+      <b>Bedarf pro Fütterung</b>
+      <small>Nach Tiergruppen und Standardfutter aufgeschlüsselt</small>
+     </div>
+     <i>›</i>
+    </button>
    </section>
 
    <section class="tc2SDcard tc2SDactivityCard">
@@ -502,8 +517,95 @@ function render(){
  `;
 }
 
+function foodDemandGroupCard(group){
+ return `<button class="tc2FoodDemandGroup" onclick="NGT500.route('foodDemand',{group:'${jsArg(group.label)}'})">
+  <span>🥩</span>
+  <div>
+   <b>${esc(group.label)}</b>
+   <small>${group.animalCount} ${group.animalCount===1?'Tier':'Tiere'} · ${group.items.length} ${group.items.length===1?'Futterart':'Futterarten'}</small>
+  </div>
+  <strong>${group.totalQuantity} Stück</strong>
+  <i>›</i>
+ </button>`;
+}
+
+function foodDemandItemRow(item){
+ return `<article class="tc2FoodDemandItem">
+  <div>
+   <b>${esc(item.label)}</b>
+   <small>${item.animalCount} ${item.animalCount===1?'Tier':'Tiere'} mit diesem Standardfutter</small>
+  </div>
+  <div>
+   <strong>${item.quantity} ${esc(item.unit)}</strong>
+   <small>pro Fütterungsrunde</small>
+  </div>
+  <em>${item.stock===null?'Nicht im Futterbestand':'Bestand: '+item.stock+' '+esc(item.unit)}</em>
+ </article>`;
+}
+
+function renderFoodDemand(args){
+ args=args||{};
+
+ const groupName=String(args.group||'');
+ const groups=NGTDashboardData.foodDemandRows();
+
+ if(!groupName){
+  const missing=groups.reduce(function(total,group){
+   return total+group.missingCount;
+  },0);
+
+  return `<section class="tc2PageCard tc2FoodDemandPage">
+   <div class="tc2FoodDemandHero">
+    <span>🥩</span>
+    <div>
+     <h2>Futterbedarf</h2>
+     <p>Benötigte Futtertiere pro Fütterungsrunde, automatisch aus dem Standardfutter deiner aktiven Tiere berechnet.</p>
+    </div>
+   </div>
+
+   ${missing?`<div class="tc2FoodDemandWarning">⚠ ${missing} ${missing===1?'Tier hat':'Tiere haben'} kein Standardfutter hinterlegt.</div>`:''}
+
+   <div class="tc2FoodDemandGroups">
+    ${groups.length
+     ?groups.map(foodDemandGroupCard).join('')
+     :'<div class="tc2SDempty">Noch keine aktiven Tiere vorhanden.</div>'}
+   </div>
+  </section>`;
+ }
+
+ const group=groups.find(function(row){
+  return row.label===groupName;
+ });
+
+ if(!group){
+  return `<section class="tc2PageCard tc2FoodDemandPage">
+   <div class="tc2SDempty">Tiergruppe nicht gefunden.</div>
+  </section>`;
+ }
+
+ return `<section class="tc2PageCard tc2FoodDemandPage">
+  <div class="tc2FoodDemandHero compact">
+   <span>🥩</span>
+   <div>
+    <h2>${esc(group.label)}</h2>
+    <p>Futterbedarf pro Fütterungsrunde</p>
+   </div>
+   <strong>${group.totalQuantity} Stück</strong>
+  </div>
+
+  ${group.missingCount?`<div class="tc2FoodDemandWarning">⚠ ${group.missingCount} ${group.missingCount===1?'Tier hat':'Tiere haben'} kein Standardfutter hinterlegt.</div>`:''}
+
+  <div class="tc2FoodDemandItems">
+   ${group.items.length
+    ?group.items.map(foodDemandItemRow).join('')
+    :'<div class="tc2SDempty">Für diese Tiergruppe ist noch kein Standardfutter hinterlegt.</div>'}
+  </div>
+ </section>`;
+}
+
 window.NGTSmartDashboard={
  render:render,
+ renderFoodDemand:renderFoodDemand,
  openDueTasks:openDueTasks,
  feedEnabled:feedEnabled,
  weightEnabled:weightEnabled,
@@ -516,6 +618,13 @@ if(window.NGT500){
   'smartDashboard',
   {
    render:render
+  }
+ );
+
+ NGT500.register(
+  'foodDemand',
+  {
+   render:renderFoodDemand
   }
  );
 }

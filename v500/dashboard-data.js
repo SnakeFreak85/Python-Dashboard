@@ -90,6 +90,101 @@ function lowFood(){
   });
 }
 
+function foodDemandRows(){
+ const inventory=sortedInventory();
+ const inventoryById={};
+ const groups={};
+
+ inventory.forEach(function(item){
+  if(item&&item.id){
+   inventoryById[String(item.id)]=item;
+  }
+ });
+
+ activeAnimals().forEach(function(row){
+  const animal=row.a||{};
+  const group=String(animal.animalGroup||'Unsortiert').trim()||'Unsortiert';
+  const feederId=String(animal.defaultFeederId||animal.foodInventoryId||'').trim();
+  const inventoryItem=feederId&&inventoryById[feederId]||null;
+  const feederLabel=String(
+   inventoryItem
+    ?FoodInventoryEngine.itemLabel(inventoryItem)
+    :feedName(animal)
+  ).trim();
+  const requestedQuantity=Number(
+   animal.defaultFeederQuantity||
+   animal.defaultFeedQuantity||
+   1
+  );
+  const quantity=
+   Number.isFinite(requestedQuantity)&&requestedQuantity>0
+    ?Math.max(1,Math.round(requestedQuantity))
+    :1;
+
+  if(!groups[group]){
+   groups[group]={
+    label:group,
+    animalCount:0,
+    assignedCount:0,
+    missingCount:0,
+    totalQuantity:0,
+    items:{}
+   };
+  }
+
+  const target=groups[group];
+  target.animalCount++;
+
+  if(!feederLabel){
+   target.missingCount++;
+   return;
+  }
+
+  const key=feederId
+   ?'id:'+feederId
+   :'label:'+feederLabel.toLowerCase();
+
+  if(!target.items[key]){
+   target.items[key]={
+    id:feederId,
+    label:feederLabel,
+    unit:String(
+     inventoryItem&&inventoryItem.unit||
+     animal.defaultFeederUnit||
+     'Stück'
+    ),
+    quantity:0,
+    animalCount:0,
+    stock:inventoryItem
+     ?FoodInventoryEngine.quantity(inventoryItem)
+     :null
+   };
+  }
+
+  target.items[key].quantity+=quantity;
+  target.items[key].animalCount++;
+  target.assignedCount++;
+  target.totalQuantity+=quantity;
+ });
+
+ return Object.keys(groups)
+  .sort(function(a,b){return a.localeCompare(b,'de');})
+  .map(function(group){
+   const row=groups[group];
+
+   return {
+    label:row.label,
+    animalCount:row.animalCount,
+    assignedCount:row.assignedCount,
+    missingCount:row.missingCount,
+    totalQuantity:row.totalQuantity,
+    items:Object.keys(row.items)
+     .map(function(key){return row.items[key];})
+     .sort(function(a,b){return a.label.localeCompare(b.label,'de');})
+   };
+  });
+}
+
 function documents(){
  try{
   return NGTStore.documents();
@@ -352,6 +447,7 @@ window.NGTDashboardData={
  foodInventory:foodInventory,
  sortedInventory:sortedInventory,
  lowFood:lowFood,
+ foodDemandRows:foodDemandRows,
  documents:documents,
  plannedFeeds:plannedFeeds,
  plannedWeights:plannedWeights,

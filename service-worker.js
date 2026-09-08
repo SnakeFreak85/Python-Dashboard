@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-6-announcements-i18n-1-offspring-stock-1';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-7-announcements-i18n-1-offspring-stock-1-food-planning-1';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -19,7 +19,7 @@ const PROFILE_MODULE_QUERY=
  '&r=animal-archive-2-profile-recommendation-1';
 const TC2_POLISH_QUERY=
  VERSION_QUERY+
- '&r=tc2-polish-2-breeding-4-genetics-5-bulk-actions-1-offspring-stock-1';
+ '&r=tc2-polish-2-breeding-4-genetics-5-bulk-actions-1-household-1-offspring-stock-1-food-planning-1';
 const BREEDING_QUERY=
  VERSION_QUERY+
  '&r=breeding-4-genetics-5';
@@ -37,10 +37,19 @@ const HOUSEHOLD_QUERY=
  '&r=household-1';
 const I18N_QUERY=
  VERSION_QUERY+
- '&r=i18n-6';
+ '&r=i18n-7';
 const ANNOUNCEMENTS_I18N_QUERY=
  VERSION_QUERY+
  '&r=announcements-i18n-1';
+const FOOD_PLANNING_QUERY=
+ VERSION_QUERY+
+ '&r=food-planning-1';
+const CORE_FOOD_PLANNING_QUERY=
+ VERSION_QUERY+
+ '&r=bulk-actions-1-food-planning-1';
+const DASHBOARD_FOOD_PLANNING_QUERY=
+ VERSION_QUERY+
+ '&r=breeding-4-genetics-5-food-planning-1';
 
 const APP_SHELL=[
  './',
@@ -55,7 +64,7 @@ const APP_SHELL=[
  './v500/tc2.css'+LIGHT_THEME_QUERY,
  './v500/taxonomy-ui-color.css'+PROFILE_RECOMMENDATION_QUERY,
  './v500/theme.css'+LIGHT_THEME_QUERY,
- './v500/tc2-polish.css'+TC2_POLISH_QUERY+'-household-1',
+ './v500/tc2-polish.css'+TC2_POLISH_QUERY,
  './v500/i18n.css'+I18N_QUERY,
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
@@ -65,7 +74,7 @@ const APP_SHELL=[
  './v500/locales/hu.js'+I18N_QUERY,
  './v500/i18n.js'+I18N_QUERY,
 
- './v500/core.js'+BULK_ACTIONS_QUERY,
+ './v500/core.js'+CORE_FOOD_PLANNING_QUERY,
  './v500/date-display.js'+DATE_DISPLAY_QUERY,
  './v500/theme.js'+VERSION_QUERY,
  './v500/id-manager.js'+VERSION_QUERY,
@@ -101,8 +110,8 @@ const APP_SHELL=[
  './v500/ai-manager.js'+VERSION_QUERY,
  './v500/ai-actions.js'+VERSION_QUERY,
 
- './v500/dashboard-data.js'+BREEDING_QUERY,
- './v500/smart-dashboard.js'+BREEDING_QUERY,
+ './v500/dashboard-data.js'+DASHBOARD_FOOD_PLANNING_QUERY,
+ './v500/smart-dashboard.js'+DASHBOARD_FOOD_PLANNING_QUERY,
  './v500/photo-storage.js'+HOUSEHOLD_QUERY,
 
  './v500/modules/dashboard.js'+BULK_ACTIONS_QUERY,
@@ -127,7 +136,7 @@ const APP_SHELL=[
  './v500/modules/profile-photos.js'+VERSION_QUERY,
  './v500/modules/profile.js'+PROFILE_MODULE_QUERY,
 
- './v500/modules/food.js'+VERSION_QUERY,
+ './v500/modules/food.js'+FOOD_PLANNING_QUERY,
  './v500/modules/qr.js'+VERSION_QUERY,
  './v500/modules/backup.js'+BREEDING_QUERY,
  './v500/modules/assistant-v2.js'+VERSION_QUERY,

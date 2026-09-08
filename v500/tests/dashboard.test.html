@@ -166,7 +166,8 @@ async function run(){
     typeof win.NGTDashboardData.stockAnimals==='function'&&
     typeof win.NGTDashboardData.offspringAnimals==='function'&&
     typeof win.NGTDashboardData.plannedFeeds==='function'&&
-    typeof win.NGTDashboardData.lowFood==='function'
+    typeof win.NGTDashboardData.lowFood==='function'&&
+    typeof win.NGTDashboardData.foodDemandRows==='function'
    )
   );
   equal(
@@ -186,6 +187,8 @@ async function run(){
    species:'regius',
    status:'Bestand',
    collection:'stock',
+   defaultFeederId:'dashboard-food-low',
+   defaultFeeder:'Frost Ratte 150 g',
    feedIntervalDays:7,
    weightIntervalDays:30,
    feeds:[
@@ -219,6 +222,8 @@ async function run(){
    species:'macularius',
    status:'Nachzucht',
    collection:'offspring',
+   defaultFeederId:'dashboard-food-ok',
+   defaultFeeder:'Lebend Heimchen mittel',
    feedIntervalDays:7,
    weightIntervalEnabled:false
   });
@@ -336,9 +341,9 @@ async function run(){
    ).textContent;
 
   equal(
-   'Startseite zeigt drei zentrale Schnellaktionen',
+   'Startseite zeigt vier zentrale Schnellaktionen',
    quickActions.length,
-   3
+   4
   );
   record(
    'Dokumentimport ist nicht mehr auf der Startseite',
@@ -355,9 +360,9 @@ async function run(){
    ).textContent;
 
   equal(
-   'Startseite zeigt drei priorisierte Bereiche',
+   'Startseite zeigt vier priorisierte Bereiche',
    navigationCards.length,
-   3
+   4
   );
   record(
    'Startseite priorisiert Bestand, Nachzuchten und Smart Dashboard',
@@ -456,9 +461,9 @@ async function run(){
    });
 
   equal(
-   'Smart Dashboard zeigt Handlungsbedarf vor Bestandsverteilung',
+   'Smart Dashboard zeigt Handlungsbedarf und Futterplanung vor Bestandsverteilung',
    dashboardSectionOrder.join('|'),
-   'Heute fällig|Futter nachkaufen|Aktivitäten|Bestand nach Tierart'
+   'Heute fällig|Futter nachkaufen|Futterbedarf|Aktivitäten|Bestand nach Tierart'
   );
 
   const legendText=
@@ -591,6 +596,64 @@ async function run(){
    !foodRows[0].textContent.includes(
     'Heimchen mittel'
    )
+  );
+
+  const restockShowAll=smartRoot.querySelector(
+   '.tc2SDfoodCard .tc2SDcardHead button'
+  );
+
+  record(
+   'Alle anzeigen öffnet die gefilterte Nachbestellliste',
+   !!restockShowAll&&
+    restockShowAll.getAttribute('onclick').includes("view:'restock'")
+  );
+
+  const restockRoot=rootFor(
+   win.NGT500.modules.food.render({view:'restock'})
+  );
+
+  equal(
+   'Gefilterte Nachbestellseite zeigt nur kritische Futterpositionen',
+   restockRoot.querySelectorAll('.tc2FoodManageCard').length,
+   1
+  );
+  record(
+   'Gefilterte Nachbestellseite blendet ausreichenden Bestand aus',
+   restockRoot.textContent.includes('Frost Ratte 150 g')&&
+    !restockRoot.textContent.includes('Heimchen mittel')
+  );
+
+  const demandRows=win.NGTDashboardData.foodDemandRows();
+  const pythonDemand=demandRows.find(function(row){return row.label==='Pythons';});
+  const geckoDemand=demandRows.find(function(row){return row.label==='Geckos';});
+
+  equal('Futterbedarf gruppiert Pythons',pythonDemand.totalQuantity,1);
+  equal('Futterbedarf gruppiert Geckos',geckoDemand.totalQuantity,1);
+  equal('Pythons verwenden die hinterlegte Ratte',pythonDemand.items[0].label,'Frost Ratte 150 g');
+
+  const demandCard=smartRoot.querySelector('.tc2SDFoodDemandOpen');
+  record(
+   'Smart Dashboard enthält den Button Futterbedarf',
+   !!demandCard&&demandCard.getAttribute('onclick').includes('foodDemand')
+  );
+
+  const demandGroupsRoot=rootFor(
+   win.NGTSmartDashboard.renderFoodDemand({})
+  );
+  equal(
+   'Futterbedarf zeigt alle aktiven Tiergruppen',
+   demandGroupsRoot.querySelectorAll('.tc2FoodDemandGroup').length,
+   2
+  );
+
+  const pythonDemandRoot=rootFor(
+   win.NGTSmartDashboard.renderFoodDemand({group:'Pythons'})
+  );
+  record(
+   'Tiergruppe zeigt den Bedarf pro Fütterungsrunde',
+   pythonDemandRoot.textContent.includes('Frost Ratte 150 g')&&
+    pythonDemandRoot.textContent.includes('1 Stück')&&
+    pythonDemandRoot.textContent.includes('pro Fütterungsrunde')
   );
 
   const activityRows=Array.from(

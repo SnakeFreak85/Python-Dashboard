@@ -2,6 +2,7 @@
 'use strict';
 
 let editingId='';
+let activeView='';
 
 function esc(value){
  return NGT500.esc(value||'');
@@ -235,7 +236,8 @@ function editor(){
  </section>`;
 }
 
-function card(item){
+function card(item,options){
+ options=options||{};
  const state=status(item);
  const label=itemLabel(item);
  const meta=itemMeta(item);
@@ -283,7 +285,7 @@ function card(item){
    · Mindestbestand ${number(item.minimum,0)} ${esc(item.unit||'Stück')}
   </div>
 
-  <div class="tc2FoodManageActions">
+  ${options.restock?'':`<div class="tc2FoodManageActions">
    <button onclick="NGTFood.edit('${esc(item.id)}')">
     Bearbeiten
    </button>
@@ -294,11 +296,11 @@ function card(item){
    >
     Löschen
    </button>
-  </div>
+  </div>`}
  </article>`;
 }
 
-function categorySection(category,items){
+function categorySection(category,items,options){
  return `<section class="tc2FoodCategory">
   <div class="tc2PageHead">
    <div>
@@ -310,18 +312,21 @@ function categorySection(category,items){
   </div>
 
   <div class="tc2FoodManageGrid">
-   ${items.map(card).join('')}
+   ${items.map(function(item){return card(item,options);}).join('')}
   </div>
  </section>`;
 }
 
-function inventoryList(items){
+function inventoryList(items,options){
+ options=options||{};
+
  if(!items.length){
   return `<div class="tc2FoodEmpty">
-   <h3>Noch kein Futterbestand</h3>
+   <h3>${options.restock?'Nichts nachzubestellen':'Noch kein Futterbestand'}</h3>
    <p>
-    Lege eine frei definierte Futterposition an. Kategorien,
-    Größen und Einheiten werden nicht mehr fest vorgegeben.
+    ${options.restock
+     ?'Alle Futterbestände liegen über ihrem Mindestbestand.'
+     :'Lege eine frei definierte Futterposition an. Kategorien, Größen und Einheiten werden nicht mehr fest vorgegeben.'}
    </p>
   </div>`;
  }
@@ -347,15 +352,40 @@ function inventoryList(items){
     return itemLabel(a).localeCompare(itemLabel(b),'de');
    });
 
-   return categorySection(category,rows);
+    return categorySection(category,rows,options);
   })
   .join('');
 }
 
-function render(){
+function render(args){
  editingId='';
+ args=args||{};
+ activeView=args.view==='restock'?'restock':'';
 
- const items=normalizeInventory();
+ const allItems=normalizeInventory();
+ const items=activeView==='restock'
+  ?allItems.filter(function(item){
+   return FoodInventoryEngine.needsRestock(item);
+  })
+  :allItems;
+
+ if(activeView==='restock'){
+  return `<section class="tc2FoodPage tc2FoodRestockPage">
+   <div class="tc2FoodHero">
+    <div>
+     <h2>🛒 Futter nachbestellen</h2>
+     <p>Hier werden ausschließlich Futterpositionen angezeigt, die ihren Mindestbestand erreicht oder unterschritten haben.</p>
+    </div>
+   </div>
+
+   <div class="tc2FoodRestockSummary">
+    <div><small>Nachzubestellen</small><b>${items.length}</b></div>
+    <button onclick="NGT500.route('food')">Gesamten Futterbestand anzeigen</button>
+   </div>
+
+   ${inventoryList(items,{restock:true})}
+  </section>`;
+ }
 
  return `<section class="tc2FoodPage">
   <div class="tc2FoodHero">
@@ -370,7 +400,7 @@ function render(){
 
   ${summaryCards(items)}
   ${editor()}
-  ${inventoryList(items)}
+  ${inventoryList(items,{})}
  </section>`;
 }
 
@@ -583,7 +613,7 @@ function cancelEdit(){
 function rerenderAtScrollPosition(left,top){
  NGT500.route(
   'food',
-  {},
+  activeView?{view:activeView}:{},
   {
    replace:true,
    noHistory:true

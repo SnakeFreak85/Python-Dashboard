@@ -276,6 +276,164 @@ html[data-tc-theme="light"] .tc2Menu{
  )!important;
 }
 
+/* Futterbedarf und gefilterte Nachbestellliste */
+
+.tc2SDFoodDemandCard{
+ border-color:rgba(145,239,73,.28)!important;
+}
+
+.tc2SDFoodDemandOpen,
+.tc2FoodDemandGroup{
+ display:grid!important;
+ grid-template-columns:auto minmax(0,1fr) auto auto;
+ align-items:center;
+ gap:12px;
+ width:100%;
+ min-height:74px;
+ padding:13px 15px!important;
+ text-align:left;
+ border:1px solid var(--tc-polish-line)!important;
+ border-radius:16px!important;
+ background:rgba(3,15,24,.58)!important;
+}
+
+.tc2SDFoodDemandOpen>span,
+.tc2FoodDemandGroup>span{
+ display:grid;
+ place-items:center;
+ width:44px;
+ height:44px;
+ border-radius:14px;
+ background:var(--tc-polish-accent-soft);
+ font-size:22px;
+}
+
+.tc2SDFoodDemandOpen b,
+.tc2FoodDemandGroup b,
+.tc2FoodDemandItem b{
+ display:block;
+ color:var(--tc-polish-text)!important;
+}
+
+.tc2SDFoodDemandOpen small,
+.tc2FoodDemandGroup small,
+.tc2FoodDemandItem small{
+ display:block;
+ margin-top:4px;
+ color:var(--tc-polish-muted)!important;
+}
+
+.tc2SDFoodDemandOpen i,
+.tc2FoodDemandGroup i{
+ color:var(--tc-polish-accent);
+ font-size:24px;
+ font-style:normal;
+}
+
+.tc2FoodDemandPage{
+ display:grid;
+ gap:16px;
+}
+
+.tc2FoodDemandHero{
+ display:grid;
+ grid-template-columns:auto minmax(0,1fr);
+ align-items:center;
+ gap:15px;
+ padding:19px;
+ border:1px solid rgba(145,239,73,.28);
+ border-radius:20px;
+ background:linear-gradient(135deg,rgba(145,239,73,.13),rgba(104,215,197,.08));
+}
+
+.tc2FoodDemandHero.compact{
+ grid-template-columns:auto minmax(0,1fr) auto;
+}
+
+.tc2FoodDemandHero>span{
+ font-size:34px;
+}
+
+.tc2FoodDemandHero h2,
+.tc2FoodDemandHero p{
+ margin:0;
+}
+
+.tc2FoodDemandHero p{
+ margin-top:5px;
+ color:var(--tc-polish-muted);
+}
+
+.tc2FoodDemandHero>strong,
+.tc2FoodDemandGroup>strong{
+ color:var(--tc-polish-accent);
+ white-space:nowrap;
+}
+
+.tc2FoodDemandWarning{
+ padding:12px 14px;
+ color:var(--tc-polish-warning);
+ border:1px solid rgba(240,182,76,.32);
+ border-radius:14px;
+ background:rgba(240,182,76,.08);
+ font-weight:800;
+}
+
+.tc2FoodDemandGroups,
+.tc2FoodDemandItems{
+ display:grid;
+ gap:10px;
+}
+
+.tc2FoodDemandItem{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto auto;
+ align-items:center;
+ gap:14px;
+ padding:15px;
+ border:1px solid var(--tc-polish-line);
+ border-radius:16px;
+ background:rgba(3,15,24,.58);
+}
+
+.tc2FoodDemandItem strong{
+ color:var(--tc-polish-accent);
+}
+
+.tc2FoodDemandItem em{
+ color:var(--tc-polish-text-soft);
+ font-size:12px;
+ font-style:normal;
+ white-space:nowrap;
+}
+
+.tc2FoodRestockSummary{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:14px;
+ margin:14px 0;
+ padding:14px;
+ border:1px solid rgba(240,182,76,.28);
+ border-radius:16px;
+ background:rgba(240,182,76,.07);
+}
+
+.tc2FoodRestockSummary div{
+ display:flex;
+ flex-direction:column;
+}
+
+.tc2FoodRestockSummary b{
+ color:var(--tc-polish-warning);
+ font-size:28px;
+}
+
+.tc2FoodRestockSummary button{
+ width:auto!important;
+ margin:0!important;
+}
+
 .tc2OffspringSelectable{
  position:relative;
  cursor:pointer;
@@ -1872,6 +2030,14 @@ html[data-tc-theme="light"] .tc2HouseholdCurrent.is-shared{
  border-color:rgba(69,145,33,.32);
 }
 
+html[data-tc-theme="light"] .tc2SDFoodDemandOpen,
+html[data-tc-theme="light"] .tc2FoodDemandGroup,
+html[data-tc-theme="light"] .tc2FoodDemandItem{
+ color:#12232d;
+ background:rgba(255,255,255,.88)!important;
+ border-color:rgba(65,99,117,.24)!important;
+}
+
 @media(max-width:520px){
  .tc2OffspringSelectionBar,
  .tc2BulkFeedToolbar{
@@ -1880,6 +2046,14 @@ html[data-tc-theme="light"] .tc2HouseholdCurrent.is-shared{
 
  .tc2OffspringSelectionBar>b,
  .tc2BulkFeedToolbar>b{
+  grid-column:1/-1;
+ }
+
+ .tc2FoodDemandItem{
+  grid-template-columns:minmax(0,1fr) auto;
+ }
+
+ .tc2FoodDemandItem>em{
   grid-column:1/-1;
  }
 }

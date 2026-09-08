@@ -342,6 +342,7 @@ function routeLabel(name){
   offspring:'Nachzuchten',
   profile:'Tierprofil',
   food:'Futterbestand',
+  foodDemand:'Futterbedarf',
   qr:'QR / Tierpass',
   backup:'Backup',
   support:'Support',
