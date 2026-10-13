@@ -4,6 +4,10 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Angebots- und Versandlinks im Futterpreisvergleich als vollbreite Buttons
+  untereinander angeordnet; Umbruch und Überlappung auf schmalen Displays behoben.
+
+
 - Futterpreisvergleich auf alle ermittelten Größen und Packungen umgestellt;
   einzelne Größeneingaben entfallen. Identische und ähnliche Größen sowie
   abweichende Packungsmengen werden ausdrücklich markiert.

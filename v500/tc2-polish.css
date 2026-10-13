@@ -2087,3 +2087,27 @@ html[data-tc-theme="light"] .tc2FoodDemandItem{
   grid-column:1!important;
  }
 }
+
+/* Price comparison: full-width touch links must not use inline anchor layout. */
+.tc2FeederOfferActions{
+ display:grid;
+ grid-template-columns:minmax(0,1fr);
+ gap:8px;
+ margin-top:12px;
+}
+.tc2FeederOfferActions .tc2FeederOfferLink{
+ display:flex!important;
+ align-items:center;
+ justify-content:center;
+ box-sizing:border-box;
+ width:100%!important;
+ min-width:0;
+ min-height:48px;
+ margin:0!important;
+ padding:12px 14px!important;
+ text-decoration:none!important;
+ text-align:center;
+ white-space:normal;
+ overflow-wrap:anywhere;
+ line-height:1.35;
+}
