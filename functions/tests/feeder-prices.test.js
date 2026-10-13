@@ -72,3 +72,23 @@ test('Alle Stammlieferantengrößen bleiben sichtbar und Packungsunterschiede we
  assert.equal(result.rows[0].cheaper[0].match,'similar');assert.equal(result.rows[0].cheaper[0].packChanged,true);
  assert.equal(result.rows[1].cheaper.length,0);
 });
+test('Tropic Varianten werden als JSON gelesen, ohne Shop-JavaScript auszuführen',()=>{
+ const html='<script>var $json = {"249":[{"value":"5 Stück"}]}; $.get("/ajax/price/" + response.id + "?t=abc123");</script>';
+ assert.deepEqual(p.tropicVariants(html),{variants:['249'],token:'abc123'});
+});
+test('Tropic verwendet den regulären Preis und die tatsächliche Packungsgröße',()=>{
+ const data={name:'Ratte gross ca 96-150g - 5 Stück - Frostfutter für Reptilien',og_price_amount:'11.49',price:'<div class="myn-price-tab">Unser Preis 11,49 €</div><div class="myn-price-tab">Abo-Preis 10,92 €</div>',shipping_time:'2 bis 3 Arbeitstage',og_url:'https://www.tropic-shop.de/ratten?vari=123'};
+ const supplier=p.SUPPLIERS.find(s=>s.id==='tropic');
+ const [offer]=p.parseTropicPrice(data,'https://www.tropic-shop.de/ratten',supplier,{kind:'frozen',species:'rat'},1);
+ assert.equal(offer.price,11.49);assert.equal(offer.amount,5);assert.equal(offer.unitPrice,2.298);
+ assert.deepEqual(p.parseTropicPrice({...data,shipping_time:'Nicht lieferbar'},'https://www.tropic-shop.de/ratten',supplier,{kind:'frozen',species:'rat'},1),[]);
+});
+test('Vorgeschaltete Shopüberschriften und WooCommerce priceSpecification verhindern keine Preise',()=>{
+ const product={'@type':'Product',name:'Ratte mittel gefroren 5 Stk. 120-150g',url:'https://frostfuttertiere.de/ratte',offers:[{priceSpecification:[{price:'10.99',priceCurrency:'EUR'}],availability:'https://schema.org/InStock'}]};
+ const html='<h1>Shopname</h1><h1>'+product.name+'</h1><script type="application/ld+json">'+JSON.stringify(product)+'</script>';
+ const [offer]=p.parseProduct(html,'https://frostfuttertiere.de/ratte',p.SUPPLIERS.find(s=>s.id==='frosttiere'),{kind:'frozen',species:'rat'},1);
+ assert.equal(offer.amount,5);assert.equal(offer.price,10.99);
+});
+test('Stck-Packungen des Terraristikladens werden gelesen',()=>{
+ assert.deepEqual(p.quantity('Heimchen Mittel, ca. 500 Stck','live'),{amount:500,unit:'pieces'});
+});

@@ -55,8 +55,9 @@ Diese Änderung führt das Firebase-Deployment nicht automatisch aus.
 
 ## Shopadapter und Grenzen
 
-Initiale Anbieter: Xclusive Snakes und Frostfutterversand24 (Frostfutter),
-Tropic Shop (beide Kategorien), Kreuch & Fleuch und QB Insects (Lebendfutter).
+Anbieter: Xclusive Snakes, Frostfutterversand24, Frostfuttertiere.de und
+Frostfutter-Online (Frostfutter), Tropic Shop (beide Kategorien), Kreuch & Fleuch,
+QB Insects und Terraristikladen (Lebendfutter).
 Die Auswahl ist auf eingerichtete Anbieter begrenzt. Ein beliebiger Shopname
 oder eine beliebige URL kann nicht zuverlässig automatisch integriert werden;
 neue Anbieter benötigen einen getesteten Adapter in `functions/feeder-prices.js`
@@ -73,7 +74,7 @@ keine Anzeige anderer Quellen, erlauben aber ohne Stammpreis keinen Vergleich.
 
 Serverzugriffe sind auf HTTPS und registrierte Shophosts begrenzt; externe
 Weiterleitungen werden verworfen. Shopantworten sind auf 2,5 MB begrenzt,
-Abrufe auf zehn Sekunden, Cache auf zehn Minuten. Der angezeigte Zeitpunkt
+Abrufe auf zwanzig Sekunden, Cache auf zehn Minuten. Der angezeigte Zeitpunkt
 ist der tatsächliche Abrufzeitpunkt, auch bei Cachetreffern.
 Angemeldete Konten dürfen alle 30 Sekunden vergleichen; die Beschränkung
 wird serverseitig per Firestore-Transaktion durchgesetzt. Der ausschließlich
@@ -121,3 +122,34 @@ Eingabevalidierung und Ausschluss fremder Angebots-Hosts.
 Zwölf Node-Tests bestanden. DOM-Prüfung für fehlende Größen-/Mengenfelder,
 `allSizes:true`, eigene Ergebnisseite, Ähnlichkeits- und Packungsmarkierungen
 sowie Rücknavigation bestanden. Erneutes Firebase-Deployment erforderlich.
+
+### Tropic und zusätzliche Anbieter
+
+Tropic wird über direkte Kategorie-/Produktseiten und die im öffentlichen
+Shop-JavaScript vorhandene JSON-Variantentabelle abgerufen. Der Shopcode wird
+nicht ausgeführt. Der Adapter ruft maximal 16 Produktseiten und 64 zugehörige
+Preisantworten ab. Öffentliche Sessioncookies werden nur serverseitig für den
+Shopabruf wiederverwendet. Preisantworten verwenden denselben begrenzten Cache;
+öffentliche Ajax-Abrufe benötigen maximal 20 Sekunden. Ausschließlich der
+reguläre Einmal-Kaufpreis wird verwendet, nicht Abo- oder „ab“-Preise.
+Ausverkaufte oder zeitlich nicht bestätigte Lieferungen bleiben ausgeschlossen.
+Der Status „Preisdaten konnten nicht eindeutig gelesen werden“ unterscheidet
+Parserprobleme von fehlenden passenden Angeboten. Kategorie-fremde Anbieter
+werden im Ergebnisstatus nicht mehr angezeigt.
+Frostfuttertiere.de nutzt WooCommerce-Offer-Preisfelder;
+Frostfutter-Online JSON-LD; Terraristikladen strukturierte Offer-Metadaten.
+Erneutes Deployment von `compareFeederPrices` ist erforderlich.
+
+Validierung: 16 Node-Tests und DOM-Bedienprüfung bestanden. Reale
+Tropic-Preisantworten für Ratten und Heimchen wurden geprüft; ein vollständiger
+Heimchenabruf lieferte 14 Angebote, Frostfuttertiere.de 19 Rattenangebote.
+Die ersten parallelen Abrufe zeigten teilweise Timeouts; reguläre Abrufe
+haben deshalb jetzt 20 Sekunden Zeit und die Callable Function 90 Sekunden.
+Temporäre Ausfälle bleiben möglich und werden im Anbieterstatus dargestellt.
+
+Abschließende Liveprüfungen: Tropic lieferte neun Rattenangebote mit
+Teilergebnisstatus, Frostfutter-Online 30 mit Teilergebnisstatus,
+Frostfuttertiere.de 19 mit vollständigem Abrufstatus. Terraristikladen
+liefert über seinen öffentlichen Shopware-Variantenwechsel acht verfügbare
+Heimchenvarianten (klein/mittel/groß, 500/1000/2000 Stück; neun Datensätze
+vor URL-Deduplizierung einschließlich der Ausgangsvariante).

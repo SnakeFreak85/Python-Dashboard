@@ -4,6 +4,15 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Tropic Shop auf Kategorie-/Variantenabruf und den öffentlichen Preisendpunkt
+  umgestellt; reguläre Kaufpreise werden getrennt von Abo-Preisen ausgewertet.
+- Frostfuttertiere.de, Frostfutter-Online und Terraristikladen hinzugefügt.
+  Vorgeschaltete Shopüberschriften, WooCommerce-Preisfelder und „Stck“-Mengen
+  werden korrekt gelesen; nicht lesbare Preise erhalten einen eigenen Status.
+- Nur Anbieter der gewählten Kategorie erscheinen unter geprüften Lieferanten.
+  Abweichende kurze Gewichtsangaben aus Händlerbeschreibungen bleiben sichtbar.
+
+
 - Angebots- und Versandlinks im Futterpreisvergleich als vollbreite Buttons
   untereinander angeordnet; Umbruch und Überlappung auf schmalen Displays behoben.
 

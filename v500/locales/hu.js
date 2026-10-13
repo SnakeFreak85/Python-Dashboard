@@ -883,5 +883,7 @@ Object.assign(window.NGTLocales.hu.phrases,{
  "Alle ermittelten Größen und Packungen werden verglichen. Ähnliche Größen und abweichende Packungsmengen werden gekennzeichnet; Stück und Gramm bleiben getrennt.": "Minden lekért méretet és csomagot összehasonlítunk. A hasonló méreteket és eltérő csomagmennyiségeket jelöljük; a darab és gramm külön marad."
 });
 
+Object.assign(window.NGTLocales.hu.phrases,{"Preisdaten konnten nicht eindeutig gelesen werden": "Az áradatok nem olvashatók megbízhatóan"});
+
 })();
 

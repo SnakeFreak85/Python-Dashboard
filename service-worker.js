@@ -1,6 +1,6 @@
 const TC_VERSION='1.0.4-rc.11';
 const TC_CACHE=
- 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-7-announcements-i18n-1-offspring-stock-1-food-planning-2-feeder-prices-3';
+ 'terracontrol-'+TC_VERSION+'-breeding-4-genetics-5-bulk-actions-1-household-1-i18n-7-announcements-i18n-1-offspring-stock-1-food-planning-2-feeder-prices-4';
 const VERSION_QUERY='?v='+TC_VERSION;
 const LIGHT_THEME_QUERY=
  VERSION_QUERY+
@@ -46,13 +46,13 @@ const FOOD_PLANNING_QUERY=
  '&r=food-planning-1';
 const CORE_FOOD_PLANNING_QUERY=
  VERSION_QUERY+
- '&r=bulk-actions-1-food-planning-1-feeder-prices-3';
+ '&r=bulk-actions-1-food-planning-1-feeder-prices-4';
 const DASHBOARD_FOOD_PLANNING_QUERY=
  VERSION_QUERY+
  '&r=breeding-4-genetics-5-food-planning-2';
 const START_FOOD_PLANNING_QUERY=
  VERSION_QUERY+
- '&r=bulk-actions-1-food-planning-2-feeder-prices-3';
+ '&r=bulk-actions-1-food-planning-2-feeder-prices-4';
 
 const APP_SHELL=[
  './',
@@ -72,9 +72,9 @@ const APP_SHELL=[
 
  './v500/vendor/qrcode.min.js'+VERSION_QUERY,
  './v500/locales/de.js'+I18N_QUERY,
- './v500/locales/en.js'+I18N_QUERY+'-feeder-prices-3',
- './v500/locales/it.js'+I18N_QUERY+'-feeder-prices-3',
- './v500/locales/hu.js'+I18N_QUERY+'-feeder-prices-3',
+ './v500/locales/en.js'+I18N_QUERY+'-feeder-prices-4',
+ './v500/locales/it.js'+I18N_QUERY+'-feeder-prices-4',
+ './v500/locales/hu.js'+I18N_QUERY+'-feeder-prices-4',
  './v500/i18n.js'+I18N_QUERY,
 
  './v500/core.js'+CORE_FOOD_PLANNING_QUERY,
@@ -83,7 +83,7 @@ const APP_SHELL=[
  './v500/id-manager.js'+VERSION_QUERY,
  './v500/food-inventory-engine.js'+VERSION_QUERY,
  './v500/animal-engine.js'+ANIMAL_ARCHIVE_QUERY,
- './v500/store.js'+BULK_ACTIONS_QUERY+'-feeder-prices-3',
+ './v500/store.js'+BULK_ACTIONS_QUERY+'-feeder-prices-4',
  './v500/ui.js'+VERSION_QUERY,
 
  './v500/taxonomy-core.js'+VERSION_QUERY,
@@ -139,8 +139,8 @@ const APP_SHELL=[
  './v500/modules/profile-photos.js'+VERSION_QUERY,
  './v500/modules/profile.js'+PROFILE_MODULE_QUERY,
 
- './v500/feeder-price-service.js'+VERSION_QUERY+'&r=feeder-prices-3',
- './v500/modules/feeder-prices.js'+VERSION_QUERY+'&r=feeder-prices-3',
+ './v500/feeder-price-service.js'+VERSION_QUERY+'&r=feeder-prices-4',
+ './v500/modules/feeder-prices.js'+VERSION_QUERY+'&r=feeder-prices-4',
  './v500/modules/food.js'+FOOD_PLANNING_QUERY,
  './v500/modules/qr.js'+VERSION_QUERY,
  './v500/modules/backup.js'+BREEDING_QUERY,

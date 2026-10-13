@@ -993,3 +993,8 @@ Die Einstellungen liegen im normalen Store unter
 und werden nicht in Tierdaten oder Backups kopiert.
 Details und erforderliches Firebase-Deployment:
 [FEEDER_PRICE_COMPARISON.md](./docs/FEEDER_PRICE_COMPARISON.md).
+
+Der Futterpreisadapter umfasst acht Anbieter. Tropic verwendet einen eigenen
+serverseitigen Adapter für Variantentabellen und Ajax-Preise, ohne Ausführung
+von Shop-JavaScript. Kategorie, Shop-Host und Preis-/Mengenvalidierung bleiben
+serverseitig festgelegt; Details stehen in der Futterpreis-Dokumentation.

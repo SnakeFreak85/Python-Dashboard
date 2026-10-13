@@ -883,5 +883,7 @@ Object.assign(window.NGTLocales.it.phrases,{
  "Alle ermittelten Größen und Packungen werden verglichen. Ähnliche Größen und abweichende Packungsmengen werden gekennzeichnet; Stück und Gramm bleiben getrennt.": "Tutte le dimensioni e confezioni rilevate vengono confrontate. Dimensioni simili e quantità diverse sono indicate; pezzi e grammi restano separati."
 });
 
+Object.assign(window.NGTLocales.it.phrases,{"Preisdaten konnten nicht eindeutig gelesen werden": "Non è stato possibile leggere i prezzi con certezza"});
+
 })();
 

@@ -257,7 +257,7 @@ exports.__test={
 
 // Shop access is restricted to the provider registry; clients cannot submit fetch URLs.
 const feederPrices=require('./feeder-prices');
-exports.compareFeederPrices=onCall({region:'europe-west3',timeoutSeconds:60,memory:'512MiB',concurrency:2,maxInstances:3},async function(request){
+exports.compareFeederPrices=onCall({region:'europe-west3',timeoutSeconds:90,memory:'512MiB',concurrency:2,maxInstances:3},async function(request){
  if(!request.auth)throw new HttpsError('unauthenticated','Bitte melde dich zuerst an.');
  let query;
  try{query=feederPrices.validateQuery(request.data||{});}catch(error){throw new HttpsError('invalid-argument',error.message);}
