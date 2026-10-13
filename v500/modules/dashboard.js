@@ -906,6 +906,15 @@ function render(){
       'breeding'
      )}
 
+     ${navigationCard(
+      '€',
+      'Futterpreisvergleich',
+      'Stammlieferant und günstigere Angebote vergleichen',
+      null,
+      "NGT500.route('feederPrices')",
+      'feederPrices'
+     )}
+
     </div>
    </section>
 

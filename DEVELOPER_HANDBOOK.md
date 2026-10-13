@@ -976,3 +976,18 @@ Geeignete Aufträge sind klein und überprüfbar, zum Beispiel:
 - „Aktualisiere Dokumentation und Changelog für diese konkrete Änderung.“
 
 Für große Umbauten soll Codex zuerst einen Plan, Risiken, betroffene Dateien und Tests nennen. Produktive Dateien dürfen nicht aus abgeschnittenen oder unvollständigen Quellen rekonstruiert werden.
+
+## 20. Futterpreisvergleich
+
+`v500/modules/feeder-prices.js` registriert die Route `feederPrices` und
+verwendet den gemeinsamen TC2-Dialog für günstigere Angebote.
+`v500/feeder-price-service.js` kapselt den Firebase-Callable-Aufruf.
+`functions/feeder-prices.js` enthält Shopadapter, Größen-/Mengenregeln und
+Vergleichslogik. `functions/index.js` stellt `compareFeederPrices` mit
+Authentifizierung und transaktionalem Anfragelimit bereit.
+Die Einstellungen liegen im normalen Store unter
+`settings.feederPriceComparison`; Schreiben erfolgt ausschließlich über
+`saveFeederPricePreferences()`. Liveangebote sind kurzlebige Serverdaten
+und werden nicht in Tierdaten oder Backups kopiert.
+Details und erforderliches Firebase-Deployment:
+[FEEDER_PRICE_COMPARISON.md](./docs/FEEDER_PRICE_COMPARISON.md).

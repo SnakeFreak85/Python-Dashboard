@@ -645,6 +645,18 @@ function settings(){
   );
 }
 
+function saveFeederPricePreferences(values){
+  db.settings=db.settings||{};
+  const allowed=['preferred','fulfilment','kind','species','size','unit','amount'];
+  const preferences={};
+  allowed.forEach(function(key){
+    if(values&&values[key]!=null)preferences[key]=values[key];
+  });
+  db.settings.feederPriceComparison=preferences;
+  save();
+  return detached(preferences,{});
+}
+
 function sellerProfile(){
   const stored=
     db&&
@@ -1822,6 +1834,7 @@ window.NGTStore={
   saveBreedingPlan,
   deleteBreedingPlan,
   settings,
+  saveFeederPricePreferences,
   save,
   clearLocal,
   sellerProfile,

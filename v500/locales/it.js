@@ -828,5 +828,48 @@ window.NGTLocales.it={
  }
 };
 
+Object.assign(window.NGTLocales.it.phrases,{
+ "Futterpreisvergleich": "Confronto prezzi del cibo vivo e congelato",
+ "Stammlieferant und günstigere Angebote vergleichen": "Confronta il fornitore preferito con offerte più economiche",
+ "Vergleiche aktuelle Shoppreise mit deinem Stammlieferanten.": "Confronta i prezzi attuali con quelli del tuo fornitore preferito.",
+ "Bevorzugter Lieferant": "Fornitore preferito",
+ "Einkauf beim Stammlieferanten": "Acquisto dal fornitore preferito",
+ "Abholung": "Ritiro",
+ "Lieferung": "Consegna",
+ "Kategorie": "Categoria",
+ "Frostfutter": "Cibo congelato",
+ "Lebende Futtertiere": "Insetti vivi",
+ "Futtertier": "Animale da pasto",
+ "Ratten": "Ratti",
+ "Mäuse": "Topi",
+ "Heimchen": "Grilli domestici",
+ "Argentinische Waldschaben": "Blatte argentine",
+ "Gewichtsklasse pro Tier": "Fascia di peso per animale",
+ "Packungseinheit": "Unità della confezione",
+ "Packungsmenge": "Quantità per confezione",
+ "Gramm": "Grammi",
+ "Preise vergleichen": "Confronta prezzi",
+ "Preise werden abgerufen …": "Caricamento prezzi …",
+ "Die verfügbaren Lieferanten werden geprüft.": "Verifica dei fornitori disponibili.",
+ "Vergleich abgeschlossen.": "Confronto completato.",
+ "Günstigere Lieferanten": "Fornitori più economici",
+ "Angebot öffnen": "Apri offerta",
+ "Versandbedingungen": "Condizioni di spedizione",
+ "Geprüfte Lieferanten": "Fornitori verificati",
+ "Passende Preise abgerufen": "Prezzi corrispondenti caricati",
+ "Kein eindeutig passendes verfügbares Angebot gefunden": "Nessuna offerta disponibile chiaramente corrispondente",
+ "Shop derzeit nicht abrufbar": "Negozio al momento non accessibile",
+ "Diese Kategorie wird hier nicht unterstützt": "Questa categoria non è supportata qui",
+ "Der Preis deines Stammlieferanten konnte für diese Auswahl nicht ermittelt werden. Ein verlässlicher Vergleich ist deshalb nicht möglich.": "Non è stato possibile ottenere il prezzo del fornitore preferito per questa selezione. Un confronto affidabile non è quindi possibile.",
+ "Unter den erfolgreich geprüften passenden Angeboten wurde kein günstigerer Anbieter gefunden.": "Tra le offerte corrispondenti verificate non è stato trovato un fornitore più economico.",
+ "Warenpreise ohne Versandkosten oder Frostzuschläge. Packungsgröße und Shopbedingungen beachten. Preise können sich nach dem Abruf ändern.": "Prezzi dei prodotti senza spedizione o supplementi per il congelato. Controlla confezioni e condizioni del negozio. I prezzi possono cambiare dopo il caricamento.",
+ "Der Livepreis-Dienst ist noch nicht bereitgestellt.": "Il servizio prezzi in tempo reale non è ancora attivo.",
+ "Für aktuelle Shoppreise benötigst du eine Internetverbindung.": "Per i prezzi attuali serve una connessione internet.",
+ "Bitte melde dich im Bereich Konto an, um aktuelle Preise abzurufen.": "Accedi nella sezione Account per ottenere i prezzi attuali.",
+ "Bitte warte 30 Sekunden bis zum nächsten Vergleich.": "Attendi 30 secondi prima del prossimo confronto.",
+ "Die aktuellen Preise konnten nicht geladen werden. Bitte versuche es später erneut.": "Non è stato possibile caricare i prezzi attuali. Riprova più tardi.",
+ "Keine Bestellmenge nötig für den Warenpreisvergleich. Versand und Frostzuschläge sind nicht im Vergleichspreis enthalten; bei Lieferung bitte die Versandbedingungen im Shop prüfen.": "Non serve una quantità d’ordine per confrontare i prezzi. Spedizione e supplementi per il congelato sono esclusi; per la consegna verifica le condizioni del negozio."
+});
+
 })();
 

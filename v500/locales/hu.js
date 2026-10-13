@@ -828,5 +828,48 @@ window.NGTLocales.hu={
  }
 };
 
+Object.assign(window.NGTLocales.hu.phrases,{
+ "Futterpreisvergleich": "Eleségárak összehasonlítása",
+ "Stammlieferant und günstigere Angebote vergleichen": "Kedvenc beszállító és olcsóbb ajánlatok összehasonlítása",
+ "Vergleiche aktuelle Shoppreise mit deinem Stammlieferanten.": "Hasonlítsd össze az aktuális árakat a kedvenc beszállítóddal.",
+ "Bevorzugter Lieferant": "Kedvenc beszállító",
+ "Einkauf beim Stammlieferanten": "Vásárlás a kedvenc beszállítónál",
+ "Abholung": "Személyes átvétel",
+ "Lieferung": "Szállítás",
+ "Kategorie": "Kategória",
+ "Frostfutter": "Fagyasztott eleség",
+ "Lebende Futtertiere": "Élő eleségállatok",
+ "Futtertier": "Eleségállat",
+ "Ratten": "Patkányok",
+ "Mäuse": "Egerek",
+ "Heimchen": "Házi tücskök",
+ "Argentinische Waldschaben": "Argentin csótányok",
+ "Gewichtsklasse pro Tier": "Állatonkénti súlykategória",
+ "Packungseinheit": "Csomag egysége",
+ "Packungsmenge": "Csomag mennyisége",
+ "Gramm": "Gramm",
+ "Preise vergleichen": "Árak összehasonlítása",
+ "Preise werden abgerufen …": "Árak lekérése …",
+ "Die verfügbaren Lieferanten werden geprüft.": "Elérhető beszállítók ellenőrzése.",
+ "Vergleich abgeschlossen.": "Összehasonlítás kész.",
+ "Günstigere Lieferanten": "Olcsóbb beszállítók",
+ "Angebot öffnen": "Ajánlat megnyitása",
+ "Versandbedingungen": "Szállítási feltételek",
+ "Geprüfte Lieferanten": "Ellenőrzött beszállítók",
+ "Passende Preise abgerufen": "Megfelelő árak lekérve",
+ "Kein eindeutig passendes verfügbares Angebot gefunden": "Nem található egyértelműen megfelelő, elérhető ajánlat",
+ "Shop derzeit nicht abrufbar": "A webáruház jelenleg nem érhető el",
+ "Diese Kategorie wird hier nicht unterstützt": "Ez a kategória itt nem támogatott",
+ "Der Preis deines Stammlieferanten konnte für diese Auswahl nicht ermittelt werden. Ein verlässlicher Vergleich ist deshalb nicht möglich.": "Ehhez a választáshoz nem sikerült lekérni a kedvenc beszállító árát, ezért megbízható összehasonlítás nem lehetséges.",
+ "Unter den erfolgreich geprüften passenden Angeboten wurde kein günstigerer Anbieter gefunden.": "A sikeresen ellenőrzött, megfelelő ajánlatok között nem található olcsóbb beszállító.",
+ "Warenpreise ohne Versandkosten oder Frostzuschläge. Packungsgröße und Shopbedingungen beachten. Preise können sich nach dem Abruf ändern.": "Az árak nem tartalmazzák a szállítást és a fagyasztott szállítás felárát. Ellenőrizd a csomagméretet és a feltételeket. Az árak a lekérés után változhatnak.",
+ "Der Livepreis-Dienst ist noch nicht bereitgestellt.": "Az élőár-szolgáltatás még nincs telepítve.",
+ "Für aktuelle Shoppreise benötigst du eine Internetverbindung.": "Az aktuális árakhoz internetkapcsolat szükséges.",
+ "Bitte melde dich im Bereich Konto an, um aktuelle Preise abzurufen.": "Az aktuális árak lekéréséhez jelentkezz be a Fiók részben.",
+ "Bitte warte 30 Sekunden bis zum nächsten Vergleich.": "Várj 30 másodpercet a következő összehasonlításig.",
+ "Die aktuellen Preise konnten nicht geladen werden. Bitte versuche es später erneut.": "Az aktuális árak nem tölthetők be. Próbáld újra később.",
+ "Keine Bestellmenge nötig für den Warenpreisvergleich. Versand und Frostzuschläge sind nicht im Vergleichspreis enthalten; bei Lieferung bitte die Versandbedingungen im Shop prüfen.": "A termékárak összehasonlításához nem kell rendelési mennyiség. A szállítás és a fagyasztott felár nincs benne az árban; szállítás esetén ellenőrizd a feltételeket."
+});
+
 })();
 

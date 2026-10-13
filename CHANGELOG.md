@@ -4,6 +4,17 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Futterpreisvergleich unter Verpaarungsplanung auf der Startseite ergänzt:
+  Stammlieferant, Abholung/Lieferung, Frosttier-Einzelpreise und getrennte
+  Stück-/Grammangebote bei lebenden Heimchen und argentinischen Waldschaben.
+- Günstigere verfügbare Angebote erscheinen im gemeinsamen Dialog mit
+  Ersparnis, Packungsmenge, Shoplink und tatsächlichem Abrufzeitpunkt.
+  Ausfälle und fehlende vergleichbare Preise werden ausdrücklich angezeigt.
+- Firebase Function `compareFeederPrices` und begrenzte Shopadapter ergänzt;
+  ein zusätzliches Firebase-Deployment ist für Livepreise erforderlich.
+  Versandkosten sind nicht Teil des Warenpreisvergleichs.
+
+
 - Zentrale, erweiterbare Sprachauswahl ergänzt: Beim ersten Start erscheint ein
   einmaliger TC2-Dialog für Deutsch oder Englisch; die Gerätesprache wird
   vorausgewählt und nicht unterstützte Sprachen fallen auf Englisch zurück.

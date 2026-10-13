@@ -338,6 +338,7 @@ function routeLabel(name){
   dashboard:'Startseite',
   smartDashboard:'Smart Dashboard',
   breeding:'Verpaarungsplanung',
+  feederPrices:'Futterpreisvergleich',
   animals:'Bestand',
   offspring:'Nachzuchten',
   profile:'Tierprofil',

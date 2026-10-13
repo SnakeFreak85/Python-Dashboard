@@ -287,3 +287,11 @@ Aufträge sollten klein, überprüfbar und fachlich begrenzt sein. Große Module
 ## Historische Dateien
 
 Ältere Versionen bleiben nur als Referenz im Repository. Sie dürfen nicht ungeprüft gelöscht oder mit der aktiven `v500`-Codebasis vermischt werden.
+
+## Futterpreisvergleich
+
+Auf der Startseite unter **Verpaarungsplanung**: Stammlieferant wählen,
+Frostfutter oder Lebendfutter und passende Größe auswählen, Preise vergleichen.
+Die Livepreise benötigen eine einmalige Bereitstellung der Firebase Function
+`compareFeederPrices`; Anleitung und Grenzen stehen in
+[FEEDER_PRICE_COMPARISON.md](./docs/FEEDER_PRICE_COMPARISON.md).

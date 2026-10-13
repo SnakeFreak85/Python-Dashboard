@@ -828,4 +828,47 @@ window.NGTLocales.en={
  }
 };
 
+Object.assign(window.NGTLocales.en.phrases,{
+ "Futterpreisvergleich": "Feeder price comparison",
+ "Stammlieferant und günstigere Angebote vergleichen": "Compare your preferred supplier with cheaper offers",
+ "Vergleiche aktuelle Shoppreise mit deinem Stammlieferanten.": "Compare current shop prices with your preferred supplier.",
+ "Bevorzugter Lieferant": "Preferred supplier",
+ "Einkauf beim Stammlieferanten": "Buying from your preferred supplier",
+ "Abholung": "Collection",
+ "Lieferung": "Delivery",
+ "Kategorie": "Category",
+ "Frostfutter": "Frozen feeders",
+ "Lebende Futtertiere": "Live feeders",
+ "Futtertier": "Feeder animal",
+ "Ratten": "Rats",
+ "Mäuse": "Mice",
+ "Heimchen": "House crickets",
+ "Argentinische Waldschaben": "Dubia roaches",
+ "Gewichtsklasse pro Tier": "Weight class per animal",
+ "Packungseinheit": "Pack unit",
+ "Packungsmenge": "Pack quantity",
+ "Gramm": "Grams",
+ "Preise vergleichen": "Compare prices",
+ "Preise werden abgerufen …": "Fetching prices …",
+ "Die verfügbaren Lieferanten werden geprüft.": "Checking available suppliers.",
+ "Vergleich abgeschlossen.": "Comparison complete.",
+ "Günstigere Lieferanten": "Cheaper suppliers",
+ "Angebot öffnen": "Open offer",
+ "Versandbedingungen": "Shipping terms",
+ "Geprüfte Lieferanten": "Checked suppliers",
+ "Passende Preise abgerufen": "Matching prices retrieved",
+ "Kein eindeutig passendes verfügbares Angebot gefunden": "No clearly matching available offer found",
+ "Shop derzeit nicht abrufbar": "Shop currently unavailable",
+ "Diese Kategorie wird hier nicht unterstützt": "This category is not supported here",
+ "Der Preis deines Stammlieferanten konnte für diese Auswahl nicht ermittelt werden. Ein verlässlicher Vergleich ist deshalb nicht möglich.": "Your preferred supplier’s price could not be retrieved for this selection. A reliable comparison is therefore unavailable.",
+ "Unter den erfolgreich geprüften passenden Angeboten wurde kein günstigerer Anbieter gefunden.": "No cheaper supplier was found among the matching offers successfully checked.",
+ "Warenpreise ohne Versandkosten oder Frostzuschläge. Packungsgröße und Shopbedingungen beachten. Preise können sich nach dem Abruf ändern.": "Product prices exclude delivery and frozen shipping surcharges. Check pack sizes and shop terms. Prices may change after retrieval.",
+ "Der Livepreis-Dienst ist noch nicht bereitgestellt.": "The live price service has not been deployed yet.",
+ "Für aktuelle Shoppreise benötigst du eine Internetverbindung.": "An internet connection is required for current shop prices.",
+ "Bitte melde dich im Bereich Konto an, um aktuelle Preise abzurufen.": "Sign in under Account to retrieve current prices.",
+ "Bitte warte 30 Sekunden bis zum nächsten Vergleich.": "Please wait 30 seconds before the next comparison.",
+ "Die aktuellen Preise konnten nicht geladen werden. Bitte versuche es später erneut.": "Current prices could not be loaded. Please try again later.",
+ "Keine Bestellmenge nötig für den Warenpreisvergleich. Versand und Frostzuschläge sind nicht im Vergleichspreis enthalten; bei Lieferung bitte die Versandbedingungen im Shop prüfen.": "No order quantity is needed to compare product prices. Delivery and frozen shipping surcharges are excluded; check the shop’s delivery terms when ordering."
+});
+
 })();

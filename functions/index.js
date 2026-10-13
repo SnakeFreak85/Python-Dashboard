@@ -254,3 +254,21 @@ exports.__test={
  validateTranslations:validateTranslations,
  translationSchema:translationSchema
 };
+
+// Shop access is restricted to the provider registry; clients cannot submit fetch URLs.
+const feederPrices=require('./feeder-prices');
+exports.compareFeederPrices=onCall({region:'europe-west3',timeoutSeconds:60,memory:'512MiB',concurrency:2,maxInstances:3},async function(request){
+ if(!request.auth)throw new HttpsError('unauthenticated','Bitte melde dich zuerst an.');
+ let query;
+ try{query=feederPrices.validateQuery(request.data||{});}catch(error){throw new HttpsError('invalid-argument',error.message);}
+ // Transactional per-account limit also works across function instances.
+ const limit=getFirestore().doc('feederPriceLimits/'+request.auth.uid);
+ await getFirestore().runTransaction(async transaction=>{
+  const snapshot=await transaction.get(limit);
+  const last=Number(snapshot.exists&&snapshot.data().lastRequest)||0;
+  if(Date.now()-last<30000)throw new HttpsError('resource-exhausted','Bitte warte 30 Sekunden bis zum nächsten Vergleich.');
+  transaction.set(limit,{lastRequest:Date.now()});
+ });
+ const results=await Promise.all(feederPrices.SUPPLIERS.map(s=>feederPrices.supplierOffers(s,query)));
+ return feederPrices.compare(results,query);
+});
