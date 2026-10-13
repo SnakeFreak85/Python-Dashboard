@@ -871,5 +871,17 @@ Object.assign(window.NGTLocales.it.phrases,{
  "Keine Bestellmenge nötig für den Warenpreisvergleich. Versand und Frostzuschläge sind nicht im Vergleichspreis enthalten; bei Lieferung bitte die Versandbedingungen im Shop prüfen.": "Non serve una quantità d’ordine per confrontare i prezzi. Spedizione e supplementi per il congelato sono esclusi; per la consegna verifica le condizioni del negozio."
 });
 
+Object.assign(window.NGTLocales.it.phrases,{
+ "Alle Größen vergleichen": "Confronta tutte le dimensioni",
+ "Vergleichsergebnisse": "Risultati del confronto",
+ "Neuen Vergleich starten": "Avvia un nuovo confronto",
+ "Zum Preisvergleich": "Vai al confronto prezzi",
+ "Identische Größe": "Dimensione identica",
+ "Ähnliche Größe": "Dimensione simile",
+ "Teilweise abgerufen – einzelne Seiten fehlen": "Recupero parziale – alcune pagine mancano",
+ "Keine günstigere passende Alternative gefunden.": "Nessuna alternativa adatta più economica trovata.",
+ "Alle ermittelten Größen und Packungen werden verglichen. Ähnliche Größen und abweichende Packungsmengen werden gekennzeichnet; Stück und Gramm bleiben getrennt.": "Tutte le dimensioni e confezioni rilevate vengono confrontate. Dimensioni simili e quantità diverse sono indicate; pezzi e grammi restano separati."
+});
+
 })();
 

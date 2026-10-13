@@ -4,6 +4,13 @@ Alle relevanten Änderungen an TerraControl werden in dieser Datei dokumentiert.
 
 ## 1.0.4-rc.11
 
+- Futterpreisvergleich auf alle ermittelten Größen und Packungen umgestellt;
+  einzelne Größeneingaben entfallen. Identische und ähnliche Größen sowie
+  abweichende Packungsmengen werden ausdrücklich markiert.
+- Eigene Ergebnisseite `feederPriceResults` ersetzt das Ergebnisfenster.
+  Backend-Änderung erfordert erneutes Deployment von `compareFeederPrices`.
+
+
 - Futterpreisvergleich unter Verpaarungsplanung auf der Startseite ergänzt:
   Stammlieferant, Abholung/Lieferung, Frosttier-Einzelpreise und getrennte
   Stück-/Grammangebote bei lebenden Heimchen und argentinischen Waldschaben.

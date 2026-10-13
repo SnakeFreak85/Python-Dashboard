@@ -27,24 +27,31 @@ Diese Änderung führt das Firebase-Deployment nicht automatisch aus.
 
 ## Vergleichsregeln
 
-- Ratten und Mäuse: Packungspreis geteilt durch belegte Tierzahl, unabhängig
-  von einer gewünschten Bestellmenge. Die Packungsgröße bleibt sichtbar.
-- Heimchen und argentinische Waldschaben: identische Größe, Menge und Einheit.
-  Gramm und Stück werden nicht ineinander umgerechnet.
-- Exakte Gewichtsklassen: `120g+` und `120–150g` sind unterschiedliche Klassen.
-  Größenbezeichnungen wie `adult`, `subadult` und `groß` bleiben ebenfalls
-  getrennt, weil Händler sie unterschiedlich verwenden können.
-- Nur eindeutig verfügbare EUR-Angebote mit belastbarer Mengenangabe.
-  Unklare Dosen, Zubehör, ausverkaufte Artikel und bloße „ab“-Preise werden
-  ausgeschlossen. Staffelrabatte ohne belegte Mindestabnahme werden nicht
-  als Standardpreis verwendet.
-- Der günstigste verfügbare Einzelpreis des Stammlieferanten ist die
-  Vergleichsbasis; seine erforderliche Packungsgröße wird angezeigt.
-- Ergebnisdialog: Stammpreis, günstigere Angebote, Ersparnis, Packungsmenge,
-  Angebotslinks, Abrufzeitpunkt und Status aller geprüften Anbieter.
-- Abholung benötigt keine zusätzliche Bestellmenge. Der Vergleich umfasst
-  Warenpreise; Versand, Frostzuschläge, Entfernungen und Liefergesamtpreise
-  werden nicht automatisch berechnet. Versandbedingungen sind verlinkt.
+- Stammlieferant, Kategorie und Futterart wählen. Keine manuelle Größen- oder
+  Packungsmengeneingabe: „Alle Größen vergleichen“ ruft die angebotenen
+  Varianten der erfassten Shopseiten ab.
+- Ergebnisse erscheinen auf der eigenen Route `feederPriceResults`, mit einem
+  Abschnitt je Größe (Frostfutter) beziehungsweise Größe/Einheit/Packung (Insekten).
+- Frostfutter wird pro Tier verglichen, Insekten pro Tier oder Gramm.
+  Stück- und Grammangebote werden niemals ineinander umgerechnet.
+- Identische Größen werden als identisch markiert. Überlappende geschlossene
+  Gewichtsbereiche gelten als ähnlich, wenn mindestens die Hälfte des kleineren
+  Bereichs überlappt. Bei offenen Plus-Klassen müssen die Untergrenzen höchstens
+  20 Prozent (mindestens ein Gramm) auseinanderliegen. Es wird keine unbekannte
+  Obergrenze erfunden. `120g+` und `120–150g` sind somit ähnliche Alternativen.
+- Bei Insekten werden „adult“ und „groß“ als ähnliche Händlerbezeichnungen
+  angezeigt; alle anderen Entwicklungsstufen bleiben getrennt.
+- Händlerangaben und abweichende Packungsgrößen stehen direkt beim Angebot.
+  Der Preisvorteil ist ein Warenpreisvergleich pro Einheit, keine Aussage über
+  Futtereignung oder Liefergesamtpreis.
+- Der günstigste belegte Stammpreis je Gruppe ist die Basis. Seine notwendige
+  Packungsmenge bleibt sichtbar. Auch Gruppen ohne günstigere Alternativen
+  bleiben auf der Ergebnisseite erhalten.
+- Nur verfügbare EUR-Angebote mit eindeutiger Mengenangabe werden berücksichtigt.
+  Versandkosten und Frostzuschläge sind nicht enthalten.
+- Ergebnisse sind kurzlebiger Ansichtsstatus. Nach einem vollständigen Reload
+  fordert die Ergebnisseite zu einem neuen Vergleich auf. Die Lieferantenauswahl
+  bleibt im normalen Store gespeichert.
 
 ## Shopadapter und Grenzen
 
@@ -59,7 +66,7 @@ Xclusive verwendet konfigurierte Shopware-Varianten. Frostfutterversand24
 liefert JSON-LD-Produktmodelle mit Preis und referenzierter Stückzahl.
 Kreuch & Fleuch liefert WooCommerce-Varianten. Andere Quellen verwenden
 belegte Produktnamen und strukturierte Offer-Daten. Suchergebnisse werden
-auf maximal acht passende Produktseiten pro Anbieter begrenzt. Ein
+auf maximal 32 passende Produktseiten pro Anbieter begrenzt (acht bei älteren Einzelabfragen). Bei begrenzten oder teilweise fehlgeschlagenen Abrufen wird der Anbieterstatus als teilweise angezeigt. Ein
 Vergleich ist keine vollständige Marktübersicht. Shops können Abrufe
 blockieren oder ihre Auszeichnung verändern. Fehlende Preise verhindern
 keine Anzeige anderer Quellen, erlauben aber ohne Stammpreis keinen Vergleich.
@@ -108,3 +115,9 @@ Eingabevalidierung und Ausschluss fremder Angebots-Hosts.
 - Ein echter Browser-/Service-Worker-/Mobiltest konnte in dieser Umgebung
   nicht ausgeführt werden: Der Chromium-Download lieferte kein gültiges
   Browserarchiv. Die installierte App muss nach Deployment geprüft werden.
+
+### Umstellung auf alle Größen
+
+Zwölf Node-Tests bestanden. DOM-Prüfung für fehlende Größen-/Mengenfelder,
+`allSizes:true`, eigene Ergebnisseite, Ähnlichkeits- und Packungsmarkierungen
+sowie Rücknavigation bestanden. Erneutes Firebase-Deployment erforderlich.

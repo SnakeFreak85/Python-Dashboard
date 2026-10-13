@@ -871,4 +871,16 @@ Object.assign(window.NGTLocales.en.phrases,{
  "Keine Bestellmenge nötig für den Warenpreisvergleich. Versand und Frostzuschläge sind nicht im Vergleichspreis enthalten; bei Lieferung bitte die Versandbedingungen im Shop prüfen.": "No order quantity is needed to compare product prices. Delivery and frozen shipping surcharges are excluded; check the shop’s delivery terms when ordering."
 });
 
+Object.assign(window.NGTLocales.en.phrases,{
+ "Alle Größen vergleichen": "Compare all sizes",
+ "Vergleichsergebnisse": "Comparison results",
+ "Neuen Vergleich starten": "Start a new comparison",
+ "Zum Preisvergleich": "Go to price comparison",
+ "Identische Größe": "Identical size",
+ "Ähnliche Größe": "Similar size",
+ "Teilweise abgerufen – einzelne Seiten fehlen": "Partially retrieved – some pages are missing",
+ "Keine günstigere passende Alternative gefunden.": "No cheaper matching alternative found.",
+ "Alle ermittelten Größen und Packungen werden verglichen. Ähnliche Größen und abweichende Packungsmengen werden gekennzeichnet; Stück und Gramm bleiben getrennt.": "All retrieved sizes and packs are compared. Similar sizes and different pack quantities are marked; pieces and grams remain separate."
+});
+
 })();

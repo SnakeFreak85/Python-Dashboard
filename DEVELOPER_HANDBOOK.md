@@ -980,7 +980,9 @@ Für große Umbauten soll Codex zuerst einen Plan, Risiken, betroffene Dateien u
 ## 20. Futterpreisvergleich
 
 `v500/modules/feeder-prices.js` registriert die Route `feederPrices` und
-verwendet den gemeinsamen TC2-Dialog für günstigere Angebote.
+registriert zusätzlich `feederPriceResults` als eigene Ergebnisseite. Der Service
+vergleicht mit `allSizes:true` sämtliche erfassten Varianten und kennzeichnet
+ähnliche Größen sowie abweichende Packungsmengen.
 `v500/feeder-price-service.js` kapselt den Firebase-Callable-Aufruf.
 `functions/feeder-prices.js` enthält Shopadapter, Größen-/Mengenregeln und
 Vergleichslogik. `functions/index.js` stellt `compareFeederPrices` mit

@@ -127,7 +127,7 @@ function entryUrl(s,q){
  const term={rat:'frostratten',mouse:'frostmaeuse',cricket:'heimchen',roach:'argentinische schaben'}[q.species];
  if(s.id==='xclusive')return 'https://'+s.host+(q.species==='rat'?'/frostfutter/ratten/2260/frostratten':'/frostfutter/maeuse/900/frostmaeuse');
  if(s.id==='kreuch')return 'https://'+s.host+(q.species==='cricket'?'/heimchen/':'/?s=argentinische+waldschaben&post_type=product');
- if(s.id==='tropic')return 'https://'+s.host+'/search/'+encodeURIComponent(term+' '+q.size);
+ if(s.id==='tropic')return 'https://'+s.host+'/search/'+encodeURIComponent(term+(q.allSizes?'':' '+q.size));
  if(s.id==='frost24')return 'https://'+s.host+(q.species==='rat'?'/ratte/':'/maus/');
  return 'https://'+s.host+'/suche?qs='+term;
 }
@@ -140,28 +140,71 @@ async function supplierOffers(s,q){
   let offers=parseProduct(entry.html,url,s,q,entry.time);
   const urls=[];
   if(s.id==='xclusive'){
-   const select=$('select[name^="group"]').filter((i,e)=>$(e).find('option').toArray().some(o=>sizeKey($(o).text())===q.size)).first();
-   select.find('option').each((i,e)=>{if(sizeKey($(e).text())===q.size){const v=new URL(url);$('select[name^="group"]').each((j,group)=>v.searchParams.set($(group).attr('name'),$(group).val()));v.searchParams.set(select.attr('name'),$(e).val());urls.push(v.href);}});
+   const select=$('select[name^="group"]').filter((i,e)=>$(e).find('option').toArray().some(o=>(q.allSizes?!!sizeKey($(o).text()):sizeKey($(o).text())===q.size))).first();
+   select.find('option').each((i,e)=>{if(q.allSizes?!!sizeKey($(e).text()):sizeKey($(e).text())===q.size){const v=new URL(url);$('select[name^="group"]').each((j,group)=>v.searchParams.set($(group).attr('name'),$(group).val()));v.searchParams.set(select.attr('name'),$(e).val());urls.push(v.href);}});
   }else{
-   $('a[href]').each((i,e)=>{const text=$(e).text().trim();if(speciesMatch(text,q.species)&&comparisonSize(text,q.kind)===q.size){try{const u=validUrl($(e).attr('href'),s);if(!urls.includes(u))urls.push(u);}catch(error){}}});
+   $('a[href]').each((i,e)=>{const text=$(e).text().trim();if(speciesMatch(text,q.species)&&(q.allSizes?!!comparisonSize(text,q.kind):comparisonSize(text,q.kind)===q.size)){try{const u=validUrl($(e).attr('href'),s);if(!urls.includes(u))urls.push(u);}catch(error){}}});
   }
-  const pages=await Promise.allSettled(urls.slice(0,8).map(async u=>{const p=await download(u,s);return parseProduct(p.html,u,s,q,p.time);}));
+  const pages=await Promise.allSettled(urls.slice(0,q.allSizes?32:8).map(async u=>{const p=await download(u,s);return parseProduct(p.html,u,s,q,p.time);}));
   pages.forEach(p=>{if(p.status==='fulfilled')offers.push(...p.value);});
-  offers=offers.filter(o=>o.size===q.size&& (q.kind==='frozen'||(o.unit===q.unit&&o.amount===q.amount)));
+  offers=offers.filter(o=>q.allSizes||(o.size===q.size&& (q.kind==='frozen'||(o.unit===q.unit&&o.amount===q.amount))));
   offers=[...new Map(offers.map(o=>[o.url,o])).values()];
-  return {supplier:s.id,status:offers.length?'ok':pages.some(p=>p.status==='rejected')?'error':'no-match',offers};
+  return {supplier:s.id,status:offers.length?(urls.length>(q.allSizes?32:8)||pages.some(p=>p.status==='rejected')?'partial':'ok'):pages.some(p=>p.status==='rejected')?'error':'no-match',offers};
  }catch(error){console.warn('Feeder price source unavailable',s.id,error.message);return {supplier:s.id,status:'error',offers:[]};}
 }
 function validateQuery(data){
- const q={preferred:String(data.preferred||''),kind:String(data.kind||''),species:String(data.species||''),size:comparisonSize(data.size,data.kind),unit:data.unit,amount:Number(data.amount)};
- if(!SUPPLIERS.some(s=>s.id===q.preferred)||!['frozen','live'].includes(q.kind)||!(q.kind==='frozen'?['rat','mouse']:['cricket','roach']).includes(q.species)||!q.size||(q.kind==='frozen'&&!/g/.test(q.size)))throw new Error('Bitte Futterart und eindeutige Größe wählen.');
- if(q.kind==='live'&&(!['pieces','grams'].includes(q.unit)||!Number.isInteger(q.amount)||q.amount<1||q.amount>10000))throw new Error('Bitte eine gültige Packungsmenge wählen.');
+ const q={allSizes:data.allSizes===true,preferred:String(data.preferred||''),kind:String(data.kind||''),species:String(data.species||''),size:comparisonSize(data.size,data.kind),unit:data.unit,amount:Number(data.amount)};
+ if(!SUPPLIERS.some(s=>s.id===q.preferred)||!['frozen','live'].includes(q.kind)||!(q.kind==='frozen'?['rat','mouse']:['cricket','roach']).includes(q.species)||(!q.allSizes&&(!q.size||(q.kind==='frozen'&&!/g/.test(q.size)))))throw new Error('Bitte Futterart und eindeutige Größe wählen.');
+ if(!q.allSizes&&q.kind==='live'&&(!['pieces','grams'].includes(q.unit)||!Number.isInteger(q.amount)||q.amount<1||q.amount>10000))throw new Error('Bitte eine gültige Packungsmenge wählen.');
  return q;
 }
+function weightRange(size){
+ const match=String(size).match(/^(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?g(\+)?$/);
+ if(!match)return null;
+ const min=Number(match[1]);
+ // A plus class has no documented upper bound. Use only a nearby lower-bound
+ // test for similarity, never pretend it has a known maximum weight.
+ return {min,max:match[3]?null:Number(match[2]||match[1])};
+}
+function matchType(reference,offer,kind){
+ if(reference.unit!==offer.unit)return null;
+ if(reference.size===offer.size)return 'identical';
+ if(kind==='live'){
+  const aliases={adult:'gross',gross:'gross',micro:'micro',klein:'klein',mittel:'mittel',subadult:'subadult'};
+  return aliases[reference.size]&&aliases[reference.size]===aliases[offer.size]?'similar':null;
+ }
+ const a=weightRange(reference.size),b=weightRange(offer.size);
+ if(!a||!b)return null;
+ if(a.max!=null&&b.max!=null){
+  if(a.min===a.max)return a.min>=b.min&&a.min<=b.max?'similar':null;
+  if(b.min===b.max)return b.min>=a.min&&b.min<=a.max?'similar':null;
+  const overlap=Math.min(a.max,b.max)-Math.max(a.min,b.min);
+  const width=Math.min(a.max-a.min,b.max-b.min);
+  return overlap>0&&(width===0||overlap>=width*0.5)?'similar':null;
+ }
+ const distance=Math.abs(a.min-b.min);
+ return distance<=Math.max(1,Math.min(a.min,b.min)*0.2)?'similar':null;
+}
+function compareAll(results,q){
+ const baseline=results.find(r=>r.supplier===q.preferred);
+ // Keep the cheapest offer for each size/pack, rather than the last Map value.
+ const groups=new Map();
+ (baseline?baseline.offers:[]).forEach(o=>{const key=o.size+'|'+o.unit+'|'+(q.kind==='live'?o.amount:'');const previous=groups.get(key);if(!previous||o.unitPrice<previous.unitPrice)groups.set(key,o);});
+ const rows=[...groups.values()].sort((a,b)=>q.kind==='frozen'?(weightRange(a.size)?.min||0)-(weightRange(b.size)?.min||0):a.size.localeCompare(b.size)||a.unit.localeCompare(b.unit)||a.amount-b.amount).map(reference=>({
+  reference,
+  cheaper:results.flatMap(r=>r.supplier===q.preferred?[]:r.offers).flatMap(o=>{
+   const match=matchType(reference,o,q.kind);
+   if(!match||o.unitPrice>=reference.unitPrice-0.000001)return [];
+   return [{...o,match,packChanged:o.amount!==reference.amount,saving:reference.unitPrice-o.unitPrice,savingPercent:100*(1-o.unitPrice/reference.unitPrice)}];
+  }).sort((a,b)=>a.unitPrice-b.unitPrice)
+ }));
+ return {allSizes:true,rows,sources:results.map(r=>({supplier:r.supplier,status:r.status})),suppliers:SUPPLIERS};
+}
 function compare(results,q){
+ if(q.allSizes)return compareAll(results,q);
  const baseline=results.find(r=>r.supplier===q.preferred);
  const reference=baseline&&baseline.offers.slice().sort((a,b)=>a.unitPrice-b.unitPrice)[0]||null;
  const cheaper=reference?results.flatMap(r=>r.supplier===q.preferred?[]:r.offers).filter(o=>o.unitPrice<reference.unitPrice-0.000001).map(o=>({...o,saving:reference.unitPrice-o.unitPrice,savingPercent:100*(1-o.unitPrice/reference.unitPrice)})).sort((a,b)=>a.unitPrice-b.unitPrice):[];
  return {reference,cheaper,sources:results.map(r=>({supplier:r.supplier,status:r.status})),suppliers:SUPPLIERS};
 }
-module.exports={SUPPLIERS,sizeKey,comparisonSize,quantity,parseProduct,validateQuery,supplierOffers,compare};
+module.exports={SUPPLIERS,sizeKey,comparisonSize,quantity,parseProduct,validateQuery,supplierOffers,compare,matchType,compareAll};

@@ -871,5 +871,17 @@ Object.assign(window.NGTLocales.hu.phrases,{
  "Keine Bestellmenge nötig für den Warenpreisvergleich. Versand und Frostzuschläge sind nicht im Vergleichspreis enthalten; bei Lieferung bitte die Versandbedingungen im Shop prüfen.": "A termékárak összehasonlításához nem kell rendelési mennyiség. A szállítás és a fagyasztott felár nincs benne az árban; szállítás esetén ellenőrizd a feltételeket."
 });
 
+Object.assign(window.NGTLocales.hu.phrases,{
+ "Alle Größen vergleichen": "Minden méret összehasonlítása",
+ "Vergleichsergebnisse": "Összehasonlítás eredményei",
+ "Neuen Vergleich starten": "Új összehasonlítás indítása",
+ "Zum Preisvergleich": "Árösszehasonlításhoz",
+ "Identische Größe": "Azonos méret",
+ "Ähnliche Größe": "Hasonló méret",
+ "Teilweise abgerufen – einzelne Seiten fehlen": "Részben lekérve – egyes oldalak hiányoznak",
+ "Keine günstigere passende Alternative gefunden.": "Nem található olcsóbb megfelelő alternatíva.",
+ "Alle ermittelten Größen und Packungen werden verglichen. Ähnliche Größen und abweichende Packungsmengen werden gekennzeichnet; Stück und Gramm bleiben getrennt.": "Minden lekért méretet és csomagot összehasonlítunk. A hasonló méreteket és eltérő csomagmennyiségeket jelöljük; a darab és gramm külön marad."
+});
+
 })();
 

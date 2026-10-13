@@ -54,3 +54,21 @@ test('Client kann Shopzugriff nicht auf andere Hosts umleiten',()=>{
  const source='<h1>Frostratten</h1><script type="application/ld+json">'+JSON.stringify(data)+'</script>';
  assert.deepEqual(p.parseProduct(source,'https://www.xclusive-snakes.de/frostfutter/ratten',supplier,q,1),[]);
 });
+test('Alle Größen benötigen keine manuelle Größe oder Menge',()=>{
+ assert.equal(p.validateQuery({preferred:'xclusive',kind:'frozen',species:'rat',allSizes:true}).allSizes,true);
+ assert.equal(p.validateQuery({preferred:'tropic',kind:'live',species:'cricket',allSizes:true}).allSizes,true);
+});
+test('Ähnliche Gewichtsbereiche sind markiert; entfernte Klassen werden ausgeschlossen',()=>{
+ const a={size:'120g+',unit:'pieces'};
+ assert.equal(p.matchType(a,{size:'120-150g',unit:'pieces'},'frozen'),'similar');
+ assert.equal(p.matchType(a,{size:'20-30g',unit:'pieces'},'frozen'),null);
+ assert.equal(p.matchType(a,{size:'120g+',unit:'pieces'},'frozen'),'identical');
+ assert.equal(p.matchType({size:'mittel',unit:'pieces'},{size:'mittel',unit:'grams'},'live'),null);
+});
+test('Alle Stammlieferantengrößen bleiben sichtbar und Packungsunterschiede werden markiert',()=>{
+ const offer=(size,amount,price)=>({size,amount,price,unit:'pieces',unitPrice:price/amount});
+ const result=p.compare([{supplier:'xclusive',offers:[offer('120g+',5,10),offer('120g+',10,25),offer('200g+',5,15)]},{supplier:'tropic',offers:[offer('120-150g',10,15)]}],{preferred:'xclusive',kind:'frozen',allSizes:true});
+ assert.equal(result.rows.length,2);assert.equal(result.rows[0].reference.unitPrice,2);
+ assert.equal(result.rows[0].cheaper[0].match,'similar');assert.equal(result.rows[0].cheaper[0].packChanged,true);
+ assert.equal(result.rows[1].cheaper.length,0);
+});
